@@ -1,0 +1,10 @@
+﻿<form asp-controller="Auth" asp-action="Logout" method="post" id="logoutForm" style="display: none;">
+    @Html.AntiForgeryToken()
+    @* <button type="submit">Sign out</button> *@
+    @* How to use it:
+        Write: <partial name="_LogoutPartial"/>
+        Submit: <a href="/api/auth/logout" onclick="onClickLogout(event)">
+            <i class="fas fa-sign-out-alt"></i> Sign out
+        </a>
+    *@
+</form>
