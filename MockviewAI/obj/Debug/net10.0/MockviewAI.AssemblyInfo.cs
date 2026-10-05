@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MockviewAI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+47fd92b365c0937bf2a2f718d337d46e2f4c9683")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ea43edc975fc9edc655039085ac47cc80695e167")]
 [assembly: System.Reflection.AssemblyProductAttribute("MockviewAI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MockviewAI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
