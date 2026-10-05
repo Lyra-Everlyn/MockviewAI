@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MockviewAI.Data;
+using MockviewAI.Repositories.Implementations;
+using MockviewAI.Repositories.Interfaces;
 
 namespace MockviewAI
 {
@@ -9,13 +11,15 @@ namespace MockviewAI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Database connection string
+
+            // 0. Database connection string
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
 
+            // 1. Configure Entity Framework Core with MySQL
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(
                     connectionString,
@@ -27,6 +31,14 @@ namespace MockviewAI
                     )
                 )
             );
+
+            // 2. Register Repositories & Services
+            // Repository
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+
+            // Service
+
 
 
             var app = builder.Build();
