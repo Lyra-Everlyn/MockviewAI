@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using MockviewAI.Data;
+
 namespace MockviewAI
 {
     public class Program
@@ -6,8 +9,25 @@ namespace MockviewAI
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Database connection string
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseMySql(
+                    connectionString,
+                    new MySqlServerVersion(new Version(8, 0, 0)),
+                    mysqlOptions => mysqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(10),
+                        errorNumbersToAdd: null
+                    )
+                )
+            );
+
 
             var app = builder.Build();
 
@@ -19,7 +39,7 @@ namespace MockviewAI
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseRouting();
 
             app.UseAuthorization();

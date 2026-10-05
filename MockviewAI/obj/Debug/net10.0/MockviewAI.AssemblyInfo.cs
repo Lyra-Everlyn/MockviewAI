@@ -11,10 +11,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("9f82b930-0bdc-4b72-b7a2-cb573d600e0d")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("MockviewAI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+941bf1a3b598dbe4a35265ef7f599f8034c9f65a")]
 [assembly: System.Reflection.AssemblyProductAttribute("MockviewAI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MockviewAI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
