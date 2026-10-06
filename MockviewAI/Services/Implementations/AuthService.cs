@@ -14,7 +14,7 @@ namespace MockviewAI.Services.Implementations
         }
 
 
-        public Task<User?> AuthenticateAsync(string email, string password)
+        public async Task<User?> AuthenticateAsync(string email, string password)
         {
             var users = await _userRepository.GetAllAsync();
             var user = users.FirstOrDefault(u => u.Email == email);
@@ -30,7 +30,7 @@ namespace MockviewAI.Services.Implementations
             return user;
         }
 
-        public Task<User> AuthenticateGoogleUserAsync(string email)
+        public async Task<User> AuthenticateGoogleUserAsync(string email, string fullName)
         {
             var users = await _userRepository.GetAllAsync();
             var existingUser = users.FirstOrDefault(u => u.Email == email);
