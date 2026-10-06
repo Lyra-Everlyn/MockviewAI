@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MockviewAI.Services.Interfaces;
@@ -39,7 +40,7 @@ namespace MockviewAI.Controllers
             try
             {
                 var user = await _authService.AuthenticateAsync(email, password);
-                await SignInUser(user!.Email, user.FullName, user.Role);
+                await SignInUser(user!.Email, user.FirstName + " " + user.LastName, user.Role);
 
                 // TODO: Redirect to the appropriate page after successful login
                 return RedirectToAction();
@@ -84,7 +85,7 @@ namespace MockviewAI.Controllers
             try
             {
                 var user = await _authService.AuthenticateGoogleUserAsync(email, name ?? "Unknown");
-                await SignInUser(user.Email, user.FullName, user.Role);
+                await SignInUser(user.Email, user.FirstName + " " + user.LastName, user.Role);
                 return RedirectToDashboard(user.Role);
             }
             catch (Exception ex)
