@@ -27,7 +27,8 @@ namespace MockviewAI.Repositories.Implementations
 
         public async Task AddAsync(T entity)
         {
-            throw new NotImplementedException();
+            await _dbSet.AddAsync(entity);
+            await _context.SaveChangesAsync();
         }
         public async Task UpdateAsync(T entity)
         {
@@ -37,7 +38,12 @@ namespace MockviewAI.Repositories.Implementations
 
         public async Task DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            var entity = await _dbSet.FindAsync(id);
+            if (entity != null)
+            {
+                _dbSet.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

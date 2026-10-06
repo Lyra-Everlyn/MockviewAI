@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+    <PackageReference Include="CloudinaryDotNet" Version="1.29.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.3.13" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.17" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.17" />
@@ -25,8 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Repositories\Implementations\" />
-    <Folder Include="Repositories\Interfaces\" />
     <Folder Include="Services\Helper\Interfaces\" />
     <Folder Include="Services\Helper\Implementations\" />
     <Folder Include="Services\Implementations\" />
