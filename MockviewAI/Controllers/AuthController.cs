@@ -73,8 +73,12 @@ namespace MockviewAI.Controllers
             }
 
             var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
+
             var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            var givenName = claims?.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value;
+            var surname = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value;
+            var avatarUrl = claims?.FirstOrDefault(c => c.Type == "urn:google:picture" || c.Type == "picture")?.Value;
 
             if (email == null)
             {
@@ -82,9 +86,16 @@ namespace MockviewAI.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
+            if (string.IsNullOrEmpty(givenName))
+            {
+                var names = name?.Split(' ') ?? new[] { "Unknown" };
+                givenName = names[0];
+                surname = names.Length > 1 ? string.Join(" ", names.Skip(1)) : string.Empty;
+            }
+
             try
             {
-                var user = await _authService.AuthenticateGoogleUserAsync(email, name ?? "Unknown");
+                var user = await _authService.AuthenticateGoogleUserAsync(email, givenName, surname ?? "", avatarUrl);
                 await SignInUser(user.Email, user.FirstName + " " + user.LastName, user.Role);
                 return RedirectToDashboard(user.Role);
             }
@@ -135,6 +146,72 @@ namespace MockviewAI.Controllers
             return RedirectToAction("Login", "Auth");
             // Login: method Login in AuthController.cs
             // Auth: AuthController.cs
+        }
+
+
+
+        // 4. Return the register view
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        // 5. Handle the register form submission
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string lastName)
+        {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword) || string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
+            {
+                ModelState.AddModelError(string.Empty, "Please fill in all required fields.");
+                return View();
+            }
+
+            if (password != confirmPassword)
+            {
+                ModelState.AddModelError(string.Empty, "Passwords do not match.");
+                return View();
+            }
+
+            await CheckPasswordStrenght(password);
+
+            try
+            {
+                await _authService.RegisterAsync(email, password, firstName, lastName);
+
+                TempData["SuccessMessage"] = "Registration successful! Please login.";
+                return RedirectToAction("Login");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View();
+            }
+        }
+
+        private async Task CheckPasswordStrenght(string password)
+        {
+            if (password.Length < 8)
+            {
+                throw new Exception("Password must be at least 8 characters long.");
+            }
+            if (!password.Any(char.IsUpper))
+            {
+                throw new Exception("Password must contain at least one uppercase letter.");
+            }
+            if (!password.Any(char.IsLower))
+            {
+                throw new Exception("Password must contain at least one lowercase letter.");
+            }
+            if (!password.Any(char.IsDigit))
+            {
+                throw new Exception("Password must contain at least one digit.");
+            }
+            //if (!password.Any(ch => !char.IsLetterOrDigit(ch)))
+            //{
+            //    throw new Exception("Password must contain at least one special character.");
+            //}
         }
     }
 }
