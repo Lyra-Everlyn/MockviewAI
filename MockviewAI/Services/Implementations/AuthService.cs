@@ -14,7 +14,7 @@ namespace MockviewAI.Services.Implementations
         }
 
 
-        public Task<User?> AuthenticateAsync(string email, string password)
+        public async Task<User?> AuthenticateAsync(string email, string password)
         {
             var users = await _userRepository.GetAllAsync();
             var user = users.FirstOrDefault(u => u.Email == email);
@@ -30,7 +30,7 @@ namespace MockviewAI.Services.Implementations
             return user;
         }
 
-        public Task<User> AuthenticateGoogleUserAsync(string email)
+        public async Task<User> AuthenticateGoogleUserAsync(string email, string fullName)
         {
             var users = await _userRepository.GetAllAsync();
             var existingUser = users.FirstOrDefault(u => u.Email == email);
@@ -39,6 +39,13 @@ namespace MockviewAI.Services.Implementations
             if (existingUser.Status == "Locked") { throw new Exception("Your account has been locked."); }
             if (existingUser.Status == "Inactive") { throw new Exception("Your account has been temporarily suspended."); }
 
+            // Update the user's full name if it's different
+            if (existingUser.FirstName == null || existingUser.LastName == null)
+            {
+                var names = fullName.Split(' ');
+                existingUser.FirstName = names[0];
+                existingUser.LastName = names.Length > 1 ? string.Join(" ", names.Skip(1)) : string.Empty;
+            }
             return existingUser;
         }
 
