@@ -46,6 +46,7 @@ namespace MockviewAI.Services.Implementations
                 existingUser.FirstName = names[0];
                 existingUser.LastName = names.Length > 1 ? string.Join(" ", names.Skip(1)) : string.Empty;
             }
+
             return existingUser;
         }
 
