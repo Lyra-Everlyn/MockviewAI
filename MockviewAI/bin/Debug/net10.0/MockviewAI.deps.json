@@ -38,6 +38,9 @@
     ".NETCoreApp,Version=v10.0": {
       "MockviewAI/1.0.0": {
         "dependencies": {
+          "Microsoft.AspNetCore.Authentication.Cookies": "2.3.13",
+          "Microsoft.AspNetCore.Authentication.Google": "9.0.17",
+          "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.17",
           "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": "9.0.17",
           "Microsoft.EntityFrameworkCore.Design": "9.0.17",
           "Microsoft.EntityFrameworkCore.Tools": "9.0.17",
@@ -46,7 +49,7 @@
           "Microsoft.AspNetCore.Antiforgery": "10.0.0.0",
           "Microsoft.AspNetCore.Authentication.Abstractions": "10.0.0.0",
           "Microsoft.AspNetCore.Authentication.BearerToken": "10.0.0.0",
-          "Microsoft.AspNetCore.Authentication.Cookies": "10.0.0.0",
+          "Microsoft.AspNetCore.Authentication.Cookies.Reference": "10.0.0.0",
           "Microsoft.AspNetCore.Authentication.Core": "10.0.0.0",
           "Microsoft.AspNetCore.Authentication": "10.0.0.0",
           "Microsoft.AspNetCore.Authentication.OAuth": "10.0.0.0",
@@ -364,6 +367,31 @@
             "assemblyVersion": "2.14.0.0",
             "fileVersion": "2.14.1.48190"
           }
+        }
+      },
+      "Microsoft.AspNetCore.Authentication.Google/9.0.17": {
+        "runtime": {
+          "lib/net9.0/Microsoft.AspNetCore.Authentication.Google.dll": {
+            "assemblyVersion": "9.0.17.0",
+            "fileVersion": "9.0.1726.26907"
+          }
+        },
+        "compile": {
+          "lib/net9.0/Microsoft.AspNetCore.Authentication.Google.dll": {}
+        }
+      },
+      "Microsoft.AspNetCore.Identity.EntityFrameworkCore/9.0.17": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Relational": "9.0.17"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll": {
+            "assemblyVersion": "9.0.17.0",
+            "fileVersion": "9.0.1726.26907"
+          }
+        },
+        "compile": {
+          "lib/net9.0/Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll": {}
         }
       },
       "Microsoft.AspNetCore.Mvc.Razor.Extensions/6.0.0": {
@@ -911,7 +939,7 @@
         },
         "compileOnly": true
       },
-      "Microsoft.AspNetCore.Authentication.Cookies/10.0.0.0": {
+      "Microsoft.AspNetCore.Authentication.Cookies.Reference/10.0.0.0": {
         "compile": {
           "Microsoft.AspNetCore.Authentication.Cookies.dll": {}
         },
@@ -2735,6 +2763,9 @@
         },
         "compileOnly": true
       },
+      "Microsoft.AspNetCore.Authentication.Cookies/2.3.13": {
+        "compileOnly": true
+      },
       "Microsoft.Build.Framework/17.8.43": {
         "compileOnly": true
       },
@@ -2767,6 +2798,20 @@
       "sha512": "sha512-lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw==",
       "path": "humanizer.core/2.14.1",
       "hashPath": "humanizer.core.2.14.1.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.Authentication.Google/9.0.17": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ouOEunp4YLs2YG6/96AtXYRqduD4I1YBi/K391gJPMqEnSfdDJz19ZiQzpD3D9uWCaSRZDVaVo5n1//u+NXEfg==",
+      "path": "microsoft.aspnetcore.authentication.google/9.0.17",
+      "hashPath": "microsoft.aspnetcore.authentication.google.9.0.17.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.Identity.EntityFrameworkCore/9.0.17": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-oG5Q0O1TB2W7R8za8uy7FGo7reAT1M3apyOplHnfSYYrULEEDlb5zAIU3OCDaptnGF1rLejpt54mHVcVHwRuvw==",
+      "path": "microsoft.aspnetcore.identity.entityframeworkcore/9.0.17",
+      "hashPath": "microsoft.aspnetcore.identity.entityframeworkcore.9.0.17.nupkg.sha512"
     },
     "Microsoft.AspNetCore.Mvc.Razor.Extensions/6.0.0": {
       "type": "package",
@@ -2965,7 +3010,7 @@
       "serviceable": false,
       "sha512": ""
     },
-    "Microsoft.AspNetCore.Authentication.Cookies/10.0.0.0": {
+    "Microsoft.AspNetCore.Authentication.Cookies.Reference/10.0.0.0": {
       "type": "referenceassembly",
       "serviceable": false,
       "sha512": ""
@@ -4484,6 +4529,13 @@
       "type": "referenceassembly",
       "serviceable": false,
       "sha512": ""
+    },
+    "Microsoft.AspNetCore.Authentication.Cookies/2.3.13": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-wgHpZbnes/znpgj8WksRFOSsss94g0MmTHLG1U7SxMfaowS2iMP/kObtKoO+RYlFm2e5o45je1itrNYvaZXuwA==",
+      "path": "microsoft.aspnetcore.authentication.cookies/2.3.13",
+      "hashPath": "microsoft.aspnetcore.authentication.cookies.2.3.13.nupkg.sha512"
     },
     "Microsoft.Build.Framework/17.8.43": {
       "type": "package",

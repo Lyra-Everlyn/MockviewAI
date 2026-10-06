@@ -499,3 +499,7 @@ F:\MockviewAI\MockviewAI\MockviewAI\obj\Debug\net10.0\compressed\aolneabr9f-{0}-
 F:\MockviewAI\MockviewAI\MockviewAI\obj\Debug\net10.0\compressed\l73mho0qj8-{0}-m9qm4tazc0-m9qm4tazc0.gz
 F:\MockviewAI\MockviewAI\MockviewAI\obj\Debug\net10.0\compressed\44efr5awzd-{0}-jjsuc0puko-jjsuc0puko.gz
 F:\MockviewAI\MockviewAI\MockviewAI\obj\Debug\net10.0\compressed\m9x004cda4-{0}-9vr69e8ynj-9vr69e8ynj.gz
+F:\MockviewAI\MockviewAI\MockviewAI\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.Google.dll
+F:\MockviewAI\MockviewAI\MockviewAI\bin\Debug\net10.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+F:\MockviewAI\MockviewAI\MockviewAI\obj\Debug\net10.0\compressed\qtdaojo4jf-{0}-9chostvjmz-9chostvjmz.gz
+F:\MockviewAI\MockviewAI\MockviewAI\obj\Debug\net10.0\compressed\tnolc8no7u-{0}-fupaumfvdy-fupaumfvdy.gz

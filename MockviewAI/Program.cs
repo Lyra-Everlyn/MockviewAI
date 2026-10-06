@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 using MockviewAI.Data;
 using MockviewAI.Repositories.Implementations;
@@ -17,11 +19,6 @@ namespace MockviewAI
             // 0. Database connection string
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-            
-
-
-
-
             // 1. Configure Entity Framework Core with MySQL
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(
@@ -35,7 +32,7 @@ namespace MockviewAI
                 )
             );
 
-            // 2. Register Repositories & Services
+            // a. Register Repositories & Services
             // Repository
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
@@ -45,6 +42,22 @@ namespace MockviewAI
 
 
 
+            // 3. Google login configuration
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+            })
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/Auth/Login";
+                options.LogoutPath = "/api/auth/logout";
+            })
+            .AddGoogle(options =>
+            {
+                options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? throw new InvalidOperationException("Google ClientId is missing.");
+                options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? throw new InvalidOperationException("Google ClientSecret is missing.");
+            });
 
 
             // Add services to the container.

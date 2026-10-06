@@ -62,6 +62,38 @@
       },
       "js": {
         "Children": {
+          "handle-input-error.js": {
+            "Children": null,
+            "Asset": {
+              "ContentRootIndex": 0,
+              "SubPath": "js/handle-input-error.js"
+            },
+            "Patterns": null
+          },
+          "handle-input-error.js.gz": {
+            "Children": null,
+            "Asset": {
+              "ContentRootIndex": 1,
+              "SubPath": "qtdaojo4jf-{0}-9chostvjmz-9chostvjmz.gz"
+            },
+            "Patterns": null
+          },
+          "logout.js": {
+            "Children": null,
+            "Asset": {
+              "ContentRootIndex": 0,
+              "SubPath": "js/logout.js"
+            },
+            "Patterns": null
+          },
+          "logout.js.gz": {
+            "Children": null,
+            "Asset": {
+              "ContentRootIndex": 1,
+              "SubPath": "tnolc8no7u-{0}-fupaumfvdy-fupaumfvdy.gz"
+            },
+            "Patterns": null
+          },
           "site.js": {
             "Children": null,
             "Asset": {
