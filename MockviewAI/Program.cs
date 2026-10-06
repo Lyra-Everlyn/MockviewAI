@@ -1,9 +1,11 @@
+using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 using MockviewAI.Data;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
+using MockviewAI.Services.Helper.Interfaces;
 using MockviewAI.Services.Implementations;
 using MockviewAI.Services.Interfaces;
 
@@ -40,9 +42,12 @@ namespace MockviewAI
             // Service
             builder.Services.AddScoped<IAuthService, AuthService>();
 
+            // Other Services
+            builder.Services.AddScoped<IFileStorageService, CloudinaryStorageService>();
 
 
-            // 3. Google login configuration
+
+            // 3. Register Google
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -58,6 +63,20 @@ namespace MockviewAI
                 options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? throw new InvalidOperationException("Google ClientId is missing.");
                 options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? throw new InvalidOperationException("Google ClientSecret is missing.");
             });
+
+
+            // 4. Register Cloudinary
+            var cloudinarySettings = builder.Configuration.GetSection("CloudinarySettings");
+            string cloudName = cloudinarySettings["CloudName"];
+            string apiKey = cloudinarySettings["ApiKey"];
+            string apiSecret = cloudinarySettings["ApiSecret"];
+
+            var cloudinaryAccount = new Account(cloudName, apiKey, apiSecret);
+            var cloudinary = new Cloudinary(cloudinaryAccount);
+            builder.Services.AddSingleton(cloudinary);
+
+
+
 
 
             // Add services to the container.
