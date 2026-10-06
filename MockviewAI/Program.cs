@@ -1,9 +1,11 @@
+using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 using MockviewAI.Data;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
+using System.Security.Principal;
 
 namespace MockviewAI
 {
@@ -55,6 +57,16 @@ namespace MockviewAI
                 options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? throw new InvalidOperationException("Google ClientSecret is missing.");
             });
 
+
+            // b. Register Cloudinary
+            var cloudinarySettings = builder.Configuration.GetSection("CloudinarySettings");
+            string cloudName = cloudinarySettings["CloudName"];
+            string apiKey = cloudinarySettings["ApiKey"];
+            string apiSecret = cloudinarySettings["ApiSecret"];
+
+            var cloudinaryAccount = new Account(cloudName, apiKey, apiSecret);
+            var cloudinary = new Cloudinary(cloudinaryAccount);
+            builder.Services.AddSingleton(cloudinary);
 
 
 
