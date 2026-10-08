@@ -20,6 +20,7 @@ namespace MockviewAI.Services.Implementations
         // Register
         public async Task RegisterAsync(string email, string password, string firstName, string lastName)
         {
+            email = email.Trim().ToLowerInvariant();
             bool isEmailExist = await _userRepository.EmailExistsAsync(email);
             if (isEmailExist)
             {
@@ -44,6 +45,7 @@ namespace MockviewAI.Services.Implementations
 
         public async Task<User> RegisterGoogleAsync(string email, string firstName, string lastName, string? avatarUrl)
         {
+            email = email.Trim().ToLowerInvariant();
             string dummyPassword = Guid.NewGuid().ToString();
             string dummyPasswordHash = await HashPasswordAsync(dummyPassword);
 
@@ -92,8 +94,8 @@ namespace MockviewAI.Services.Implementations
 
         public async Task<User> AuthenticateGoogleUserAsync(string email, string firstName, string lastName, string? avatarUrl)
         {
-            var users = await _userRepository.GetAllAsync();
-            var existingUser = users.FirstOrDefault(u => u.Email == email);
+            email = email.Trim().ToLowerInvariant();
+            var existingUser = await _userRepository.GetByEmailAsync(email);
 
             // NOTE: Auto create a new user if the Google account is not found in the database
             if (existingUser == null)
