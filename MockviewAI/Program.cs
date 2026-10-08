@@ -1,14 +1,13 @@
-<<<<<<< Updated upstream
-=======
 using CloudinaryDotNet;
-using Microsoft.AspNetCore.Authentication;
->>>>>>> Stashed changes
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 using MockviewAI.Data;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
+using MockviewAI.Services.Implementations;
+using MockviewAI.Services.Interfaces;
+using System.Security.Principal;
 
 namespace MockviewAI
 {
@@ -38,9 +37,13 @@ namespace MockviewAI
             // 2. Register Repositories & Services
             // Repository
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 
             // Service
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            
+
 
             // Other services
             // a. Google configuration
@@ -61,6 +64,16 @@ namespace MockviewAI
                 options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
             });
 
+
+            // b. Register Cloudinary
+            var cloudinarySettings = builder.Configuration.GetSection("CloudinarySettings");
+            string cloudName = cloudinarySettings["CloudName"];
+            string apiKey = cloudinarySettings["ApiKey"];
+            string apiSecret = cloudinarySettings["ApiSecret"];
+
+            var cloudinaryAccount = new Account(cloudName, apiKey, apiSecret);
+            var cloudinary = new Cloudinary(cloudinaryAccount);
+            builder.Services.AddSingleton(cloudinary);
 
 
 

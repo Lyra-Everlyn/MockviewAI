@@ -74,8 +74,12 @@ namespace MockviewAI.Controllers
             }
 
             var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
+
             var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            var givenName = claims?.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value;
+            var surname = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value;
+            var avatarUrl = claims?.FirstOrDefault(c => c.Type == "urn:google:picture" || c.Type == "picture")?.Value;
 
             if (email == null)
             {
@@ -83,9 +87,16 @@ namespace MockviewAI.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
+            if (string.IsNullOrEmpty(givenName))
+            {
+                var names = name?.Split(' ') ?? new[] { "Unknown" };
+                givenName = names[0];
+                surname = names.Length > 1 ? string.Join(" ", names.Skip(1)) : string.Empty;
+            }
+
             try
             {
-                var user = await _authService.AuthenticateGoogleUserAsync(email, name ?? "Unknown");
+                var user = await _authService.AuthenticateGoogleUserAsync(email, givenName, surname ?? "", avatarUrl);
                 await SignInUser(user.Email, user.FirstName + " " + user.LastName, user.Role);
                 return RedirectToDashboard(user.Role);
             }
@@ -135,9 +146,6 @@ namespace MockviewAI.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Auth");
         }
-<<<<<<< Updated upstream
-=======
-
 
         // 4. Return the register view
         [HttpGet]
@@ -202,35 +210,5 @@ namespace MockviewAI.Controllers
             //    throw new Exception("Password must contain at least one special character.");
             //}
         }
-        #endregion
-
-        #region Recovery
-        // 6. Return the recover password view
-        //[HttpGet] public IActionResult ForgotPassword(){ return View(); }
-
-        //// Who need tp recover password
-        //[HttpPost] public async Task<IActionResult> ForgotPassword(string email) 
-        //{ 
-        //}
-
-        //[HttpGet] public IActionResult VerifyOTP(string email) { return View(); }
-
-        //// Send the OTP code to the user's email and verify it
-        //[HttpPost] public async Task<IActionResult> VerifyOTP(string email, string otpCode) 
-        //{
-        //}
-
-        //// Return the reset password view
-        //[HttpGet] public IActionResult ResetPassword(string email, string otpCode) 
-        //{  
-        //}
-
-        //// 
-        //[HttpPost] public async Task<IActionResult> ResetPassword(string email, string otpCode, string newPassword, string confirmPassword) 
-        //{
-        //}
-
-        #endregion
->>>>>>> Stashed changes
     }
 }

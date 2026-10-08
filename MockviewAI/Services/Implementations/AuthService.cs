@@ -1,4 +1,5 @@
-﻿using MockviewAI.Models.Entities;
+using BCrypt.Net;
+using MockviewAI.Models.Entities;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Interfaces;
 
@@ -6,15 +7,13 @@ namespace MockviewAI.Services.Implementations
 {
     public class AuthService : IAuthService
     {
-        private readonly IRepository<User> _userRepository;
+        private readonly IUserRepository _userRepository;
 
-        public AuthService(IRepository<User> userRepository)
+        public AuthService(IUserRepository userRepository)
         {
             _userRepository = userRepository;
         }
 
-<<<<<<< Updated upstream
-=======
         // Register
         public async Task RegisterAsync(string email, string password, string firstName, string lastName)
         {
@@ -59,7 +58,6 @@ namespace MockviewAI.Services.Implementations
             await _userRepository.AddAsync(newUser);
             return newUser;
         }
->>>>>>> Stashed changes
 
 
         // Login
@@ -79,22 +77,49 @@ namespace MockviewAI.Services.Implementations
             return user;
         }
 
-        public async Task<User> AuthenticateGoogleUserAsync(string email, string fullName)
+        public async Task<User> AuthenticateGoogleUserAsync(string email, string firstName, string lastName, string? avatarUrl)
         {
             var users = await _userRepository.GetAllAsync();
             var existingUser = users.FirstOrDefault(u => u.Email == email);
 
-            if (existingUser == null) { throw new Exception("Account not found."); }
+            // NOTE: Auto create a new user if the Google account is not found in the database
+            if (existingUser == null)
+            {
+                return await RegisterGoogleAsync(email, firstName, lastName, avatarUrl);
+            }
+
             if (existingUser.Status == "Locked") { throw new Exception("Your account has been locked."); }
             if (existingUser.Status == "Inactive") { throw new Exception("Your account has been temporarily suspended."); }
 
-            // Update the user's full name if it's different
-            if (existingUser.FirstName == null || existingUser.LastName == null)
+            bool isUpdated = false;
+            if (!string.IsNullOrEmpty(avatarUrl) && existingUser.AvatarUrl != avatarUrl)
             {
-                var names = fullName.Split(' ');
-                existingUser.FirstName = names[0];
-                existingUser.LastName = names.Length > 1 ? string.Join(" ", names.Skip(1)) : string.Empty;
+                existingUser.AvatarUrl = avatarUrl;
+                isUpdated = true;
             }
+
+            if (string.IsNullOrWhiteSpace(existingUser.FirstName) && string.IsNullOrWhiteSpace(existingUser.LastName))
+            {
+                if (!string.IsNullOrWhiteSpace(firstName) || !string.IsNullOrWhiteSpace(lastName))
+                {
+                    existingUser.FirstName = !string.IsNullOrWhiteSpace(firstName) ? firstName.Trim() : "Google";
+                    existingUser.LastName = !string.IsNullOrWhiteSpace(lastName) ? lastName.Trim() : "User";
+                }
+                else
+                {
+                    string emailName = email.Split('@')[0];
+                    existingUser.FirstName = char.ToUpper(emailName[0]) + emailName.Substring(1);
+                    existingUser.LastName = "User";
+                }
+
+                isUpdated = true;
+            }
+
+            if (isUpdated)
+            {
+                await _userRepository.UpdateAsync(existingUser);
+            }
+
             return existingUser;
         }
 
@@ -102,52 +127,12 @@ namespace MockviewAI.Services.Implementations
         // Hashing and verifying password
         private async Task<bool> VerifyPasswordHashAsync(string inputPassword, string storedHash)
         {
-            // Implement your password hash verification logic here
-            // For example, you can use a hashing algorithm like BCrypt or PBKDF2
-            // This is a placeholder implementation and should be replaced with actual logic
-            return await Task.FromResult(inputPassword == storedHash);
+            return await Task.Run(() => BCrypt.Net.BCrypt.Verify(inputPassword, storedHash));
         }
 
-
-        // Recovery
-        //public async Task<string> GeneratePasswordResetTokenAsync(string email)
-        //{
-        //    //var users = await _userRepository.GetAllAsync();
-        //    //var user = users.FirstOrDefault(u => u.Email == email);
-        //    //if (user == null) { throw new Exception("Account not found."); }
-        //    //if (user.Status == "Locked") { throw new Exception("Your account has been locked."); }
-        //    //string token = Guid.NewGuid().ToString();
-        //    //user.PasswordResetToken = token;
-        //    //user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1);
-        //    //await _userRepository.UpdateAsync(user);
-        //    //return token;
-        //}
-
-        //public async Task<bool> VerifyResetTokenAsync(string email, string inputToken)
-        //{
-        //    //var users = await _userRepository.GetAllAsync();
-        //    //var user = users.FirstOrDefault(u => u.Email == email);
-        //    ////if (user == null) { throw new Exception("Account not found."); }
-        //    ////if (user.Status == "Locked") { throw new Exception("Your account has been locked."); }
-        //    ////if (user.PasswordResetToken != inputToken) { return false; }
-        //    ////if (user.PasswordResetTokenExpiry < DateTime.UtcNow) { return false; }
-        //    //return true;
-        //}
-
-        //public async Task ResetPasswordAsync(string email, string inputToken, string newPassword, string confirmPassword)
-        //{
-        //    //if (newPassword != confirmPassword) { throw new Exception("Passwords do not match."); }
-        //    //var users = await _userRepository.GetAllAsync();
-        //    //var user = users.FirstOrDefault(u => u.Email == email);
-        //    //if (user == null) { throw new Exception("Account not found."); }
-        //    //if (user.Status == "Locked") { throw new Exception("Your account has been locked."); }
-        //    ////if (user.PasswordResetToken != inputToken) { throw new Exception("Invalid reset token."); }
-        //    ////if (user.PasswordResetTokenExpiry < DateTime.UtcNow) { throw new Exception("Reset token has expired."); }
-        //    ////string newHashedPassword = await HashPasswordAsync(newPassword);
-        //    ////user.PasswordHash = newHashedPassword;
-        //    ////user.PasswordResetToken = null;
-        //    ////user.PasswordResetTokenExpiry = null;
-        //    //await _userRepository.UpdateAsync(user);
-        //}
+        private async Task<string> HashPasswordAsync(string password)
+        {
+            return await Task.Run(() => BCrypt.Net.BCrypt.HashPassword(password));
+        }
     }
 }

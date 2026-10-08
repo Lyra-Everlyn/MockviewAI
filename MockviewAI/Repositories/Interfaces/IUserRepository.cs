@@ -1,4 +1,4 @@
-﻿using MockviewAI.Models.Entities;
+using MockviewAI.Models.Entities;
 
 namespace MockviewAI.Repositories.Interfaces
 {

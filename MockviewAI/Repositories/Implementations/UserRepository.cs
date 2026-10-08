@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MockviewAI.Data;
 using MockviewAI.Models.Entities;
 using MockviewAI.Repositories.Interfaces;
