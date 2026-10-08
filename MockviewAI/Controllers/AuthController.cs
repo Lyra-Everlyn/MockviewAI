@@ -156,7 +156,7 @@ namespace MockviewAI.Controllers
         // 5. Handle the register form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string lastName)
+        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string lastName, string? major, string? targetPosition)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword) || string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
             {
@@ -174,7 +174,8 @@ namespace MockviewAI.Controllers
 
             try
             {
-                await _authService.RegisterAsync(email, password, firstName, lastName);
+                // Gọi Service với đầy đủ tham số
+                await _authService.RegisterAsync(email, password, confirmPassword, firstName, lastName, major, targetPosition);
 
                 TempData["SuccessMessage"] = "Registration successful! Please login.";
                 return RedirectToAction("Login");

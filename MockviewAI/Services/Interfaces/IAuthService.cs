@@ -5,7 +5,7 @@ namespace MockviewAI.Services.Interfaces
     public interface IAuthService
     {
         // Register
-        Task RegisterAsync(string email, string password, string firstName, string lastName);
+        Task RegisterAsync(string email, string password, string confirmPassword, string firstName, string lastName, string? major, string? targetPosition);
         Task<User> RegisterGoogleAsync(string email, string firstName, string lastName, string? avatarUrl);
         
         // Login

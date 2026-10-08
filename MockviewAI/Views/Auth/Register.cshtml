@@ -3,109 +3,108 @@
 }
 
 <!DOCTYPE html>
-<html lang="vi">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tạo tài khoản - MockviewAI</title>
-    <link rel="stylesheet" href="dangKy.css">
+    <title>Create an account - MockviewAI</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="~/css/Register.css">
 </head>
 
 <body>
-    <div class="register-container">
-        <!-- Cột Trái (Màu xanh - Sẽ bị ẩn trên điện thoại) -->
-        <div class="info-panel">
-            <div class="logo">Mockview<span>AI</span></div>
-            <h1>Luyện phỏng vấn với AI trước ngày phỏng vấn thật</h1>
-            <p class="subtitle">Dành cho sinh viên sắp ra trường và người mới đi làm.</p>
-            <ul class="features">
-                <li><span class="step">1</span> Chọn vị trí và người phỏng vấn</li>
-                <li><span class="step">2</span> Trả lời bằng giọng nói hoặc gõ chữ</li>
-                <li><span class="step">3</span> Xem điểm, nhận xét và mức lo lắng</li>
-            </ul>
-        </div>
-
-        <!-- Cột Phải (Form) -->
-        <div class="form-panel">
-            
-            <!-- Header cho Điện thoại (Ẩn trên máy tính) -->
-            <div class="mobile-header hide-on-desktop">
-                <div class="logo-dark">Mockview<span>AI</span></div>
-                <span class="badge badge-beta">Beta</span>
-            </div>
-            <div class="mobile-title hide-on-desktop">
-                <h2>Tạo tài khoản</h2>
-                <p>Luyện phỏng vấn với AI, miễn phí.</p>
+    <div class="register-wrapper">
+        <div class="register-container">
+            <!-- Left Column (Blue Info Panel) -->
+            <div class="info-panel">
+                <div class="logo">Mockview<span>AI</span></div>
+                <h1>Practice interviewing with AI before your real interview day</h1>
+                <p class="subtitle">Designed for upcoming graduates and entry-level professionals.</p>
+                <ul class="features">
+                    <li><span class="step">1</span> Choose your role and interviewer</li>
+                    <li><span class="step">2</span> Respond via voice or text</li>
+                    <li><span class="step">3</span> View your score, feedback, and anxiety level</li>
+                </ul>
             </div>
 
-            <!-- Header cho Máy tính (Ẩn trên điện thoại) -->
-            <div class="form-header hide-on-mobile">
-                <h2>Tạo tài khoản</h2>
-                <span class="badge">Beta</span>
-            </div>
+            <!-- Right Column (Form) -->
+            <div class="form-panel">
+                <!-- Mobile Header -->
+                <div class="mobile-header hide-on-desktop">
+                    <div class="logo-dark">Mockview<span>AI</span></div>
+                    <span class="badge badge-beta">BETA</span>
+                </div>
+                <div class="mobile-title hide-on-desktop">
+                    <h2>Create an account</h2>
+                    <p>Practice interviewing with AI, for free.</p>
+                </div>
 
-            <form method="post" asp-controller="Auth" asp-action="Register" id="registerForm">
-                @Html.AntiForgeryToken()
-                
-                <div class="form-grid">
-                    <!-- Các trường này sẽ xếp dọc theo thứ tự trên Mobile -->
-                    <div class="form-group item-hoten">
-                        <label>Họ và tên</label>
-                        <input type="text" placeholder="Nguyễn Văn A">
-                    </div>
-                    <div class="form-group item-email">
-                        <label>Email</label>
-                        <input type="email" placeholder="ban@email.com">
-                    </div>
-                    <div class="form-group item-matkhau">
-                        <label>Mật khẩu</label>
-                        <input type="password" placeholder="Ít nhất 8 ký tự">
-                    </div>
-                    
-                    <div class="form-group item-chuyennganh">
-                        <label>Chuyên ngành</label>
-                        <select>
-                            <option>Công nghệ thông tin</option>
-                            <option>Kinh tế</option>
-                        </select>
-                    </div>
-                    <div class="form-group item-vitri">
-                        <label>Vị trí muốn ứng tuyển</label>
-                        <select>
-                            <option>Lập trình viên</option>
-                            <option>Tester</option>
-                        </select>
-                    </div>
-                    <div class="form-group item-banla">
-                        <label>Bạn là</label>
-                        <div class="radio-group">
-                            <input type="radio" id="sap-ra-truong" name="status" checked>
-                            <label for="sap-ra-truong">Sắp ra trường</label>
-                            
-                            <input type="radio" id="da-ra-truong" name="status">
-                            <label for="da-ra-truong">Đã ra trường</label>
+                <!-- Desktop Header -->
+                <div class="form-header hide-on-mobile">
+                    <h2>Create an account</h2>
+                    <span class="badge badge-beta">BETA</span>
+                </div>
+
+                <form method="post" asp-controller="Auth" asp-action="Register">
+                    @Html.AntiForgeryToken()
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" name="firstName" placeholder="John" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" name="lastName" placeholder="Doe" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Email</label>
+                            <input type="email" name="email" placeholder="you@email.com" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Password</label>
+                            <div class="input-group">
+                                <input type="password" name="password" id="reg-pass" placeholder="At least 8 characters" required>
+                                <i class="far fa-eye toggle-password" onclick="togglePass('reg-pass', this)"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm Password</label>
+                            <div class="input-group">
+                                <input type="password" name="confirmPassword" id="reg-confirm-pass" placeholder="Confirm your password" required>
+                                <i class="far fa-eye toggle-password" onclick="togglePass('reg-confirm-pass', this)"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Major (Optional)</label>
+                            <input type="text" name="major" placeholder="Computer Science">
+                        </div>
+                        <div class="form-group">
+                            <label>Target Position (Optional)</label>
+                            <input type="text" name="targetPosition" placeholder="Software Engineer">
                         </div>
                     </div>
-                </div>
 
-                <div class="checkbox-group">
-                    <input type="checkbox" id="terms">
-                    <label for="terms">Tôi đồng ý với điều khoản và chính sách dữ liệu</label>
-                </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="terms" required>
+                        <label for="terms">I agree to the Terms of Service and Privacy Policy</label>
+                    </div>
 
-                <button type="submit" class="btn-submit">Tạo tài khoản</button>
-                
-                <div class="login-link">
-                    Đã có tài khoản? <a href="#">Đăng nhập</a>
-                </div>
-            </form>
+                    <button type="submit" class="btn-submit">Create account</button>
+
+                    <div class="login-link">
+                        Already have an account? <a href="/Auth/Login">Login</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <partial name="Partials/_Notify"/>
     <script src="~/js/_TogglePassword.js"></script>
-
 </body>
-
 </html>

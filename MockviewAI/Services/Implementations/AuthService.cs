@@ -15,12 +15,14 @@ namespace MockviewAI.Services.Implementations
         }
 
         // Register
-        public async Task RegisterAsync(string email, string password, string firstName, string lastName)
+        public async Task RegisterAsync(string email, string password, string confirmPassword, string firstName, string lastName, string? major, string? targetPosition)
         {
             bool isEmailExist = await _userRepository.EmailExistsAsync(email);
-            if (isEmailExist)
+            if (isEmailExist) throw new Exception("Email has already been registered.");
+
+            if (password != confirmPassword)
             {
-                throw new Exception("Email has already been registered.");
+                throw new Exception("Passwords do not match.");
             }
 
             string passwordHash = await HashPasswordAsync(password);
@@ -30,6 +32,8 @@ namespace MockviewAI.Services.Implementations
                 PasswordHash = passwordHash,
                 FirstName = firstName,
                 LastName = lastName,
+                Major = major,
+                TargetPosition = targetPosition,
                 Role = "User",
                 Status = "Active",
                 CreateAt = DateTime.UtcNow,
