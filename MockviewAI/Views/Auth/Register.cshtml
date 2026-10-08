@@ -1,5 +1,110 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    Layout = null;
 }
+
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo tài khoản - MockviewAI</title>
+    <link rel="stylesheet" href="dangKy.css">
+</head>
+
+<body>
+    <div class="register-container">
+        <!-- Cột Trái (Màu xanh - Sẽ bị ẩn trên điện thoại) -->
+        <div class="info-panel">
+            <div class="logo">Mockview<span>AI</span></div>
+            <h1>Luyện phỏng vấn với AI trước ngày phỏng vấn thật</h1>
+            <p class="subtitle">Dành cho sinh viên sắp ra trường và người mới đi làm.</p>
+            <ul class="features">
+                <li><span class="step">1</span> Chọn vị trí và người phỏng vấn</li>
+                <li><span class="step">2</span> Trả lời bằng giọng nói hoặc gõ chữ</li>
+                <li><span class="step">3</span> Xem điểm, nhận xét và mức lo lắng</li>
+            </ul>
+        </div>
+
+        <!-- Cột Phải (Form) -->
+        <div class="form-panel">
+            
+            <!-- Header cho Điện thoại (Ẩn trên máy tính) -->
+            <div class="mobile-header hide-on-desktop">
+                <div class="logo-dark">Mockview<span>AI</span></div>
+                <span class="badge badge-beta">Beta</span>
+            </div>
+            <div class="mobile-title hide-on-desktop">
+                <h2>Tạo tài khoản</h2>
+                <p>Luyện phỏng vấn với AI, miễn phí.</p>
+            </div>
+
+            <!-- Header cho Máy tính (Ẩn trên điện thoại) -->
+            <div class="form-header hide-on-mobile">
+                <h2>Tạo tài khoản</h2>
+                <span class="badge">Beta</span>
+            </div>
+
+            <form method="post" asp-controller="Auth" asp-action="Register" id="registerForm">
+                @Html.AntiForgeryToken()
+                
+                <div class="form-grid">
+                    <!-- Các trường này sẽ xếp dọc theo thứ tự trên Mobile -->
+                    <div class="form-group item-hoten">
+                        <label>Họ và tên</label>
+                        <input type="text" placeholder="Nguyễn Văn A">
+                    </div>
+                    <div class="form-group item-email">
+                        <label>Email</label>
+                        <input type="email" placeholder="ban@email.com">
+                    </div>
+                    <div class="form-group item-matkhau">
+                        <label>Mật khẩu</label>
+                        <input type="password" placeholder="Ít nhất 8 ký tự">
+                    </div>
+                    
+                    <div class="form-group item-chuyennganh">
+                        <label>Chuyên ngành</label>
+                        <select>
+                            <option>Công nghệ thông tin</option>
+                            <option>Kinh tế</option>
+                        </select>
+                    </div>
+                    <div class="form-group item-vitri">
+                        <label>Vị trí muốn ứng tuyển</label>
+                        <select>
+                            <option>Lập trình viên</option>
+                            <option>Tester</option>
+                        </select>
+                    </div>
+                    <div class="form-group item-banla">
+                        <label>Bạn là</label>
+                        <div class="radio-group">
+                            <input type="radio" id="sap-ra-truong" name="status" checked>
+                            <label for="sap-ra-truong">Sắp ra trường</label>
+                            
+                            <input type="radio" id="da-ra-truong" name="status">
+                            <label for="da-ra-truong">Đã ra trường</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms">
+                    <label for="terms">Tôi đồng ý với điều khoản và chính sách dữ liệu</label>
+                </div>
+
+                <button type="submit" class="btn-submit">Tạo tài khoản</button>
+                
+                <div class="login-link">
+                    Đã có tài khoản? <a href="#">Đăng nhập</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+
+</body>
+
+</html>

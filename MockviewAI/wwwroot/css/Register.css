@@ -1,0 +1,347 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Reset CSS cơ bản và khắc phục lỗi tràn viền (overflow) */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f1f5f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Khung bọc toàn bộ form */
+.register-container {
+    display: flex;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    width: 100%;
+    max-width: 900px;
+    overflow: hidden;
+}
+
+/* --- CỘT TRÁI (MÀU XANH) --- */
+.info-panel {
+    background-color: #304ffe;
+    color: white;
+    width: 45%;
+    padding: 40px;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+    .logo span {
+        color: #90caf9;
+    }
+
+.info-panel h1 {
+    font-size: 32px;
+    line-height: 1.3;
+    margin-bottom: 15px;
+}
+
+.subtitle {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-bottom: 40px;
+}
+
+.features {
+    list-style: none;
+}
+
+    .features li {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+.step {
+    background: white;
+    color: #304ffe;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+/* --- CỘT PHẢI (FORM NHẬP LIỆU) --- */
+.form-panel {
+    width: 55%;
+    padding: 40px;
+}
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+    .form-header h2 {
+        font-size: 24px;
+        color: #1e293b;
+    }
+
+/* Các thành phần cho Header Điện thoại */
+.hide-on-desktop {
+    display: none;
+}
+
+.logo-dark {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+    .logo-dark span {
+        color: #304ffe;
+    }
+
+.mobile-header {
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.mobile-title h2 {
+    font-size: 24px;
+    color: #1e293b;
+    margin-bottom: 5px;
+}
+
+.mobile-title p {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 25px;
+}
+
+/* Badge (Tag) */
+.badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    color: #e65100;
+    border: 1px solid #ffe0b2;
+}
+
+.badge-beta {
+    background-color: #fff3e0;
+    border: none;
+}
+
+/* Khung lưới mặc định cho máy tính (2 cột) */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 20px;
+}
+
+/* Định vị cụ thể từng ô để chia 2 cột trên máy tính */
+.item-hoten {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.item-email {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.item-matkhau {
+    grid-column: 1;
+    grid-row: 3;
+}
+
+.item-chuyennganh {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.item-vitri {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.item-banla {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 6px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+    transition: 0.2s;
+}
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #304ffe;
+    }
+
+.radio-group {
+    display: flex;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+}
+
+    .radio-group input[type="radio"] {
+        display: none;
+    }
+
+    .radio-group label {
+        flex: 1;
+        text-align: center;
+        padding: 10px 0;
+        font-size: 13px;
+        color: #64748b;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .radio-group input[type="radio"]:checked + label {
+        background: #eef2ff;
+        color: #304ffe;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+}
+
+    .checkbox-group input {
+        margin-right: 10px;
+        cursor: pointer;
+        flex-shrink: 0;
+        width: 16px;
+        height: 16px;
+    }
+
+    .checkbox-group label {
+        font-size: 13px;
+        color: #64748b;
+        cursor: pointer;
+        line-height: 1.4;
+    }
+
+.btn-submit {
+    width: 100%;
+    padding: 14px;
+    background-color: #304ffe;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .btn-submit:hover {
+        background-color: #263cc9;
+    }
+
+.login-link {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+    .login-link a {
+        color: #304ffe;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+/* =======================================
+   RESPONSIVE DÀNH CHO ĐIỆN THOẠI (Dưới 768px)
+   ======================================= */
+@media (max-width: 768px) {
+    body {
+        padding: 15px;
+    }
+
+    .register-container {
+        flex-direction: column;
+        border-radius: 16px;
+    }
+
+    /* Ẩn hoàn toàn cột xanh bên trái */
+    .info-panel {
+        display: none;
+    }
+
+    .form-panel {
+        width: 100%;
+        padding: 24px 20px;
+    }
+
+    /* Đổi Grid thành 1 cột */
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    /* Xóa ép vị trí cột của Grid để form hiển thị dạng dọc từ trên xuống dưới */
+    .item-hoten, .item-email, .item-matkhau,
+    .item-chuyennganh, .item-vitri, .item-banla {
+        grid-column: 1 / -1;
+        grid-row: auto;
+    }
+
+    /* Đảo ngược hiển thị các Header */
+    .hide-on-mobile {
+        display: none !important;
+    }
+
+    .hide-on-desktop {
+        display: block;
+    }
+
+    .mobile-header.hide-on-desktop {
+        display: flex;
+    }
+}
