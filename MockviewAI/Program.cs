@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using MockviewAI.Data;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
+using MockviewAI.Services.Ai;
 using MockviewAI.Services.Implementations;
 using MockviewAI.Services.Interfaces;
 using System.Security.Principal;
@@ -43,6 +44,23 @@ namespace MockviewAI
 
             // Service
             builder.Services.AddScoped<IAuthService, AuthService>();
+
+            // [AI-MODULE] AI scoring: provider is chosen by config "Ai:Provider" ("Mock" default, or "Gemini")
+            builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
+            builder.Services.AddSingleton<DeliveryAnalyzer>();
+            if (string.Equals(builder.Configuration["Ai:Provider"], "Gemini", StringComparison.OrdinalIgnoreCase))
+            {
+                builder.Services.AddHttpClient<IAiScoringService, GeminiAiScoringService>(c =>
+                {
+                    c.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
+                    c.Timeout = TimeSpan.FromSeconds(60);
+                });
+            }
+            else
+            {
+                builder.Services.AddScoped<IAiScoringService, MockAiScoringService>();
+            }
+            builder.Services.AddScoped<InterviewScoringService>();
             
 
 
