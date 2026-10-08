@@ -174,10 +174,10 @@ namespace MockviewAI.Controllers
                 return View();
             }
 
-            await CheckPasswordStrenght(password);
-
             try
             {
+                // Inside try so a weak password shows an error instead of an HTTP 500
+                CheckPasswordStrength(password);
                 await _authService.RegisterAsync(email, password, firstName, lastName);
 
                 TempData["SuccessMessage"] = "Registration successful! Please login.";
@@ -190,8 +190,12 @@ namespace MockviewAI.Controllers
             }
         }
 
-        private async Task CheckPasswordStrenght(string password)
+        private static void CheckPasswordStrength(string password)
         {
+            if (password.Length > 72)
+            {
+                throw new Exception("Password must be at most 72 characters long."); // BCrypt only uses the first 72 bytes
+            }
             if (password.Length < 8)
             {
                 throw new Exception("Password must be at least 8 characters long.");
