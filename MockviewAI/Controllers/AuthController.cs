@@ -17,6 +17,7 @@ namespace MockviewAI.Controllers
             _authService = authService;
         }
 
+        #region Login
         // 1. Return the login view
         [HttpGet]
         public IActionResult Login()
@@ -41,9 +42,7 @@ namespace MockviewAI.Controllers
             {
                 var user = await _authService.AuthenticateAsync(email, password);
                 await SignInUser(user!.Email, user.FirstName + " " + user.LastName, user.Role);
-
-                // TODO: Redirect to the appropriate page after successful login
-                return RedirectToAction();
+                return RedirectToDashboard(user.Role);
             }
             catch(Exception ex)
             {
@@ -128,15 +127,15 @@ namespace MockviewAI.Controllers
         {
             return role switch
             {
-                // TODO: Change the role names to match your application's roles
+                // TODO: Change page name to the correct page for each role
                 "Admin" => RedirectToAction("Index", "Admin"),
                 "User" => RedirectToAction("Index", "User"),
                 _ => RedirectToAction("Index", "Home"),
             };
         }
+        #endregion
 
-
-
+        #region Logout and Register
         // 3. Logout
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -144,10 +143,7 @@ namespace MockviewAI.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Auth");
-            // Login: method Login in AuthController.cs
-            // Auth: AuthController.cs
         }
-
 
 
         // 4. Return the register view
@@ -213,5 +209,6 @@ namespace MockviewAI.Controllers
             //    throw new Exception("Password must contain at least one special character.");
             //}
         }
+        #endregion
     }
 }

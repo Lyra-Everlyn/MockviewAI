@@ -14,6 +14,7 @@ namespace MockviewAI.Services.Implementations
             _userRepository = userRepository;
         }
 
+        // Register
         public async Task RegisterAsync(string email, string password, string firstName, string lastName)
         {
             bool isEmailExist = await _userRepository.EmailExistsAsync(email);
@@ -31,7 +32,8 @@ namespace MockviewAI.Services.Implementations
                 LastName = lastName,
                 Role = "User",
                 Status = "Active",
-                CreateAt = DateTime.UtcNow
+                CreateAt = DateTime.UtcNow,
+                UpdateAt = DateTime.UtcNow
             };
 
             await _userRepository.AddAsync(newUser);
@@ -51,13 +53,16 @@ namespace MockviewAI.Services.Implementations
                 AvatarUrl = avatarUrl,
                 Role = "User",
                 Status = "Active",
-                CreateAt = DateTime.UtcNow
+                CreateAt = DateTime.UtcNow,
+                UpdateAt = DateTime.UtcNow
             };
 
             await _userRepository.AddAsync(newUser);
             return newUser;
         }
 
+
+        // Login
         public async Task<User?> AuthenticateAsync(string email, string password)
         {
             var users = await _userRepository.GetAllAsync();
@@ -82,6 +87,7 @@ namespace MockviewAI.Services.Implementations
             // NOTE: Auto create a new user if the Google account is not found in the database
             if (existingUser == null)
             {
+                // TODO: Need set up the remain attributes for the new user
                 return await RegisterGoogleAsync(email, firstName, lastName, avatarUrl);
             }
 
@@ -120,6 +126,8 @@ namespace MockviewAI.Services.Implementations
             return existingUser;
         }
 
+
+        // Hashing
         private async Task<bool> VerifyPasswordHashAsync(string inputPassword, string storedHash)
         {
             return await Task.Run(() => BCrypt.Net.BCrypt.Verify(inputPassword, storedHash));
@@ -129,5 +137,6 @@ namespace MockviewAI.Services.Implementations
         {
             return await Task.Run(() => BCrypt.Net.BCrypt.HashPassword(password));
         }
+
     }
 }
