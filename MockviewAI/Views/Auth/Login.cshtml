@@ -99,7 +99,7 @@
         {
             <script>
                     document.addEventListener("DOMContentLoaded", function () {
-                        const errorMsg = '@Html.Raw(errorMessage.Replace("'", "\\'"))';
+                        const errorMsg = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(errorMessage));
                         const passElement = document.getElementById('pass-login');
                         const emailElement = document.getElementById('email-login');
 

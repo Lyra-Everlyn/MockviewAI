@@ -7,10 +7,11 @@ function showError(input, message) {
     input.classList.add("input-error");
     const error = document.createElement("div");
     error.className = "input-error-message";
-    error.innerHTML = `
-        <i class="fas fa-exclamation-circle"></i>
-        ${message}
-    `;
+    // Build the node instead of using innerHTML so a message can never inject HTML/script (XSS)
+    const icon = document.createElement("i");
+    icon.className = "fas fa-exclamation-circle";
+    error.appendChild(icon);
+    error.appendChild(document.createTextNode(" " + message));
     group.appendChild(error);
 }
 
