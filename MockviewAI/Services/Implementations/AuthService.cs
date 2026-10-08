@@ -1,4 +1,4 @@
-﻿using BCrypt.Net;
+using BCrypt.Net;
 using MockviewAI.Models.Entities;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Interfaces;
@@ -14,6 +14,7 @@ namespace MockviewAI.Services.Implementations
             _userRepository = userRepository;
         }
 
+        // Register
         public async Task RegisterAsync(string email, string password, string firstName, string lastName)
         {
             bool isEmailExist = await _userRepository.EmailExistsAsync(email);
@@ -58,6 +59,8 @@ namespace MockviewAI.Services.Implementations
             return newUser;
         }
 
+
+        // Login
         public async Task<User?> AuthenticateAsync(string email, string password)
         {
             var users = await _userRepository.GetAllAsync();
@@ -120,6 +123,8 @@ namespace MockviewAI.Services.Implementations
             return existingUser;
         }
 
+
+        // Hashing and verifying password
         private async Task<bool> VerifyPasswordHashAsync(string inputPassword, string storedHash)
         {
             return await Task.Run(() => BCrypt.Net.BCrypt.Verify(inputPassword, storedHash));

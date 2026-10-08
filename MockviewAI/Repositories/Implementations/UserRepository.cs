@@ -1,4 +1,9 @@
-﻿namespace MockviewAI.Repositories.Implementations
+using Microsoft.EntityFrameworkCore;
+using MockviewAI.Data;
+using MockviewAI.Models.Entities;
+using MockviewAI.Repositories.Interfaces;
+
+namespace MockviewAI.Repositories.Implementations
 {
     public class UserRepository : Repository<User>, IUserRepository
     {

@@ -61,6 +61,7 @@ namespace MockviewAI
             {
                 options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? throw new InvalidOperationException("Google ClientId is missing.");
                 options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? throw new InvalidOperationException("Google ClientSecret is missing.");
+                options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
             });
 
 
@@ -85,8 +86,8 @@ namespace MockviewAI
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                //app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Auth/Login");
                 app.UseHsts();
             }
 
@@ -98,7 +99,8 @@ namespace MockviewAI
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
+                //pattern: "{controller=Home}/{action=Index}/{id?}")
+                pattern: "{controller=Auth}/{action=Login}/{id?}")
                 .WithStaticAssets();
 
             app.Run();

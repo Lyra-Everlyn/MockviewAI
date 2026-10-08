@@ -1,7 +1,7 @@
 ﻿// NOTE: This script is used to handle input errors in forms. It provides functions to show and clear error messages, as well as to toggle password visibility.
 
 
-// Display error under input box
+// 1. Display error under input box
 function showError(input, message) {
     const group = input.closest(".input-group");
     input.classList.add("input-error");
@@ -14,13 +14,13 @@ function showError(input, message) {
     group.appendChild(error);
 }
 
-// Delete error under unput box
+// 2. Delete error under input box
 function clearErrors(scope = document) {
     scope.querySelectorAll(".input-error").forEach(el => el.classList.remove("input-error"));
     scope.querySelectorAll(".input-error-message").forEach(el => el.remove());
 }
 
-// Delete error when typing new in input box
+// 3. Delete error when typing new in input box
 document.querySelectorAll("input").forEach(input => {
     input.addEventListener("input", function () {
         this.classList.remove("input-error");
@@ -33,7 +33,7 @@ document.querySelectorAll("input").forEach(input => {
     });
 });
 
-// Toggle hide/display password
+// 4. Toggle hide/display password
 function togglePass(inputId, icon) {
     const input = document.getElementById(inputId);
     if (input.type === "password") {

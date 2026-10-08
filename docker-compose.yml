@@ -18,18 +18,19 @@ services:
       timeout: 5s
       retries: 5
 
-  web_mockview:
-    build:
-      context: .
-      dockerfile: MockviewAI/Dockerfile
-    image: mockviewai:dev
-    container_name: web_mockview_container
-    restart: always
-    ports:
-      - "9090:8080"
-    depends_on:
-      db_mockview:
-        condition: service_healthy
+  # TẠM ẨN WEB CONTAINER TRONG QUÁ TRÌNH DEV
+  # web_mockview:
+  #   build:
+  #     context: .
+  #     dockerfile: MockviewAI/Dockerfile
+  #   image: mockviewai:dev
+  #   container_name: web_mockview_container
+  #   restart: always
+  #   ports:
+  #     - "9090:8080"
+  #   depends_on:
+  #     db_mockview:
+  #       condition: service_healthy
 
 volumes:
   mysql_data:

@@ -17,6 +17,7 @@ namespace MockviewAI.Controllers
             _authService = authService;
         }
 
+        #region Login
         // 1. Return the login view
         [HttpGet]
         public IActionResult Login()
@@ -134,9 +135,9 @@ namespace MockviewAI.Controllers
                 _ => RedirectToAction("Index", "Home"),
             };
         }
+        #endregion
 
-
-
+        #region Logout and Register
         // 3. Logout
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -144,11 +145,7 @@ namespace MockviewAI.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Auth");
-            // Login: method Login in AuthController.cs
-            // Auth: AuthController.cs
         }
-
-
 
         // 4. Return the register view
         [HttpGet]

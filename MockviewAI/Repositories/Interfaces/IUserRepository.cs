@@ -1,9 +1,9 @@
-﻿using MockviewAI.Models.Entities;
+using MockviewAI.Models.Entities;
 
 namespace MockviewAI.Repositories.Interfaces
 {
-    public interface IUserRepository
+    public interface IUserRepository : IRepository<User>
     {
-        Task<bool> EmailExistsAsync(string email)
+        Task<bool> EmailExistsAsync(string email);
     }
 }
