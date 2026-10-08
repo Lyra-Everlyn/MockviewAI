@@ -43,8 +43,7 @@ namespace MockviewAI.Controllers
                 var user = await _authService.AuthenticateAsync(email, password);
                 await SignInUser(user!.Email, user.FirstName + " " + user.LastName, user.Role);
 
-                // TODO: Redirect to the appropriate page after successful login
-                return RedirectToAction();
+                return RedirectToDashboard(user.Role);   // was RedirectToAction() with no target, which sent the user back to Login
             }
             catch(Exception ex)
             {
@@ -63,6 +62,7 @@ namespace MockviewAI.Controllers
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
 
+        [HttpGet]
         public async Task<IActionResult> GoogleResponse()
         {
             var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -81,7 +81,9 @@ namespace MockviewAI.Controllers
             var surname = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value;
             var avatarUrl = claims?.FirstOrDefault(c => c.Type == "urn:google:picture" || c.Type == "picture")?.Value;
 
-            if (email == null)
+            // Reject accounts whose Google email is not verified
+            var emailVerified = claims?.FirstOrDefault(c => c.Type == "email_verified")?.Value;
+            if (email == null || string.Equals(emailVerified, "false", StringComparison.OrdinalIgnoreCase))
             {
                 TempData["ErrorMessage"] = "Can't get email from your Google account";
                 return RedirectToAction("Login", "Auth");
