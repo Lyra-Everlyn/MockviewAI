@@ -156,8 +156,14 @@ namespace MockviewAI.Controllers
         // 5. Handle the register form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string lastName, string? major, string? targetPosition)
+        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string lastName, string? major, string? targetPosition, bool terms = false)
         {
+            if (!terms)
+            {
+                ModelState.AddModelError(string.Empty, "You must agree to the Terms of Service and Privacy Policy.");
+                return View();
+            }
+
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword) || string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
             {
                 ModelState.AddModelError(string.Empty, "Please fill in all required fields.");

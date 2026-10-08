@@ -41,6 +41,9 @@ namespace MockviewAI.Models.Entities
         public DateTime CreateAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdateAt { get; set; }
 
+        public DateTime? ConsentAt { get; set; }
+        public DateTime? LastLoginAt { get; set; }
+
         [MaxLength(100)]
         public string? Major { get; set; }
 
