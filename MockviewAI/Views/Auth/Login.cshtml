@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 ﻿@*
     NOTE: 
         Đây chỉ là mẫu form đăng nhập, nếu bạn có đọc được thì hãy tự triển khai thêm các tính năng cần thiết.
@@ -59,23 +60,122 @@
     {
         errorMessage = TempData["ErrorMessage"]?.ToString();
     }
+=======
+﻿@{
+    Layout = null;
+>>>>>>> Stashed changes
 }
 
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const serverError = '@Html.Raw(errorMessage.Replace("'", "\\'"))';
-            const passElement = document.getElementById('pass-login');
-            const emailElement = document.getElementById('email-login');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MockviewAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/Login.css">
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="login-box">
 
-            if (serverError.toLowerCase().includes('account') || serverError.toLowerCase().includes('email')) {
-                showError(emailElement, serverError);
-            } else {
-                showError(passElement, serverError);
-            }
-        });
-    </script>
-}
+            <div class="login-banner">
+                <div class="banner-logo">MockviewAI</div>
+                <h1 class="banner-title">Practice interviewing with AI before your real interview day</h1>
+                <p class="banner-subtitle">Designed for upcoming graduates and entry-level professionals.</p>
+                <ul class="banner-features">
+                    <li><span class="step-num">1</span> Choose your role and interviewer</li>
+                    <li><span class="step-num">2</span> Respond via voice or text</li>
+                    <li><span class="step-num">3</span> View your score, feedback, and anxiety level</li>
+                </ul>
+            </div>
 
-<script src="~/js/handle-input-error.js"></script>
+
+            <div class="login-form-container">
+                <div class="form-header">
+                    <div class="title-wrapper">
+                        <h2>Login</h2>
+                        <span class="badge-beta">BETA</span>
+                    </div>
+                    <p class="subtitle">Practice interviewing with AI, for free</p>
+                </div>
+
+
+                <form method="post" asp-controller="Auth" asp-action="Login" id="loginForm">
+
+                    @Html.AntiForgeryToken()
+                    <a asp-controller="Auth" asp-action="LoginGoogle" class="btn-google">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
+                        Login with Google
+                    </a>
+
+                    <div class="divider">
+                        <span>OR WITH A LOCAL ACCOUNT</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email-login">Email</label>
+                        <div class="input-group">
+                            <i class="fas fa-envelope icon-left"></i>
+                            <input type="email" name="email" id="email-login" placeholder="Enter email" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="pass-login">Password</label>
+                        <div class="input-group">
+                            <i class="fas fa-lock icon-left"></i>
+                            <input type="password" name="password" id="pass-login" placeholder="Enter password" required>
+                            <i class="far fa-eye toggle-password" onclick="togglePass('pass-login', this)"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit">Login</button>
+
+                </form>
+
+                <div class="auth-switch">
+                    Don't have an account? <a href="/Auth/Register">Register</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Login.cshtml - Show error from Server -->
+    @{
+        var errorMessage = "";
+
+        // 1. Get error from ModelState or TempData
+        if (!ViewData.ModelState.IsValid)
+        {
+            errorMessage = ViewData.ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .FirstOrDefault();
+        }
+        else if (TempData["ErrorMessage"] != null)
+        {
+            errorMessage = TempData["ErrorMessage"]?.ToString();
+        }
+
+        // 2. If there is an error, render the script directly into the HTML
+        if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const errorMsg = '@Html.Raw(errorMessage.Replace("'", "\\'"))';
+                        const passElement = document.getElementById('pass-login');
+                        const emailElement = document.getElementById('email-login');
+
+                        if (errorMsg.toLowerCase().includes('account') || errorMsg.toLowerCase().includes('email')) {
+                            showError(emailElement, errorMsg);
+                        } else {
+                            showError(passElement, errorMsg);
+                        }
+                    });
+            </script>
+        }
+    }
+    <script src="~/js/handle-input-error.js"></script>
+</body>
+</html>

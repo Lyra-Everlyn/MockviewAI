@@ -17,6 +17,7 @@ namespace MockviewAI.Controllers
             _authService = authService;
         }
 
+        #region Login
         // 1. Return the login view
         [HttpGet]
         public IActionResult Login()
@@ -123,9 +124,9 @@ namespace MockviewAI.Controllers
                 _ => RedirectToAction("Index", "Home"),
             };
         }
+        #endregion
 
-
-
+        #region Logout and Register
         // 3. Logout
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -133,8 +134,103 @@ namespace MockviewAI.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Auth");
-            // Login: method Login in AuthController.cs
-            // Auth: AuthController.cs
         }
+<<<<<<< Updated upstream
+=======
+
+
+        // 4. Return the register view
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        // 5. Handle the register form submission
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string lastName)
+        {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword) || string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
+            {
+                ModelState.AddModelError(string.Empty, "Please fill in all required fields.");
+                return View();
+            }
+
+            if (password != confirmPassword)
+            {
+                ModelState.AddModelError(string.Empty, "Passwords do not match.");
+                return View();
+            }
+
+            await CheckPasswordStrenght(password);
+
+            try
+            {
+                await _authService.RegisterAsync(email, password, firstName, lastName);
+
+                TempData["SuccessMessage"] = "Registration successful! Please login.";
+                return RedirectToAction("Login");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View();
+            }
+        }
+
+        private async Task CheckPasswordStrenght(string password)
+        {
+            if (password.Length < 8)
+            {
+                throw new Exception("Password must be at least 8 characters long.");
+            }
+            if (!password.Any(char.IsUpper))
+            {
+                throw new Exception("Password must contain at least one uppercase letter.");
+            }
+            if (!password.Any(char.IsLower))
+            {
+                throw new Exception("Password must contain at least one lowercase letter.");
+            }
+            if (!password.Any(char.IsDigit))
+            {
+                throw new Exception("Password must contain at least one digit.");
+            }
+            //if (!password.Any(ch => !char.IsLetterOrDigit(ch)))
+            //{
+            //    throw new Exception("Password must contain at least one special character.");
+            //}
+        }
+        #endregion
+
+        #region Recovery
+        // 6. Return the recover password view
+        //[HttpGet] public IActionResult ForgotPassword(){ return View(); }
+
+        //// Who need tp recover password
+        //[HttpPost] public async Task<IActionResult> ForgotPassword(string email) 
+        //{ 
+        //}
+
+        //[HttpGet] public IActionResult VerifyOTP(string email) { return View(); }
+
+        //// Send the OTP code to the user's email and verify it
+        //[HttpPost] public async Task<IActionResult> VerifyOTP(string email, string otpCode) 
+        //{
+        //}
+
+        //// Return the reset password view
+        //[HttpGet] public IActionResult ResetPassword(string email, string otpCode) 
+        //{  
+        //}
+
+        //// 
+        //[HttpPost] public async Task<IActionResult> ResetPassword(string email, string otpCode, string newPassword, string confirmPassword) 
+        //{
+        //}
+
+        #endregion
+>>>>>>> Stashed changes
     }
 }
