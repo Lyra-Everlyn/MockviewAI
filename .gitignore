@@ -4,3 +4,8 @@ bin/
 obj/
 *.user
 *.suo
+
+# Secrets
+.env
+appsettings.Local.json
+*.Backup.tmp
