@@ -32,7 +32,8 @@ namespace MockviewAI.Services.Implementations
                 LastName = lastName,
                 Role = "User",
                 Status = "Active",
-                CreateAt = DateTime.UtcNow
+                CreateAt = DateTime.UtcNow,
+                UpdateAt = DateTime.UtcNow
             };
 
             await _userRepository.AddAsync(newUser);
@@ -52,7 +53,8 @@ namespace MockviewAI.Services.Implementations
                 AvatarUrl = avatarUrl,
                 Role = "User",
                 Status = "Active",
-                CreateAt = DateTime.UtcNow
+                CreateAt = DateTime.UtcNow,
+                UpdateAt = DateTime.UtcNow
             };
 
             await _userRepository.AddAsync(newUser);
@@ -85,6 +87,7 @@ namespace MockviewAI.Services.Implementations
             // NOTE: Auto create a new user if the Google account is not found in the database
             if (existingUser == null)
             {
+                // TODO: Need set up the remain attributes for the new user
                 return await RegisterGoogleAsync(email, firstName, lastName, avatarUrl);
             }
 
@@ -124,7 +127,7 @@ namespace MockviewAI.Services.Implementations
         }
 
 
-        // Hashing and verifying password
+        // Hashing
         private async Task<bool> VerifyPasswordHashAsync(string inputPassword, string storedHash)
         {
             return await Task.Run(() => BCrypt.Net.BCrypt.Verify(inputPassword, storedHash));
