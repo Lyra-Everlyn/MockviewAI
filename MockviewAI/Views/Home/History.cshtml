@@ -1,0 +1,131 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử luyện tập - MockviewAI</title>
+    <link rel="stylesheet" href="~/css/History.css">
+</head>
+<body>
+    <!-- THANH ĐIỀU HƯỚNG MÁY TÍNH -->
+    <nav class="desktop-nav hide-on-mobile">
+        <div class="nav-container">
+            <div class="nav-left">
+                <div class="logo">Mockview<span>AI</span></div>
+                <ul class="nav-links">
+                    <li><a href="#">Trang chủ</a></li>
+                    <li><a href="#">Luyện tập</a></li>
+                    <li><a href="#" class="active">Lịch sử</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <span class="badge badge-v1">BETA</span>
+                <div class="avatar">Q</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <main class="history-page">
+        <div class="main-card">
+            
+            <!-- Nút Quay lại -->
+            <div class="back-link-wrapper">
+                <a href="#" class="back-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    Hồ sơ
+                </a>
+            </div>
+
+            <!-- Header (Tiêu đề + Ô tìm kiếm) -->
+            <div class="header-flex">
+                <div class="title-area">
+                    <h1>Lịch sử luyện tập</h1>
+                    <p>4 buổi &middot; bấm vào một buổi để xem lại hội thoại</p>
+                </div>
+                <div class="search-area">
+                    <label>Tìm theo vị trí</label>
+                    <input type="text" placeholder="VD: Lập trình viên">
+                </div>
+            </div>
+
+            <!-- Lưới Danh sách Lịch sử -->
+            <div class="history-grid">
+                
+                <!-- Thẻ 1 -->
+                <div class="history-card">
+                    <div class="card-top">
+                        <span class="role">Lập trình viên</span>
+                        <span class="date">06/10 &middot; 5 câu</span>
+                    </div>
+                    <div class="card-badges">
+                        <span class="badge-score">78 điểm</span>
+                        <span class="badge-anxiety-good">Lo lắng 7 &rarr; 4</span>
+                    </div>
+                </div>
+
+                <!-- Thẻ 2 -->
+                <div class="history-card">
+                    <div class="card-top">
+                        <span class="role">Phân tích dữ liệu</span>
+                        <span class="date">05/10 &middot; 5 câu</span>
+                    </div>
+                    <div class="card-badges">
+                        <span class="badge-score">71 điểm</span>
+                        <span class="badge-anxiety-good">Lo lắng 8 &rarr; 6</span>
+                    </div>
+                </div>
+
+                <!-- Thẻ 3 -->
+                <div class="history-card">
+                    <div class="card-top">
+                        <span class="role">Lập trình viên</span>
+                        <span class="date">03/10 &middot; 3 câu</span>
+                    </div>
+                    <div class="card-badges">
+                        <span class="badge-score">65 điểm</span>
+                        <span class="badge-anxiety-warn">Lo lắng 8 &rarr; 7</span>
+                    </div>
+                </div>
+
+                <!-- Thẻ 4 -->
+                <div class="history-card">
+                    <div class="card-top">
+                        <span class="role">Kiểm thử phần mềm</span>
+                        <span class="date">01/10 &middot; 5 câu</span>
+                    </div>
+                    <div class="card-badges">
+                        <span class="badge-score">60 điểm</span>
+                        <span class="badge-anxiety-warn">Lo lắng 9 &rarr; 8</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- THANH ĐIỀU HƯỚNG DƯỚI ĐÁY CHO ĐIỆN THOẠI -->
+    <nav class="mobile-nav hide-on-desktop">
+        <a href="#" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            <span>Trang chủ</span>
+        </a>
+        <a href="#" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg>
+            <span>Luyện tập</span>
+        </a>
+        <a href="#" class="nav-item active">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>Lịch sử</span>
+        </a>
+        <a href="#" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Hồ sơ</span>
+        </a>
+    </nav>
+</body>
+</html>
