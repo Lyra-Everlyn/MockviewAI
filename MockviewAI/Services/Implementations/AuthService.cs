@@ -14,6 +14,9 @@ namespace MockviewAI.Services.Implementations
             _userRepository = userRepository;
         }
 
+        // A valid BCrypt hash of a random string, only used to equalise timing for unknown emails
+        private static readonly string DummyHash = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString());
+
         // Register
         public async Task RegisterAsync(string email, string password, string firstName, string lastName)
         {
@@ -65,16 +68,24 @@ namespace MockviewAI.Services.Implementations
         // Login
         public async Task<User?> AuthenticateAsync(string email, string password)
         {
-            var users = await _userRepository.GetAllAsync();
-            var user = users.FirstOrDefault(u => u.Email == email);
+            email = email.Trim().ToLowerInvariant();
+            var user = await _userRepository.GetByEmailAsync(email);
 
-            if (user == null) { throw new Exception("Account not found."); }
-            if (user.Status == "Locked") { throw new Exception("Your account has been locked."); }
+            // Same message for "no such email" and "wrong password" -> attacker cannot probe which emails exist
+            const string invalidMsg = "Incorrect email or password.";
+            if (user == null)
+            {
+                // Run a dummy hash check so response time is similar for unknown emails
+                await VerifyPasswordHashAsync(password, DummyHash);
+                throw new Exception(invalidMsg);
+            }
 
             bool isCorrectPasswords = await VerifyPasswordHashAsync(password, user.PasswordHash);
+            if (!isCorrectPasswords) { throw new Exception(invalidMsg); }
 
+            // Only reveal account status after the password is proven correct
+            if (user.Status == "Locked") { throw new Exception("Your account has been locked."); }
             if (user.Status == "Inactive") { throw new Exception("Your account has been temporarily suspended."); }
-            if (!isCorrectPasswords) { throw new Exception("Incorrect password"); }
 
             return user;
         }
