@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace MockviewAI.Models.Entities
 {
@@ -38,10 +39,16 @@ namespace MockviewAI.Models.Entities
         [MaxLength(30)]
         public string Status { get; set; } = "Active";
 
+        [Precision(3)]
         public DateTime CreateAt { get; set; } = DateTime.UtcNow;
+
+        [Precision(3)]
         public DateTime? UpdateAt { get; set; }
 
+        [Precision(3)]
         public DateTime? ConsentAt { get; set; }
+
+        [Precision(3)]
         public DateTime? LastLoginAt { get; set; }
 
         [MaxLength(100)]

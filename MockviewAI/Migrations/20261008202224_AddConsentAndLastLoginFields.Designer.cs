@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MockviewAI.Data;
 
@@ -11,9 +12,11 @@ using MockviewAI.Data;
 namespace MockviewAI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261008202224_AddConsentAndLastLoginFields")]
+    partial class AddConsentAndLastLoginFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,12 +37,10 @@ namespace MockviewAI.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<DateTime?>("ConsentAt")
-                        .HasPrecision(3)
-                        .HasColumnType("datetime(3)");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("CreateAt")
-                        .HasPrecision(3)
-                        .HasColumnType("datetime(3)");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime(6)");
@@ -55,8 +56,7 @@ namespace MockviewAI.Migrations
                         .HasColumnType("varchar(50)");
 
                     b.Property<DateTime?>("LastLoginAt")
-                        .HasPrecision(3)
-                        .HasColumnType("datetime(3)");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -91,8 +91,7 @@ namespace MockviewAI.Migrations
                         .HasColumnType("varchar(100)");
 
                     b.Property<DateTime?>("UpdateAt")
-                        .HasPrecision(3)
-                        .HasColumnType("datetime(3)");
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 

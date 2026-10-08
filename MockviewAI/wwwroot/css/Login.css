@@ -240,6 +240,11 @@ body {
         color: var(--text-main);
     }
 
+.forgot-password-link {
+    text-decoration: none;
+    color: var(--primary-color);
+}
+
 /* Nút Submit */
 .btn-submit {
     width: 100%;

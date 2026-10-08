@@ -180,9 +180,8 @@ namespace MockviewAI.Controllers
 
             try
             {
-                // Gọi Service với đầy đủ tham số
-                await _authService.RegisterAsync(email, password, confirmPassword, firstName, lastName, major, targetPosition);
 
+                await _authService.RegisterAsync(email, password, confirmPassword, firstName, lastName, major, targetPosition);
                 TempData["SuccessMessage"] = "Registration successful! Please login.";
                 return RedirectToAction("Login");
             }
