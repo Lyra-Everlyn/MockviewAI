@@ -1,4 +1,4 @@
-using BCrypt.Net;
+﻿using BCrypt.Net;
 using MockviewAI.Models.Entities;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Interfaces;
@@ -134,5 +134,6 @@ namespace MockviewAI.Services.Implementations
         {
             return await Task.Run(() => BCrypt.Net.BCrypt.HashPassword(password));
         }
+
     }
 }

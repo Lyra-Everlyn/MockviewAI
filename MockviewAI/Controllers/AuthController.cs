@@ -147,6 +147,7 @@ namespace MockviewAI.Controllers
             return RedirectToAction("Login", "Auth");
         }
 
+
         // 4. Return the register view
         [HttpGet]
         public IActionResult Register()
@@ -210,5 +211,6 @@ namespace MockviewAI.Controllers
             //    throw new Exception("Password must contain at least one special character.");
             //}
         }
+        #endregion
     }
 }
