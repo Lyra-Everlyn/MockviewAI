@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MockviewAI.Services.Interfaces;
+using MockviewAI.Services.Security;
 using System.Security.Claims;
 
 namespace MockviewAI.Controllers
@@ -177,7 +178,8 @@ namespace MockviewAI.Controllers
             try
             {
                 // Inside try so a weak password shows an error instead of an HTTP 500
-                CheckPasswordStrength(password);
+                var passwordError = PasswordPolicy.Validate(password);   // [SECURITY-MODULE]
+                if (passwordError != null) throw new Exception(passwordError);
                 await _authService.RegisterAsync(email, password, firstName, lastName);
 
                 TempData["SuccessMessage"] = "Registration successful! Please login.";
@@ -188,34 +190,6 @@ namespace MockviewAI.Controllers
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View();
             }
-        }
-
-        private static void CheckPasswordStrength(string password)
-        {
-            if (password.Length > 72)
-            {
-                throw new Exception("Password must be at most 72 characters long."); // BCrypt only uses the first 72 bytes
-            }
-            if (password.Length < 8)
-            {
-                throw new Exception("Password must be at least 8 characters long.");
-            }
-            if (!password.Any(char.IsUpper))
-            {
-                throw new Exception("Password must contain at least one uppercase letter.");
-            }
-            if (!password.Any(char.IsLower))
-            {
-                throw new Exception("Password must contain at least one lowercase letter.");
-            }
-            if (!password.Any(char.IsDigit))
-            {
-                throw new Exception("Password must contain at least one digit.");
-            }
-            //if (!password.Any(ch => !char.IsLetterOrDigit(ch)))
-            //{
-            //    throw new Exception("Password must contain at least one special character.");
-            //}
         }
         #endregion
     }
