@@ -1,5 +1,14 @@
+using CloudinaryDotNet;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 using MockviewAI.Data;
+using MockviewAI.Repositories.Implementations;
+using MockviewAI.Repositories.Interfaces;
+using MockviewAI.Services.Implementations;
+using MockviewAI.Services.Interfaces;
+using System.Security.Principal;
 
 namespace MockviewAI
 {
@@ -9,13 +18,11 @@ namespace MockviewAI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Database connection string
+
+            // 0. Database connection string
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-            // Add services to the container.
-            builder.Services.AddControllersWithViews();
-
-
+            // 1. Configure Entity Framework Core with MySQL
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(
                     connectionString,
@@ -28,14 +35,60 @@ namespace MockviewAI
                 )
             );
 
+            // 2. Register Repositories & Services
+            // Repository
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+
+            // Service
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            
+
+
+            // Other services
+            // a. Google configuration
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+            })
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/Auth/Login";
+                options.LogoutPath = "/api/auth/logout";
+            })
+            .AddGoogle(options =>
+            {
+                options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? throw new InvalidOperationException("Google ClientId is missing.");
+                options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? throw new InvalidOperationException("Google ClientSecret is missing.");
+                options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
+            });
+
+
+            // b. Register Cloudinary
+            var cloudinarySettings = builder.Configuration.GetSection("CloudinarySettings");
+            string cloudName = cloudinarySettings["CloudName"];
+            string apiKey = cloudinarySettings["ApiKey"];
+            string apiSecret = cloudinarySettings["ApiSecret"];
+
+            var cloudinaryAccount = new Account(cloudName, apiKey, apiSecret);
+            var cloudinary = new Cloudinary(cloudinaryAccount);
+            builder.Services.AddSingleton(cloudinary);
+
+
+
+            // Add services to the container.
+            builder.Services.AddControllersWithViews();
+
 
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                //app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Auth/Login");
                 app.UseHsts();
             }
 
@@ -47,7 +100,8 @@ namespace MockviewAI
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
+                //pattern: "{controller=Home}/{action=Index}/{id?}")
+                pattern: "{controller=Auth}/{action=Login}/{id?}")
                 .WithStaticAssets();
 
             app.Run();
