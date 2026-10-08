@@ -12,10 +12,12 @@ namespace MockviewAI.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly LoginThrottleService _throttle;   // [SECURITY-MODULE]
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, LoginThrottleService throttle)
         {
             _authService = authService;
+            _throttle = throttle;
         }
 
         #region Login
@@ -39,15 +41,26 @@ namespace MockviewAI.Controllers
                 return View();
             }
 
+            // [SECURITY-MODULE] Chặn dò mật khẩu: sai nhiều lần thì khóa tạm
+            var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
+            if (_throttle.IsLockedOut(throttleKey, out var wait))
+            {
+                var minutes = (int)Math.Ceiling(wait.TotalMinutes);
+                ModelState.AddModelError(string.Empty, $"Too many failed attempts. Please try again in {minutes} minute(s).");
+                return View();
+            }
+
             try
             {
                 var user = await _authService.AuthenticateAsync(email, password);
+                _throttle.Reset(throttleKey);
                 await SignInUser(user!.Email, user.FirstName + " " + user.LastName, user.Role);
 
                 return RedirectToDashboard(user.Role);   // was RedirectToAction() with no target, which sent the user back to Login
             }
             catch(Exception ex)
             {
+                _throttle.RegisterFailure(throttleKey);
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View();
             }
