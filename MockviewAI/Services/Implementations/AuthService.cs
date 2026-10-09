@@ -1,6 +1,8 @@
 ﻿using BCrypt.Net;
+using Microsoft.Extensions.Caching.Memory;
 using MockviewAI.Models.Entities;
 using MockviewAI.Repositories.Interfaces;
+using MockviewAI.Services.Helper.Interfaces;
 using MockviewAI.Services.Interfaces;
 
 namespace MockviewAI.Services.Implementations
@@ -8,10 +10,14 @@ namespace MockviewAI.Services.Implementations
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IEmailService _emailService;
+        private readonly IMemoryCache _cache;
 
-        public AuthService(IUserRepository userRepository)
+        public AuthService(IUserRepository userRepository, IEmailService emailService, IMemoryCache cache)
         {
             _userRepository = userRepository;
+            _emailService = emailService;
+            _cache = cache;
         }
 
         // Register
@@ -147,5 +153,89 @@ namespace MockviewAI.Services.Implementations
             return await Task.Run(() => BCrypt.Net.BCrypt.HashPassword(password));
         }
 
+
+        // Forgot Password
+        // a. 
+        public bool IsIpBlocked(string ipAddress)
+        {
+            return _cache.TryGetValue($"BlockIP_{ipAddress}", out _);
+        }
+
+        public async Task RequestPasswordResetAsync(string email)
+        {
+            var users = await _userRepository.GetAllAsync();
+            var user = users.FirstOrDefault(u => u.Email == email);
+
+            if (user == null) return;
+
+            Random random = new Random();
+            string resetCode = random.Next(100000, 999999).ToString();
+
+            _cache.Set($"OTP_{email}", resetCode, TimeSpan.FromMinutes(5));
+            _cache.Set($"OTP_Attempts_{email}", 0, TimeSpan.FromMinutes(5));
+
+            string subject = "MockviewAI - Password Reset Code";
+            string body = $@"
+                <div style='font-family: Inter, Arial, sans-serif; padding: 20px;'>
+                    <h2>Password Reset Request</h2>
+                    <p>Your password reset code is: <b style='font-size: 28px; color: #3348E0; letter-spacing: 2px;'>{resetCode}</b></p>
+                    <p>This code will expire in 5 minutes.</p>
+                </div>";
+
+            await _emailService.SendEmailAsync(email, subject, body);
+        }
+
+        public async Task<bool> VerifyResetCodeAsync(string email, string code, string ipAddress)
+        {
+            if (!_cache.TryGetValue($"OTP_{email}", out string? savedCode))
+            {
+                throw new Exception("The reset code has expired or is invalid.");
+            }
+
+            if (savedCode == code)
+            {
+                _cache.Remove($"OTP_{email}");
+                _cache.Remove($"OTP_Attempts_{email}");
+                _cache.Set($"Verified_{email}", true, TimeSpan.FromMinutes(10));
+                return true;
+            }
+
+            int attempts = _cache.GetOrCreate($"OTP_Attempts_{email}", entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                return 0;
+            }) + 1;
+
+            _cache.Set($"OTP_Attempts_{email}", attempts, TimeSpan.FromMinutes(5));
+
+            if (attempts >= 5)
+            {
+                _cache.Set($"BlockIP_{ipAddress}", true, TimeSpan.FromMinutes(30));
+                _cache.Remove($"OTP_{email}");
+                _cache.Remove($"OTP_Attempts_{email}");
+
+                throw new Exception("You have entered the wrong code 5 times. Your IP is blocked for 30 minutes.");
+            }
+
+            throw new Exception($"Incorrect reset code. You have {5 - attempts} attempts left.");
+        }
+
+        public async Task ResetPasswordAsync(string email, string newPassword)
+        {
+            if (!_cache.TryGetValue($"Verified_{email}", out _))
+            {
+                throw new Exception("Unauthorized request. Please verify your email again.");
+            }
+
+            var users = await _userRepository.GetAllAsync();
+            var user = users.FirstOrDefault(u => u.Email == email);
+            if (user == null) throw new Exception("Account not found.");
+
+            user.PasswordHash = await HashPasswordAsync(newPassword);
+            user.UpdateAt = DateTime.UtcNow;
+
+            await _userRepository.UpdateAsync(user);
+            _cache.Remove($"Verified_{email}");
+        }
     }
 }

@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using MockviewAI.Data;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
+using MockviewAI.Services.Helper.Implementations;
+using MockviewAI.Services.Helper.Interfaces;
 using MockviewAI.Services.Implementations;
 using MockviewAI.Services.Interfaces;
 using System.Security.Principal;
@@ -68,13 +70,21 @@ namespace MockviewAI
 
             // b. Register Cloudinary
             var cloudinarySettings = builder.Configuration.GetSection("CloudinarySettings");
-            string cloudName = cloudinarySettings["CloudName"];
-            string apiKey = cloudinarySettings["ApiKey"];
-            string apiSecret = cloudinarySettings["ApiSecret"];
+            string cloudName = cloudinarySettings["CloudName"]!;
+            string apiKey = cloudinarySettings["ApiKey"]!;
+            string apiSecret = cloudinarySettings["ApiSecret"]!;
 
             var cloudinaryAccount = new Account(cloudName, apiKey, apiSecret);
             var cloudinary = new Cloudinary(cloudinaryAccount);
             builder.Services.AddSingleton(cloudinary);
+
+
+            // c. Email service configuration
+            builder.Services.AddScoped<IEmailService, EmailService>();
+
+
+            // 3. Add Memory Cache
+            builder.Services.AddMemoryCache();
 
 
 
