@@ -62,6 +62,7 @@ namespace MockviewAI.Controllers
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
 
+        [HttpGet]
         public async Task<IActionResult> GoogleResponse()
         {
             var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -80,7 +81,9 @@ namespace MockviewAI.Controllers
             var surname = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value;
             var avatarUrl = claims?.FirstOrDefault(c => c.Type == "urn:google:picture" || c.Type == "picture")?.Value;
 
-            if (email == null)
+            // Reject accounts whose Google email is not verified
+            var emailVerified = claims?.FirstOrDefault(c => c.Type == "email_verified")?.Value;
+            if (email == null || string.Equals(emailVerified, "false", StringComparison.OrdinalIgnoreCase))
             {
                 TempData["ErrorMessage"] = "Can't get email from your Google account";
                 return RedirectToAction("Login", "Auth");
@@ -184,10 +187,10 @@ namespace MockviewAI.Controllers
                 return View();
             }
 
-            await CheckPasswordStrenght(password);
-
             try
             {
+                // Check the password rules BEFORE sending the email code (a weak password shows an error instead of an HTTP 500)
+                CheckPasswordStrength(password);
                 await _authService.SendRegistrationOtpAsync(email);
 
                 TempData["RegEmail"] = email;
@@ -247,11 +250,11 @@ namespace MockviewAI.Controllers
             }
         }
 
-        private async Task CheckPasswordStrenght(string password)
+        private static void CheckPasswordStrength(string password)
         {
             if (password.Length > 72)
             {
-                throw new Exception("Password must be at most 72 characters long.");
+                throw new Exception("Password must be at most 72 characters long."); // BCrypt only uses the first 72 bytes
             }
             if (password.Length < 8)
             {
@@ -374,6 +377,7 @@ namespace MockviewAI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(string email, string newPassword, string confirmPassword)
         {
+            ViewBag.Email = email; // keep the email in the form if we have to show the page again
             if (string.IsNullOrEmpty(newPassword) || string.IsNullOrEmpty(confirmPassword))
             {
                 ModelState.AddModelError(string.Empty, "Please fill in all fields.");
@@ -388,7 +392,7 @@ namespace MockviewAI.Controllers
 
             try
             {
-                await CheckPasswordStrenght(newPassword);
+                CheckPasswordStrength(newPassword);
                 await _authService.ResetPasswordAsync(email, newPassword);
 
                 TempData["SuccessMessage"] = "Your password has been reset successfully. Please login.";

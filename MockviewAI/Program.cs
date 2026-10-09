@@ -70,9 +70,9 @@ namespace MockviewAI
 
             // b. Register Cloudinary
             var cloudinarySettings = builder.Configuration.GetSection("CloudinarySettings");
-            string cloudName = cloudinarySettings["CloudName"]!;
-            string apiKey = cloudinarySettings["ApiKey"]!;
-            string apiSecret = cloudinarySettings["ApiSecret"]!;
+            string cloudName = cloudinarySettings["CloudName"] ?? throw new InvalidOperationException("Cloudinary CloudName is missing.");
+            string apiKey = cloudinarySettings["ApiKey"] ?? throw new InvalidOperationException("Cloudinary ApiKey is missing.");
+            string apiSecret = cloudinarySettings["ApiSecret"] ?? throw new InvalidOperationException("Cloudinary ApiSecret is missing.");
 
             var cloudinaryAccount = new Account(cloudName, apiKey, apiSecret);
             var cloudinary = new Cloudinary(cloudinaryAccount);
@@ -105,6 +105,7 @@ namespace MockviewAI
             //app.UseHttpsRedirection();
             app.UseRouting();
 
+            app.UseAuthentication(); // MUST come before UseAuthorization, otherwise the login cookie is never read
             app.UseAuthorization();
 
             app.MapStaticAssets();

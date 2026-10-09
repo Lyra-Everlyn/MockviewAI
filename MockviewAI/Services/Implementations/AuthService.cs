@@ -20,17 +20,21 @@ namespace MockviewAI.Services.Implementations
             _cache = cache;
         }
 
+        // A valid BCrypt hash of a random string, only used to equalise timing for unknown emails
+        private static readonly string DummyHash = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString());
+
         #region Register
         public async Task RegisterAsync(string email, string password, string confirmPassword, string firstName, string lastName)
         {
-            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
-            {
-                throw new Exception("First name and last name cannot be empty.");
-            }
-
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(confirmPassword))
             {
                 throw new Exception("Email and password fields cannot be empty.");
+            }
+            email = email.Trim().ToLowerInvariant();
+
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+            {
+                throw new Exception("First name and last name cannot be empty.");
             }
 
             bool isEmailExist = await _userRepository.EmailExistsAsync(email);
@@ -65,6 +69,7 @@ namespace MockviewAI.Services.Implementations
             {
                 throw new Exception("Email, first name, and last name cannot be empty.");
             }
+            email = email.Trim().ToLowerInvariant();
 
             string dummyPassword = Guid.NewGuid().ToString();
             string dummyPasswordHash = await HashPasswordAsync(dummyPassword);
@@ -91,14 +96,15 @@ namespace MockviewAI.Services.Implementations
 
         public async Task SendRegistrationOtpAsync(string email)
         {
+            email = email.Trim().ToLowerInvariant();
             bool isEmailExist = await _userRepository.EmailExistsAsync(email);
             if (isEmailExist)
             {
                 throw new Exception("This email has already been registered.");
             }
 
-            Random random = new Random();
-            string otpCode = random.Next(100000, 999999).ToString();
+            // Cryptographically secure 6-digit code (System.Random is predictable)
+            string otpCode = System.Security.Cryptography.RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
 
             _cache.Set($"RegOTP_{email}", otpCode, TimeSpan.FromMinutes(5));
             _cache.Set($"RegOTP_Attempts_{email}", 0, TimeSpan.FromMinutes(5));
@@ -117,6 +123,7 @@ namespace MockviewAI.Services.Implementations
 
         public async Task<bool> VerifyRegistrationOtpAsync(string email, string code, string ipAddress)
         {
+            email = email.Trim().ToLowerInvariant();
             if (!_cache.TryGetValue($"RegOTP_{email}", out string? savedCode))
             {
                 throw new Exception("Verification code has expired or is invalid.");
@@ -154,24 +161,32 @@ namespace MockviewAI.Services.Implementations
         #region Login
         public async Task<User?> AuthenticateAsync(string email, string password)
         {
-            var users = await _userRepository.GetAllAsync();
-            var user = users.FirstOrDefault(u => u.Email == email);
+            email = email.Trim().ToLowerInvariant();
+            var user = await _userRepository.GetByEmailAsync(email);
 
-            if (user == null) { throw new Exception("Account not found."); }
-            if (user.Status == "Locked") { throw new Exception("Your account has been locked."); }
+            // Same message for "no such email" and "wrong password" -> attacker cannot probe which emails exist
+            const string invalidMsg = "Incorrect email or password.";
+            if (user == null)
+            {
+                // Run a dummy hash check so response time is similar for unknown emails
+                await VerifyPasswordHashAsync(password, DummyHash);
+                throw new Exception(invalidMsg);
+            }
 
             bool isCorrectPasswords = await VerifyPasswordHashAsync(password, user.PasswordHash);
+            if (!isCorrectPasswords) { throw new Exception(invalidMsg); }
 
+            // Only reveal account status after the password is proven correct
+            if (user.Status == "Locked") { throw new Exception("Your account has been locked."); }
             if (user.Status == "Inactive") { throw new Exception("Your account has been temporarily suspended."); }
-            if (!isCorrectPasswords) { throw new Exception("Incorrect password"); }
 
             return user;
         }
 
         public async Task<User> AuthenticateGoogleUserAsync(string email, string firstName, string lastName, string? avatarUrl)
         {
-            var users = await _userRepository.GetAllAsync();
-            var existingUser = users.FirstOrDefault(u => u.Email == email);
+            email = email.Trim().ToLowerInvariant();
+            var existingUser = await _userRepository.GetByEmailAsync(email);
 
             // NOTE: Auto create a new user if the Google account is not found in the database
             if (existingUser == null)
@@ -239,13 +254,12 @@ namespace MockviewAI.Services.Implementations
 
         public async Task RequestPasswordResetAsync(string email)
         {
-            var users = await _userRepository.GetAllAsync();
-            var user = users.FirstOrDefault(u => u.Email == email);
+            email = email.Trim().ToLowerInvariant();
+            var user = await _userRepository.GetByEmailAsync(email);
 
             if (user == null) return;
 
-            Random random = new Random();
-            string resetCode = random.Next(100000, 999999).ToString();
+            string resetCode = System.Security.Cryptography.RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
 
             _cache.Set($"OTP_{email}", resetCode, TimeSpan.FromMinutes(5));
             _cache.Set($"OTP_Attempts_{email}", 0, TimeSpan.FromMinutes(5));
@@ -263,6 +277,7 @@ namespace MockviewAI.Services.Implementations
 
         public async Task<bool> VerifyResetCodeAsync(string email, string code, string ipAddress)
         {
+            email = email.Trim().ToLowerInvariant();
             if (!_cache.TryGetValue($"OTP_{email}", out string? savedCode))
             {
                 throw new Exception("The reset code has expired or is invalid.");
@@ -298,13 +313,13 @@ namespace MockviewAI.Services.Implementations
 
         public async Task ResetPasswordAsync(string email, string newPassword)
         {
+            email = email.Trim().ToLowerInvariant();
             if (!_cache.TryGetValue($"Verified_{email}", out _))
             {
                 throw new Exception("Unauthorized request. Please verify your email again.");
             }
 
-            var users = await _userRepository.GetAllAsync();
-            var user = users.FirstOrDefault(u => u.Email == email);
+            var user = await _userRepository.GetByEmailAsync(email);
             if (user == null) throw new Exception("Account not found.");
 
             user.PasswordHash = await HashPasswordAsync(newPassword);
