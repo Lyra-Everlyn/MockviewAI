@@ -56,5 +56,13 @@ namespace MockviewAI.Models.Entities
 
         [MaxLength(100)]
         public string? TargetPosition { get; set; }
+
+        [MaxLength(50)]
+        public string? GraduationStatus { get; set; }
+
+        [MaxLength(50)]
+        public string? ExperienceLevel { get; set; }
+
+        public bool IsOnboardingCompleted { get; set; } = false;
     }
 }
