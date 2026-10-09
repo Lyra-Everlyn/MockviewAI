@@ -37,3 +37,11 @@ Tìm nhanh trong VS Code: `Ctrl+Shift+F` rồi gõ `[SECURITY-MODULE]` để th�
 - Throttle lưu trong bộ nhớ: khởi động lại thì đếm lại; chạy nhiều bản app thì mỗi bản đếm riêng.
 - Giới hạn số lần gọi AI theo người dùng.
 - Quên mật khẩu, xác minh email khi đăng ký.
+
+## Bí mật SMTP (email OTP của Minh)
+`appsettings.json` để trống `SmtpSettings:Password`. Đặt mật khẩu ứng dụng Gmail bằng user-secrets, không commit:
+
+    dotnet user-secrets set "SmtpSettings:Password" "<app password>"
+
+Khi chạy Docker/Coolify dùng biến môi trường `SmtpSettings__Password`.
+Mật khẩu cũ từng nằm trong lịch sử git của main, nên cần thu hồi và tạo mật khẩu ứng dụng mới.
