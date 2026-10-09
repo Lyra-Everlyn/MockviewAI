@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MockviewAI.Models.Entities;
 using MockviewAI.Services.Interfaces;
+using MockviewAI.Services.Security;
 using System.Security.Claims;
 
 namespace MockviewAI.Controllers
@@ -12,10 +13,12 @@ namespace MockviewAI.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly LoginThrottleService _throttle;   // [SECURITY-MODULE]
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, LoginThrottleService throttle)
         {
             _authService = authService;
+            _throttle = throttle;
         }
 
         #region Login
@@ -39,14 +42,25 @@ namespace MockviewAI.Controllers
                 return View();
             }
 
+            // [SECURITY-MODULE] Chặn dò mật khẩu: sai nhiều lần thì khóa tạm
+            var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
+            if (_throttle.IsLockedOut(throttleKey, out var wait))
+            {
+                var minutes = (int)Math.Ceiling(wait.TotalMinutes);
+                ModelState.AddModelError(string.Empty, $"Too many failed attempts. Please try again in {minutes} minute(s).");
+                return View();
+            }
+
             try
             {
                 var user = await _authService.AuthenticateAsync(email, password);
+                _throttle.Reset(throttleKey);
                 await SignInUser(user!.Email, user.FirstName + " " + user.LastName, user.Role);
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)
             {
+                _throttle.RegisterFailure(throttleKey);
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View();
             }
@@ -189,7 +203,7 @@ namespace MockviewAI.Controllers
 
             try
             {
-                // Check the password rules BEFORE sending the email code (a weak password shows an error instead of an HTTP 500)
+                // [SECURITY-MODULE] Check the password rules BEFORE sending the email code
                 CheckPasswordStrength(password);
                 await _authService.SendRegistrationOtpAsync(email);
 
@@ -250,32 +264,11 @@ namespace MockviewAI.Controllers
             }
         }
 
+        // [SECURITY-MODULE] one place for the password rules (see Services/Security/PasswordPolicy.cs)
         private static void CheckPasswordStrength(string password)
         {
-            if (password.Length > 72)
-            {
-                throw new Exception("Password must be at most 72 characters long."); // BCrypt only uses the first 72 bytes
-            }
-            if (password.Length < 8)
-            {
-                throw new Exception("Password must be at least 8 characters long.");
-            }
-            if (!password.Any(char.IsUpper))
-            {
-                throw new Exception("Password must contain at least one uppercase letter.");
-            }
-            if (!password.Any(char.IsLower))
-            {
-                throw new Exception("Password must contain at least one lowercase letter.");
-            }
-            if (!password.Any(char.IsDigit))
-            {
-                throw new Exception("Password must contain at least one digit.");
-            }
-            //if (!password.Any(ch => !char.IsLetterOrDigit(ch)))
-            //{
-            //    throw new Exception("Password must contain at least one special character.");
-            //}
+            var error = PasswordPolicy.Validate(password);
+            if (error != null) throw new Exception(error);
         }
         #endregion
 

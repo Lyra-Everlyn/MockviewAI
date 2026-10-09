@@ -10,6 +10,7 @@ using MockviewAI.Services.Helper.Implementations;
 using MockviewAI.Services.Helper.Interfaces;
 using MockviewAI.Services.Implementations;
 using MockviewAI.Services.Interfaces;
+using MockviewAI.Services.Security;
 using System.Security.Principal;
 
 namespace MockviewAI
@@ -59,6 +60,7 @@ namespace MockviewAI
             {
                 options.LoginPath = "/Auth/Login";
                 options.LogoutPath = "/api/auth/logout";
+                options.HardenCookie();   // [SECURITY-MODULE] HttpOnly, SameSite, 8h - see Services/Security/SecurityExtensions.cs
             })
             .AddGoogle(options =>
             {
@@ -92,7 +94,12 @@ namespace MockviewAI
             builder.Services.AddControllersWithViews();
 
 
+            // [SECURITY-MODULE] login throttle, forwarded headers, security options
+            builder.Services.AddAppSecurity(builder.Configuration);
+
             var app = builder.Build();
+
+            app.UseAppSecurity();   // [SECURITY-MODULE] ForwardedHeaders + security headers
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
