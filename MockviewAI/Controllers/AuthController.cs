@@ -156,7 +156,7 @@ namespace MockviewAI.Controllers
         // 5. Handle the register form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string lastName, string? major, string? targetPosition, bool terms = false)
+        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string lastName, bool terms = false)
         {
             if (!terms)
             {
@@ -180,13 +180,60 @@ namespace MockviewAI.Controllers
 
             try
             {
+                await _authService.SendRegistrationOtpAsync(email);
 
-                await _authService.RegisterAsync(email, password, confirmPassword, firstName, lastName, major, targetPosition);
-                TempData["SuccessMessage"] = "Registration successful! Please login.";
-                return RedirectToAction("Login");
+                TempData["RegEmail"] = email;
+                TempData["RegPassword"] = password;
+                TempData["RegFirstName"] = firstName;
+                TempData["RegLastName"] = lastName;
+
+                TempData["SuccessMessage"] = "Verify code has been sent to your email.";
+                return RedirectToAction("VerifyRegistrationCode", new { email = email });
             }
             catch (Exception ex)
             {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View();
+            }
+        }
+
+        [HttpGet]
+        public IActionResult VerifyRegistrationCode(string email)
+        {
+            if (string.IsNullOrEmpty(email)) return RedirectToAction("Register");
+            ViewBag.Email = email;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyRegistrationCode(string email, string code)
+        {
+            ViewBag.Email = email;
+
+            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            try
+            {
+                bool isValid = await _authService.VerifyRegistrationOtpAsync(email, code, ipAddress);
+
+                if (isValid)
+                {
+                    string password = TempData["RegPassword"]?.ToString() ?? "";
+                    string firstName = TempData["RegFirstName"]?.ToString() ?? "";
+                    string lastName = TempData["RegLastName"]?.ToString() ?? "";
+
+                    await _authService.RegisterAsync(email, password, password, firstName, lastName);
+
+                    TempData["SuccessMessage"] = "Registration successful! Please log in.";
+                    return RedirectToAction("Login");
+                }
+
+                TempData.Keep();
+                return View();
+            }
+            catch (Exception ex)
+            {
+                TempData.Keep();
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View();
             }

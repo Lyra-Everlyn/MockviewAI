@@ -20,9 +20,19 @@ namespace MockviewAI.Services.Implementations
             _cache = cache;
         }
 
-        // Register
-        public async Task RegisterAsync(string email, string password, string confirmPassword, string firstName, string lastName, string? major, string? targetPosition)
+        #region Register
+        public async Task RegisterAsync(string email, string password, string confirmPassword, string firstName, string lastName)
         {
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+            {
+                throw new Exception("First name and last name cannot be empty.");
+            }
+
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(confirmPassword))
+            {
+                throw new Exception("Email and password fields cannot be empty.");
+            }
+
             bool isEmailExist = await _userRepository.EmailExistsAsync(email);
             if (isEmailExist) throw new Exception("Email has already been registered.");
 
@@ -38,8 +48,6 @@ namespace MockviewAI.Services.Implementations
                 PasswordHash = passwordHash,
                 FirstName = firstName,
                 LastName = lastName,
-                Major = major,
-                TargetPosition = targetPosition,
                 Role = "User",
                 Status = "Active",
                 CreateAt = DateTime.UtcNow,
@@ -53,6 +61,11 @@ namespace MockviewAI.Services.Implementations
 
         public async Task<User> RegisterGoogleAsync(string email, string firstName, string lastName, string? avatarUrl)
         {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+            {
+                throw new Exception("Email, first name, and last name cannot be empty.");
+            }
+
             string dummyPassword = Guid.NewGuid().ToString();
             string dummyPasswordHash = await HashPasswordAsync(dummyPassword);
 
@@ -76,7 +89,69 @@ namespace MockviewAI.Services.Implementations
         }
 
 
-        // Login
+        public async Task SendRegistrationOtpAsync(string email)
+        {
+            bool isEmailExist = await _userRepository.EmailExistsAsync(email);
+            if (isEmailExist)
+            {
+                throw new Exception("This email has already been registered.");
+            }
+
+            Random random = new Random();
+            string otpCode = random.Next(100000, 999999).ToString();
+
+            _cache.Set($"RegOTP_{email}", otpCode, TimeSpan.FromMinutes(5));
+            _cache.Set($"RegOTP_Attempts_{email}", 0, TimeSpan.FromMinutes(5));
+
+            string subject = "MockviewAI - Registration Verification";
+            string body = $@"
+        <div style='font-family: Inter, Arial, sans-serif; padding: 20px;'>
+            <h2>Verify Your Email</h2>
+            <p>Your verification code is: <b style='font-size: 28px; color: #3348E0; letter-spacing: 2px;'>{otpCode}</b></p>
+            <p>This code is valid for 5 minutes.</p>
+        </div>";
+
+            await _emailService.SendEmailAsync(email, subject, body);
+        }
+
+
+        public async Task<bool> VerifyRegistrationOtpAsync(string email, string code, string ipAddress)
+        {
+            if (!_cache.TryGetValue($"RegOTP_{email}", out string? savedCode))
+            {
+                throw new Exception("Verification code has expired or is invalid.");
+            }
+
+            if (savedCode == code)
+            {
+                _cache.Remove($"RegOTP_{email}");
+                _cache.Remove($"RegOTP_Attempts_{email}");
+                _cache.Set($"RegVerified_{email}", true, TimeSpan.FromMinutes(10));
+                return true;
+            }
+
+            int attempts = _cache.GetOrCreate($"RegOTP_Attempts_{email}", entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                return 0;
+            }) + 1;
+
+            _cache.Set($"RegOTP_Attempts_{email}", attempts, TimeSpan.FromMinutes(5));
+
+            if (attempts >= 5)
+            {
+                _cache.Set($"BlockIP_{ipAddress}", true, TimeSpan.FromMinutes(30));
+                _cache.Remove($"RegOTP_{email}");
+                _cache.Remove($"RegOTP_Attempts_{email}");
+                throw new Exception("Your IP has been blocked due to multiple failed attempts.");
+            }
+
+            throw new Exception($"Authentication failed. You have {5 - attempts} attempts remaining.");
+        }
+        #endregion
+
+
+        #region Login
         public async Task<User?> AuthenticateAsync(string email, string password)
         {
             var users = await _userRepository.GetAllAsync();
@@ -140,9 +215,10 @@ namespace MockviewAI.Services.Implementations
 
             return existingUser;
         }
+        #endregion
 
 
-        // Hashing
+        #region Hashing
         private async Task<bool> VerifyPasswordHashAsync(string inputPassword, string storedHash)
         {
             return await Task.Run(() => BCrypt.Net.BCrypt.Verify(inputPassword, storedHash));
@@ -152,10 +228,10 @@ namespace MockviewAI.Services.Implementations
         {
             return await Task.Run(() => BCrypt.Net.BCrypt.HashPassword(password));
         }
+        #endregion
 
 
-        // Forgot Password
-        // a. 
+        #region Forgot Password
         public bool IsIpBlocked(string ipAddress)
         {
             return _cache.TryGetValue($"BlockIP_{ipAddress}", out _);
@@ -237,5 +313,6 @@ namespace MockviewAI.Services.Implementations
             await _userRepository.UpdateAsync(user);
             _cache.Remove($"Verified_{email}");
         }
+        #endregion
     }
 }
