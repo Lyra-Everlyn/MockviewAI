@@ -44,7 +44,7 @@ namespace MockviewAI.Controllers
                 await SignInUser(user!.Email, user.FirstName + " " + user.LastName, user.Role);
                 return RedirectToDashboard(user.Role);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View();
@@ -254,10 +254,10 @@ namespace MockviewAI.Controllers
                 TempData["SuccessMessage"] = "If your email is registered, a reset code has been sent.";
                 return RedirectToAction("VerifyResetCode", new { email = email });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                //ModelState.AddModelError(string.Empty, "An error occurred. Please try again later.");
-                ModelState.AddModelError(string.Empty, $"{ex.Message}");
+                ModelState.AddModelError(string.Empty, "An error occurred. Please try again later.");
+                //ModelState.AddModelError(string.Empty, $"{ex.Message}");
                 return View();
             }
         }
