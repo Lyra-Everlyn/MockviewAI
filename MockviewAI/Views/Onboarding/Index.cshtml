@@ -1,0 +1,152 @@
+﻿@model MockviewAI.Models.DTOs.OnboardingDto
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Setup - MockviewAI</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="~/css/Onboarding.css">
+</head>
+<body>
+    <div class="onboarding-wrapper">
+        <div class="onboarding-container">
+
+            <!-- LEFT PANEL -->
+            <div class="info-panel">
+                <div>
+                    <div class="logo">Mockview<span>AI</span></div>
+                </div>
+
+                <div class="info-content">
+                    <h1>Let's personalize your experience</h1>
+                    <p class="subtitle">Tailoring mock interview questions to fit your background and target career path.</p>
+
+                    <ul class="step-tracker">
+                        <li class="step-item active" id="trackerStep1">
+                            <span class="step-number">1</span>
+                            <div class="step-info">
+                                <span class="step-title">Study & Role</span>
+                                <span class="step-desc">Major & target role</span>
+                            </div>
+                        </li>
+                        <li class="step-item" id="trackerStep2">
+                            <span class="step-number">2</span>
+                            <div class="step-info">
+                                <span class="step-title">Graduation</span>
+                                <span class="step-desc">Academic status</span>
+                            </div>
+                        </li>
+                        <li class="step-item" id="trackerStep3">
+                            <span class="step-number">3</span>
+                            <div class="step-info">
+                                <span class="step-title">Experience</span>
+                                <span class="step-desc">Proficiency level</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div></div>
+            </div>
+
+            <!-- RIGHT FORM PANEL -->
+            <div class="form-panel">
+                <div>
+                    <div class="form-header">
+                        <h2>Set up your profile</h2>
+                        <p>This information helps us personalize your AI interview questions.</p>
+                    </div>
+
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="progressBarFill"></div>
+                    </div>
+
+                    <form id="onboardingForm">
+                        @Html.AntiForgeryToken()
+
+                        <!-- STEP 1: Major & Target Position -->
+                        <div class="wizard-step active" id="step1">
+                            <div class="form-group">
+                                <label for="majorInput">Major / Field of Study</label>
+                                <input type="text" id="majorInput" asp-for="Major" placeholder="e.g. Software Engineering, Information Technology" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="targetPositionInput">Target Position</label>
+                                <input type="text" id="targetPositionInput" asp-for="TargetPosition" placeholder="e.g. Backend Developer, Game Developer, Tester" required />
+                            </div>
+                        </div>
+
+                        <!-- STEP 2: Graduation Status -->
+                        <div class="wizard-step" id="step2">
+                            <input type="hidden" id="graduationStatusInput" asp-for="GraduationStatus" />
+                            <div class="form-group">
+                                <label>Graduation Status</label>
+                                <div class="options-grid">
+                                    <div class="option-card" data-group="graduation" data-value="Current Student">
+                                        <span class="option-title">Current Student</span>
+                                        <span class="option-desc">Currently pursuing my degree</span>
+                                    </div>
+                                    <div class="option-card" data-group="graduation" data-value="Expecting Graduation">
+                                        <span class="option-title">Expecting Graduation</span>
+                                        <span class="option-desc">Graduating soon or in final term</span>
+                                    </div>
+                                    <div class="option-card" data-group="graduation" data-value="Graduated">
+                                        <span class="option-title">Graduated</span>
+                                        <span class="option-desc">Already completed my studies</span>
+                                    </div>
+                                    <div class="option-card" data-group="graduation" data-value="Other">
+                                        <span class="option-title">Other</span>
+                                        <span class="option-desc">Self-taught or transition career</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 3: Experience Level -->
+                        <div class="wizard-step" id="step3">
+                            <input type="hidden" id="experienceLevelInput" asp-for="ExperienceLevel" />
+                            <div class="form-group">
+                                <label>Experience Level</label>
+                                <div class="options-grid">
+                                    <div class="option-card" data-group="experience" data-value="Intern / Fresher">
+                                        <span class="option-title">Intern / Fresher</span>
+                                        <span class="option-desc">0 - 1 years of experience</span>
+                                    </div>
+                                    <div class="option-card" data-group="experience" data-value="Junior">
+                                        <span class="option-title">Junior</span>
+                                        <span class="option-desc">1 - 2 years of experience</span>
+                                    </div>
+                                    <div class="option-card" data-group="experience" data-value="Mid-Level">
+                                        <span class="option-title">Mid-Level</span>
+                                        <span class="option-desc">2 - 4 years of experience</span>
+                                    </div>
+                                    <div class="option-card" data-group="experience" data-value="Senior / Lead">
+                                        <span class="option-title">Senior / Lead</span>
+                                        <span class="option-desc">4+ years of experience</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <!-- CONTROLS -->
+                <div class="wizard-actions">
+                    <button type="button" class="btn-secondary" id="btnBack" disabled>Back</button>
+                    <button type="button" class="btn-primary" id="btnNext">Continue</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <partial name="Partials/_Notify"/>
+    <script src="~/js/Onboarding.js"></script>
+</body>
+</html>

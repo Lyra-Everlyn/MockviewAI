@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MockviewAI.Models.Entities;
 using MockviewAI.Services.Interfaces;
 using System.Security.Claims;
 
@@ -42,11 +43,9 @@ namespace MockviewAI.Controllers
             {
                 var user = await _authService.AuthenticateAsync(email, password);
                 await SignInUser(user!.Email, user.FirstName + " " + user.LastName, user.Role);
-
-                // TODO: Redirect to the appropriate page after successful login
-                return RedirectToAction();
+                return RedirectAfterLogin(user);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View();
@@ -98,7 +97,7 @@ namespace MockviewAI.Controllers
             {
                 var user = await _authService.AuthenticateGoogleUserAsync(email, givenName, surname ?? "", avatarUrl);
                 await SignInUser(user.Email, user.FirstName + " " + user.LastName, user.Role);
-                return RedirectToDashboard(user.Role);
+                return RedirectAfterLogin(user);
             }
             catch (Exception ex)
             {
@@ -125,13 +124,20 @@ namespace MockviewAI.Controllers
         }
 
         // Helper method redirect to the appropriate page after successful login
-        private IActionResult RedirectToDashboard(string? role)
+        private IActionResult RedirectAfterLogin(User user)
         {
-            return role switch
+            if (user.Role == "Admin")
             {
-                // TODO: Change the role names to match your application's roles
-                "Admin" => RedirectToAction("Index", "Admin"),
-                "User" => RedirectToAction("Index", "User"),
+                return RedirectToAction("Index", "Admin");
+            }
+            if (!user.IsOnboardingCompleted)
+            {
+                return RedirectToAction("Index", "Onboarding");
+            }
+
+            return user.Role switch
+            {
+                "User" => RedirectToAction("Index", "Home"),
                 _ => RedirectToAction("Index", "Home"),
             };
         }
@@ -158,8 +164,14 @@ namespace MockviewAI.Controllers
         // 5. Handle the register form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string lastName)
+        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string lastName, bool terms = false)
         {
+            if (!terms)
+            {
+                ModelState.AddModelError(string.Empty, "You must agree to the Terms of Service and Privacy Policy.");
+                return View();
+            }
+
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword) || string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
             {
                 ModelState.AddModelError(string.Empty, "Please fill in all required fields.");
@@ -176,10 +188,15 @@ namespace MockviewAI.Controllers
 
             try
             {
-                await _authService.RegisterAsync(email, password, firstName, lastName);
+                await _authService.SendRegistrationOtpAsync(email);
 
-                TempData["SuccessMessage"] = "Registration successful! Please login.";
-                return RedirectToAction("Login");
+                TempData["RegEmail"] = email;
+                TempData["RegPassword"] = password;
+                TempData["RegFirstName"] = firstName;
+                TempData["RegLastName"] = lastName;
+
+                TempData["SuccessMessage"] = "Verify code has been sent to your email.";
+                return RedirectToAction("VerifyRegistrationCode", new { email = email });
             }
             catch (Exception ex)
             {
@@ -188,8 +205,54 @@ namespace MockviewAI.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult VerifyRegistrationCode(string email)
+        {
+            if (string.IsNullOrEmpty(email)) return RedirectToAction("Register");
+            ViewBag.Email = email;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyRegistrationCode(string email, string code)
+        {
+            ViewBag.Email = email;
+
+            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            try
+            {
+                bool isValid = await _authService.VerifyRegistrationOtpAsync(email, code, ipAddress);
+
+                if (isValid)
+                {
+                    string password = TempData["RegPassword"]?.ToString() ?? "";
+                    string firstName = TempData["RegFirstName"]?.ToString() ?? "";
+                    string lastName = TempData["RegLastName"]?.ToString() ?? "";
+
+                    await _authService.RegisterAsync(email, password, password, firstName, lastName);
+
+                    TempData["SuccessMessage"] = "Registration successful! Please log in.";
+                    return RedirectToAction("Login");
+                }
+
+                TempData.Keep();
+                return View();
+            }
+            catch (Exception ex)
+            {
+                TempData.Keep();
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View();
+            }
+        }
+
         private async Task CheckPasswordStrenght(string password)
         {
+            if (password.Length > 72)
+            {
+                throw new Exception("Password must be at most 72 characters long.");
+            }
             if (password.Length < 8)
             {
                 throw new Exception("Password must be at least 8 characters long.");
@@ -210,6 +273,132 @@ namespace MockviewAI.Controllers
             //{
             //    throw new Exception("Password must contain at least one special character.");
             //}
+        }
+        #endregion
+
+        #region Forgot Password
+        // 6. Return the enter email view for forgot password
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        // 7. Handle the forgot password form submission
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+            if (_authService.IsIpBlocked(ipAddress))
+            {
+                ModelState.AddModelError(string.Empty, "Your IP has been temporarily blocked due to multiple failed attempts. Please try again after 30 minutes.");
+                return View();
+            }
+
+            if (string.IsNullOrEmpty(email))
+            {
+                ModelState.AddModelError(string.Empty, "Please enter your email address.");
+                return View();
+            }
+
+            try
+            {
+                await _authService.RequestPasswordResetAsync(email);
+                TempData["SuccessMessage"] = "If your email is registered, a reset code has been sent.";
+                return RedirectToAction("VerifyResetCode", new { email = email });
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred. Please try again later.");
+                //ModelState.AddModelError(string.Empty, $"{ex.Message}");
+                return View();
+            }
+        }
+
+        // 8. Return the enter verify reset code view
+        [HttpGet]
+        public IActionResult VerifyResetCode(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return RedirectToAction("ForgotPassword");
+            }
+
+            return View();
+        }
+
+        // 9. Handle the verify reset code form submission
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyResetCode(string email, string code)
+        {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(code))
+            {
+                ModelState.AddModelError(string.Empty, "Invalid request. Please ensure all fields are filled.");
+                return View();
+            }
+
+            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            try
+            {
+                bool isValid = await _authService.VerifyResetCodeAsync(email, code, ipAddress);
+
+                if (isValid)
+                {
+                    TempData["SuccessMessage"] = "Code verified successfully. Please enter your new password.";
+                    return RedirectToAction("ResetPassword", new { email = email, code = code });
+                }
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View();
+            }
+        }
+
+        // 10. Return the reset password view
+        [HttpGet]
+        public IActionResult ResetPassword(string email, string code)
+        {
+            if (string.IsNullOrEmpty(email)) return RedirectToAction("ForgotPassword");
+            ViewBag.Email = email;
+            return View();
+        }
+
+        // 11. Handle the reset password form submission
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(string email, string newPassword, string confirmPassword)
+        {
+            if (string.IsNullOrEmpty(newPassword) || string.IsNullOrEmpty(confirmPassword))
+            {
+                ModelState.AddModelError(string.Empty, "Please fill in all fields.");
+                return View();
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                ModelState.AddModelError(string.Empty, "Passwords do not match.");
+                return View();
+            }
+
+            try
+            {
+                await CheckPasswordStrenght(newPassword);
+                await _authService.ResetPasswordAsync(email, newPassword);
+
+                TempData["SuccessMessage"] = "Your password has been reset successfully. Please login.";
+                return RedirectToAction("Login");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View();
+            }
         }
         #endregion
     }
