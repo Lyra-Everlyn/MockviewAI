@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MockviewAI.Data;
 
@@ -11,9 +12,11 @@ using MockviewAI.Data;
 namespace MockviewAI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261008203539_AddMilliSecondsToDateTime")]
+    partial class AddMilliSecondsToDateTime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,21 +52,10 @@ namespace MockviewAI.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
-                    b.Property<string>("ExperienceLevel")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
-
-                    b.Property<string>("GraduationStatus")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<bool>("IsOnboardingCompleted")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime?>("LastLoginAt")
                         .HasPrecision(3)
