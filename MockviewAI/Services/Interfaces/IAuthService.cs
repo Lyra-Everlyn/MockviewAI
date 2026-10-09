@@ -12,6 +12,10 @@ namespace MockviewAI.Services.Interfaces
         Task<User?> AuthenticateAsync(string email, string password);
         Task<User> AuthenticateGoogleUserAsync(string email, string firstName, string lastName, string? avatarUrl);
 
-
+        // Forgot Password
+        bool IsIpBlocked(string ipAddress);
+        Task RequestPasswordResetAsync(string email);
+        Task<bool> VerifyResetCodeAsync(string email, string code, string ipAddress);
+        Task ResetPasswordAsync(string email, string newPassword);
     }
 }
