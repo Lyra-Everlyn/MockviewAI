@@ -45,7 +45,7 @@ namespace MockviewAI
 
             // Service
             builder.Services.AddScoped<IAuthService, AuthService>();
-            
+            builder.Services.AddScoped<IOnboardingService, OnboardingService>();
 
 
             // Other services

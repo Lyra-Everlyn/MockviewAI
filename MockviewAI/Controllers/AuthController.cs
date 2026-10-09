@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MockviewAI.Models.Entities;
 using MockviewAI.Services.Interfaces;
 using System.Security.Claims;
 
@@ -42,7 +43,7 @@ namespace MockviewAI.Controllers
             {
                 var user = await _authService.AuthenticateAsync(email, password);
                 await SignInUser(user!.Email, user.FirstName + " " + user.LastName, user.Role);
-                return RedirectToDashboard(user.Role);
+                return RedirectAfterLogin(user);
             }
             catch (Exception ex)
             {
@@ -96,7 +97,7 @@ namespace MockviewAI.Controllers
             {
                 var user = await _authService.AuthenticateGoogleUserAsync(email, givenName, surname ?? "", avatarUrl);
                 await SignInUser(user.Email, user.FirstName + " " + user.LastName, user.Role);
-                return RedirectToDashboard(user.Role);
+                return RedirectAfterLogin(user);
             }
             catch (Exception ex)
             {
@@ -123,13 +124,20 @@ namespace MockviewAI.Controllers
         }
 
         // Helper method redirect to the appropriate page after successful login
-        private IActionResult RedirectToDashboard(string? role)
+        private IActionResult RedirectAfterLogin(User user)
         {
-            return role switch
+            if (user.Role == "Admin")
             {
-                // TODO: Change page name to the correct page for each role
-                "Admin" => RedirectToAction("Index", "Admin"),
-                "User" => RedirectToAction("Index", "User"),
+                return RedirectToAction("Index", "Admin");
+            }
+            if (!user.IsOnboardingCompleted)
+            {
+                return RedirectToAction("Index", "Onboarding");
+            }
+
+            return user.Role switch
+            {
+                "User" => RedirectToAction("Index", "Home"),
                 _ => RedirectToAction("Index", "Home"),
             };
         }
