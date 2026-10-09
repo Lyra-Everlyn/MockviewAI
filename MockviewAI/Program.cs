@@ -7,8 +7,11 @@ using MockviewAI.Data;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Ai;
+using MockviewAI.Services.Helper.Implementations;
+using MockviewAI.Services.Helper.Interfaces;
 using MockviewAI.Services.Implementations;
 using MockviewAI.Services.Interfaces;
+using MockviewAI.Services.Security;
 using System.Security.Principal;
 
 namespace MockviewAI
@@ -44,7 +47,7 @@ namespace MockviewAI
 
             // Service
             builder.Services.AddScoped<IAuthService, AuthService>();
-
+            builder.Services.AddScoped<IOnboardingService, OnboardingService>();
             // [AI-MODULE] AI scoring: provider is chosen by config "Ai:Provider" ("Mock" default, or "Gemini")
             builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
             builder.Services.AddSingleton<DeliveryAnalyzer>();
@@ -75,6 +78,7 @@ namespace MockviewAI
             {
                 options.LoginPath = "/Auth/Login";
                 options.LogoutPath = "/api/auth/logout";
+                options.HardenCookie();   // [SECURITY-MODULE] HttpOnly, SameSite, 8h - see Services/Security/SecurityExtensions.cs
             })
             .AddGoogle(options =>
             {
@@ -95,12 +99,25 @@ namespace MockviewAI
             builder.Services.AddSingleton(cloudinary);
 
 
+            // c. Email service configuration
+            builder.Services.AddScoped<IEmailService, EmailService>();
+
+
+            // 3. Add Memory Cache
+            builder.Services.AddMemoryCache();
+
+
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
 
+            // [SECURITY-MODULE] login throttle, forwarded headers, security options
+            builder.Services.AddAppSecurity(builder.Configuration);
+
             var app = builder.Build();
+
+            app.UseAppSecurity();   // [SECURITY-MODULE] ForwardedHeaders + security headers
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
