@@ -48,6 +48,7 @@ namespace MockviewAI
             // Service
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IOnboardingService, OnboardingService>();
+
             // [AI-MODULE] AI scoring: provider is chosen by config "Ai:Provider" ("Mock" default, or "Gemini")
             builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
             builder.Services.AddSingleton<DeliveryAnalyzer>();
@@ -64,8 +65,6 @@ namespace MockviewAI
                 builder.Services.AddScoped<IAiScoringService, MockAiScoringService>();
             }
             builder.Services.AddScoped<InterviewScoringService>();
-            
-
 
             // Other services
             // a. Google configuration
