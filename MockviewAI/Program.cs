@@ -65,6 +65,7 @@ namespace MockviewAI
                 builder.Services.AddScoped<IAiScoringService, MockAiScoringService>();
             }
             builder.Services.AddScoped<InterviewScoringService>();
+            builder.Services.AddScoped<IInterviewService, InterviewService>();   // [AI-INTERVIEW]
 
             // Other services
             // a. Google configuration

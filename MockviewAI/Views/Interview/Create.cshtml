@@ -1,0 +1,57 @@
+@* [AI-INTERVIEW] Form TẠM để thử luồng phỏng vấn.
+   Khi có CreateSession.cshtml của nhóm UI thì dùng file đó (đổi asp-controller="Interview" asp-action="Start") và xóa file này. *@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo buổi luyện - MockviewAI</title>
+    <link rel="stylesheet" href="~/css/Login.css">
+    <style>select { width: 100%; padding: 12px; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 14px; }</style>
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="login-box">
+            <div class="login-form-container">
+                <h2>Tạo buổi luyện</h2>
+                <p class="subtitle">Chọn vị trí, người phỏng vấn và bắt đầu.</p>
+
+                <form method="post" asp-controller="Interview" asp-action="Start">
+                    <div class="form-group">
+                        <label for="position">Vị trí ứng tuyển</label>
+                        <select name="position" id="position">
+                            <option value="developer">Lập trình viên</option>
+                            <option value="tester">Kiểm thử viên (Tester)</option>
+                            <option value="ba">Chuyên viên Phân tích (BA)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="interviewer">Người phỏng vấn</label>
+                        <select name="interviewer" id="interviewer">
+                            <option value="linh">Linh (Nhân sự)</option>
+                            <option value="nam">Nam (Kỹ thuật)</option>
+                            <option value="an">An (Quản lý)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="questionCount">Số câu hỏi</label>
+                        <select name="questionCount" id="questionCount">
+                            <option value="5">5 câu</option>
+                            <option value="10">10 câu</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Bắt đầu phỏng vấn</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <partial name="Partials/_Notify" />
+</body>
+</html>
