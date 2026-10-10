@@ -1,4 +1,5 @@
-﻿@{
+﻿@model MockviewAI.Models.DTOs.InterviewRoomViewModel
+@{
     Layout = null; 
 }
 
@@ -16,26 +17,27 @@
         <div class="nav-container">
             <div class="nav-left">
                 <div class="logo">Mockview<span>AI</span></div>
-                <div class="nav-title">Phòng phỏng vấn thử &middot; Lập trình viên</div>
+                <div class="nav-title">Phòng phỏng vấn thử &middot; @Model.Position</div>
             </div>
             <div class="nav-right">
-                <span class="badge-step">Câu 2 / 5</span>
+                <span class="badge-step">Câu @Model.QuestionNumber / @Model.TotalQuestions</span>
             </div>
         </div>
     </nav>
 
     <!-- NỘI DUNG CHÍNH (PHÒNG PHỎNG VẤN) -->
-    <main class="interview-container">
+    <main class="interview-container" id="interview-room" data-session-id="@Model.SessionId" data-total="@Model.TotalQuestions">
+        @Html.AntiForgeryToken()
         
         <!-- Header riêng cho Điện thoại -->
         <div class="mobile-header hide-on-desktop">
-            <div class="mobile-step">Câu 2 / 5</div>
-            <div class="badge-role">Lập trình viên</div>
+            <div class="mobile-step">Câu @Model.QuestionNumber / @Model.TotalQuestions</div>
+            <div class="badge-role">@Model.Position</div>
         </div>
 
         <!-- Thanh tiến trình (Dùng chung cho cả PC và Mobile) -->
         <div class="progress-track">
-            <div class="progress-fill" style="width: 40%;"></div>
+            <div class="progress-fill" style="width: @(Model.ProgressPercent)%;"></div>
         </div>
 
         <div class="layout-grid">
@@ -57,20 +59,22 @@
                             <path d="M 25 100 C 25 70, 75 70, 75 100 Z" fill="#2949ff"/>
                         </svg>
                     </div>
-                    <div class="interviewer-name">Linh &middot; Nhân sự</div>
+                    <div class="interviewer-name">@Model.InterviewerName &middot; @Model.InterviewerRole</div>
                     <div class="status-tag">Đang hỏi...</div>
                 </div>
 
                 <!-- Khu vực Câu hỏi -->
                 <div class="question-box">
                     <div class="box-label">Câu hỏi</div>
-                    <div class="question-text">Hãy giới thiệu ngắn về bản thân bạn.</div>
+                    <div class="question-text" id="question-text">@Model.QuestionText</div>
                 </div>
 
                 <!-- Khu vực Bản ghi câu trả lời -->
                 <div class="transcript-box">
                     <div class="box-label">Bản ghi chữ câu trả lời của bạn</div>
-                    <div class="transcript-text">"Em là Quang, sinh viên năm cuối ngành Công nghệ thông tin..."</div>
+                    <div class="transcript-text" id="transcript-text">Câu trả lời của bạn sẽ hiện ở đây.</div>
+                    <textarea class="answer-input" id="answer-input" rows="4" maxlength="2000" hidden
+                              placeholder="Gõ câu trả lời của bạn..."></textarea>
                 </div>
             </div>
 
@@ -78,25 +82,28 @@
             <div class="control-pane">
                 <h3 class="control-title hide-on-mobile">Điều khiển</h3>
                 
-                <button class="btn btn-primary">
+                <button class="btn btn-primary" id="btn-speak" type="button">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
                     Bấm để nói
                 </button>
 
                 <!-- Bọc 2 nút này để xếp ngang trên điện thoại -->
                 <div class="btn-row">
-                    <button class="btn btn-outline">
+                    <button class="btn btn-outline" id="btn-type" type="button">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><line x1="6" y1="8" x2="6" y2="8"></line><line x1="10" y1="8" x2="10" y2="8"></line><line x1="14" y1="8" x2="14" y2="8"></line><line x1="18" y1="8" x2="18" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                         Gõ câu trả lời
                     </button>
                     
-                    <button class="btn btn-outline">
+                    <button class="btn btn-outline" id="btn-skip" type="button">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
                         Bỏ qua câu này
                     </button>
                 </div>
 
-                <button class="btn btn-danger" id="btn-stop-session">
+                <button class="btn btn-primary" id="btn-send" type="button" hidden>Gửi câu trả lời</button>
+                <p class="helper-text" id="room-message" hidden></p>
+
+                <button class="btn btn-danger" id="btn-stop-session" type="button">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12" rx="2" ry="2"></rect></svg>
                     Dừng buổi luyện
                 </button>
@@ -113,29 +120,14 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2" ry="2"></rect></svg>
             </div>
             <h2 class="modal-title">Dừng buổi luyện?</h2>
-            <p class="modal-desc">Bạn đã trả lời 2 / 5 câu. Các câu đã trả lời vẫn được chấm điểm và lưu vào lịch sử.</p>
+            <p class="modal-desc">Bạn đã trả lời <span id="answered-count">@Model.AnsweredCount</span> / @Model.TotalQuestions câu. Các câu đã trả lời vẫn được chấm điểm và lưu vào lịch sử.</p>
             <div class="modal-actions">
                 <button class="btn btn-outline" id="btn-resume">Tiếp tục phỏng vấn</button>
-                <button class="btn btn-danger-fill">Dừng và xem kết quả</button>
+                <button class="btn btn-danger-fill" id="btn-finish" type="button">Dừng và xem kết quả</button>
             </div>
         </div>
     </div>
 
-    <!-- Script nhỏ để bật/tắt Modal khi bấm nút -->
-    <script>
-        const modal = document.getElementById('stop-modal');
-        const btnStop = document.getElementById('btn-stop-session');
-        const btnResume = document.getElementById('btn-resume');
-
-        // Bật Modal
-        btnStop.addEventListener('click', () => {
-            modal.style.display = 'flex';
-        });
-
-        // Tắt Modal
-        btnResume.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-    </script>
+    <script src="~/js/InterviewRoom.js"></script>
 </body>
 </html>

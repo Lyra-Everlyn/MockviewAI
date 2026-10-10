@@ -402,3 +402,18 @@ body {
         flex-direction: column;
     }
 }
+
+/* [AI-INTERVIEW] Thêm cho phần gõ tay và thông báo trong phòng phỏng vấn */
+[hidden] {
+    display: none !important;
+}
+
+.answer-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 15px;
+    resize: vertical;
+}

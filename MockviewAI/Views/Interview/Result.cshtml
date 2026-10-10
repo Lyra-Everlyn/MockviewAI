@@ -1,0 +1,64 @@
+@* [AI-INTERVIEW] Trang kết quả TẠM, đủ để xem điểm.
+   Khi có Result.cshtml của nhóm UI thì thay nội dung, giữ dòng @model và các tên thuộc tính của SessionResultViewModel. *@
+@model MockviewAI.Models.DTOs.SessionResultViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả buổi luyện - MockviewAI</title>
+    <style>
+        body { font-family: Inter, Arial, sans-serif; background: #F8FAFC; color: #111827; margin: 0; padding: 24px; }
+        .card { max-width: 720px; margin: 0 auto; background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; padding: 24px; }
+        .score { font-size: 48px; font-weight: 800; color: #3348E0; }
+        .tag { display: inline-block; background: #FFF3E0; color: #E67E22; border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600; }
+        a.btn { display: inline-block; margin-top: 16px; padding: 12px 20px; border-radius: 12px; background: #3348E0; color: #fff; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Kết quả buổi luyện</h1>
+        <p>@Model.Position &middot; @Model.StartedAt.ToLocalTime().ToString("dd/MM") &middot; @Model.QuestionCount câu &middot; Người phỏng vấn: @Model.InterviewerName</p>
+
+        @if (!Model.HasScore)
+        {
+            <p>Bạn chưa trả lời câu nào nên chưa có điểm.</p>
+        }
+        else
+        {
+            <div><span class="score">@Model.TotalScore</span> / 100 <span class="tag">Điểm tham khảo</span></div>
+            <p>Nội dung câu trả lời: <strong>@Model.ContentScore</strong> &middot; Cách nói: <strong>@Model.DeliveryScore</strong></p>
+            <p>Điểm tổng = 60% nội dung + 40% cách nói.</p>
+
+            @if (Model.AnxietyBefore > 0 && Model.AnxietyAfter > 0)
+            {
+                <p>Mức lo lắng: trước <strong>@Model.AnxietyBefore</strong> &rarr; sau <strong>@Model.AnxietyAfter</strong></p>
+            }
+
+            <h3>Nhận xét</h3>
+            <p>@Model.AiSummary</p>
+
+            @if (Model.Strengths.Any())
+            {
+                <h3>Điểm tốt</h3>
+                <ul>@foreach (var item in Model.Strengths) { <li>@item</li> }</ul>
+            }
+            @if (Model.Improvements.Any())
+            {
+                <h3>Cần cải thiện</h3>
+                <ul>@foreach (var item in Model.Improvements) { <li>@item</li> }</ul>
+            }
+            @if (Model.DeliveryTips.Any())
+            {
+                <h3>Lời khuyên về cách nói</h3>
+                <ul>@foreach (var item in Model.DeliveryTips) { <li>@item</li> }</ul>
+            }
+        }
+
+        <a class="btn" asp-controller="Interview" asp-action="Create">Luyện thêm một buổi</a>
+    </div>
+</body>
+</html>
