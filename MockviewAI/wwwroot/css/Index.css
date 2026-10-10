@@ -49,6 +49,37 @@ ul {
     font-size: 15px;
 }
 
+/* Khối chứa Avatar và Tên */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Khoảng cách giữa ảnh và tên */
+    cursor: pointer;
+}
+
+/* Ảnh đại diện */
+.avatar-img {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
+}
+
+/* Tên người dùng trên Navbar */
+.user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+/* Ẩn tên trên thiết bị di động để tránh bị chật màn hình */
+@media (max-width: 768px) {
+    .user-name {
+        display: none;
+    }
+}
+
 /* =========================================
    THANH ĐIỀU HƯỚNG MÁY TÍNH
    ========================================= */
