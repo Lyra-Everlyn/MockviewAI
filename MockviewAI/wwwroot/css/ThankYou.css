@@ -1,0 +1,249 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* =========================================
+   RESET CSS & GLOBAL
+   ========================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #eef2f6; /* Nền xám nhạt toàn trang */
+    color: #111827;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    text-decoration: none;
+}
+
+ul {
+    list-style: none;
+}
+
+/* =========================================
+   THANH ĐIỀU HƯỚNG MÁY TÍNH
+   ========================================= */
+.desktop-nav {
+    background: #fff;
+    padding: 16px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.nav-container {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+    .logo span {
+        color: #2949ff;
+    }
+
+.nav-links {
+    display: flex;
+    gap: 24px;
+}
+
+    .nav-links a {
+        color: #4b5563;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+.badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-v1 {
+    background: #ffedd5;
+    color: #9a3412;
+}
+
+.avatar {
+    width: 34px;
+    height: 34px;
+    background: #2949ff;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+/* =========================================
+   BỐ CỤC CHÍNH (CẢM ƠN) - MÁY TÍNH
+   ========================================= */
+.thankyou-wrapper {
+    flex: 1; /* Chiếm toàn bộ không gian còn lại dưới navbar */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    width: 100%;
+    max-width: 1040px;
+    margin: 0 auto;
+}
+
+.thankyou-container {
+    background: #fff;
+    width: 100%;
+    min-height: 480px; /* Chiều cao tối thiểu để tạo không gian trắng rộng như thiết kế */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+
+/* Icon Tích xanh */
+.success-icon {
+    width: 64px;
+    height: 64px;
+    background-color: #e6f4ea; /* Nền xanh pastel nhạt */
+    color: #0d652d; /* Màu tích xanh đậm */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Tiêu đề & Căn chỉnh chữ */
+.thankyou-container h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 12px;
+}
+
+.thankyou-container p {
+    font-size: 14px;
+    color: #4b5563;
+    line-height: 1.5;
+    margin-bottom: 32px;
+}
+
+/* Cụm Nút bấm */
+.action-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    min-width: 180px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-primary {
+    background-color: #2949ff;
+    color: white;
+}
+
+    .btn-primary:hover {
+        background-color: #1e3a8a;
+    }
+
+.btn-outline {
+    background-color: #fff;
+    color: #2949ff;
+    border: 1px solid #a5b4fc; /* Viền xanh nhạt */
+}
+
+    .btn-outline:hover {
+        background-color: #f8fafc;
+        border-color: #818cf8;
+    }
+
+/* =========================================
+   MOBILE RESPONSIVE (DƯỚI 768px)
+   ========================================= */
+.hide-on-desktop {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .hide-on-desktop {
+        display: block;
+    }
+
+    .hide-on-mobile {
+        display: none !important;
+    }
+
+    .thankyou-wrapper {
+        padding: 16px;
+        align-items: stretch;
+    }
+
+    .thankyou-container {
+        border-radius: 20px;
+        padding: 40px 24px;
+        min-height: 80vh; /* Kéo dài Form card chiếm gần hết màn hình dọc */
+        justify-content: center;
+    }
+
+        .thankyou-container h1 {
+            font-size: 24px;
+        }
+
+        .thankyou-container p {
+            margin-bottom: 28px;
+            font-size: 13.5px;
+        }
+
+    /* Đổi Cụm nút bấm từ hàng ngang sang xếp dọc */
+    .action-buttons {
+        flex-direction: column;
+        width: 100%;
+        gap: 12px;
+    }
+
+    .btn {
+        width: 100%; /* Mở rộng nút full viền */
+        padding: 14px 20px;
+    }
+}

@@ -1,0 +1,152 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ - MockviewAI</title>
+    <link rel="stylesheet" href="~/css/Profile.css">
+</head>
+<body>
+    <!-- THANH ĐIỀU HƯỚNG MÁY TÍNH -->
+    <nav class="desktop-nav hide-on-mobile">
+        <div class="nav-container">
+            <div class="nav-left">
+                <div class="logo">Mockview<span>AI</span></div>
+                <ul class="nav-links">
+                    <li><a href="#">Trang chủ</a></li>
+                    <li><a href="#">Luyện tập</a></li>
+                    <li><a href="#">Lịch sử</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <span class="badge badge-v1">BETA</span>
+                <div class="avatar">Q</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <main class="profile-page">
+        <div class="main-card">
+            <h1 class="page-title">Hồ sơ của bạn</h1>
+            
+            <div class="profile-grid">
+                
+                <!-- CỘT TRÁI -->
+                <div class="col-left">
+                    <!-- 1. Box Thông tin cá nhân -->
+                    <div class="box info-box">
+                        <div class="user-header">
+                            <div class="user-avatar">Q</div>
+                            <div class="user-titles">
+                                <h2>Trần Minh Quang</h2>
+                                <p>Sắp ra trường</p>
+                            </div>
+                        </div>
+                        <div class="user-tags">
+                            <span class="tag-pill">Công nghệ thông tin</span>
+                            <span class="tag-pill">Mục tiêu: Lập trình viên</span>
+                        </div>
+                        <button class="btn-outline">Sửa hồ sơ</button>
+                    </div>
+
+                    <!-- 2. Box Góp ý (Sẽ tụt xuống dưới trên Mobile) -->
+                    <div class="box feedback-box">
+                        <h4>Góp ý cho bản BETA</h4>
+                        <p class="hide-on-mobile">Mất khoảng 2 phút.</p>
+                    </div>
+
+                    <!-- 3. Các link tài khoản (Sẽ tụt xuống dưới trên Mobile) -->
+                    <div class="account-links">
+                        <a href="#" class="link-blue">Xoá ghi âm</a>
+                        <a href="#" class="link-red">Xoá tài khoản</a>
+                        <a href="#" class="link-blue">Đăng xuất</a>
+                    </div>
+                </div>
+
+                <!-- CỘT PHẢI -->
+                <div class="col-right">
+                    <!-- 4. Lịch sử luyện tập -->
+                    <div class="history-section">
+                        <div class="history-header">
+                            <h3>Lịch sử luyện tập</h3>
+                            <a href="#">Xem tất cả</a>
+                        </div>
+                        
+                        <div class="history-list">
+                            <!-- Thẻ Lịch sử 1 -->
+                            <div class="history-card">
+                                <div class="card-left">
+                                    <div class="card-role">Lập trình viên</div>
+                                    <div class="card-badges">
+                                        <span class="badge-score">78 điểm</span>
+                                        <span class="badge-anxiety-good">Lo lắng 7 &rarr; 4</span>
+                                    </div>
+                                </div>
+                                <div class="card-right">
+                                    <span class="date-full hide-on-mobile">06/10 &middot; 5 câu</span>
+                                    <span class="date-short hide-on-desktop">06/10</span>
+                                </div>
+                            </div>
+
+                            <!-- Thẻ Lịch sử 2 -->
+                            <div class="history-card">
+                                <div class="card-left">
+                                    <div class="card-role">Phân tích dữ liệu</div>
+                                    <div class="card-badges">
+                                        <span class="badge-score">71 điểm</span>
+                                        <span class="badge-anxiety-good">Lo lắng 8 &rarr; 6</span>
+                                    </div>
+                                </div>
+                                <div class="card-right">
+                                    <span class="date-full hide-on-mobile">05/10 &middot; 5 câu</span>
+                                    <span class="date-short hide-on-desktop">05/10</span>
+                                </div>
+                            </div>
+
+                            <!-- Thẻ Lịch sử 3 (Ẩn trên điện thoại) -->
+                            <div class="history-card hide-on-mobile">
+                                <div class="card-left">
+                                    <div class="card-role">Lập trình viên</div>
+                                    <div class="card-badges">
+                                        <span class="badge-score">65 điểm</span>
+                                        <span class="badge-anxiety-warn">Lo lắng 8 &rarr; 7</span>
+                                    </div>
+                                </div>
+                                <div class="card-right">
+                                    <span class="date-full">03/10 &middot; 3 câu</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </main>
+
+    <!-- THANH ĐIỀU HƯỚNG DƯỚI ĐÁY CHO ĐIỆN THOẠI -->
+    <nav class="mobile-nav hide-on-desktop">
+        <a href="#" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            <span>Trang chủ</span>
+        </a>
+        <a href="#" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg>
+            <span>Luyện tập</span>
+        </a>
+        <a href="#" class="nav-item">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>Lịch sử</span>
+        </a>
+        <a href="#" class="nav-item active">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Hồ sơ</span>
+        </a>
+    </nav>
+</body>
+</html>
