@@ -1,5 +1,6 @@
-﻿@{
-    Layout = null; 
+﻿@model MockviewAI.Models.ViewModels.HomeViewModel
+@{
+    Layout = null;
 }
 
 <!DOCTYPE html>
@@ -24,22 +25,40 @@
             </div>
             <div class="nav-right">
                 <span class="badge badge-v1">BETA</span>
-                <div class="avatar">Q</div>
+
+                @if (Model.IsAuthenticated)
+                {
+                    <div class="user-profile">
+                        <span class="user-name">@Model.FullName</span>
+                        @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                        {
+                            <img src="@Model.AvatarUrl" alt="Avatar" class="avatar-img" referrerpolicy="no-referrer" />
+                        }
+                        else
+                        {
+                            <div class="avatar">@Model.AvatarInitial</div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <a href="/Auth/Login" class="link-primary" style="margin-left: 10px;">Đăng nhập</a>
+                }
             </div>
         </div>
     </nav>
 
     <!-- NỘI DUNG CHÍNH -->
     <main class="dashboard-layout">
-        
+
         <!-- Header (Lời chào) -->
         <div class="item-greeting">
             <div class="greeting-texts">
-                <div class="greeting-sub">Chào buổi sáng</div>
-                <div class="greeting-main">Xin chào, Quang</div>
+                <div class="greeting-sub">@Model.GreetingSub</div>
+                <div class="greeting-main">Xin chào, @Model.FullName</div>
             </div>
             <!-- Avatar hiển thị cạnh lời chào trên Điện thoại -->
-            <div class="avatar hide-on-desktop">Q</div>
+            <div class="avatar hide-on-desktop">@Model.AvatarInitial</div>
         </div>
 
         <!-- Khối CTA chính (Xanh biển) -->
@@ -71,44 +90,58 @@
         <!-- Header Buổi gần đây -->
         <div class="recent-header item-recent-header">
             <h3>Buổi gần đây</h3>
-            <!-- Link cho Máy tính -->
             <div class="header-actions hide-on-mobile">
-                <a href="#" class="link-primary">Xem toàn bộ lịch sử</a>
+                @if (Model.IsAuthenticated)
+                {
+                    <a href="#" class="link-primary">Xem toàn bộ lịch sử</a>
+                }
                 <a href="#" class="link-help">? Hướng dẫn nhanh</a>
             </div>
-            <!-- Link cho Điện thoại -->
             <div class="header-actions hide-on-desktop">
-                <a href="#" class="link-primary">Xem tất cả</a>
+                @if (Model.IsAuthenticated)
+                {
+                    <a href="#" class="link-primary">Xem tất cả</a>
+                }
             </div>
         </div>
 
         <!-- Danh sách thẻ (Cards) Buổi gần đây -->
         <div class="item-recent-cards">
-            <!-- Thẻ 1 (Luôn hiển thị) -->
-            <div class="session-card">
-                <div class="card-header">
-                    <span class="role">Lập trình viên</span>
-                    <span class="date">06/10</span>
+            @if (Model.RecentSessions.Any())
+            {
+                int count = 0;
+                foreach (var session in Model.RecentSessions)
+                {
+                    count++;
+                    // Thẻ thứ 2 trở đi sẽ ẩn trên mobile như thiết kế gốc
+                    string mobileHideClass = count > 1 ? "hide-on-mobile" : "";
+
+                    <div class="session-card @mobileHideClass">
+                        <div class="card-header">
+                            <span class="role">@session.RoleName</span>
+                            <span class="date">@session.DateFormatted</span>
+                        </div>
+                        <div class="card-tags">
+                            <span class="tag tag-blue">@session.Score điểm</span>
+                            <span class="tag tag-green">@session.AnxietyText</span>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <!-- Thông số trống khi là Khách (Guest) hoặc người dùng chưa luyện tập -->
+                <div class="session-card" style="max-width: 100%; text-align: center; border-style: dashed; padding: 30px;">
+                    <p style="color: #6b7280; font-size: 14px; margin-bottom: 10px;">Bạn chưa có buổi luyện tập nào gần đây.</p>
+                    @if (!Model.IsAuthenticated)
+                    {
+                        <a href="/Auth/Login" class="link-primary">Đăng nhập để lưu lịch sử luyện tập</a>
+                    }
                 </div>
-                <div class="card-tags">
-                    <span class="tag tag-blue">78 điểm</span>
-                    <span class="tag tag-green">Lo lắng 7 &rarr; 4</span>
-                </div>
-            </div>
-            <!-- Thẻ 2 (Ẩn trên điện thoại) -->
-            <div class="session-card hide-on-mobile">
-                <div class="card-header">
-                    <span class="role">Phân tích dữ liệu</span>
-                    <span class="date">05/10</span>
-                </div>
-                <div class="card-tags">
-                    <span class="tag tag-blue">71 điểm</span>
-                    <span class="tag tag-green">Lo lắng 8 &rarr; 6</span>
-                </div>
-            </div>
+            }
         </div>
 
-        <!-- Link Hướng dẫn nhanh cho Điện thoại (Đẩy xuống dưới cùng) -->
+        <!-- Link Hướng dẫn nhanh cho Điện thoại -->
         <a href="#" class="link-help mobile-help item-mobile-help hide-on-desktop">? Hướng dẫn nhanh</a>
     </main>
 
@@ -126,7 +159,7 @@
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             <span>Lịch sử</span>
         </a>
-        <a href="#" class="nav-item">
+        <a href="/Auth/Login" class="nav-item">
             <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             <span>Hồ sơ</span>
         </a>

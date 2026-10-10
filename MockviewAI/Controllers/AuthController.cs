@@ -55,7 +55,7 @@ namespace MockviewAI.Controllers
             {
                 var user = await _authService.AuthenticateAsync(email, password);
                 _throttle.Reset(throttleKey);
-                await SignInUser(user!.Email, user.FirstName + " " + user.LastName, user.Role);
+                await SignInUser(user!.Email, user.FirstName + " " + user.LastName, user.Role, user.AvatarUrl);
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)
@@ -113,7 +113,7 @@ namespace MockviewAI.Controllers
             try
             {
                 var user = await _authService.AuthenticateGoogleUserAsync(email, givenName, surname ?? "", avatarUrl);
-                await SignInUser(user.Email, user.FirstName + " " + user.LastName, user.Role);
+                await SignInUser(user!.Email, user.FirstName + " " + user.LastName, user.Role, user.AvatarUrl);
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)
@@ -125,7 +125,7 @@ namespace MockviewAI.Controllers
 
 
         // Helper method set up Cookie
-        private async Task SignInUser(string email, string fullName, string role)
+        private async Task SignInUser(string email, string fullName, string role, string? avatarUrl)
         {
             var claims = new List<Claim>
             {
@@ -133,6 +133,11 @@ namespace MockviewAI.Controllers
                 new Claim(ClaimTypes.Name, fullName),
                 new Claim(ClaimTypes.Role, role)
             };
+
+            if (!string.IsNullOrEmpty(avatarUrl))
+            {
+                claims.Add(new Claim("AvatarUrl", avatarUrl));
+            }
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
