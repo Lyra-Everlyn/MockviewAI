@@ -1,0 +1,119 @@
+﻿@model SessionResultViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả buổi luyện - MockviewAI</title>
+    <!-- Font Inter chuẩn thiết kế -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/Result.css">
+</head>
+<body>
+
+    <!-- Header Desktop -->
+    <header class="desktop-header">
+        <div class="header-content">
+            <div class="logo-nav">
+                <div class="logo">Mockview<span>AI</span></div>
+                <nav class="nav-links">
+                    <a href="/Home">Trang chủ</a>
+                    <a href="/Session/Create" class="active">Luyện tập</a>
+                    <a href="/Session/History">Lịch sử</a>
+                </nav>
+            </div>
+            <div class="header-actions">
+                <span class="badge-beta">Bản thử V1</span>
+                <div class="profile-icon">Q</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Phần tiêu đề trang -->
+        <div class="page-title-section">
+            <h1>Kết quả buổi luyện</h1>
+            <p class="subtitle">
+                Lập trình viên &middot; 06/10 &middot; 5 câu
+                <span class="desktop-only">&middot; Người phỏng vấn: Linh</span>
+            </p>
+        </div>
+
+        <!-- Bố cục Grid chính (Desktop 2 cột / Mobile 1 cột) -->
+        <div class="result-grid">
+            
+            <!-- Cột trái: Thẻ điểm tổng & Thanh tiến trình -->
+            <div class="card score-card">
+                <div class="card-header">
+                    <span class="card-title">Điểm tổng</span>
+                    <span class="badge-reference">Điểm tham khảo</span>
+                </div>
+
+                <!-- Hiển thị con số điểm -->
+                <div class="score-display">
+                    <span class="score-number">@Model.TotalScore</span>
+                    <span class="score-total">/100</span>
+                </div>
+
+                <!-- Thanh tiến trình 1: Nội dung -->
+                <div class="metric-item">
+                    <div class="metric-info">
+                        <span class="metric-label desktop-only">Nội dung câu trả lời</span>
+                        <span class="metric-label mobile-only">Nội dung</span>
+                        <span class="metric-value">@Model.ContentScore</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: @(Model.ContentScore)%;"></div>
+                    </div>
+                </div>
+
+                <!-- Thanh tiến trình 2: Cách nói -->
+                <div class="metric-item">
+                    <div class="metric-info">
+                        <span class="metric-label">Cách nói</span>
+                        <span class="metric-value">@Model.DeliveryScore</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: @(Model.DeliveryScore)%;"></div>
+                    </div>
+                </div>
+
+                <!-- Chú thích cách tính điểm -->
+                <div class="score-footer">
+                    Điểm tổng = 60% nội dung + 40% cách nói. <a href="/Home/ScoringInfo">Cách tính điểm?</a>
+                </div>
+            </div>
+
+            <!-- Cột phải: Mức lo lắng & Các nút hành động -->
+            <div class="actions-column">
+                
+                <!-- Khối màu xanh lá: Đánh giá mức lo lắng -->
+                <div class="anxiety-card">
+                    <div class="anxiety-title">Mức lo lắng bạn tự đánh giá (1–10)</div>
+                    <div class="anxiety-body">
+                        <div class="anxiety-values">
+                            Trước <strong>@Model.AnxietyBefore</strong> &rarr; Sau <strong>@Model.AnxietyAfter</strong>
+                        </div>
+                        <span class="badge-reduced">Giảm @(Model.AnxietyBefore - Model.AnxietyAfter) bậc</span>
+                    </div>
+                </div>
+
+                <!-- Cụm nút hành động -->
+                <div class="btn-group">
+                    <a href="/Session/Review/@Model.SessionId" class="btn btn-primary">Xem lại hội thoại buổi này</a>
+                    <a href="/Feedback" class="btn btn-feedback">Góp ý cho bản thử V1</a>
+                    <a href="/Home" class="btn btn-outline">Về trang chủ</a>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>

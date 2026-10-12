@@ -1,0 +1,161 @@
+﻿@using MockviewAI.ViewModels
+@model SessionResultViewModel
+@{
+    Layout = null;
+    var m = Model ?? new SessionResultViewModel
+    {
+        SessionId = "1",
+        ContentScore = 88,
+        DeliveryScore = 80,
+        AnxietyBefore = 7,
+        AnxietyAfter = 3
+    };
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết buổi hội thoại - MockviewAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/InterviewDetail.css">
+</head>
+<body>
+
+    <!-- Header Desktop -->
+    <header class="desktop-header">
+        <div class="header-content">
+            <div class="logo-nav">
+                <div class="logo">Mockview<span>AI</span></div>
+                <nav class="nav-links">
+                    <a href="/Home">Trang chủ</a>
+                    <a href="/Session/Create">Luyện tập</a>
+                    <a href="/Session/History" class="active">Lịch sử</a>
+                </nav>
+            </div>
+            <div class="header-actions">
+                <span class="badge-beta">Bản thử V1</span>
+                <div class="profile-icon">Q</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        
+        <!-- Nút quay lại -->
+        <a href="/Session/History" class="back-link">&lsaquo; Lịch sử</a>
+
+        <!-- Tiêu đề trang -->
+        <div class="page-header">
+            <h1 class="page-title">
+                Lập trình viên <span class="hide-on-mobile">&bull; 06/10</span>
+            </h1>
+            <p class="subtitle">
+                <span class="hide-on-desktop">06/10 &bull; </span>
+                Người phỏng vấn: Linh
+                <span class="hide-on-mobile"> &bull; 5 câu &bull; toàn bộ hội thoại được lưu lại</span>
+            </p>
+
+            <!-- Thẻ điểm tóm tắt (Chỉ hiện trên Mobile) -->
+            <div class="mobile-badges hide-on-desktop">
+                <span class="badge badge-blue">@m.TotalScore điểm</span>
+                <span class="badge badge-green">Lo lắng @m.AnxietyBefore &rarr; @m.AnxietyAfter</span>
+            </div>
+        </div>
+
+        <!-- Bố cục lưới nội dung -->
+        <div class="content-grid">
+            
+            <!-- Cột trái: Lịch sử hội thoại -->
+            <div class="chat-section">
+                <div class="chat-card">
+                    
+                    <!-- Câu 1 - Người phỏng vấn -->
+                    <div class="chat-message interviewer">
+                        <div class="avatar-svg">
+                            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="18" cy="18" r="18" fill="#FDE68A"/>
+                                <circle cx="18" cy="14" r="5" fill="#1E3A8A"/>
+                                <path d="M9 29C9 24 13 21 18 21C23 21 27 24 27 29" stroke="#1E3A8A" stroke-width="3" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="bubbles-col">
+                            <div class="bubble meta-bubble">Linh &bull; Câu 1</div>
+                            <div class="bubble text-bubble">Hãy giới thiệu ngắn về bản thân bạn.</div>
+                        </div>
+                    </div>
+
+                    <!-- Trả lời 1 - Người dùng -->
+                    <div class="chat-message user">
+                        <div class="bubbles-col align-right">
+                            <div class="bubble user-bubble">
+                                Em là Quang, sinh viên năm cuối ngành Công nghệ thông tin, đã làm hai dự án web bằng C#.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Câu 2 - Người phỏng vấn -->
+                    <div class="chat-message interviewer">
+                        <div class="avatar-svg">
+                            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="18" cy="18" r="18" fill="#FDE68A"/>
+                                <circle cx="18" cy="14" r="5" fill="#1E3A8A"/>
+                                <path d="M9 29C9 24 13 21 18 21C23 21 27 24 27 29" stroke="#1E3A8A" stroke-width="3" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="bubbles-col">
+                            <div class="bubble meta-bubble">Linh &bull; Câu 2</div>
+                            <div class="bubble text-bubble">Điểm mạnh lớn nhất của bạn là gì?</div>
+                        </div>
+                    </div>
+
+                    <!-- Trả lời 2 - Người dùng -->
+                    <div class="chat-message user">
+                        <div class="bubbles-col align-right">
+                            <div class="bubble user-bubble">
+                                Em học nhanh và làm việc nhóm tốt.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-more hide-on-mobile">... 3 câu tiếp theo</div>
+                </div>
+            </div>
+
+            <!-- Cột phải / Dưới cùng: Nhận xét & Hành động -->
+            <div class="sidebar-section">
+                
+                <!-- Thẻ Điểm tổng (Chỉ hiện trên Desktop) -->
+                <div class="score-card hide-on-mobile">
+                    <div class="score-header">
+                        <span class="score-label">Điểm tổng</span>
+                        <span class="badge-reference">Tham khảo</span>
+                    </div>
+                    <div class="score-number">@m.TotalScore</div>
+                    <div class="score-tags">
+                        <span class="badge badge-blue">Nội dung @m.ContentScore</span>
+                        <span class="badge badge-blue">Cách nói @m.DeliveryScore</span>
+                        <span class="badge badge-green">Lo lắng @m.AnxietyBefore &rarr; @m.AnxietyAfter</span>
+                    </div>
+                </div>
+
+                <!-- Thẻ Nhận xét -->
+                <div class="feedback-card">
+                    <h3 class="feedback-title">Nhận xét câu 2</h3>
+                    <p class="feedback-text">Nên thêm một ví dụ cụ thể, như dự án bạn đã học công nghệ mới trong một tuần.</p>
+                </div>
+
+                <!-- Các nút hành động -->
+                <div class="action-buttons">
+                    <button class="btn btn-primary-outline">Luyện lại vị trí này</button>
+                    <button class="btn btn-danger-outline">Xoá buổi<span class="hide-on-mobile"> này</span></button>
+                </div>
+                
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>

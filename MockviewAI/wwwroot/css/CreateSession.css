@@ -1,0 +1,430 @@
+﻿:root {
+    --primary-color: #3348E0;
+    --primary-light: #EEF2FF;
+    --bg-color: #F8FAFC;
+    --text-main: #111827;
+    --text-muted: #6B7280;
+    --border-color: #E2E8F0;
+    --card-bg: #FFFFFF;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    padding-bottom: 80px; /* Dành chỗ cho mobile nav */
+}
+
+/* --- HEADERS --- */
+.desktop-header {
+    background: #FFFFFF;
+    border-top: 2px solid #8B5CF6; /* Viền tím trên cùng theo ảnh */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-nav {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+    .logo span {
+        color: var(--primary-color);
+    }
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 15px;
+    margin-right: 24px;
+}
+
+    .nav-links a.active {
+        color: var(--primary-color);
+    }
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.badge-beta {
+    background-color: #FFF3E0;
+    color: #E67E22;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.profile-icon {
+    width: 36px;
+    height: 36px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.mobile-header, .mobile-bottom-nav, .mobile-subtitle, .mobile-only, .mobile-role {
+    display: none;
+}
+
+/* --- MAIN CONTENT --- */
+.main-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 24px;
+}
+
+.page-title-section {
+    margin-bottom: 30px;
+}
+
+    .page-title-section h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+.desktop-subtitle {
+    color: var(--text-muted);
+    font-size: 15px;
+}
+
+/* --- FORM GRID (Bố cục 2 cột cho Desktop) --- */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 cột bằng nhau */
+    gap: 30px;
+}
+
+/* Card Styling chung */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+/* Cột Trái: Thông tin */
+.info-card {
+    grid-column: 1;
+    grid-row: 1 / 3; /* Kéo dài xuống 2 hàng */
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+    .form-group label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+select, textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    background-color: #FFFFFF;
+    color: var(--text-main);
+    transition: border 0.2s;
+}
+
+    select:focus, textarea:focus {
+        border-color: var(--primary-color);
+    }
+
+.row-group {
+    display: flex;
+    gap: 16px;
+}
+
+.half {
+    flex: 1;
+}
+
+textarea {
+    resize: vertical;
+}
+
+/* Cột Phải: Người phỏng vấn */
+.interviewer-card {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.interviewer-list {
+    display: flex;
+    gap: 12px;
+}
+
+    .interviewer-list input[type="radio"] {
+        display: none; /* Ẩn nút radio mặc định */
+    }
+
+.interviewer-item {
+    flex: 1;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #FAFAFA;
+}
+
+/* Trạng thái được chọn (Dùng CSS hoàn toàn, không cần JS) */
+.interviewer-list input[type="radio"]:checked + .interviewer-item {
+    border-color: var(--primary-color);
+    background-color: var(--primary-light);
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 0 auto 12px auto;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.avatar-linh {
+    background: #FFE4E1;
+}
+
+.avatar-nam {
+    background: #E0F2F1;
+}
+
+.avatar-an {
+    background: #F3E5F5;
+}
+
+.avatar-inner {
+    width: 40px;
+    height: 40px;
+    border-radius: 50% 50% 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+}
+
+.bg-blue {
+    background: #3B82F6;
+}
+
+.bg-green {
+    background: #10B981;
+}
+
+.bg-purple {
+    background: #8B5CF6;
+}
+
+.int-name {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.desktop-role {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* Phần Nút bấm (Nằm dưới phần người phỏng vấn trên Desktop) */
+.form-actions {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.helper-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.time-text {
+    font-size: 14px;
+    color: var(--text-main);
+    margin-bottom: 20px;
+}
+
+.btn-submit {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+    .btn-submit:hover {
+        opacity: 0.9;
+    }
+
+
+/* =========================================
+   RESPONSIVE CHO MOBILE (Theo ảnh 2)
+   ========================================= */
+@media (max-width: 768px) {
+    /* Đổi Header */
+    .desktop-header {
+        display: none;
+    }
+
+    .mobile-header {
+        display: flex;
+        padding: 16px 20px;
+        background: var(--bg-color);
+    }
+
+    .back-btn {
+        text-decoration: none;
+        color: var(--primary-color);
+        font-weight: 600;
+        font-size: 15px;
+    }
+
+    .main-container {
+        margin: 10px auto 40px auto;
+        padding: 0 20px;
+    }
+
+    /* Đổi Text Title */
+    .desktop-subtitle, .desktop-only, .desktop-role, .step-num {
+        display: none;
+    }
+
+    .mobile-subtitle, .mobile-only, .mobile-role {
+        display: inline-block;
+    }
+
+    .mobile-subtitle {
+        color: var(--text-muted);
+        font-size: 15px;
+    }
+
+    .section-title {
+        font-size: 16px;
+        margin-bottom: 12px;
+    }
+
+    /* Chuyển Grid thành Flex Column và đổi thứ tự hiển thị */
+    .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* Xóa viền/nền thẻ Card trên Mobile cho giống thiết kế */
+    .card {
+        padding: 0;
+        border: none;
+        background: transparent;
+        border-radius: 0;
+    }
+
+    /* Đẩy phần Chọn người phỏng vấn lên trên cùng */
+    .interviewer-card {
+        order: 1;
+    }
+
+    /* Kéo phần thông tin xuống dưới */
+    .info-card {
+        order: 2;
+    }
+
+    /* Nút bấm ở dưới cùng */
+    .form-actions {
+        order: 3;
+        margin-top: 10px;
+    }
+
+    /* Hiển thị avatar và tên trên 1 dòng nhỏ gọn */
+    .interviewer-item {
+        padding: 12px 8px;
+    }
+
+    .int-name, .mobile-role {
+        display: inline;
+        font-size: 14px;
+    }
+
+        .mobile-role::before {
+            content: " • ";
+        }
+
+    /* Bottom Navigation Bar */
+    .mobile-bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #FFFFFF;
+        border-top: 1px solid var(--border-color);
+        justify-content: space-around;
+        padding: 15px 0;
+        z-index: 100;
+    }
+
+    .nav-item {
+        color: #A0AEC0;
+        font-size: 20px;
+        text-decoration: none;
+    }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+}
