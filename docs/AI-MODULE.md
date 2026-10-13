@@ -44,13 +44,17 @@ ScoreRequest
 
 | File | Việc |
 |---|---|
-| `Models/Ai/InterviewModels.cs` | Lớp dữ liệu vào/ra |
-| `Services/Ai/InterviewScoringService.cs` | Điểm vào chính, gộp 60/40 |
-| `Services/Ai/IAiScoringService.cs` | Giao diện bộ chấm nội dung |
-| `Services/Ai/MockAiScoringService.cs` | Bản giả, không cần key |
-| `Services/Ai/GeminiAiScoringService.cs` | Bản gọi Gemini thật |
-| `Services/Ai/DeliveryAnalyzer.cs` | Chấm tốc độ, từ đệm, độ dài, khoảng lặng |
-| `Services/Ai/AiOptions.cs` | Cấu hình ApiKey/Model |
+| `Models/Ai/*.cs` | Lớp dữ liệu vào/ra, mỗi file một lớp (ScoreRequest, InterviewAnswer, ContentScoreResult, DeliveryScoreResult, InterviewScoreResult) |
+| `Services/Ai/Interfaces/IInterviewScoringService.cs` | Giao diện điểm vào chính |
+| `Services/Ai/Implementations/InterviewScoringService.cs` | Điểm vào chính, gộp 60/40 |
+| `Services/Ai/Interfaces/IAiScoringService.cs` | Giao diện bộ chấm nội dung |
+| `Services/Ai/Implementations/MockAiScoringService.cs` | Bản giả, không cần key |
+| `Services/Ai/Implementations/GeminiAiScoringService.cs` | Bản gọi Gemini thật (chỉ gửi request) |
+| `Services/Ai/Implementations/ScoringPromptBuilder.cs` | Soạn prompt, chống prompt injection |
+| `Services/Ai/Implementations/GeminiResponseParser.cs` | Đọc phản hồi Gemini, ép điểm về 0..25 |
+| `Services/Ai/Interfaces/IDeliveryAnalyzer.cs`, `Services/Ai/Implementations/DeliveryAnalyzer.cs` | Chấm tốc độ, từ đệm, độ dài, khoảng lặng |
+| `Services/Ai/GeminiOptions.cs` | Cấu hình ApiKey/Model |
+| `Services/Exceptions/AiScoringException.cs` | Lỗi của bộ chấm AI |
 
 ## Cấu hình
 

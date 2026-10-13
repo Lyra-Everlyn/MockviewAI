@@ -7,6 +7,8 @@ using MockviewAI.Data;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Ai;
+using MockviewAI.Services.Ai.Implementations;
+using MockviewAI.Services.Ai.Interfaces;
 using MockviewAI.Services.Helper.Implementations;
 using MockviewAI.Services.Helper.Interfaces;
 using MockviewAI.Services.Implementations;
@@ -51,9 +53,11 @@ namespace MockviewAI
 
             // [AI-MODULE] AI scoring: provider is chosen by config "Ai:Provider" ("Mock" default, or "Gemini")
             builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
-            builder.Services.AddSingleton<DeliveryAnalyzer>();
+            builder.Services.AddSingleton<IDeliveryAnalyzer, DeliveryAnalyzer>();
             if (string.Equals(builder.Configuration["Ai:Provider"], "Gemini", StringComparison.OrdinalIgnoreCase))
             {
+                builder.Services.AddSingleton<IScoringPromptBuilder, ScoringPromptBuilder>();
+                builder.Services.AddSingleton<IAiResponseParser, GeminiResponseParser>();
                 builder.Services.AddHttpClient<IAiScoringService, GeminiAiScoringService>(c =>
                 {
                     c.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
@@ -64,7 +68,7 @@ namespace MockviewAI
             {
                 builder.Services.AddScoped<IAiScoringService, MockAiScoringService>();
             }
-            builder.Services.AddScoped<InterviewScoringService>();
+            builder.Services.AddScoped<IInterviewScoringService, InterviewScoringService>();
             builder.Services.AddScoped<IInterviewService, InterviewService>();   // [AI-INTERVIEW]
 
             // Other services

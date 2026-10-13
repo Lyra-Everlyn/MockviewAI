@@ -3,19 +3,20 @@
 // Nhóm bạn chỉ cần gọi ScoreAsync(ScoreRequest) từ phòng phỏng vấn. Điểm luôn hiển thị là 'Điểm tham khảo'.
 
 using MockviewAI.Models.Ai;
+using MockviewAI.Services.Ai.Interfaces;
 
-namespace MockviewAI.Services.Ai
+namespace MockviewAI.Services.Ai.Implementations
 {
     // Combines AI content score (60%) + code-based delivery score (40%)
-    public class InterviewScoringService
+    public class InterviewScoringService : IInterviewScoringService
     {
         private const double ContentWeight = 0.6;
         private const double DeliveryWeight = 0.4;
 
         private readonly IAiScoringService _ai;
-        private readonly DeliveryAnalyzer _delivery;
+        private readonly IDeliveryAnalyzer _delivery;
 
-        public InterviewScoringService(IAiScoringService ai, DeliveryAnalyzer delivery)
+        public InterviewScoringService(IAiScoringService ai, IDeliveryAnalyzer delivery)
         {
             _ai = ai;
             _delivery = delivery;
