@@ -2,15 +2,10 @@
 // Mọi hàm đều nhận email người đăng nhập để chắc chắn người dùng chỉ thấy buổi luyện của mình.
 
 using MockviewAI.Models.DTOs;
+using MockviewAI.Models.ViewModels;
 
 namespace MockviewAI.Services.Interfaces
 {
-    // Lỗi có thông báo tiếng Việt, an toàn để hiển thị cho người dùng
-    public class InterviewException : Exception
-    {
-        public InterviewException(string message) : base(message) { }
-    }
-
     public interface IInterviewService
     {
         // Tạo buổi luyện mới, trả về Id của buổi
@@ -20,7 +15,7 @@ namespace MockviewAI.Services.Interfaces
         Task<InterviewRoomViewModel?> GetRoomAsync(string email, int sessionId);
 
         // Lưu câu trả lời (hoặc bỏ qua) của câu hiện tại
-        Task<SubmitAnswerResult> SubmitAnswerAsync(string email, SubmitAnswerDto dto);
+        Task<SubmitAnswerResultDto> SubmitAnswerAsync(string email, SubmitAnswerDto dto);
 
         // Kết thúc buổi và chấm điểm
         Task FinishAsync(string email, FinishSessionDto dto);

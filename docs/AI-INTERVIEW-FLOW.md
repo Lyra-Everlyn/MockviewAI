@@ -16,7 +16,7 @@ Create (form)  ->  POST Start  ->  Room/{id}  ->  POST Answer (lặp từng câu
 | `Models/Entities/InterviewSession.cs` | Bảng buổi luyện (người dùng, vị trí, điểm, nhận xét) |
 | `Models/Entities/SessionAnswer.cs` | Bảng câu hỏi và câu trả lời của từng buổi |
 | `Data/ApplicationDbContext.cs` | Thêm 2 `DbSet` và quan hệ giữa các bảng |
-| `Models/DTOs/InterviewDtos.cs` | Dữ liệu giữa giao diện và service |
+| `Models/DTOs/*.cs`, `Models/ViewModels/*.cs` | DTO (SubmitAnswerDto, SubmitAnswerResultDto, FinishSessionDto) và ViewModel (InterviewRoomViewModel, SessionResultViewModel), mỗi file một lớp |
 | `Services/Ai/QuestionBank.cs` | Câu hỏi mẫu (3 người phỏng vấn x 10 câu), sửa trực tiếp trong file |
 | `Services/Interfaces/IInterviewService.cs` | Danh sách việc của một buổi luyện |
 | `Services/Implementations/InterviewService.cs` | Làm các việc đó và gọi `InterviewScoringService` |

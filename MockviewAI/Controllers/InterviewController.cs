@@ -10,7 +10,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MockviewAI.Models.DTOs;
-using MockviewAI.Services.Ai;
+using MockviewAI.Services.Exceptions;
 using MockviewAI.Services.Interfaces;
 
 namespace MockviewAI.Controllers

@@ -4,11 +4,12 @@
 
 using System.Text.RegularExpressions;
 using MockviewAI.Models.Ai;
+using MockviewAI.Services.Ai.Interfaces;
 
-namespace MockviewAI.Services.Ai
+namespace MockviewAI.Services.Ai.Implementations
 {
     // Scores HOW the candidate speaks, using plain code (fast, free, explainable).
-    public class DeliveryAnalyzer
+    public class DeliveryAnalyzer : IDeliveryAnalyzer
     {
         // Filler words/phrases (Vietnamese + English). Matched as whole words only.
         private static readonly string[] Fillers =

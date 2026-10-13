@@ -1,13 +1,16 @@
 // [AI-INTERVIEW] Nối phòng phỏng vấn với module AI.
-// Luồng: Start (tạo buổi + câu hỏi) -> SubmitAnswer (lưu từng câu) -> Finish (gọi InterviewScoringService, lưu điểm).
+// Luồng: Start (tạo buổi + câu hỏi) -> SubmitAnswer (lưu từng câu) -> Finish (gọi IInterviewScoringService, lưu điểm).
 
 using Microsoft.EntityFrameworkCore;
 using MockviewAI.Data;
 using MockviewAI.Models.Ai;
 using MockviewAI.Models.DTOs;
+using MockviewAI.Models.ViewModels;
 using MockviewAI.Models.Entities;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Ai;
+using MockviewAI.Services.Ai.Interfaces;
+using MockviewAI.Services.Exceptions;
 using MockviewAI.Services.Interfaces;
 
 namespace MockviewAI.Services.Implementations
@@ -19,9 +22,9 @@ namespace MockviewAI.Services.Implementations
 
         private readonly ApplicationDbContext _db;
         private readonly IUserRepository _userRepository;
-        private readonly InterviewScoringService _scoring;
+        private readonly IInterviewScoringService _scoring;
 
-        public InterviewService(ApplicationDbContext db, IUserRepository userRepository, InterviewScoringService scoring)
+        public InterviewService(ApplicationDbContext db, IUserRepository userRepository, IInterviewScoringService scoring)
         {
             _db = db;
             _userRepository = userRepository;
@@ -86,7 +89,7 @@ namespace MockviewAI.Services.Implementations
             };
         }
 
-        public async Task<SubmitAnswerResult> SubmitAnswerAsync(string email, SubmitAnswerDto dto)
+        public async Task<SubmitAnswerResultDto> SubmitAnswerAsync(string email, SubmitAnswerDto dto)
         {
             var session = await FindSessionAsync(email, dto.SessionId);
             if (session == null || session.Status != "InProgress")
@@ -116,7 +119,7 @@ namespace MockviewAI.Services.Implementations
 
             // Tìm câu tiếp theo
             var next = session.Answers.OrderBy(a => a.OrderNo).FirstOrDefault(a => a.AnsweredAt == null);
-            return new SubmitAnswerResult
+            return new SubmitAnswerResultDto
             {
                 Done = next == null,
                 AnsweredCount = CountAnswered(session),

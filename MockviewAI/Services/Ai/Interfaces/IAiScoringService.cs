@@ -4,7 +4,7 @@
 
 using MockviewAI.Models.Ai;
 
-namespace MockviewAI.Services.Ai
+namespace MockviewAI.Services.Ai.Interfaces
 {
     public interface IAiScoringService
     {
