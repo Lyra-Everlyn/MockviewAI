@@ -54,7 +54,7 @@ namespace MockviewAI.Controllers
             try
             {
                 await _onboardingService.SaveOnboardingInfoAsync(userEmail, model);
-                return Json(new { success = true, redirectUrl = Url.Action("Index", "User") });
+                return Json(new { success = true, redirectUrl = Url.Action("Index", "Home") });
             }
             catch (Exception ex)
             {
