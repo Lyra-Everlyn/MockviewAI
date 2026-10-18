@@ -191,9 +191,7 @@ namespace MockviewAI.Services.Implementations
             // NOTE: Auto create a new user if the Google account is not found in the database
             if (existingUser == null)
             {
-                // TODO: Need set up the remain attributes for the new user
-                //return await RegisterGoogleAsync(email, firstName, lastName, avatarUrl);
-                throw new Exception("Your Google account is not registered. Please create an account first.");
+                return await RegisterGoogleAsync(email, firstName, lastName, avatarUrl);
             }
 
             if (existingUser.Status == "Locked") { throw new Exception("Your account has been locked."); }

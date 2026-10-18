@@ -24,6 +24,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.24.2-preview.1" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
   </ItemGroup>
 
   <ItemGroup>
