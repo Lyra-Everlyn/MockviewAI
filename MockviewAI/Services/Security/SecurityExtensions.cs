@@ -18,6 +18,7 @@ namespace MockviewAI.Services.Security
         {
             services.Configure<SecurityOptions>(config.GetSection("Security"));
             services.AddSingleton<LoginThrottleService>();
+            services.AddHttpClient<TurnstileService>();
 
             // Cấu hình nhận diện IP thật và giao thức (HTTPS) khi chạy phía sau Proxy (Nginx, Traefik, Docker...)
             services.Configure<ForwardedHeadersOptions>(o =>

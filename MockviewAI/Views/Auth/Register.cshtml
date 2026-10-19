@@ -1,5 +1,6 @@
 ﻿@{
     Layout = null;
+    @inject IConfiguration Configuration
 }
 
 <!DOCTYPE html>
@@ -12,6 +13,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="~/css/Register.css">
+
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 
 <body>
@@ -85,6 +88,7 @@
                         <label for="terms">I agree to the Terms of Service and Privacy Policy</label>
                     </div>
 
+                    <div class="cf-turnstile" data-sitekey="@Configuration["Turnstile:SiteKey"]"></div>
                     <button type="submit" class="btn-submit">Create account</button>
 
                     <div class="login-link">
