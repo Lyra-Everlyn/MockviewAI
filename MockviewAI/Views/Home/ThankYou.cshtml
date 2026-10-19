@@ -1,5 +1,8 @@
 ﻿@{
-    Layout = null; 
+    Layout = null;
+    // Chữ cái đầu của tên người đang đăng nhập (hiện trên avatar góc phải)
+    var userName = User.Identity?.Name ?? "";
+    var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
 }
 
 <!DOCTYPE html>
@@ -17,14 +20,14 @@
             <div class="nav-left">
                 <div class="logo">Mockview<span>AI</span></div>
                 <ul class="nav-links">
-                    <li><a href="#">Trang chủ</a></li>
-                    <li><a href="#">Luyện tập</a></li>
-                    <li><a href="#">Lịch sử</a></li>
+                    <li><a href="/Home">Trang chủ</a></li>
+                    <li><a href="/Interview/Create">Luyện tập</a></li>
+                    <li><a href="/Home/History">Lịch sử</a></li>
                 </ul>
             </div>
             <div class="nav-right">
                 <span class="badge badge-v1">BETA</span>
-                <div class="avatar">Q</div>
+                <div class="avatar">@initial</div>
             </div>
         </div>
     </nav>
@@ -46,11 +49,12 @@
             
             <!-- Cụm nút bấm -->
             <div class="action-buttons">
-                <button class="btn btn-primary">Về trang chủ</button>
-                <button class="btn btn-outline">Luyện thêm một buổi</button>
+                <button type="button" class="btn btn-primary" onclick="location.href='/Home'">Về trang chủ</button>
+                <button type="button" class="btn btn-outline" onclick="location.href='/Interview/Create'">Luyện thêm một buổi</button>
             </div>
 
         </div>
     </main>
+    <partial name="Partials/_Notify" />
 </body>
 </html>

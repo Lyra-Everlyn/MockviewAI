@@ -16,6 +16,9 @@ namespace MockviewAI.Data
         public DbSet<InterviewSession> InterviewSessions { get; set; }
         public DbSet<SessionAnswer> SessionAnswers { get; set; }
 
+        // Góp ý cho bản thử V1
+        public DbSet<Feedback> Feedbacks { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -36,6 +39,13 @@ namespace MockviewAI.Data
 
             // Tìm lịch sử theo người dùng nhanh hơn
             modelBuilder.Entity<InterviewSession>().HasIndex(s => s.UserId);
+
+            // Xóa người dùng thì xóa luôn góp ý của họ
+            modelBuilder.Entity<Feedback>()
+                .HasOne(f => f.User)
+                .WithMany()
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
