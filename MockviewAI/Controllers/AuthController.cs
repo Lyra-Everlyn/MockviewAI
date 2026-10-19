@@ -14,11 +14,13 @@ namespace MockviewAI.Controllers
     {
         private readonly IAuthService _authService;
         private readonly LoginThrottleService _throttle;
+        private readonly TurnstileService _turnstileService;
 
-        public AuthController(IAuthService authService, LoginThrottleService throttle)
+        public AuthController(IAuthService authService, LoginThrottleService throttle, TurnstileService turnstileService)
         {
             _authService = authService;
             _throttle = throttle;
+            _turnstileService = turnstileService;
         }
 
         #region Login
@@ -186,8 +188,16 @@ namespace MockviewAI.Controllers
         // 5. Handle the register form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string? lastName, bool terms = false)
+        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string? lastName, [FromForm(Name = "cf-turnstile-response")] string turnstileToken, bool terms = false)
         {
+            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            bool isHuman = await _turnstileService.VerifyAsync(turnstileToken, ipAddress);
+            if (!isHuman)
+            {
+                ModelState.AddModelError(string.Empty, "Security verification failed. Please try again.");
+                return View();
+            }
+
             if (!terms)
             {
                 ModelState.AddModelError(string.Empty, "You must agree to the Terms of Service and Privacy Policy.");
@@ -269,7 +279,6 @@ namespace MockviewAI.Controllers
         }
 
         // Password validation according to standard (8–72 characters:
-        // Includes uppercase letters, lowercase letters, and numbers
         private static void CheckPasswordStrength(string password)
         {
             var error = PasswordPolicy.Validate(password);
@@ -288,9 +297,16 @@ namespace MockviewAI.Controllers
         // 7. Handle the forgot password form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForgotPassword(string email)
+        public async Task<IActionResult> ForgotPassword(string email, [FromForm(Name = "cf-turnstile-response")] string turnstileToken)
         {
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            bool isHuman = await _turnstileService.VerifyAsync(turnstileToken, ipAddress);
+
+            if (!isHuman)
+            {
+                ModelState.AddModelError(string.Empty, "Security verification failed. Please try again.");
+                return View();
+            }
 
             if (_authService.IsIpBlocked(ipAddress))
             {
