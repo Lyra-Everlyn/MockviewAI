@@ -213,13 +213,11 @@ namespace MockviewAI.Services.Implementations
             if (existingUser.Status == "Locked") { throw new Exception("Your account has been locked."); }
             if (existingUser.Status == "Inactive") { throw new Exception("Your account has been temporarily suspended."); }
 
-            bool isUpdated = false;
 
             // 3. Resync the avatar if there are any changes on Google's end
             if (!string.IsNullOrEmpty(avatarUrl) && existingUser.AvatarUrl != avatarUrl)
             {
                 existingUser.AvatarUrl = avatarUrl;
-                isUpdated = true;
             }
 
             // 4. Add the FirstName if the existing data in the DB is missing or empty
@@ -227,7 +225,6 @@ namespace MockviewAI.Services.Implementations
             {
                 existingUser.FirstName = !string.IsNullOrWhiteSpace(firstName) ? firstName.Trim() : char.ToUpper(email[0]) + email.Substring(1).Split('@')[0];
                 existingUser.LastName = !string.IsNullOrWhiteSpace(lastName) ? lastName.Trim() : string.Empty;
-                isUpdated = true;
             }
 
             existingUser.LastLoginAt = DateTime.UtcNow;

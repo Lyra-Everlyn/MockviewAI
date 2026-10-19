@@ -2,7 +2,7 @@
 
 namespace MockviewAI.Services.Security
 {
-    public class TurnstileService
+    public class TurnstileService : ITurnstileService
     {
         private readonly HttpClient _httpClient;
         private readonly string _secretKey;
@@ -13,15 +13,8 @@ namespace MockviewAI.Services.Security
             _secretKey = config["Turnstile:SecretKey"] ?? throw new InvalidOperationException("Turnstile SecretKey is missing.");
         }
 
-        /// <summary>
-        /// Gọi API Cloudflare để kiểm tra tính hợp lệ của Token.
-        /// </summary>
-        /// <param name="token">Mã token gửi từ Frontend (cf-turnstile-response).</param>
-        /// <param name="ipAddress">IP của người dùng (Cloudflare khuyến nghị truyền vào để tăng độ chính xác).</param>
-        /// <returns>True nếu là người thật, False nếu là Bot hoặc Token không hợp lệ.</returns>
         public async Task<bool> VerifyAsync(string token, string? ipAddress)
         {
-            // Nếu không có token gửi lên -> Chắc chắn là Bot gọi API trực tiếp không qua trình duyệt
             if (string.IsNullOrWhiteSpace(token)) return false;
 
             var content = new FormUrlEncodedContent(new[]

@@ -14,13 +14,13 @@ namespace MockviewAI.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
-        private readonly LoginThrottleService _throttle;
-        private readonly TurnstileService _turnstileService;
+        private readonly ILoginThrottleService _throttleService;
+        private readonly ITurnstileService _turnstileService;
 
-        public AuthController(IAuthService authService, LoginThrottleService throttle, TurnstileService turnstileService)
+        public AuthController(IAuthService authService, ILoginThrottleService throttleService, ITurnstileService turnstileService)
         {
             _authService = authService;
-            _throttle = throttle;
+            _throttleService = throttleService;
             _turnstileService = turnstileService;
         }
 
@@ -46,7 +46,7 @@ namespace MockviewAI.Controllers
             }
 
             var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
-            if (_throttle.IsLockedOut(throttleKey, out var wait))
+            if (_throttleService.IsLockedOut(throttleKey, out var wait))
             {
                 var minutes = (int)Math.Ceiling(wait.TotalMinutes);
                 ModelState.AddModelError(string.Empty, $"Too many failed attempts. Please try again in {minutes} minute(s).");
@@ -56,15 +56,15 @@ namespace MockviewAI.Controllers
             try
             {
                 var user = await _authService.AuthenticateAsync(email, password);
-                
-                _throttle.Reset(throttleKey);
+
+                _throttleService.Reset(throttleKey);
                 
                 await SignInUser(user!.Email, $"{user.FirstName} {user.LastName}".Trim(), user.Role, user.AvatarUrl);
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)
             {
-                _throttle.RegisterFailure(throttleKey);
+                _throttleService.RegisterFailure(throttleKey);
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View();
             }

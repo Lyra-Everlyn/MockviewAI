@@ -4,13 +4,7 @@ using MockviewAI.Models.Security;
 
 namespace MockviewAI.Services.Security
 {
-    /// <summary>
-    /// Dịch vụ kiểm soát tần suất đăng nhập (Rate Limiting / Throttling).
-    /// Chống tấn công Brute-force bằng cách khóa tạm thời nếu đăng nhập sai quá nhiều lần.
-    /// Cơ chế theo dõi dựa trên sự kết hợp giữa "Email + IP Address" để tránh việc kẻ xấu cố tình khóa tài khoản người khác.
-    /// LƯU Ý: Đang lưu trữ trong Memory Cache (Singleton), dữ liệu sẽ reset khi restart app. Nên cân nhắc dùng Redis khi scale up.
-    /// </summary>
-    public class LoginThrottleService
+    public class LoginThrottleService : ILoginThrottleService
     {
         private sealed class Entry
         {
@@ -30,18 +24,10 @@ namespace MockviewAI.Services.Security
             _time = time ?? TimeProvider.System;
         }
 
-        /// <summary>
-        /// Tạo key định danh duy nhất kết hợp giữa Email và IP.
-        /// </summary>
+
         public static string BuildKey(string email, IPAddress? ip) =>
             $"{(email ?? string.Empty).Trim().ToLowerInvariant()}|{ip}";
 
-        /// <summary>
-        /// Kiểm tra xem người dùng hiện tại có đang bị khóa đăng nhập hay không.
-        /// </summary>
-        /// <param name="key">Định danh được tạo từ BuildKey.</param>
-        /// <param name="remaining">Thời gian khóa còn lại (nếu có).</param>
-        /// <returns>True nếu đang bị khóa, False nếu được phép đăng nhập.</returns>
         public bool IsLockedOut(string key, out TimeSpan remaining)
         {
             lock (_lock)
@@ -61,9 +47,6 @@ namespace MockviewAI.Services.Security
             }
         }
 
-        /// <summary>
-        /// Ghi nhận một lần đăng nhập thất bại và tự động khóa nếu vượt quá giới hạn.
-        /// </summary>
         public void RegisterFailure(string key)
         {
             lock (_lock)
@@ -87,9 +70,6 @@ namespace MockviewAI.Services.Security
             }
         }
 
-        /// <summary>
-        /// Xóa bỏ trạng thái ghi nhận khi người dùng đăng nhập thành công.
-        /// </summary>
         public void Reset(string key)
         {
             lock (_lock)
@@ -98,9 +78,6 @@ namespace MockviewAI.Services.Security
             }
         }
 
-        /// <summary>
-        /// Dọn dẹp bộ nhớ (Garbage Collection nội bộ), xóa bỏ các bản ghi đã hết hạn.
-        /// </summary>
         private void PurgeExpired(DateTime now, TimeSpan window)
         {
             if (_entries.Count < 5000) return;

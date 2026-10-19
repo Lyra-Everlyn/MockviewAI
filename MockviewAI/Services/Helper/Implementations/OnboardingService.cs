@@ -18,8 +18,7 @@ namespace MockviewAI.Services.Helper.Implementations
                 throw new ArgumentException("Email cannot be empty.", nameof(email));
             }
 
-            var users = await _userRepository.GetAllAsync();
-            var user = users.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            var user = await _userRepository.GetByEmailAsync(email);
 
             if (user == null)
             {
@@ -40,9 +39,7 @@ namespace MockviewAI.Services.Helper.Implementations
         {
             if (string.IsNullOrWhiteSpace(email)) return false;
 
-            var users = await _userRepository.GetAllAsync();
-            var user = users.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-
+            var user = await _userRepository.GetByEmailAsync(email);
             return user?.IsOnboardingCompleted ?? false;
         }
     }
