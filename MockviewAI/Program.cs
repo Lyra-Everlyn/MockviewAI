@@ -2,6 +2,8 @@ using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.RateLimiting;
+
 using Microsoft.EntityFrameworkCore;
 using MockviewAI.Data;
 using MockviewAI.Repositories.Implementations;
@@ -15,6 +17,7 @@ using MockviewAI.Services.Implementations;
 using MockviewAI.Services.Interfaces;
 using MockviewAI.Services.Security;
 using System.Security.Principal;
+using System.Threading.RateLimiting;
 
 namespace MockviewAI
 {
@@ -125,6 +128,7 @@ namespace MockviewAI
             builder.Services.AddMemoryCache();
 
 
+
             // =========================================================================
             // PART 4: CONFIGURATION VIA VISUAL STUDIO & SECURITY
 
@@ -134,8 +138,39 @@ namespace MockviewAI
             // Password-guessing protection (throttling), proxy configuration, and system security policies
             builder.Services.AddAppSecurity(builder.Configuration);
 
-            var app = builder.Build();
+            // --- B. IP-BASED RATE LIMITING CONFIGURATION ---
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
+                // Define a policy to limit OTP sending: 3 times / 15 minutes / 1 IP
+                options.AddPolicy("OtpRateLimit", context =>
+                {
+                    // Get the user's real IP (accounting for ForwardedHeaders if a proxy is used)
+                    var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "unknown_ip";
+
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: ipAddress,
+                        factory: partition => new FixedWindowRateLimiterOptions
+                        {
+                            AutoReplenishment = true,
+                            PermitLimit = 3,                       // Maximum number of turns
+                            Window = TimeSpan.FromMinutes(15),     // Time frame
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0                         // No queuing—instant block.
+                        });
+                });
+
+                // Customize the error message returned to bots/hackers
+                options.OnRejected = async (context, token) =>
+                {
+                    context.HttpContext.Response.StatusCode = 429;
+                    await context.HttpContext.Response.WriteAsync("Too many requests from this IP. Please try again after 15 minutes.", token);
+                };
+            });
+
+
+            var app = builder.Build();
 
             // =========================================================================
             // PART 5: MIDDLEWARE PIPELINE
@@ -148,22 +183,38 @@ namespace MockviewAI
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                //app.UseExceptionHandler("/Auth/Login");
                 app.UseHsts();
             }
 
             // --- B. Auto update database (Migration)
+            // WARNING: Bạn sẽ bị mất toàn bộ dữ liệu database, chỉ thực hiện trên local
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                dbContext.Database.Migrate();
+
+                if (app.Environment.IsDevelopment())
+                {
+                    // 1. Xóa sổ toàn bộ Database cũ
+                    dbContext.Database.EnsureDeleted();
+
+                    // 2. Tạo lại Database mới toanh dựa trên file C# hiện tại (Không cần thư mục Migrations)
+                    dbContext.Database.EnsureCreated();
+                }
+                else
+                {
+                    // Trên Production thì vẫn phải dùng Migrate đàng hoàng để không bị mất dữ liệu khách hàng
+                    dbContext.Database.Migrate();
+                }
             }
 
             //app.UseHttpsRedirection();
 
             app.UseRouting();
 
-            // --- C. Enforce security workflow: Identity check before permission check
+            // --- C. Enable rate limitter (MUST BE PLACED AFTER UseRouting AND BEFORE UseAuth) ---
+            app.UseRateLimiter();
+
+            // --- D. Enforce security workflow: Identity check before permission check
             app.UseAuthentication();
             app.UseAuthorization();
 

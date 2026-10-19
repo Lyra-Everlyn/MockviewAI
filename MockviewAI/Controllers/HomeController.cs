@@ -40,10 +40,6 @@ namespace MockviewAI.Controllers
         }
 
 
-
-
-
-
         public IActionResult Privacy()
         {
             return View();
@@ -158,6 +154,7 @@ namespace MockviewAI.Controllers
             return View();
         }
         #endregion
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

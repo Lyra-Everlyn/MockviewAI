@@ -102,14 +102,21 @@ namespace MockviewAI.Services.Implementations
         {
             email = email.Trim().ToLowerInvariant();
 
+            if (_cache.TryGetValue($"Cooldown_RegOTP_{email}", out _))
+            {
+                throw new Exception("Please wait 60 seconds before requesting another code.");
+            }
+
+            _cache.Set($"Cooldown_RegOTP_{email}", true, TimeSpan.FromSeconds(60));
             bool isEmailExist = await _userRepository.EmailExistsAsync(email);
+
             if (isEmailExist)
             {
                 throw new Exception("This email has already been registered.");
             }
 
             string otpCode = System.Security.Cryptography.RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
-
+           
             _cache.Set($"RegOTP_{email}", otpCode, TimeSpan.FromMinutes(5));
             _cache.Set($"RegOTP_Attempts_{email}", 0, TimeSpan.FromMinutes(5));
 
@@ -253,6 +260,14 @@ namespace MockviewAI.Services.Implementations
         public async Task RequestPasswordResetAsync(string email)
         {
             email = email.Trim().ToLowerInvariant();
+
+            if (_cache.TryGetValue($"Cooldown_ResetOTP_{email}", out _))
+            {
+                throw new Exception("Please wait 60 seconds before requesting another code.");
+            }
+
+            _cache.Set($"Cooldown_ResetOTP_{email}", true, TimeSpan.FromSeconds(60));
+
             var user = await _userRepository.GetByEmailAsync(email);
 
             if (user == null) return;
@@ -263,12 +278,7 @@ namespace MockviewAI.Services.Implementations
             _cache.Set($"OTP_Attempts_{email}", 0, TimeSpan.FromMinutes(5));
 
             string subject = "MockviewAI - Password Reset Code";
-            string body = $@"
-                <div style='font-family: Inter, Arial, sans-serif; padding: 20px;'>
-                    <h2>Password Reset Request</h2>
-                    <p>Your password reset code is: <b style='font-size: 28px; color: #3348E0; letter-spacing: 2px;'>{resetCode}</b></p>
-                    <p>This code will expire in 5 minutes.</p>
-                </div>";
+            string body = $@"<div style='font-family: Inter, Arial, sans-serif; padding: 20px;'><h2>Password Reset Request</h2><p>Your password reset code is: <b style='font-size: 28px; color: #3348E0; letter-spacing: 2px;'>{resetCode}</b></p><p>This code will expire in 5 minutes.</p></div>";
 
             await _emailService.SendEmailAsync(email, subject, body);
         }
