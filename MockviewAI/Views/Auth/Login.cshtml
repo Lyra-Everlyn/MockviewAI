@@ -1,69 +1,68 @@
 @{
     Layout = null;
 }
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - MockviewAI</title>
-    <link rel="icon" type="image/x-icon" href="~/favicon.ico"/>
+    <title>Đăng nhập - MockviewAI</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/Login.css">
 </head>
-
 <body>
+
     <div class="login-wrapper">
         <div class="login-box">
-
+            
             <div class="login-banner">
                 <div class="banner-logo">MockviewAI</div>
-                <h1 class="banner-title">Practice interviewing with AI before your real interview day</h1>
-                <p class="banner-subtitle">Designed for upcoming graduates and entry-level professionals.</p>
+                <h1 class="banner-title">Luyện phỏng vấn với AI trước ngày phỏng vấn thật</h1>
+                <p class="banner-subtitle">Dành cho sinh viên sắp ra trường và người mới đi làm.</p>
                 <ul class="banner-features">
-                    <li><span class="step-num">1</span> Choose your role and interviewer</li>
-                    <li><span class="step-num">2</span> Respond via voice or text</li>
-                    <li><span class="step-num">3</span> View your score, feedback, and anxiety level</li>
+                    <li><span class="step-num">1</span> Chọn vị trí và người phỏng vấn</li>
+                    <li><span class="step-num">2</span> Trả lời bằng giọng nói hoặc gõ chữ</li>
+                    <li><span class="step-num">3</span> Xem điểm, nhận xét và mức lo lắng</li>
                 </ul>
             </div>
 
-
+            <!-- Phần Form bên phải -->
             <div class="login-form-container">
                 <div class="form-header">
                     <div class="title-wrapper">
-                        <h2>Login</h2>
-                        <span class="badge-beta">BETA</span>
+                        <h2>Đăng nhập</h2>
+                        <span class="badge-beta">Beta</span>
                     </div>
-                    <p class="subtitle">Practice interviewing with AI, for free</p>
+                    <p class="subtitle">Luyện phỏng vấn với AI, miễn phí.</p>
                 </div>
 
-
+                <!-- Template Form từ Tech Lead -->
                 <form method="post" asp-controller="Auth" asp-action="Login" id="loginForm">
 
-                    @Html.AntiForgeryToken()
+                    <!-- Google Login Button -->
                     <a asp-controller="Auth" asp-action="LoginGoogle" class="btn-google">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
-                        Login with Google
+                        Đăng nhập với Google
                     </a>
 
                     <div class="divider">
-                        <span>OR WITH A LOCAL ACCOUNT</span>
+                        <span>HOẶC VỚI TÀI KHOẢN LOCAL</span>
                     </div>
 
                     <div class="form-group">
                         <label for="email-login">Email</label>
                         <div class="input-group">
                             <i class="fas fa-envelope icon-left"></i>
-                            <input type="email" name="email" id="email-login" placeholder="Enter email" required>
+                            <input type="email" name="email" id="email-login" placeholder="ban@email.com" required>
                         </div>
                     </div>
+
                     <div class="form-group">
-                        <label for="pass-login">Password</label>
+                        <label for="pass-login">Mật khẩu</label>
                         <div class="input-group">
                             <i class="fas fa-lock icon-left"></i>
-                            <input type="password" name="password" id="pass-login" placeholder="Enter password" required>
+                            <input type="password" name="password" id="pass-login" placeholder="Nhập mật khẩu" required>
                             <i class="far fa-eye toggle-password" onclick="togglePass('pass-login', this)"></i>
                         </div>
                     </div>
@@ -72,12 +71,11 @@
                         <a href="/Auth/ForgotPassword" class="forgot-password-link">Forgot Password?</a>
                     </div>
 
-                    <button type="submit" class="btn-submit">Login</button>
-
+                    <button type="submit" class="btn-submit">Đăng nhập</button>
                 </form>
-
+                
                 <div class="auth-switch">
-                    Don't have an account? <a href="/Auth/Register">Register</a>
+                    Chưa có tài khoản? <a href="/Auth/Register">Đăng ký</a>
                 </div>
             </div>
 

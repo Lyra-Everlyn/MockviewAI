@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using MockviewAI.Models.Entities;
 using MockviewAI.Services.Interfaces;
+using MockviewAI.Services.Security;
 using System.Security.Claims;
 
 namespace MockviewAI.Controllers
@@ -12,10 +14,12 @@ namespace MockviewAI.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly LoginThrottleService _throttle;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, LoginThrottleService throttle)
         {
             _authService = authService;
+            _throttle = throttle;
         }
 
         #region Login
@@ -35,18 +39,30 @@ namespace MockviewAI.Controllers
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
-                ModelState.AddModelError(string.Empty, "Please enter email and password");
+                ModelState.AddModelError(string.Empty, "Please enter email and password.");
+                return View();
+            }
+
+            var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
+            if (_throttle.IsLockedOut(throttleKey, out var wait))
+            {
+                var minutes = (int)Math.Ceiling(wait.TotalMinutes);
+                ModelState.AddModelError(string.Empty, $"Too many failed attempts. Please try again in {minutes} minute(s).");
                 return View();
             }
 
             try
             {
                 var user = await _authService.AuthenticateAsync(email, password);
-                await SignInUser(user!.Email, user.FirstName + " " + user.LastName, user.Role);
+                
+                _throttle.Reset(throttleKey);
+                
+                await SignInUser(user!.Email, $"{user.FirstName} {user.LastName}".Trim(), user.Role, user.AvatarUrl);
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)
             {
+                _throttle.RegisterFailure(throttleKey);
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View();
             }
@@ -62,13 +78,14 @@ namespace MockviewAI.Controllers
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
 
+        [HttpGet]
         public async Task<IActionResult> GoogleResponse()
         {
             var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             if (!result.Succeeded)
             {
-                TempData["ErrorMessage"] = "Authentication Google failed";
+                TempData["ErrorMessage"] = "Google authentication failed.";
                 return RedirectToAction("Login", "Auth");
             }
 
@@ -80,23 +97,24 @@ namespace MockviewAI.Controllers
             var surname = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value;
             var avatarUrl = claims?.FirstOrDefault(c => c.Type == "urn:google:picture" || c.Type == "picture")?.Value;
 
-            if (email == null)
+            var emailVerified = claims?.FirstOrDefault(c => c.Type == "email_verified")?.Value;
+            if (email == null || string.Equals(emailVerified, "false", StringComparison.OrdinalIgnoreCase))
             {
-                TempData["ErrorMessage"] = "Can't get email from your Google account";
+                TempData["ErrorMessage"] = "Cannot retrieve a verified email from your Google account.";
                 return RedirectToAction("Login", "Auth");
             }
 
             if (string.IsNullOrEmpty(givenName))
             {
-                var names = name?.Split(' ') ?? new[] { "Unknown" };
+                var names = name?.Split(' ') ?? new[] { "User" };
                 givenName = names[0];
                 surname = names.Length > 1 ? string.Join(" ", names.Skip(1)) : string.Empty;
             }
 
             try
             {
-                var user = await _authService.AuthenticateGoogleUserAsync(email, givenName, surname ?? "", avatarUrl);
-                await SignInUser(user.Email, user.FirstName + " " + user.LastName, user.Role);
+                var user = await _authService.AuthenticateGoogleUserAsync(email, givenName, surname, avatarUrl);
+                await SignInUser(user.Email, $"{user.FirstName} {user.LastName}".Trim(), user.Role, user.AvatarUrl);
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)
@@ -108,7 +126,7 @@ namespace MockviewAI.Controllers
 
 
         // Helper method set up Cookie
-        private async Task SignInUser(string email, string fullName, string role)
+        private async Task SignInUser(string email, string fullName, string role, string? avatarUrl)
         {
             var claims = new List<Claim>
             {
@@ -116,6 +134,11 @@ namespace MockviewAI.Controllers
                 new Claim(ClaimTypes.Name, fullName),
                 new Claim(ClaimTypes.Role, role)
             };
+
+            if (!string.IsNullOrEmpty(avatarUrl) && avatarUrl.StartsWith("https://"))
+            {
+                claims.Add(new Claim("AvatarUrl", avatarUrl));
+            }
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
@@ -164,7 +187,8 @@ namespace MockviewAI.Controllers
         // 5. Handle the register form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string lastName, bool terms = false)
+        [EnableRateLimiting("OtpRateLimit")]
+        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string? lastName, bool terms = false)
         {
             if (!terms)
             {
@@ -172,9 +196,9 @@ namespace MockviewAI.Controllers
                 return View();
             }
 
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword) || string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword) || string.IsNullOrEmpty(firstName))
             {
-                ModelState.AddModelError(string.Empty, "Please fill in all required fields.");
+                ModelState.AddModelError(string.Empty, "Please fill in all required fields (Email, Password, First Name).");
                 return View();
             }
 
@@ -184,18 +208,17 @@ namespace MockviewAI.Controllers
                 return View();
             }
 
-            await CheckPasswordStrenght(password);
-
             try
             {
+                CheckPasswordStrength(password);
                 await _authService.SendRegistrationOtpAsync(email);
 
                 TempData["RegEmail"] = email;
                 TempData["RegPassword"] = password;
                 TempData["RegFirstName"] = firstName;
-                TempData["RegLastName"] = lastName;
+                TempData["RegLastName"] = lastName ?? string.Empty;
 
-                TempData["SuccessMessage"] = "Verify code has been sent to your email.";
+                TempData["SuccessMessage"] = "Verification code has been sent to your email.";
                 return RedirectToAction("VerifyRegistrationCode", new { email = email });
             }
             catch (Exception ex)
@@ -247,32 +270,12 @@ namespace MockviewAI.Controllers
             }
         }
 
-        private async Task CheckPasswordStrenght(string password)
+        // Password validation according to standard (8–72 characters:
+        // Includes uppercase letters, lowercase letters, and numbers
+        private static void CheckPasswordStrength(string password)
         {
-            if (password.Length > 72)
-            {
-                throw new Exception("Password must be at most 72 characters long.");
-            }
-            if (password.Length < 8)
-            {
-                throw new Exception("Password must be at least 8 characters long.");
-            }
-            if (!password.Any(char.IsUpper))
-            {
-                throw new Exception("Password must contain at least one uppercase letter.");
-            }
-            if (!password.Any(char.IsLower))
-            {
-                throw new Exception("Password must contain at least one lowercase letter.");
-            }
-            if (!password.Any(char.IsDigit))
-            {
-                throw new Exception("Password must contain at least one digit.");
-            }
-            //if (!password.Any(ch => !char.IsLetterOrDigit(ch)))
-            //{
-            //    throw new Exception("Password must contain at least one special character.");
-            //}
+            var error = PasswordPolicy.Validate(password);
+            if (error != null) throw new Exception(error);
         }
         #endregion
 
@@ -287,6 +290,7 @@ namespace MockviewAI.Controllers
         // 7. Handle the forgot password form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting("OtpRateLimit")]
         public async Task<IActionResult> ForgotPassword(string email)
         {
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
@@ -312,7 +316,6 @@ namespace MockviewAI.Controllers
             catch (Exception)
             {
                 ModelState.AddModelError(string.Empty, "An error occurred. Please try again later.");
-                //ModelState.AddModelError(string.Empty, $"{ex.Message}");
                 return View();
             }
         }
@@ -321,11 +324,7 @@ namespace MockviewAI.Controllers
         [HttpGet]
         public IActionResult VerifyResetCode(string email)
         {
-            if (string.IsNullOrEmpty(email))
-            {
-                return RedirectToAction("ForgotPassword");
-            }
-
+            if (string.IsNullOrEmpty(email)) return RedirectToAction("ForgotPassword");
             return View();
         }
 
@@ -341,6 +340,7 @@ namespace MockviewAI.Controllers
             }
 
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
             try
             {
                 bool isValid = await _authService.VerifyResetCodeAsync(email, code, ipAddress);
@@ -374,6 +374,8 @@ namespace MockviewAI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(string email, string newPassword, string confirmPassword)
         {
+            ViewBag.Email = email;
+
             if (string.IsNullOrEmpty(newPassword) || string.IsNullOrEmpty(confirmPassword))
             {
                 ModelState.AddModelError(string.Empty, "Please fill in all fields.");
@@ -388,7 +390,7 @@ namespace MockviewAI.Controllers
 
             try
             {
-                await CheckPasswordStrenght(newPassword);
+                CheckPasswordStrength(newPassword);
                 await _authService.ResetPasswordAsync(email, newPassword);
 
                 TempData["SuccessMessage"] = "Your password has been reset successfully. Please login.";

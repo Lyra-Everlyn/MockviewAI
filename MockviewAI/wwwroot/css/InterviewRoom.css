@@ -1,0 +1,419 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* RESET CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #eef2f6; /* Nền xám nhạt bao phủ toàn màn hình */
+    color: #111827;
+    min-height: 100vh;
+}
+
+/* =========================================
+   THANH ĐIỀU HƯỚNG MÁY TÍNH
+   ========================================= */
+.desktop-nav {
+    background: #fff;
+    padding: 16px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.nav-container {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+    .logo span {
+        color: #2949ff;
+    }
+
+.nav-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #4b5563;
+    padding-left: 16px;
+    border-left: 1px solid #cbd5e1;
+}
+
+.badge-step {
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* =========================================
+   BỐ CỤC PHÒNG PHỎNG VẤN (MÁY TÍNH)
+   ========================================= */
+.interview-container {
+    max-width: 1040px;
+    margin: 30px auto;
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+/* Thanh tiến trình chung */
+.progress-track {
+    background: #e2e8f0;
+    height: 6px;
+    border-radius: 3px;
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.progress-fill {
+    background: #2949ff;
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* Chia lưới 2 cột */
+.layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+}
+
+/* CỘT TRÁI (NỘI DUNG) */
+.avatar-section {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.avatar-circle {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 16px;
+}
+
+.interviewer-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.status-tag {
+    background: #fff7ed;
+    color: #c2410c;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* Khối Câu hỏi & Bản ghi chung style */
+.question-box, .transcript-box {
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.question-box {
+    border: 1px solid #e2e8f0;
+    background: #fff;
+}
+
+.transcript-box {
+    background: #f1f5f9;
+    border: none;
+    margin-bottom: 0;
+}
+
+.box-label {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.question-text {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.transcript-text {
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.5;
+}
+
+/* CỘT PHẢI (ĐIỀU KHIỂN) */
+.control-pane {
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px;
+    height: fit-content;
+}
+
+.control-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+/* NÚT BẤM (BUTTONS) */
+.btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+}
+
+    .btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+.btn-primary {
+    background: #2949ff;
+    color: #fff;
+    border: none;
+}
+
+    .btn-primary:hover {
+        background: #1e3a8a;
+    }
+
+.btn-outline {
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    color: #2949ff;
+}
+
+    .btn-outline:hover {
+        background: #f8fafc;
+        border-color: #94a3b8;
+    }
+
+.btn-danger {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    margin-bottom: 0;
+}
+
+    .btn-danger:hover {
+        background: #fee2e2;
+    }
+
+/* Dành riêng cho nút Dừng và xem kết quả trong Modal */
+.btn-danger-fill {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    margin-bottom: 0;
+}
+
+.helper-text {
+    font-size: 12px;
+    color: #64748b;
+    text-align: center;
+    margin-top: 16px;
+}
+
+/* Bọc nút thành phần dọc trên Desktop */
+.btn-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+
+/* =========================================
+   HỘP THOẠI (MODAL) DỪNG BUỔI
+   ========================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(51, 65, 85, 0.9); /* Màu nền tối mờ */
+    display: none; /* Bị ẩn mặc định, bật bằng JS */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-box {
+    background: #fff;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-icon {
+    width: 48px;
+    height: 48px;
+    background: #fff7ed;
+    color: #c2410c;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 16px;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #111827;
+}
+
+.modal-desc {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+/* Container chứa 2 nút trong Modal */
+.modal-actions {
+    display: flex;
+    gap: 12px;
+}
+
+    .modal-actions .btn {
+        margin-bottom: 0;
+        flex: 1;
+    }
+
+
+/* =========================================
+   MOBILE RESPONSIVE (DƯỚI 768px)
+   ========================================= */
+.hide-on-desktop {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .hide-on-desktop {
+        display: flex;
+    }
+
+    .hide-on-mobile {
+        display: none !important;
+    }
+
+    body {
+        padding: 16px;
+    }
+
+    .interview-container {
+        margin: 0;
+        padding: 24px 20px;
+        border-radius: 20px;
+    }
+
+    /* Header riêng rẽ bên trong Card cho Mobile */
+    .mobile-header {
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .mobile-step {
+        font-size: 15px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .badge-role {
+        background: #eff6ff;
+        color: #1d4ed8;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    /* Đổi Grid thành 1 cột */
+    .layout-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .avatar-section {
+        padding: 20px 16px;
+        margin-bottom: 0;
+    }
+
+    /* Gỡ bỏ khung border của Control pane trên Mobile */
+    .control-pane {
+        border: none;
+        padding: 0;
+        margin-top: 8px;
+    }
+
+    /* Xếp ngang 2 nút Outline trên Mobile */
+    .btn-row {
+        flex-direction: row;
+        gap: 12px;
+    }
+
+        .btn-row .btn {
+            flex: 1;
+        }
+
+    /* Modal xếp dọc 2 nút trên Mobile */
+    .modal-actions {
+        flex-direction: column;
+    }
+}
+
+/* [AI-INTERVIEW] Thêm cho phần gõ tay và thông báo trong phòng phỏng vấn */
+[hidden] {
+    display: none !important;
+}
+
+.answer-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 15px;
+    resize: vertical;
+}

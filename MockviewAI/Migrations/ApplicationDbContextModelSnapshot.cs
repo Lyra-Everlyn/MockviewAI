@@ -22,6 +22,117 @@ namespace MockviewAI.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("MockviewAI.Models.Entities.InterviewSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AiSummary")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("AnxietyAfter")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("AnxietyBefore")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ContentScore")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DeliveryScore")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DeliveryTips")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("FinishedAt")
+                        .HasPrecision(3)
+                        .HasColumnType("datetime(3)");
+
+                    b.Property<string>("Improvements")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Interviewer")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Position")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("QuestionCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasPrecision(3)
+                        .HasColumnType("datetime(3)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Strengths")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("TotalScore")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("InterviewSessions");
+                });
+
+            modelBuilder.Entity("MockviewAI.Models.Entities.SessionAnswer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Answer")
+                        .HasMaxLength(4000)
+                        .HasColumnType("varchar(4000)");
+
+                    b.Property<DateTime?>("AnsweredAt")
+                        .HasPrecision(3)
+                        .HasColumnType("datetime(3)");
+
+                    b.Property<double?>("DurationSeconds")
+                        .HasColumnType("double");
+
+                    b.Property<int>("OrderNo")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int>("SessionId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Skipped")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessionId");
+
+                    b.ToTable("SessionAnswers");
+                });
+
             modelBuilder.Entity("MockviewAI.Models.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -108,6 +219,33 @@ namespace MockviewAI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("MockviewAI.Models.Entities.InterviewSession", b =>
+                {
+                    b.HasOne("MockviewAI.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MockviewAI.Models.Entities.SessionAnswer", b =>
+                {
+                    b.HasOne("MockviewAI.Models.Entities.InterviewSession", "Session")
+                        .WithMany("Answers")
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
+                });
+
+            modelBuilder.Entity("MockviewAI.Models.Entities.InterviewSession", b =>
+                {
+                    b.Navigation("Answers");
                 });
 #pragma warning restore 612, 618
         }

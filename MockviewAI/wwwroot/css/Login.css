@@ -1,6 +1,6 @@
 :root {
-    --primary-color: #3348E0;
-    --bg-color: #F0F2F5;
+    --primary-color: #3348E0; /* Màu xanh chủ đạo từ ảnh */
+    --bg-color: #F0F2F5; /* Màu nền web */
     --text-main: #1A1A1A;
     --text-muted: #666666;
     --border-color: #E2E8F0;
@@ -75,12 +75,12 @@ body {
     gap: 15px;
 }
 
-    .banner-features li {
-        display: flex;
-        align-items: center;
-        font-size: 14px;
-        font-weight: 500;
-    }
+.banner-features li {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+}
 
 .step-num {
     display: inline-flex;
@@ -152,14 +152,14 @@ body {
     transition: background 0.2s;
 }
 
-    .btn-google img {
-        width: 20px;
-        margin-right: 10px;
-    }
+.btn-google img {
+    width: 20px;
+    margin-right: 10px;
+}
 
-    .btn-google:hover {
-        background: #F8FAFC;
-    }
+.btn-google:hover {
+    background: #F8FAFC;
+}
 
 /* Divider */
 .divider {
@@ -172,28 +172,28 @@ body {
     font-weight: 600;
 }
 
-    .divider::before, .divider::after {
-        content: '';
-        flex: 1;
-        border-bottom: 1px solid var(--border-color);
-    }
+.divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+}
 
-    .divider span {
-        padding: 0 10px;
-    }
+.divider span {
+    padding: 0 10px;
+}
 
 /* Inputs */
 .form-group {
     margin-bottom: 20px;
 }
 
-    .form-group label {
-        display: block;
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: var(--text-main);
-    }
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
 
 .input-group {
     position: relative;
@@ -201,24 +201,24 @@ body {
     align-items: center;
 }
 
-    .input-group input {
-        width: 100%;
-        padding: 14px 14px 14px 42px;
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        font-size: 14px;
-        color: var(--text-main);
-        outline: none;
-        transition: border-color 0.2s;
-    }
+.input-group input {
+    width: 100%;
+    padding: 14px 14px 14px 42px; /* Dành chỗ cho icon bên trái */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-main);
+    outline: none;
+    transition: border-color 0.2s;
+}
 
-        .input-group input:focus {
-            border-color: var(--primary-color);
-        }
+.input-group input:focus {
+    border-color: var(--primary-color);
+}
 
-        .input-group input::placeholder {
-            color: #A0AEC0;
-        }
+.input-group input::placeholder {
+    color: #A0AEC0;
+}
 
 .icon-left {
     position: absolute;
@@ -233,16 +233,23 @@ body {
     color: #A0AEC0;
     font-size: 16px;
     cursor: pointer;
-    padding: 5px;
+    padding: 5px; /* Tăng diện tích click */
 }
 
-    .toggle-password:hover {
-        color: var(--text-main);
-    }
+.toggle-password:hover {
+    color: var(--text-main);
+}
 
+/* Forgot Password Link */
 .forgot-password-link {
-    text-decoration: none;
     color: var(--primary-color);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.forgot-password-link:hover {
+    text-decoration: underline;
 }
 
 /* Nút Submit */
@@ -260,9 +267,9 @@ body {
     transition: opacity 0.2s;
 }
 
-    .btn-submit:hover {
-        opacity: 0.9;
-    }
+.btn-submit:hover {
+    opacity: 0.9;
+}
 
 /* Auth Switch (Đổi giữa Đăng nhập/Đăng ký) */
 .auth-switch {
@@ -272,15 +279,15 @@ body {
     color: var(--text-muted);
 }
 
-    .auth-switch a {
-        color: var(--primary-color);
-        font-weight: 600;
-        text-decoration: none;
-    }
+.auth-switch a {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+}
 
-        .auth-switch a:hover {
-            text-decoration: underline;
-        }
+.auth-switch a:hover {
+    text-decoration: underline;
+}
 
 /* Responsive cho Mobile */
 @media (max-width: 768px) {
@@ -295,7 +302,7 @@ body {
     }
 
     .login-banner {
-        display: none;
+        display: none; /* Ẩn banner xanh trên mobile theo ảnh thiết kế */
     }
 
     .login-form-container {

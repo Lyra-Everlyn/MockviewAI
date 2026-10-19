@@ -1,0 +1,28 @@
+/* [AI-MODULE] Avatar người phỏng vấn - kiểu dáng. Dùng cùng avatar.js */
+.mv-avatar { display: block; width: 100%; max-width: 240px; aspect-ratio: 1 / 1; margin: 0 auto; }
+.mv-avatar svg { width: 100%; height: 100%; display: block; }
+
+/* Mắt: chớp bằng cách ép chiều cao */
+.mv-eyes { transform-box: fill-box; transform-origin: center; transition: transform .1s ease; }
+.mv-blink .mv-eyes { transform: scaleY(.1); }
+
+/* Vòng sáng quanh mặt: hiện khi nghe hoặc nói */
+.mv-ring { opacity: 0; transform-box: fill-box; transform-origin: center; transition: opacity .2s; }
+.mv-state-listening .mv-ring, .mv-state-speaking .mv-ring { opacity: .9; }
+.mv-state-listening .mv-ring { stroke: #0F7A55; }
+.mv-state-speaking .mv-ring { stroke: #2B4BD6; }
+
+/* Nghĩ: mắt liếc lên, hiện 3 chấm */
+.mv-state-thinking .mv-eyes { transform: translate(2px, -2px); }
+.mv-dots { opacity: 0; }
+.mv-state-thinking .mv-dots { opacity: 1; }
+.mv-state-thinking .mv-dots circle { animation: mv-dot 1.2s infinite ease-in-out; }
+.mv-state-thinking .mv-dots circle:nth-child(2) { animation-delay: .2s; }
+.mv-state-thinking .mv-dots circle:nth-child(3) { animation-delay: .4s; }
+@keyframes mv-dot { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
+
+/* Người dùng bật "giảm chuyển động": bỏ hiệu ứng nhấp nháy, miệng vẫn cử động vì là thông tin chính */
+@media (prefers-reduced-motion: reduce) {
+  .mv-state-thinking .mv-dots circle { animation: none; opacity: 1; }
+  .mv-eyes { transition: none; }
+}

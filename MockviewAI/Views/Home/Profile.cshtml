@@ -1,0 +1,150 @@
+﻿@model MockviewAI.Models.ViewModels.ProfileViewModel
+@{
+    Layout = null;
+    // Chữ cái đầu của tên người đang đăng nhập (hiện trên avatar góc phải)
+    var userName = User.Identity?.Name ?? "";
+    var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
+    // Ảnh Google của tài khoản (nếu có), không có thì hiện chữ cái đầu
+    var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ - MockviewAI</title>
+    <link rel="stylesheet" href="~/css/Profile.css">
+</head>
+<body>
+    <!-- THANH ĐIỀU HƯỚNG MÁY TÍNH -->
+    <nav class="desktop-nav hide-on-mobile">
+        <div class="nav-container">
+            <div class="nav-left">
+                <div class="logo">Mockview<span>AI</span></div>
+                <ul class="nav-links">
+                    <li><a href="/Home">Trang chủ</a></li>
+                    <li><a href="/Interview/Create">Luyện tập</a></li>
+                    <li><a href="/Home/History">Lịch sử</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <span class="badge badge-v1">BETA</span>
+                <div class="avatar" style="cursor: pointer;" title="Hồ sơ" onclick="location.href='/Profile'">@if (!string.IsNullOrEmpty(avatarUrl)) { <img src="@avatarUrl" alt="" referrerpolicy="no-referrer" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" /> } else { @initial }</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <main class="profile-page">
+        <div class="main-card">
+            <h1 class="page-title">Hồ sơ của bạn</h1>
+            
+            <div class="profile-grid">
+                
+                <!-- CỘT TRÁI -->
+                <div class="col-left">
+                    <!-- 1. Box Thông tin cá nhân -->
+                    <div class="box info-box">
+                        <div class="user-header">
+                            <div class="user-avatar">@if (!string.IsNullOrEmpty(avatarUrl)) { <img src="@avatarUrl" alt="" referrerpolicy="no-referrer" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" /> } else { @Model.AvatarInitial }</div>
+                            <div class="user-titles">
+                                <h2>@Model.FullName</h2>
+                                <p>@Model.StatusText</p>
+                            </div>
+                        </div>
+                        <div class="user-tags">
+                            @if (!string.IsNullOrEmpty(Model.Major))
+                            {
+                                <span class="tag-pill">@Model.Major</span>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.TargetPosition))
+                            {
+                                <span class="tag-pill">Mục tiêu: @Model.TargetPosition</span>
+                            }
+                        </div>
+                        <button type="button" class="btn-outline" onclick="location.href='/Home/EditProfile'">Sửa hồ sơ</button>
+                    </div>
+
+                    <!-- 2. Box Góp ý (Sẽ tụt xuống dưới trên Mobile) -->
+                    <div class="box feedback-box" style="cursor: pointer;" onclick="location.href='/Feedback'">
+                        <h4>Góp ý cho bản BETA</h4>
+                        <p class="hide-on-mobile">Mất khoảng 2 phút.</p>
+                    </div>
+
+                    <!-- 3. Các link tài khoản (Sẽ tụt xuống dưới trên Mobile) -->
+                    <div class="account-links">
+                        <a href="#" class="link-blue">Xoá ghi âm</a>
+                        <a href="#" class="link-red">Xoá tài khoản</a>
+                        <a href="#" class="link-blue" onclick="onClickLogout(event)">Đăng xuất</a>
+                    </div>
+                </div>
+
+                <!-- CỘT PHẢI -->
+                <div class="col-right">
+                    <!-- 4. Lịch sử luyện tập -->
+                    <div class="history-section">
+                        <div class="history-header">
+                            <h3>Lịch sử luyện tập</h3>
+                            <a href="/Home/History">Xem tất cả</a>
+                        </div>
+                        
+                        <div class="history-list">
+                            @if (!Model.RecentSessions.Any())
+                            {
+                                <p>Chưa có buổi luyện nào.</p>
+                            }
+                            @for (int i = 0; i < Model.RecentSessions.Count; i++)
+                            {
+                                var s = Model.RecentSessions[i];
+                                // Thẻ thứ 3 ẩn trên điện thoại như thiết kế
+                                <div class="history-card @(i >= 2 ? "hide-on-mobile" : "")" style="cursor: pointer;"
+                                     onclick="location.href='@(s.IsInProgress ? "/Interview/Room/" + s.SessionId : "/Home/InterviewDetail/" + s.SessionId)'">
+                                    <div class="card-left">
+                                        <div class="card-role">@s.RoleName</div>
+                                        <div class="card-badges">
+                                            <span class="badge-score">@(s.HasScore ? s.Score + " điểm" : s.StatusText)</span>
+                                            @if (!string.IsNullOrEmpty(s.AnxietyText))
+                                            {
+                                                <span class="@(s.AnxietyImproved ? "badge-anxiety-good" : "badge-anxiety-warn")">@s.AnxietyText</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="card-right">
+                                        <span class="date-full hide-on-mobile">@s.DateFormatted &middot; @s.QuestionCount câu</span>
+                                        <span class="date-short hide-on-desktop">@s.DateFormatted</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </main>
+
+    <!-- THANH ĐIỀU HƯỚNG DƯỚI ĐÁY CHO ĐIỆN THOẠI -->
+    <nav class="mobile-nav hide-on-desktop">
+        <a href="/Home" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            <span>Trang chủ</span>
+        </a>
+        <a href="/Interview/Create" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg>
+            <span>Luyện tập</span>
+        </a>
+        <a href="/Home/History" class="nav-item">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>Lịch sử</span>
+        </a>
+        <a href="/Profile" class="nav-item active">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Hồ sơ</span>
+        </a>
+    </nav>
+    <partial name="Partials/_LogoutPartial" />
+    <script src="~/js/_Logout.js"></script>
+    <partial name="Partials/_Notify" />
+</body>
+</html>

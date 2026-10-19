@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thử avatar người phỏng vấn</title>
+  <!-- [AI-MODULE] Trang thử riêng, mở tại /ai/avatar.html. Có thể xóa trước khi deploy thật. -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="/ai/avatar.css">
+  <style>
+    :root { --bg:#F6F7FB; --ink:#141A33; --muted:#4A5170; --line:#DCE0EC; --card:#fff; --pri:#2B4BD6; --pri-l:#E8ECFD; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:'Be Vietnam Pro',system-ui,sans-serif; background:var(--bg); color:var(--ink); }
+    main { max-width: 520px; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    p.sub { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+    .card h2 { font-size: 14px; margin: 0 0 10px; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    button { font: inherit; font-size: 14px; min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line);
+             background: #fff; color: var(--ink); cursor: pointer; }
+    button.pri { background: var(--pri); border-color: var(--pri); color: #fff; }
+    button:focus-visible, input:focus-visible { outline: 3px solid var(--pri); outline-offset: 2px; }
+    input[type=text] { width: 100%; min-height: 44px; font: inherit; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; }
+    input[type=range] { width: 100%; }
+    #status { font-size: 13px; color: var(--muted); min-height: 20px; margin-top: 8px; }
+    audio { width: 100%; margin-top: 8px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Thử avatar người phỏng vấn</h1>
+  <p class="sub">Trang thử riêng của phần AI. Không dính vào giao diện chính.</p>
+
+  <div class="card"><div id="face"></div></div>
+
+  <div class="card">
+    <h2>1. Trạng thái</h2>
+    <div class="row" id="states">
+      <button data-s="idle">Chờ</button>
+      <button data-s="listening">Nghe</button>
+      <button data-s="thinking">Nghĩ</button>
+      <button data-s="speaking">Nói</button>
+    </div>
+    <h2 style="margin-top:14px">2. Mở miệng bằng tay</h2>
+    <input id="mouth" type="range" min="0" max="100" value="0" aria-label="Mức mở miệng">
+  </div>
+
+  <div class="card">
+    <h2>3. Nói thử bằng giọng trình duyệt</h2>
+    <input id="text" type="text" value="Xin chào, mình là người phỏng vấn của bạn hôm nay. Hãy giới thiệu về bản thân nhé.">
+    <div class="row">
+      <button class="pri" id="speak">Nói</button>
+      <button id="stop">Dừng</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>4. Miệng theo âm thanh thật</h2>
+    <div class="row">
+      <button class="pri" id="tone">Phát âm thử</button>
+      <label><input id="file" type="file" accept="audio/*" style="max-width:100%"></label>
+    </div>
+    <audio id="audio" controls></audio>
+  </div>
+
+  <div class="card">
+    <h2>5. Vòng sáng theo micro</h2>
+    <div class="row">
+      <button id="mic">Bật micro</button>
+      <button id="micoff">Tắt micro</button>
+    </div>
+    <div id="status" role="status"></div>
+  </div>
+</main>
+
+<script src="/ai/avatar.js"></script>
+<script>
+  var face = MockviewAvatar.mount(document.getElementById('face'));
+  var status = document.getElementById('status');
+  var audio = document.getElementById('audio');
+  function say(t) { status.textContent = t; }
+
+  document.getElementById('states').addEventListener('click', function (e) {
+    var s = e.target.getAttribute('data-s'); if (s) face.setState(s);
+  });
+  document.getElementById('mouth').addEventListener('input', function (e) { face.setMouth(e.target.value / 100); });
+
+  document.getElementById('speak').onclick = function () {
+    if (!face.speak(document.getElementById('text').value)) say('Trình duyệt này không có giọng đọc.');
+  };
+  document.getElementById('stop').onclick = function () { face.stopSpeaking(); };
+
+  // Tạo một đoạn âm thanh giống tiếng nói (âm cơ bản + nhịp âm tiết) để thử mà không cần file
+  function makeTestWav() {
+    var rate = 16000, secs = 4, n = rate * secs, data = new Int16Array(n);
+    for (var i = 0; i < n; i++) {
+      var t = i / rate;
+      var syllable = Math.max(0, Math.sin(2 * Math.PI * 3.2 * t));        // ~3 âm tiết mỗi giây
+      var word = (t % 1.6) < 1.2 ? 1 : 0;                                  // có ngắt nghỉ giữa các "câu"
+      var f = 140 + 30 * Math.sin(2 * Math.PI * 0.8 * t);
+      var s = (Math.sin(2 * Math.PI * f * t) + 0.4 * Math.sin(2 * Math.PI * 2 * f * t)) * syllable * word * 0.45;
+      data[i] = Math.max(-1, Math.min(1, s)) * 32767;
+    }
+    var buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+    function w(o, s) { for (var k = 0; k < s.length; k++) v.setUint8(o + k, s.charCodeAt(k)); }
+    w(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
+    v.setUint16(22, 1, true); v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    w(36, 'data'); v.setUint32(40, n * 2, true);
+    for (var j = 0; j < n; j++) v.setInt16(44 + j * 2, data[j], true);
+    return new Blob([buf], { type: 'audio/wav' });
+  }
+
+  var hooked = false;
+  function hook() { if (!hooked) { face.attachAudio(audio); hooked = true; } }
+  document.getElementById('tone').onclick = function () {
+    hook(); audio.src = URL.createObjectURL(makeTestWav()); audio.play();
+  };
+  document.getElementById('file').onchange = function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    hook(); audio.src = URL.createObjectURL(f); audio.play();
+  };
+
+  document.getElementById('mic').onclick = function () {
+    face.listenMic().then(function () { say('Micro đang bật: vòng sáng nhấp nháy theo giọng bạn.'); })
+      .catch(function () { say('Không bật được micro. Cần HTTPS hoặc localhost và cho phép micro.'); });
+  };
+  document.getElementById('micoff').onclick = function () { face.stopMic(); say('Đã tắt micro.'); };
+</script>
+</body>
+</html>

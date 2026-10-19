@@ -1,0 +1,144 @@
+@model MockviewAI.Models.ViewModels.InterviewDetailViewModel
+@{
+    Layout = null;
+    var m = Model;
+    var userName = User.Identity?.Name ?? "";
+    var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
+    // Ảnh Google của tài khoản (nếu có), không có thì hiện chữ cái đầu
+    var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết buổi hội thoại - MockviewAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/InterviewDetail.css">
+</head>
+<body>
+
+    <!-- Header Desktop -->
+    <header class="desktop-header">
+        <div class="header-content">
+            <div class="logo-nav">
+                <div class="logo">Mockview<span>AI</span></div>
+                <nav class="nav-links">
+                    <a href="/Home">Trang chủ</a>
+                    <a href="/Interview/Create">Luyện tập</a>
+                    <a href="/Home/History" class="active">Lịch sử</a>
+                </nav>
+            </div>
+            <div class="header-actions">
+                <span class="badge-beta">Bản thử V1</span>
+                <div class="profile-icon" style="cursor: pointer;" title="Hồ sơ" onclick="location.href='/Profile'">@if (!string.IsNullOrEmpty(avatarUrl)) { <img src="@avatarUrl" alt="" referrerpolicy="no-referrer" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" /> } else { @initial }</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        
+        <!-- Nút quay lại -->
+        <a href="/Home/History" class="back-link">&lsaquo; Lịch sử</a>
+
+        <!-- Tiêu đề trang -->
+        <div class="page-header">
+            <h1 class="page-title">
+                @m.Position <span class="hide-on-mobile">&bull; @m.StartedAt.ToString("dd/MM")</span>
+            </h1>
+            <p class="subtitle">
+                <span class="hide-on-desktop">@m.StartedAt.ToString("dd/MM") &bull; </span>
+                Người phỏng vấn: @m.InterviewerName
+                <span class="hide-on-mobile"> &bull; @m.QuestionCount câu &bull; toàn bộ hội thoại được lưu lại</span>
+            </p>
+
+            <!-- Thẻ điểm tóm tắt (Chỉ hiện trên Mobile) -->
+            <div class="mobile-badges hide-on-desktop">
+                <span class="badge badge-blue">@(m.HasScore ? m.TotalScore + " điểm" : "Chưa có điểm")</span>
+                <span class="badge badge-green">Lo lắng @m.AnxietyBefore &rarr; @m.AnxietyAfter</span>
+            </div>
+        </div>
+
+        <!-- Bố cục lưới nội dung -->
+        <div class="content-grid">
+            
+            <!-- Cột trái: Lịch sử hội thoại -->
+            <div class="chat-section">
+                <div class="chat-card">
+                    
+                    @if (!m.Turns.Any())
+                    {
+                        <div class="chat-more">Bạn đã dừng buổi này trước khi trả lời câu nào.</div>
+                    }
+                    @foreach (var t in m.Turns)
+                    {
+                        <!-- Câu hỏi - Người phỏng vấn -->
+                        <div class="chat-message interviewer">
+                            <div class="avatar-svg">
+                                <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="18" cy="18" r="18" fill="#FDE68A"/>
+                                    <circle cx="18" cy="14" r="5" fill="#1E3A8A"/>
+                                    <path d="M9 29C9 24 13 21 18 21C23 21 27 24 27 29" stroke="#1E3A8A" stroke-width="3" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <div class="bubbles-col">
+                                <div class="bubble meta-bubble">@m.InterviewerName &bull; Câu @t.Number</div>
+                                <div class="bubble text-bubble">@t.Question</div>
+                            </div>
+                        </div>
+
+                        <!-- Trả lời - Người dùng -->
+                        <div class="chat-message user">
+                            <div class="bubbles-col align-right">
+                                <div class="bubble user-bubble">@(t.Skipped ? "(Đã bỏ qua câu này)" : t.Answer)</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Cột phải / Dưới cùng: Nhận xét & Hành động -->
+            <div class="sidebar-section">
+                
+                <!-- Thẻ Điểm tổng (Chỉ hiện trên Desktop) -->
+                <div class="score-card hide-on-mobile">
+                    <div class="score-header">
+                        <span class="score-label">Điểm tổng</span>
+                        <span class="badge-reference">Tham khảo</span>
+                    </div>
+                    <div class="score-number">@(m.HasScore ? m.TotalScore.ToString() : "—")</div>
+                    <div class="score-tags">
+                        <span class="badge badge-blue">Nội dung @m.ContentScore</span>
+                        <span class="badge badge-blue">Cách nói @m.DeliveryScore</span>
+                        <span class="badge badge-green">Lo lắng @m.AnxietyBefore &rarr; @m.AnxietyAfter</span>
+                    </div>
+                </div>
+
+                <!-- Thẻ Nhận xét -->
+                <div class="feedback-card">
+                    <h3 class="feedback-title">Nhận xét của AI</h3>
+                    <p class="feedback-text">@(m.HasScore ? m.AiSummary : "Buổi này chưa được chấm điểm vì bạn dừng trước khi trả lời. Hãy luyện lại để nhận nhận xét của AI.")</p>
+                    @foreach (var tip in m.Improvements)
+                    {
+                        <p class="feedback-text">&bull; @tip</p>
+                    }
+                </div>
+
+                <!-- Các nút hành động -->
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-primary-outline" onclick="location.href='/Interview/Create'">Luyện lại vị trí này</button>
+                    <form method="post" asp-controller="Home" asp-action="DeleteSession" asp-route-id="@m.SessionId"
+                          onsubmit="return confirm('Xoá buổi luyện này? Không thể khôi phục.');" style="display: contents;">
+                        <button type="submit" class="btn btn-danger-outline">Xoá buổi<span class="hide-on-mobile"> này</span></button>
+                    </form>
+                </div>
+                
+            </div>
+        </div>
+
+    </main>
+
+    <partial name="Partials/_Notify" />
+</body>
+</html>

@@ -1,0 +1,62 @@
+﻿@{
+    Layout = null;
+    // Chữ cái đầu của tên người đang đăng nhập (hiện trên avatar góc phải)
+    var userName = User.Identity?.Name ?? "";
+    var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
+    // Ảnh Google của tài khoản (nếu có), không có thì hiện chữ cái đầu
+    var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cảm ơn - MockviewAI</title>
+    <link rel="stylesheet" href="~/css/ThankYou.css">
+</head>
+<body>
+    <!-- THANH ĐIỀU HƯỚNG MÁY TÍNH -->
+    <nav class="desktop-nav hide-on-mobile">
+        <div class="nav-container">
+            <div class="nav-left">
+                <div class="logo">Mockview<span>AI</span></div>
+                <ul class="nav-links">
+                    <li><a href="/Home">Trang chủ</a></li>
+                    <li><a href="/Interview/Create">Luyện tập</a></li>
+                    <li><a href="/Home/History">Lịch sử</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <span class="badge badge-v1">BETA</span>
+                <div class="avatar" style="cursor: pointer;" title="Hồ sơ" onclick="location.href='/Profile'">@if (!string.IsNullOrEmpty(avatarUrl)) { <img src="@avatarUrl" alt="" referrerpolicy="no-referrer" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" /> } else { @initial }</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <main class="thankyou-wrapper">
+        <div class="thankyou-container">
+            
+            <!-- Biểu tượng dấu tích xanh -->
+            <div class="success-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            
+            <!-- Tiêu đề và mô tả -->
+            <h1>Cảm ơn bạn đã góp ý!</h1>
+            <p>Ý kiến của bạn đã được ghi nhận và sẽ giúp nhóm cải thiện phiên bản <br class="hide-on-mobile"> tiếp theo.</p>
+            
+            <!-- Cụm nút bấm -->
+            <div class="action-buttons">
+                <button type="button" class="btn btn-primary" onclick="location.href='/Home'">Về trang chủ</button>
+                <button type="button" class="btn btn-outline" onclick="location.href='/Interview/Create'">Luyện thêm một buổi</button>
+            </div>
+
+        </div>
+    </main>
+    <partial name="Partials/_Notify" />
+</body>
+</html>

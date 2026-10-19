@@ -1,0 +1,118 @@
+﻿@* <!-- @model MockviewAI.Models.ViewModels.ProfileEditViewModel --> *@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sửa hồ sơ - MockviewAI</title>
+    <!-- Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/EditProfile.css">
+</head>
+<body>
+
+    <!-- Header Desktop -->
+    <header class="desktop-header">
+        <div class="header-content">
+            <div class="logo-nav">
+                <div class="logo">Mockview<span>AI</span></div>
+                <nav class="nav-links">
+                    <a href="/Home">Trang chủ</a>
+                    <a href="/Interview/Create">Luyện tập</a>
+                    <a href="/Home/History">Lịch sử</a>
+                </nav>
+            </div>
+            <div class="header-actions">
+                <span class="badge-beta">BETA</span>
+                <div class="profile-icon">Q</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Nội dung chính -->
+    <main class="main-container">
+        
+        <!-- Nút quay lại & Tiêu đề -->
+        <div class="page-header">
+            <a href="/Profile" class="back-link">&lsaquo; Hồ sơ</a>
+            <h1 class="page-title">Sửa hồ sơ</h1>
+        </div>
+
+        <!-- Thẻ chứa Form sửa hồ sơ -->
+        <div class="edit-profile-card">
+            
+            <!-- Khối bên trái: Ảnh đại diện -->
+            <div class="avatar-section">
+                <div class="avatar-circle">@(string.IsNullOrEmpty(Model?.FullName) ? "?" : Model.FullName.Substring(0, 1))</div>
+                <a href="#" class="change-avatar-btn">Đổi ảnh đại diện</a>
+            </div>
+
+            <!-- Khối bên phải: Form nhập thông tin -->
+            <form class="profile-form" method="post" asp-controller="Profile" asp-action="Edit">
+                
+                <!-- Họ và tên -->
+                <div class="form-group full-width">
+                    <label class="form-label" for="fullname">Họ và tên</label>
+                    <input type="text" id="fullname" name="fullName" class="form-input" value="@Model.FullName">
+                </div>
+
+                <!-- Hàng 2 cột: Chuyên ngành & Vị trí ứng tuyển -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="major">Chuyên ngành</label>
+                        <div class="select-wrapper">
+                            <select id="major" name="major" class="form-select">
+                                <option value="it" selected>Công nghệ thông tin</option>
+                                <option value="is">Hệ thống thông tin</option>
+                                <option value="se">Kỹ thuật phần mềm</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="position">Vị trí muốn ứng tuyển</label>
+                        <div class="select-wrapper">
+                            <select id="position" name="position" class="form-select">
+                                <option value="developer" selected>Lập trình viên</option>
+                                <option value="tester">Kiểm thử phần mềm</option>
+                                <option value="ba">Business Analyst</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tình trạng sinh viên/ra trường -->
+                <div class="form-group full-width">
+                    <label class="form-label">Bạn là</label>
+                    <input type="hidden" id="studentStatus" name="studentStatus" value="graduating">
+                    <div class="status-options">
+                        <button type="button" class="status-btn active" onclick="selectStatus('graduating', this)">Sắp ra trường</button>
+                        <button type="button" class="status-btn" onclick="selectStatus('graduated', this)">Đã ra trường</button>
+                    </div>
+                </div>
+
+                <!-- Cụm nút bấm lưu/huỷ -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    <button type="button" class="btn btn-outline">Huỷ</button>
+                </div>
+
+            </form>
+
+        </div>
+    </main>
+
+    @* <script>
+        function selectStatus(value, btn) {
+            document.getElementById('studentStatus').value = value;
+            document.querySelectorAll('.status-btn').forEach(function(b) {
+                b.classList.remove('active');
+            });
+            btn.classList.add('active');
+        }
+    </script> *@
+</body>
+</html>

@@ -16,5 +16,11 @@ namespace MockviewAI.Repositories.Implementations
             if (string.IsNullOrWhiteSpace(email)) return false;
             return await _dbSet.AnyAsync(u => u.Email == email);
         }
+
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return null;
+            return await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
+        }
     }
 }
