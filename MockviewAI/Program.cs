@@ -136,6 +136,13 @@ namespace MockviewAI
                 app.UseHsts();
             }
 
+            // Auto update database
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                dbContext.Database.Migrate();
+            }
+
             //app.UseHttpsRedirection();
             app.UseRouting();
 
