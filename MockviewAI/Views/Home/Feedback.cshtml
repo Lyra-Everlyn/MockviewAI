@@ -3,6 +3,8 @@
     // Chữ cái đầu của tên người đang đăng nhập (hiện trên avatar góc phải)
     var userName = User.Identity?.Name ?? "";
     var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
+    // Ảnh Google của tài khoản (nếu có), không có thì hiện chữ cái đầu
+    var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
 }
 
 <!DOCTYPE html>
@@ -27,7 +29,7 @@
             </div>
             <div class="nav-right">
                 <span class="badge badge-v1">BETA</span>
-                <div class="avatar">@initial</div>
+                <div class="avatar" style="cursor: pointer;" title="Hồ sơ" onclick="location.href='/Profile'">@if (!string.IsNullOrEmpty(avatarUrl)) { <img src="@avatarUrl" alt="" referrerpolicy="no-referrer" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" /> } else { @initial }</div>
             </div>
         </div>
     </nav>

@@ -4,6 +4,8 @@
     var m = Model;
     var userName = User.Identity?.Name ?? "";
     var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
+    // Ảnh Google của tài khoản (nếu có), không có thì hiện chữ cái đầu
+    var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -29,7 +31,7 @@
             </div>
             <div class="header-actions">
                 <span class="badge-beta">Bản thử V1</span>
-                <div class="profile-icon">@initial</div>
+                <div class="profile-icon" style="cursor: pointer;" title="Hồ sơ" onclick="location.href='/Profile'">@if (!string.IsNullOrEmpty(avatarUrl)) { <img src="@avatarUrl" alt="" referrerpolicy="no-referrer" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" /> } else { @initial }</div>
             </div>
         </div>
     </header>
@@ -53,7 +55,7 @@
 
             <!-- Thẻ điểm tóm tắt (Chỉ hiện trên Mobile) -->
             <div class="mobile-badges hide-on-desktop">
-                <span class="badge badge-blue">@m.TotalScore điểm</span>
+                <span class="badge badge-blue">@(m.HasScore ? m.TotalScore + " điểm" : "Chưa có điểm")</span>
                 <span class="badge badge-green">Lo lắng @m.AnxietyBefore &rarr; @m.AnxietyAfter</span>
             </div>
         </div>
@@ -65,6 +67,10 @@
             <div class="chat-section">
                 <div class="chat-card">
                     
+                    @if (!m.Turns.Any())
+                    {
+                        <div class="chat-more">Bạn đã dừng buổi này trước khi trả lời câu nào.</div>
+                    }
                     @foreach (var t in m.Turns)
                     {
                         <!-- Câu hỏi - Người phỏng vấn -->
@@ -101,7 +107,7 @@
                         <span class="score-label">Điểm tổng</span>
                         <span class="badge-reference">Tham khảo</span>
                     </div>
-                    <div class="score-number">@m.TotalScore</div>
+                    <div class="score-number">@(m.HasScore ? m.TotalScore.ToString() : "—")</div>
                     <div class="score-tags">
                         <span class="badge badge-blue">Nội dung @m.ContentScore</span>
                         <span class="badge badge-blue">Cách nói @m.DeliveryScore</span>
@@ -112,7 +118,7 @@
                 <!-- Thẻ Nhận xét -->
                 <div class="feedback-card">
                     <h3 class="feedback-title">Nhận xét của AI</h3>
-                    <p class="feedback-text">@m.AiSummary</p>
+                    <p class="feedback-text">@(m.HasScore ? m.AiSummary : "Buổi này chưa được chấm điểm vì bạn dừng trước khi trả lời. Hãy luyện lại để nhận nhận xét của AI.")</p>
                     @foreach (var tip in m.Improvements)
                     {
                         <p class="feedback-text">&bull; @tip</p>

@@ -26,9 +26,9 @@ namespace MockviewAI.Services.Implementations
             var user = await FindUserAsync(email);
             if (user == null) return new List<RecentSessionViewModel>();
 
-            // Chỉ lấy buổi đã chấm điểm, mới nhất trước
+            // Lấy mọi buổi (đã chấm, dừng sớm, chưa xong), mới nhất trước
             var query = _db.InterviewSessions
-                .Where(s => s.UserId == user.Id && s.Status == "Completed")
+                .Where(s => s.UserId == user.Id)
                 .OrderByDescending(s => s.StartedAt)
                 .AsQueryable();
             if (take.HasValue) query = query.Take(take.Value);
@@ -40,7 +40,7 @@ namespace MockviewAI.Services.Implementations
         public async Task<InterviewDetailViewModel?> GetDetailAsync(string email, int sessionId)
         {
             var session = await FindSessionAsync(email, sessionId);
-            if (session == null || session.Status != "Completed") return null;
+            if (session == null) return null;
 
             return new InterviewDetailViewModel
             {
@@ -49,6 +49,7 @@ namespace MockviewAI.Services.Implementations
                 InterviewerName = InterviewerName(session.Interviewer),
                 StartedAt = session.StartedAt.ToLocalTime(),
                 QuestionCount = session.QuestionCount,
+                HasScore = session.TotalScore != null,
                 TotalScore = session.TotalScore ?? 0,
                 ContentScore = session.ContentScore ?? 0,
                 DeliveryScore = session.DeliveryScore ?? 0,
@@ -111,7 +112,10 @@ namespace MockviewAI.Services.Implementations
                 Score = s.TotalScore ?? 0,
                 AnxietyText = hasAnxiety ? $"Lo lắng {s.AnxietyBefore} → {s.AnxietyAfter}" : string.Empty,
                 // Giảm từ 2 bậc trở lên thì hiện màu xanh, còn lại màu cam
-                AnxietyImproved = hasAnxiety && s.AnxietyBefore - s.AnxietyAfter >= 2
+                AnxietyImproved = hasAnxiety && s.AnxietyBefore - s.AnxietyAfter >= 2,
+                HasScore = s.TotalScore != null,
+                IsInProgress = s.Status == "InProgress",
+                StatusText = s.Status == "InProgress" ? "Chưa xong" : s.TotalScore == null ? "Đã dừng" : string.Empty
             };
         }
 

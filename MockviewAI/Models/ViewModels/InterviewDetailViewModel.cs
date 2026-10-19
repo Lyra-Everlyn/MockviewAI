@@ -9,6 +9,7 @@
         public DateTime StartedAt { get; set; }
         public int QuestionCount { get; set; }
 
+        public bool HasScore { get; set; }          // false: buổi dừng trước khi có điểm
         public int TotalScore { get; set; }
         public int ContentScore { get; set; }
         public int DeliveryScore { get; set; }
