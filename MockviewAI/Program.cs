@@ -187,10 +187,24 @@ namespace MockviewAI
             }
 
             // --- B. Auto update database (Migration)
+            // WARNING: Bạn sẽ bị mất toàn bộ dữ liệu database, chỉ thực hiện trên local
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                dbContext.Database.Migrate();
+
+                if (app.Environment.IsDevelopment())
+                {
+                    // 1. Xóa sổ toàn bộ Database cũ
+                    dbContext.Database.EnsureDeleted();
+
+                    // 2. Tạo lại Database mới toanh dựa trên file C# hiện tại (Không cần thư mục Migrations)
+                    dbContext.Database.EnsureCreated();
+                }
+                else
+                {
+                    // Trên Production thì vẫn phải dùng Migrate đàng hoàng để không bị mất dữ liệu khách hàng
+                    dbContext.Database.Migrate();
+                }
             }
 
             //app.UseHttpsRedirection();
