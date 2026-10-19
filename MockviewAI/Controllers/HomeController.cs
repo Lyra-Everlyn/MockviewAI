@@ -39,6 +39,11 @@ namespace MockviewAI.Controllers
             return View(recent);
         }
 
+
+
+
+
+
         public IActionResult Privacy()
         {
             return View();

@@ -1,4 +1,4 @@
-﻿@model List<MockviewAI.Models.ViewModels.RecentSessionViewModel>
+@model List<MockviewAI.Models.ViewModels.RecentSessionViewModel>
 @{
     Layout = null;
     // Chữ cái đầu của tên người đang đăng nhập (hiện trên avatar góc phải)
@@ -39,7 +39,7 @@
 
     <!-- NỘI DUNG CHÍNH -->
     <main class="dashboard-layout">
-        
+
         <!-- Header (Lời chào) -->
         <div class="item-greeting">
             <div class="greeting-texts">
@@ -79,12 +79,10 @@
         <!-- Header Buổi gần đây -->
         <div class="recent-header item-recent-header">
             <h3>Buổi gần đây</h3>
-            <!-- Link cho Máy tính -->
             <div class="header-actions hide-on-mobile">
                 <a href="/Home/History" class="link-primary">Xem toàn bộ lịch sử</a>
                 <a href="#" class="link-help">? Hướng dẫn nhanh</a>
             </div>
-            <!-- Link cho Điện thoại -->
             <div class="header-actions hide-on-desktop">
                 <a href="/Home/History" class="link-primary">Xem tất cả</a>
             </div>
@@ -121,7 +119,7 @@
             }
         </div>
 
-        <!-- Link Hướng dẫn nhanh cho Điện thoại (Đẩy xuống dưới cùng) -->
+        <!-- Link Hướng dẫn nhanh cho Điện thoại -->
         <a href="#" class="link-help mobile-help item-mobile-help hide-on-desktop">? Hướng dẫn nhanh</a>
     </main>
 
