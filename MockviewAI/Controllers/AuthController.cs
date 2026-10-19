@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using MockviewAI.Models.Entities;
 using MockviewAI.Services.Interfaces;
 using MockviewAI.Services.Security;
@@ -186,6 +187,7 @@ namespace MockviewAI.Controllers
         // 5. Handle the register form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting("OtpRateLimit")]
         public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string? lastName, bool terms = false)
         {
             if (!terms)
@@ -288,6 +290,7 @@ namespace MockviewAI.Controllers
         // 7. Handle the forgot password form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting("OtpRateLimit")]
         public async Task<IActionResult> ForgotPassword(string email)
         {
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
