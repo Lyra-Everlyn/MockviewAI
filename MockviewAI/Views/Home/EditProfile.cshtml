@@ -1,6 +1,13 @@
-﻿@* <!-- @model MockviewAI.Models.ViewModels.ProfileEditViewModel --> *@
+@model MockviewAI.Models.ViewModels.ProfileEditViewModel
 @{
     Layout = null;
+    // Lựa chọn trong 2 ô chọn. Giá trị lưu vào DB là chính chữ hiển thị (giống bước Onboarding).
+    var majors = new List<string> { "Công nghệ thông tin", "Hệ thống thông tin", "Kỹ thuật phần mềm" };
+    var positions = new List<string> { "Lập trình viên", "Kiểm thử phần mềm", "Business Analyst" };
+    // Giá trị đã nhập ở Onboarding mà không có trong danh sách thì vẫn giữ để không bị mất
+    if (!string.IsNullOrEmpty(Model.Major) && !majors.Contains(Model.Major)) majors.Insert(0, Model.Major);
+    if (!string.IsNullOrEmpty(Model.Position) && !positions.Contains(Model.Position)) positions.Insert(0, Model.Position);
+    var initial = string.IsNullOrEmpty(Model.FullName) ? "?" : Model.FullName.Substring(0, 1).ToUpper();
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -26,8 +33,8 @@
                 </nav>
             </div>
             <div class="header-actions">
-                <span class="badge-beta">BETA</span>
-                <div class="profile-icon">Q</div>
+                <span class="badge-beta">Bản thử V1</span>
+                <div class="profile-icon">@initial</div>
             </div>
         </div>
     </header>
@@ -46,17 +53,17 @@
             
             <!-- Khối bên trái: Ảnh đại diện -->
             <div class="avatar-section">
-                <div class="avatar-circle">@(string.IsNullOrEmpty(Model?.FullName) ? "?" : Model.FullName.Substring(0, 1))</div>
+                <div class="avatar-circle">@initial</div>
                 <a href="#" class="change-avatar-btn">Đổi ảnh đại diện</a>
             </div>
 
             <!-- Khối bên phải: Form nhập thông tin -->
-            <form class="profile-form" method="post" asp-controller="Profile" asp-action="Edit">
+            <form class="profile-form" method="post" asp-controller="Home" asp-action="EditProfile">
                 
                 <!-- Họ và tên -->
                 <div class="form-group full-width">
                     <label class="form-label" for="fullname">Họ và tên</label>
-                    <input type="text" id="fullname" name="fullName" class="form-input" value="@Model.FullName">
+                    <input type="text" id="fullname" name="fullName" class="form-input" value="@Model.FullName" maxlength="100" required>
                 </div>
 
                 <!-- Hàng 2 cột: Chuyên ngành & Vị trí ứng tuyển -->
@@ -65,9 +72,10 @@
                         <label class="form-label" for="major">Chuyên ngành</label>
                         <div class="select-wrapper">
                             <select id="major" name="major" class="form-select">
-                                <option value="it" selected>Công nghệ thông tin</option>
-                                <option value="is">Hệ thống thông tin</option>
-                                <option value="se">Kỹ thuật phần mềm</option>
+                                @foreach (var m in majors)
+                                {
+                                    <option value="@m" selected="@(m == Model.Major)">@m</option>
+                                }
                             </select>
                         </div>
                     </div>
@@ -76,9 +84,10 @@
                         <label class="form-label" for="position">Vị trí muốn ứng tuyển</label>
                         <div class="select-wrapper">
                             <select id="position" name="position" class="form-select">
-                                <option value="developer" selected>Lập trình viên</option>
-                                <option value="tester">Kiểm thử phần mềm</option>
-                                <option value="ba">Business Analyst</option>
+                                @foreach (var p in positions)
+                                {
+                                    <option value="@p" selected="@(p == Model.Position)">@p</option>
+                                }
                             </select>
                         </div>
                     </div>
@@ -87,17 +96,17 @@
                 <!-- Tình trạng sinh viên/ra trường -->
                 <div class="form-group full-width">
                     <label class="form-label">Bạn là</label>
-                    <input type="hidden" id="studentStatus" name="studentStatus" value="graduating">
+                    <input type="hidden" id="studentStatus" name="studentStatus" value="@Model.StudentStatus">
                     <div class="status-options">
-                        <button type="button" class="status-btn active" onclick="selectStatus('graduating', this)">Sắp ra trường</button>
-                        <button type="button" class="status-btn" onclick="selectStatus('graduated', this)">Đã ra trường</button>
+                        <button type="button" class="status-btn @(Model.StudentStatus == "Expecting Graduation" ? "active" : "")" onclick="selectStatus('Expecting Graduation', this)">Sắp ra trường</button>
+                        <button type="button" class="status-btn @(Model.StudentStatus == "Graduated" ? "active" : "")" onclick="selectStatus('Graduated', this)">Đã ra trường</button>
                     </div>
                 </div>
 
                 <!-- Cụm nút bấm lưu/huỷ -->
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-                    <button type="button" class="btn btn-outline">Huỷ</button>
+                    <button type="button" class="btn btn-outline" onclick="location.href='/Profile'">Huỷ</button>
                 </div>
 
             </form>
@@ -105,7 +114,7 @@
         </div>
     </main>
 
-    @* <script>
+    <script>
         function selectStatus(value, btn) {
             document.getElementById('studentStatus').value = value;
             document.querySelectorAll('.status-btn').forEach(function(b) {
@@ -113,6 +122,7 @@
             });
             btn.classList.add('active');
         }
-    </script> *@
+    </script>
+    <partial name="Partials/_Notify" />
 </body>
 </html>

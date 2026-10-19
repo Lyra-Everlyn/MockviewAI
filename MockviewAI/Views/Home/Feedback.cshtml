@@ -1,5 +1,8 @@
 ﻿@{
-    Layout = null; 
+    Layout = null;
+    // Chữ cái đầu của tên người đang đăng nhập (hiện trên avatar góc phải)
+    var userName = User.Identity?.Name ?? "";
+    var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
 }
 
 <!DOCTYPE html>
@@ -17,24 +20,24 @@
             <div class="nav-left">
                 <div class="logo">Mockview<span>AI</span></div>
                 <ul class="nav-links">
-                    <li><a href="#">Trang chủ</a></li>
-                    <li><a href="#">Luyện tập</a></li>
-                    <li><a href="#">Lịch sử</a></li>
+                    <li><a href="/Home">Trang chủ</a></li>
+                    <li><a href="/Interview/Create">Luyện tập</a></li>
+                    <li><a href="/Home/History">Lịch sử</a></li>
                 </ul>
             </div>
             <div class="nav-right">
                 <span class="badge badge-v1">BETA</span>
-                <div class="avatar">Q</div>
+                <div class="avatar">@initial</div>
             </div>
         </div>
     </nav>
 
     <!-- NỘI DUNG CHÍNH -->
     <main class="feedback-wrapper">
-        <div class="feedback-container">
+        <form class="feedback-container" method="post" asp-controller="Home" asp-action="Feedback">
             
             <!-- Nút Quay lại Trang chủ (Chỉ hiện trên Điện thoại) -->
-            <a href="#" class="back-link hide-on-desktop">
+            <a href="/Home" class="back-link hide-on-desktop">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                 Trang chủ
             </a>
@@ -53,6 +56,7 @@
                 <div class="feedback-box">
                     <label class="box-label">Ứng dụng có dễ dùng không?</label>
                     <div class="stars-group">
+                        <input type="hidden" name="easeRating" id="ease-rating" value="4">
                         <!-- 4 Sao vàng, 1 Sao xám -->
                         <svg class="star active" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                         <svg class="star active" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
@@ -66,13 +70,13 @@
                 <div class="feedback-box">
                     <label class="box-label">Buổi luyện có giúp bạn bớt lo lắng không?</label>
                     <div class="segment-group">
-                        <input type="radio" id="opt-co" name="anxiety" checked>
+                        <input type="radio" id="opt-co" name="anxietyHelp" value="Có" checked>
                         <label for="opt-co">Có</label>
                         
-                        <input type="radio" id="opt-mot-chut" name="anxiety">
+                        <input type="radio" id="opt-mot-chut" name="anxietyHelp" value="Một chút">
                         <label for="opt-mot-chut">Một chút</label>
                         
-                        <input type="radio" id="opt-khong" name="anxiety">
+                        <input type="radio" id="opt-khong" name="anxietyHelp" value="Không">
                         <label for="opt-khong">Không</label>
                     </div>
                 </div>
@@ -81,13 +85,28 @@
             <!-- Khối Nhập văn bản Góp ý -->
             <div class="textarea-group">
                 <label class="box-label">Bạn muốn nhóm cải thiện điều gì?</label>
-                <textarea placeholder="Viết góp ý của bạn..."></textarea>
+                <textarea name="comment" maxlength="1000" placeholder="Viết góp ý của bạn..."></textarea>
             </div>
 
             <!-- Nút Gửi -->
-            <button class="btn-submit">Gửi góp ý</button>
+            <button type="submit" class="btn-submit">Gửi góp ý</button>
 
-        </div>
+        </form>
     </main>
+    <script>
+        // Bấm sao để chọn số điểm 1-5
+        var stars = document.querySelectorAll('.stars-group .star');
+        stars.forEach(function (star, index) {
+            star.style.cursor = 'pointer';
+            star.addEventListener('click', function () {
+                document.getElementById('ease-rating').value = index + 1;
+                stars.forEach(function (s, i) {
+                    s.classList.toggle('active', i <= index);
+                    s.classList.toggle('inactive', i > index);
+                });
+            });
+        });
+    </script>
+    <partial name="Partials/_Notify" />
 </body>
 </html>

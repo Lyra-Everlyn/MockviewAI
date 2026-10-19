@@ -71,6 +71,11 @@ namespace MockviewAI
             builder.Services.AddScoped<IInterviewScoringService, InterviewScoringService>();
             builder.Services.AddScoped<IInterviewService, InterviewService>();   // [AI-INTERVIEW]
 
+            // Lịch sử, hồ sơ, góp ý
+            builder.Services.AddScoped<ISessionHistoryService, SessionHistoryService>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
+            builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+
             // Other services
             // a. Google configuration
             builder.Services.AddAuthentication(options =>
