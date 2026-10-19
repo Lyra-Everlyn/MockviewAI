@@ -13,7 +13,7 @@ namespace MockviewAI.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
-        private readonly LoginThrottleService _throttle;   // [SECURITY-MODULE]
+        private readonly LoginThrottleService _throttle;
 
         public AuthController(IAuthService authService, LoginThrottleService throttle)
         {
@@ -38,11 +38,10 @@ namespace MockviewAI.Controllers
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
-                ModelState.AddModelError(string.Empty, "Please enter email and password");
+                ModelState.AddModelError(string.Empty, "Please enter email and password.");
                 return View();
             }
 
-            // [SECURITY-MODULE] Chặn dò mật khẩu: sai nhiều lần thì khóa tạm
             var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
             if (_throttle.IsLockedOut(throttleKey, out var wait))
             {
@@ -54,8 +53,10 @@ namespace MockviewAI.Controllers
             try
             {
                 var user = await _authService.AuthenticateAsync(email, password);
+                
                 _throttle.Reset(throttleKey);
-                await SignInUser(user!.Email, user.FirstName + " " + user.LastName, user.Role, user.AvatarUrl);
+                
+                await SignInUser(user!.Email, $"{user.FirstName} {user.LastName}".Trim(), user.Role, user.AvatarUrl);
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)
@@ -83,7 +84,7 @@ namespace MockviewAI.Controllers
 
             if (!result.Succeeded)
             {
-                TempData["ErrorMessage"] = "Authentication Google failed";
+                TempData["ErrorMessage"] = "Google authentication failed.";
                 return RedirectToAction("Login", "Auth");
             }
 
@@ -95,25 +96,24 @@ namespace MockviewAI.Controllers
             var surname = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value;
             var avatarUrl = claims?.FirstOrDefault(c => c.Type == "urn:google:picture" || c.Type == "picture")?.Value;
 
-            // Reject accounts whose Google email is not verified
             var emailVerified = claims?.FirstOrDefault(c => c.Type == "email_verified")?.Value;
             if (email == null || string.Equals(emailVerified, "false", StringComparison.OrdinalIgnoreCase))
             {
-                TempData["ErrorMessage"] = "Can't get email from your Google account";
+                TempData["ErrorMessage"] = "Cannot retrieve a verified email from your Google account.";
                 return RedirectToAction("Login", "Auth");
             }
 
             if (string.IsNullOrEmpty(givenName))
             {
-                var names = name?.Split(' ') ?? new[] { "Unknown" };
+                var names = name?.Split(' ') ?? new[] { "User" };
                 givenName = names[0];
                 surname = names.Length > 1 ? string.Join(" ", names.Skip(1)) : string.Empty;
             }
 
             try
             {
-                var user = await _authService.AuthenticateGoogleUserAsync(email, givenName, surname ?? "", avatarUrl);
-                await SignInUser(user.Email, user.FirstName + " " + user.LastName, user.Role, user.AvatarUrl);
+                var user = await _authService.AuthenticateGoogleUserAsync(email, givenName, surname, avatarUrl);
+                await SignInUser(user.Email, $"{user.FirstName} {user.LastName}".Trim(), user.Role, user.AvatarUrl);
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)
@@ -134,7 +134,6 @@ namespace MockviewAI.Controllers
                 new Claim(ClaimTypes.Role, role)
             };
 
-            // Ảnh đại diện Google (chỉ nhận link https) để giao diện hiện đúng ảnh của tài khoản
             if (!string.IsNullOrEmpty(avatarUrl) && avatarUrl.StartsWith("https://"))
             {
                 claims.Add(new Claim("AvatarUrl", avatarUrl));
@@ -187,7 +186,7 @@ namespace MockviewAI.Controllers
         // 5. Handle the register form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string lastName, bool terms = false)
+        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string? lastName, bool terms = false)
         {
             if (!terms)
             {
@@ -195,9 +194,9 @@ namespace MockviewAI.Controllers
                 return View();
             }
 
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword) || string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword) || string.IsNullOrEmpty(firstName))
             {
-                ModelState.AddModelError(string.Empty, "Please fill in all required fields.");
+                ModelState.AddModelError(string.Empty, "Please fill in all required fields (Email, Password, First Name).");
                 return View();
             }
 
@@ -209,16 +208,15 @@ namespace MockviewAI.Controllers
 
             try
             {
-                // [SECURITY-MODULE] Check the password rules BEFORE sending the email code
                 CheckPasswordStrength(password);
                 await _authService.SendRegistrationOtpAsync(email);
 
                 TempData["RegEmail"] = email;
                 TempData["RegPassword"] = password;
                 TempData["RegFirstName"] = firstName;
-                TempData["RegLastName"] = lastName;
+                TempData["RegLastName"] = lastName ?? string.Empty;
 
-                TempData["SuccessMessage"] = "Verify code has been sent to your email.";
+                TempData["SuccessMessage"] = "Verification code has been sent to your email.";
                 return RedirectToAction("VerifyRegistrationCode", new { email = email });
             }
             catch (Exception ex)
@@ -270,7 +268,8 @@ namespace MockviewAI.Controllers
             }
         }
 
-        // [SECURITY-MODULE] one place for the password rules (see Services/Security/PasswordPolicy.cs)
+        // Password validation according to standard (8–72 characters:
+        // Includes uppercase letters, lowercase letters, and numbers
         private static void CheckPasswordStrength(string password)
         {
             var error = PasswordPolicy.Validate(password);
@@ -314,7 +313,6 @@ namespace MockviewAI.Controllers
             catch (Exception)
             {
                 ModelState.AddModelError(string.Empty, "An error occurred. Please try again later.");
-                //ModelState.AddModelError(string.Empty, $"{ex.Message}");
                 return View();
             }
         }
@@ -323,11 +321,7 @@ namespace MockviewAI.Controllers
         [HttpGet]
         public IActionResult VerifyResetCode(string email)
         {
-            if (string.IsNullOrEmpty(email))
-            {
-                return RedirectToAction("ForgotPassword");
-            }
-
+            if (string.IsNullOrEmpty(email)) return RedirectToAction("ForgotPassword");
             return View();
         }
 
@@ -343,6 +337,7 @@ namespace MockviewAI.Controllers
             }
 
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
             try
             {
                 bool isValid = await _authService.VerifyResetCodeAsync(email, code, ipAddress);
@@ -376,7 +371,8 @@ namespace MockviewAI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(string email, string newPassword, string confirmPassword)
         {
-            ViewBag.Email = email; // keep the email in the form if we have to show the page again
+            ViewBag.Email = email;
+
             if (string.IsNullOrEmpty(newPassword) || string.IsNullOrEmpty(confirmPassword))
             {
                 ModelState.AddModelError(string.Empty, "Please fill in all fields.");

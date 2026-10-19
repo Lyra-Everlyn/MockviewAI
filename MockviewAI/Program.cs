@@ -25,10 +25,11 @@ namespace MockviewAI
             var builder = WebApplication.CreateBuilder(args);
 
 
-            // 0. Database connection string
+            // =========================================================================
+            // PART 1: DATABASE CONFIGURATION
+
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-            // 1. Configure Entity Framework Core with MySQL
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(
                     connectionString,
@@ -41,19 +42,23 @@ namespace MockviewAI
                 )
             );
 
-            // 2. Register Repositories & Services
-            // Repository
+
+            // =========================================================================
+            // PART 2: REGISTERING REPOSITORIES & SERVICES FOR THE MOCKVIEW AI PROJECT
+
+            // --- A. REPOSITORIES ---
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-
-            // Service
+            // --- B. CORE SERVICES (Auth, Onboarding) ---
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IOnboardingService, OnboardingService>();
 
-            // [AI-MODULE] AI scoring: provider is chosen by config "Ai:Provider" ("Mock" default, or "Gemini")
+            // --- C. AI MODULE SERVICES ---
+            // Configure the AI ​​Provider based on appsettings ("Mock" or "Gemini")
             builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
             builder.Services.AddSingleton<IDeliveryAnalyzer, DeliveryAnalyzer>();
+
             if (string.Equals(builder.Configuration["Ai:Provider"], "Gemini", StringComparison.OrdinalIgnoreCase))
             {
                 builder.Services.AddSingleton<IScoringPromptBuilder, ScoringPromptBuilder>();
@@ -68,16 +73,22 @@ namespace MockviewAI
             {
                 builder.Services.AddScoped<IAiScoringService, MockAiScoringService>();
             }
-            builder.Services.AddScoped<IInterviewScoringService, InterviewScoringService>();
-            builder.Services.AddScoped<IInterviewService, InterviewService>();   // [AI-INTERVIEW]
 
-            // Lịch sử, hồ sơ, góp ý
+            // --- D. INTERVIEW SERVICES ---
+            builder.Services.AddScoped<IInterviewScoringService, InterviewScoringService>();
+            builder.Services.AddScoped<IInterviewService, InterviewService>();
+
+            // --- E. USER FEATURE SERVICES ---
+            // Managing user history, records, and feedback
             builder.Services.AddScoped<ISessionHistoryService, SessionHistoryService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
             builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 
-            // Other services
-            // a. Google configuration
+
+            // =========================================================================
+            // PART 3: THIRD-PARTY & INFRASTRUCTURE CONFIGURATION
+
+            // --- A. GOOGLE AUTHENTICATION & COOKIES ---
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -87,7 +98,10 @@ namespace MockviewAI
             {
                 options.LoginPath = "/Auth/Login";
                 options.LogoutPath = "/api/auth/logout";
-                options.HardenCookie();   // [SECURITY-MODULE] HttpOnly, SameSite, 8h - see Services/Security/SecurityExtensions.cs
+
+                // Secure cookie configuration:
+                // Enable HttpOnly (to prevent XSS) and SameSite (to prevent CSRF), and set a lifespan of 8 hours
+                options.HardenCookie();
             })
             .AddGoogle(options =>
             {
@@ -96,8 +110,7 @@ namespace MockviewAI
                 options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
             });
 
-
-            // b. Register Cloudinary
+            // --- B. CLOUDINARY (Media Storage) ---
             var cloudinarySettings = builder.Configuration.GetSection("CloudinarySettings");
             string cloudName = cloudinarySettings["CloudName"] ?? throw new InvalidOperationException("Cloudinary CloudName is missing.");
             string apiKey = cloudinarySettings["ApiKey"] ?? throw new InvalidOperationException("Cloudinary ApiKey is missing.");
@@ -107,36 +120,39 @@ namespace MockviewAI
             var cloudinary = new Cloudinary(cloudinaryAccount);
             builder.Services.AddSingleton(cloudinary);
 
-
-            // c. Email service configuration
+            // --- C. EMAIL & CACHE ---
             builder.Services.AddScoped<IEmailService, EmailService>();
-
-
-            // 3. Add Memory Cache
             builder.Services.AddMemoryCache();
 
 
+            // =========================================================================
+            // PART 4: CONFIGURATION VIA VISUAL STUDIO & SECURITY
 
-            // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-
-            // [SECURITY-MODULE] login throttle, forwarded headers, security options
+            // --- A. Register security services:
+            // Password-guessing protection (throttling), proxy configuration, and system security policies
             builder.Services.AddAppSecurity(builder.Configuration);
 
             var app = builder.Build();
 
-            app.UseAppSecurity();   // [SECURITY-MODULE] ForwardedHeaders + security headers
 
-            // Configure the HTTP request pipeline.
+            // =========================================================================
+            // PART 5: MIDDLEWARE PIPELINE
+
+            // --- A. Standard security: Forwarded headers & HTTP security headers
+            app.UseAppSecurity();
+
+
+            // Configuring error handling and HTTPS for a production environment
             if (!app.Environment.IsDevelopment())
             {
-                //app.UseExceptionHandler("/Home/Error");
-                app.UseExceptionHandler("/Auth/Login");
+                app.UseExceptionHandler("/Home/Error");
+                //app.UseExceptionHandler("/Auth/Login");
                 app.UseHsts();
             }
 
-            // Auto update database
+            // --- B. Auto update database (Migration)
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -144,10 +160,13 @@ namespace MockviewAI
             }
 
             //app.UseHttpsRedirection();
+
             app.UseRouting();
 
-            app.UseAuthentication(); // MUST come before UseAuthorization, otherwise the login cookie is never read
+            // --- C. Enforce security workflow: Identity check before permission check
+            app.UseAuthentication();
             app.UseAuthorization();
+
 
             app.MapStaticAssets();
             app.MapControllerRoute(

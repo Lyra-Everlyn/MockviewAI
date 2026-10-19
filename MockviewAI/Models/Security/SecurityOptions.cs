@@ -1,14 +1,20 @@
-// [SECURITY-MODULE] SecurityOptions
-// Cấu hình bảo mật đọc từ appsettings (mục "Security") hoặc biến môi trường Security__MaxFailedLogins, Security__LockoutMinutes.
-
 namespace MockviewAI.Models.Security
 {
+    /// <summary>
+    /// Cấu hình bảo mật ứng dụng. 
+    /// Dữ liệu được bind tự động từ appsettings.json (mục "Security") hoặc biến môi trường.
+    /// </summary>
     public class SecurityOptions
     {
-        // Số lần đăng nhập sai tối đa trước khi bị khóa tạm
+        /// <summary>
+        /// Số lần đăng nhập sai tối đa cho phép trước khi tài khoản/IP bị khóa tạm thời.
+        /// </summary>
         public int MaxFailedLogins { get; set; } = 5;
 
-        // Vừa là thời gian khóa, vừa là khung thời gian đếm số lần sai
+        /// <summary>
+        /// Thời gian khóa (tính bằng phút). 
+        /// Đồng thời cũng là khung thời gian (window) để đếm số lần đăng nhập sai.
+        /// </summary>
         public int LockoutMinutes { get; set; } = 15;
     }
 }

@@ -1,55 +1,83 @@
-// [SECURITY-MODULE] SecurityExtensions
-// Gom cấu hình bảo mật vào một chỗ để Program.cs chỉ cần vài dòng gọi:
-//   builder.Services.AddAppSecurity(builder.Configuration);   // đăng ký dịch vụ
-//   cookieOptions => cookieOptions.HardenCookie();             // cookie an toàn
-//   app.UseAppSecurity();                                      // forwarded headers + security headers
-
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
 using MockviewAI.Models.Security;
 
 namespace MockviewAI.Services.Security
 {
+    /// <summary>
+    /// Lớp mở rộng (Extension Methods) giúp đóng gói các cấu hình bảo mật.
+    /// Giúp file Program.cs giữ được sự gọn gàng và dễ bảo trì.
+    /// </summary>
     public static class SecurityExtensions
     {
+        /// <summary>
+        /// Đăng ký các dịch vụ bảo mật vào DI Container.
+        /// Cách gọi: builder.Services.AddAppSecurity(builder.Configuration);
+        /// </summary>
         public static IServiceCollection AddAppSecurity(this IServiceCollection services, IConfiguration config)
         {
             services.Configure<SecurityOptions>(config.GetSection("Security"));
             services.AddSingleton<LoginThrottleService>();
 
-            // Coolify/Traefik chấm dứt HTTPS rồi chuyển tiếp cho app: tin X-Forwarded-* để redirect Google dùng https
+            // Cấu hình nhận diện IP thật và giao thức (HTTPS) khi chạy phía sau Proxy (Nginx, Traefik, Docker...)
             services.Configure<ForwardedHeadersOptions>(o =>
             {
                 o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
                 o.KnownNetworks.Clear();
                 o.KnownProxies.Clear();
             });
+
             return services;
         }
 
+        /// <summary>
+        /// Thiết lập các thuộc tính bảo mật nghiêm ngặt cho Authentication Cookie.
+        /// Cách gọi: options.HardenCookie(); (Bên trong AddCookie)
+        /// </summary>
         public static void HardenCookie(this CookieAuthenticationOptions options)
         {
-            options.Cookie.HttpOnly = true;                                  // JS không đọc được cookie (chống XSS đánh cắp)
-            options.Cookie.SameSite = SameSiteMode.Lax;                      // chống CSRF, vẫn cho Google redirect
-            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;  // production đi qua proxy HTTPS
+            // Chống XSS: Ngăn JavaScript truy cập cookie
+            options.Cookie.HttpOnly = true;
+
+            // Chống CSRF: Hạn chế gửi cookie qua các request chéo trang (Lax vẫn cho phép Google Redirect)
+            options.Cookie.SameSite = SameSiteMode.Lax;
+
+            // Yêu cầu HTTPS trên môi trường Production
+            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+
             options.ExpireTimeSpan = TimeSpan.FromHours(8);
             options.SlidingExpiration = true;
         }
 
+        /// <summary>
+        /// Kích hoạt Middleware bảo mật trong HTTP Pipeline.
+        /// Cách gọi: app.UseAppSecurity(); (Bên dưới app.Build())
+        /// </summary>
         public static IApplicationBuilder UseAppSecurity(this IApplicationBuilder app)
         {
-            app.UseForwardedHeaders();   // phải chạy trước mọi thứ cần biết IP/giao thức thật
+            // Bắt buộc phải chạy đầu tiên để các Middleware sau nhận đúng IP/Giao thức
+            app.UseForwardedHeaders();
 
-            // Header phòng thủ cơ bản. Chưa bật Content-Security-Policy vì giao diện đang dùng script/style nội tuyến và CDN.
+            // Bổ sung các HTTP Security Headers cơ bản phòng thủ tấn công phổ biến
             app.Use(async (context, next) =>
             {
-                var h = context.Response.Headers;
-                h["X-Content-Type-Options"] = "nosniff";                          // không đoán kiểu file
-                h["X-Frame-Options"] = "DENY";                                    // chống clickjacking
-                h["Referrer-Policy"] = "strict-origin-when-cross-origin";
-                h["Permissions-Policy"] = "camera=(self), microphone=(self), geolocation=()"; // phòng phỏng vấn cần mic/camera
+                var headers = context.Response.Headers;
+
+                // Ngăn trình duyệt tự ý đoán định dạng file (chống MIME-sniffing)
+                headers["X-Content-Type-Options"] = "nosniff";
+
+                // Ngăn trang web bị nhúng vào iframe của domain khác (chống Clickjacking)
+                headers["X-Frame-Options"] = "DENY";
+
+                // Bảo mật thông tin Referrer khi điều hướng sang trang khác
+                headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+
+                // Giới hạn quyền truy cập phần cứng (chỉ cho phép camera/mic cho phòng phỏng vấn, tắt geolocation)
+                headers["Permissions-Policy"] = "camera=(self), microphone=(self), geolocation=()";
+
                 await next();
             });
+
             return app;
         }
     }
