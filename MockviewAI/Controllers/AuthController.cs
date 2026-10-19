@@ -113,7 +113,7 @@ namespace MockviewAI.Controllers
             try
             {
                 var user = await _authService.AuthenticateGoogleUserAsync(email, givenName, surname ?? "", avatarUrl);
-                await SignInUser(user!.Email, user.FirstName + " " + user.LastName, user.Role, user.AvatarUrl);
+                await SignInUser(user.Email, user.FirstName + " " + user.LastName, user.Role, user.AvatarUrl);
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)
@@ -134,7 +134,8 @@ namespace MockviewAI.Controllers
                 new Claim(ClaimTypes.Role, role)
             };
 
-            if (!string.IsNullOrEmpty(avatarUrl))
+            // Ảnh đại diện Google (chỉ nhận link https) để giao diện hiện đúng ảnh của tài khoản
+            if (!string.IsNullOrEmpty(avatarUrl) && avatarUrl.StartsWith("https://"))
             {
                 claims.Add(new Claim("AvatarUrl", avatarUrl));
             }
