@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 using MockviewAI.Models.Entities;
-using MockviewAI.Services.Interfaces;
+using MockviewAI.Models.Security;
+using MockviewAI.Services.Auth;
 using MockviewAI.Services.Security;
 using System.Security.Claims;
 
@@ -16,12 +18,14 @@ namespace MockviewAI.Controllers
         private readonly IAuthService _authService;
         private readonly ILoginThrottleService _throttleService;
         private readonly ITurnstileService _turnstileService;
+        private readonly int _lockoutMinutes;
 
-        public AuthController(IAuthService authService, ILoginThrottleService throttleService, ITurnstileService turnstileService)
+        public AuthController(IAuthService authService, ILoginThrottleService throttleService, ITurnstileService turnstileService, IOptions<SecurityOptions> securityOptions)
         {
             _authService = authService;
             _throttleService = throttleService;
             _turnstileService = turnstileService;
+            _lockoutMinutes = securityOptions.Value.LockoutMinutes;
         }
 
         #region Login
@@ -32,11 +36,10 @@ namespace MockviewAI.Controllers
             return View();
         }
 
-
         // 2. Handle the login form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // a. Manual login method with email and password parameters
+        [EnableRateLimiting("LoginRateLimit")]
         public async Task<IActionResult> Login(string email, string password)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
@@ -58,7 +61,7 @@ namespace MockviewAI.Controllers
                 var user = await _authService.AuthenticateAsync(email, password);
 
                 _throttleService.Reset(throttleKey);
-                
+
                 await SignInUser(user!.Email, $"{user.FirstName} {user.LastName}".Trim(), user.Role, user.AvatarUrl);
                 return RedirectAfterLogin(user);
             }
@@ -69,7 +72,6 @@ namespace MockviewAI.Controllers
                 return View();
             }
         }
-
 
         // b. Google login method
         [HttpGet]
@@ -126,7 +128,6 @@ namespace MockviewAI.Controllers
             }
         }
 
-
         // Helper method set up Cookie
         private async Task SignInUser(string email, string fullName, string role, string? avatarUrl)
         {
@@ -151,14 +152,8 @@ namespace MockviewAI.Controllers
         // Helper method redirect to the appropriate page after successful login
         private IActionResult RedirectAfterLogin(User user)
         {
-            if (user.Role == "Admin")
-            {
-                return RedirectToAction("Index", "Admin");
-            }
-            if (!user.IsOnboardingCompleted)
-            {
-                return RedirectToAction("Index", "Onboarding");
-            }
+            if (user.Role == "Admin") return RedirectToAction("Index", "Admin");
+            if (!user.IsOnboardingCompleted) return RedirectToAction("Index", "Onboarding");
 
             return user.Role switch
             {
@@ -178,7 +173,6 @@ namespace MockviewAI.Controllers
             return RedirectToAction("Login", "Auth");
         }
 
-
         // 4. Return the register view
         [HttpGet]
         public IActionResult Register()
@@ -193,9 +187,16 @@ namespace MockviewAI.Controllers
         {
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             bool isHuman = await _turnstileService.VerifyAsync(turnstileToken, ipAddress);
+
             if (!isHuman)
             {
                 ModelState.AddModelError(string.Empty, "Security verification failed. Please try again.");
+                return View();
+            }
+
+            if (await _authService.IsIpBlockedAsync(ipAddress))
+            {
+                ModelState.AddModelError(string.Empty, $"Your IP has been temporarily blocked due to multiple failed attempts. Please try again after {_lockoutMinutes} minutes.");
                 return View();
             }
 
@@ -249,9 +250,16 @@ namespace MockviewAI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> VerifyRegistrationCode(string email, string code)
         {
+            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            if (await _authService.IsIpBlockedAsync(ipAddress))
+            {
+                TempData.Keep();
+                ModelState.AddModelError(string.Empty, $"Your IP has been temporarily blocked due to multiple failed attempts. Please try again after {_lockoutMinutes} minutes.");
+                return View();
+            }
+
             ViewBag.Email = email;
 
-            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             try
             {
                 bool isValid = await _authService.VerifyRegistrationOtpAsync(email, code, ipAddress);
@@ -279,7 +287,6 @@ namespace MockviewAI.Controllers
             }
         }
 
-        // Password validation according to standard (8–72 characters:
         private static void CheckPasswordStrength(string password)
         {
             var error = PasswordPolicy.Validate(password);
@@ -288,14 +295,12 @@ namespace MockviewAI.Controllers
         #endregion
 
         #region Forgot Password
-        // 6. Return the enter email view for forgot password
         [HttpGet]
         public IActionResult ForgotPassword()
         {
             return View();
         }
 
-        // 7. Handle the forgot password form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword(string email, [FromForm(Name = "cf-turnstile-response")] string turnstileToken)
@@ -309,9 +314,9 @@ namespace MockviewAI.Controllers
                 return View();
             }
 
-            if (_authService.IsIpBlocked(ipAddress))
+            if (await _authService.IsIpBlockedAsync(ipAddress))
             {
-                ModelState.AddModelError(string.Empty, "Your IP has been temporarily blocked due to multiple failed attempts. Please try again after 30 minutes.");
+                ModelState.AddModelError(string.Empty, $"Your IP has been temporarily blocked due to multiple failed attempts. Please try again after {_lockoutMinutes} minutes.");
                 return View();
             }
 
@@ -327,14 +332,13 @@ namespace MockviewAI.Controllers
                 TempData["SuccessMessage"] = "If your email is registered, a reset code has been sent.";
                 return RedirectToAction("VerifyResetCode", new { email = email });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, "An error occurred. Please try again later.");
+                ModelState.AddModelError(string.Empty, ex.Message);
                 return View();
             }
         }
 
-        // 8. Return the enter verify reset code view
         [HttpGet]
         public IActionResult VerifyResetCode(string email)
         {
@@ -342,7 +346,6 @@ namespace MockviewAI.Controllers
             return View();
         }
 
-        // 9. Handle the verify reset code form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> VerifyResetCode(string email, string code)
@@ -354,6 +357,12 @@ namespace MockviewAI.Controllers
             }
 
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+            if (await _authService.IsIpBlockedAsync(ipAddress))
+            {
+                ModelState.AddModelError(string.Empty, $"Your IP has been temporarily blocked due to multiple failed attempts. Please try again after {_lockoutMinutes} minutes.");
+                return View();
+            }
 
             try
             {
@@ -374,7 +383,6 @@ namespace MockviewAI.Controllers
             }
         }
 
-        // 10. Return the reset password view
         [HttpGet]
         public IActionResult ResetPassword(string email, string code)
         {
@@ -383,11 +391,18 @@ namespace MockviewAI.Controllers
             return View();
         }
 
-        // 11. Handle the reset password form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(string email, string newPassword, string confirmPassword)
         {
+            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+            if (await _authService.IsIpBlockedAsync(ipAddress))
+            {
+                ModelState.AddModelError(string.Empty, $"Your IP has been temporarily blocked due to multiple failed attempts. Please try again after {_lockoutMinutes} minutes.");
+                return View();
+            }
+
             ViewBag.Email = email;
 
             if (string.IsNullOrEmpty(newPassword) || string.IsNullOrEmpty(confirmPassword))
