@@ -1,9 +1,7 @@
 ﻿@{
     Layout = null;
-    // Chữ cái đầu của tên người đang đăng nhập (hiện trên avatar góc phải)
     var userName = User.Identity?.Name ?? "";
     var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
-    // Ảnh Google của tài khoản (nếu có), không có thì hiện chữ cái đầu
     var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
 }
 

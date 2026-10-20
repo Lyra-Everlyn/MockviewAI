@@ -2,7 +2,7 @@
 
 namespace MockviewAI.Models.ViewModels
 {
-    // Dữ liệu form Sửa hồ sơ (EditProfile.cshtml). Tên thuộc tính khớp với name="" trong form.
+    /// [PROFILE]
     public class ProfileEditViewModel
     {
         [Required(ErrorMessage = "Vui lòng nhập họ và tên.")]
@@ -13,9 +13,12 @@ namespace MockviewAI.Models.ViewModels
         public string Major { get; set; } = string.Empty;
 
         [StringLength(100)]
-        public string Position { get; set; } = string.Empty;
+        public string TargetPosition { get; set; } = string.Empty; // Đổi tên từ Position
 
         [StringLength(50)]
-        public string StudentStatus { get; set; } = string.Empty;
+        public string GraduationStatus { get; set; } = string.Empty; // Đổi tên từ StudentStatus
+
+        [StringLength(50)]
+        public string ExperienceLevel { get; set; } = string.Empty; // Bổ sung mới
     }
 }

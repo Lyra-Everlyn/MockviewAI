@@ -1,11 +1,9 @@
 ﻿using MockviewAI.Models.DTOs;
 using MockviewAI.Models.Entities;
 using MockviewAI.Repositories.Interfaces;
-using MockviewAI.Services.Interfaces;
 
-namespace MockviewAI.Services.Implementations
+namespace MockviewAI.Services.Feedbacks
 {
-    // Lưu góp ý V1 vào bảng Feedbacks (dùng Repository chung có sẵn).
     public class FeedbackService : IFeedbackService
     {
         private readonly IRepository<Feedback> _feedbackRepository;

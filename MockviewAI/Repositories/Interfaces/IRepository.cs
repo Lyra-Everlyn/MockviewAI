@@ -34,6 +34,17 @@ namespace MockviewAI.Repositories.Interfaces
         Task<T?> GetByIdAsync(int id);
 
 
+        /// Thêm params để cho phép truyền vào nhiều bảng cần Include (bảng con)
+        Task<T?> GetSingleAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
+
+        /// Hàm lấy danh sách (kèm Include) với tùy chọn Sắp xếp và Lấy giới hạn (Take)
+        Task<IEnumerable<T>> GetListAsync(
+            Expression<Func<T, bool>> predicate,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            int? take = null,
+            params Expression<Func<T, object>>[] includes);
+
+
         /// f. WRITE OPERATIONS
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);

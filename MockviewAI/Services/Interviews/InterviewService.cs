@@ -1,32 +1,27 @@
-// [AI-INTERVIEW] Nối phòng phỏng vấn với module AI.
-// Luồng: Start (tạo buổi + câu hỏi) -> SubmitAnswer (lưu từng câu) -> Finish (gọi IInterviewScoringService, lưu điểm).
-
-using Microsoft.EntityFrameworkCore;
-using MockviewAI.Data;
-using MockviewAI.Models.Ai;
+﻿using MockviewAI.Models.Ai;
 using MockviewAI.Models.DTOs;
-using MockviewAI.Models.ViewModels;
 using MockviewAI.Models.Entities;
+using MockviewAI.Models.ViewModels;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Ai;
 using MockviewAI.Services.Ai.Interfaces;
 using MockviewAI.Services.Exceptions;
-using MockviewAI.Services.Interfaces;
 
-namespace MockviewAI.Services.Implementations
+namespace MockviewAI.Services.Interviews
 {
+    /// [AI-INTERVIEW]
     public class InterviewService : IInterviewService
     {
-        private const int MaxAnswerLength = 2000;      // khớp giới hạn của bộ chấm AI
+        private const int MaxAnswerLength = 2000;
         private static readonly int[] AllowedQuestionCounts = { 5, 10 };
 
-        private readonly ApplicationDbContext _db;
+        private readonly IRepository<InterviewSession> _sessionRepository;
         private readonly IUserRepository _userRepository;
         private readonly IInterviewScoringService _scoring;
 
-        public InterviewService(ApplicationDbContext db, IUserRepository userRepository, IInterviewScoringService scoring)
+        public InterviewService(IRepository<InterviewSession> sessionRepository, IUserRepository userRepository, IInterviewScoringService scoring)
         {
-            _db = db;
+            _sessionRepository = sessionRepository;
             _userRepository = userRepository;
             _scoring = scoring;
         }
@@ -36,7 +31,6 @@ namespace MockviewAI.Services.Implementations
         {
             var user = await GetUserAsync(email);
 
-            // Chỉ nhận giá trị nằm trong danh sách cho phép
             if (!QuestionBank.Positions.TryGetValue(positionKey ?? "", out var positionName))
                 throw new InterviewException("Vị trí ứng tuyển không hợp lệ.");
             if (!QuestionBank.Interviewers.ContainsKey(interviewerKey ?? ""))
@@ -53,15 +47,13 @@ namespace MockviewAI.Services.Implementations
                 AnxietyBefore = ClampAnxiety(anxietyBefore)
             };
 
-            // Tạo sẵn các câu hỏi, chưa có câu trả lời
             var questions = QuestionBank.GetQuestions(interviewerKey!, positionName, questionCount);
             for (int i = 0; i < questions.Count; i++)
             {
                 session.Answers.Add(new SessionAnswer { OrderNo = i + 1, Question = questions[i] });
             }
 
-            _db.InterviewSessions.Add(session);
-            await _db.SaveChangesAsync();
+            await _sessionRepository.AddAsync(session);
             return session.Id;
         }
         #endregion
@@ -73,7 +65,7 @@ namespace MockviewAI.Services.Implementations
             if (session == null || session.Status != "InProgress") return null;
 
             var current = session.Answers.OrderBy(a => a.OrderNo).FirstOrDefault(a => a.AnsweredAt == null);
-            if (current == null) return null;   // đã hết câu, chờ Finish
+            if (current == null) return null;
 
             var interviewer = QuestionBank.Interviewers[session.Interviewer];
             return new InterviewRoomViewModel
@@ -115,9 +107,9 @@ namespace MockviewAI.Services.Implementations
                 current.DurationSeconds = dto.DurationSeconds is > 0 and < 600 ? dto.DurationSeconds : null;
             }
             current.AnsweredAt = DateTime.UtcNow;
-            await _db.SaveChangesAsync();
 
-            // Tìm câu tiếp theo
+            await _sessionRepository.UpdateAsync(session);
+
             var next = session.Answers.OrderBy(a => a.OrderNo).FirstOrDefault(a => a.AnsweredAt == null);
             return new SubmitAnswerResultDto
             {
@@ -134,12 +126,11 @@ namespace MockviewAI.Services.Implementations
         {
             var session = await FindSessionAsync(email, dto.SessionId);
             if (session == null) throw new InterviewException("Không tìm thấy buổi luyện.");
-            if (session.Status != "InProgress") return;   // đã chấm rồi, không chấm lại
+            if (session.Status != "InProgress") return;
 
             session.FinishedAt = DateTime.UtcNow;
             session.AnxietyAfter = ClampAnxiety(dto.AnxietyAfter);
 
-            // Chỉ chấm các câu đã trả lời (bỏ qua câu "bỏ qua")
             var answered = session.Answers
                 .Where(a => a.AnsweredAt != null && !a.Skipped && !string.IsNullOrEmpty(a.Answer))
                 .OrderBy(a => a.OrderNo)
@@ -147,8 +138,8 @@ namespace MockviewAI.Services.Implementations
 
             if (answered.Count == 0)
             {
-                session.Status = "Stopped";   // chưa trả lời câu nào nên không có điểm
-                await _db.SaveChangesAsync();
+                session.Status = "Stopped";
+                await _sessionRepository.UpdateAsync(session);
                 return;
             }
 
@@ -163,7 +154,6 @@ namespace MockviewAI.Services.Implementations
                 }).ToList()
             };
 
-            // Có thể ném AiScoringException (thông báo tiếng Việt), Controller sẽ hiển thị cho người dùng
             var result = await _scoring.ScoreAsync(request);
 
             session.Status = "Completed";
@@ -174,7 +164,8 @@ namespace MockviewAI.Services.Implementations
             session.Strengths = string.Join("\n", result.Content.Strengths);
             session.Improvements = string.Join("\n", result.Content.Improvements);
             session.DeliveryTips = string.Join("\n", result.Delivery.Tips);
-            await _db.SaveChangesAsync();
+
+            await _sessionRepository.UpdateAsync(session);
         }
         #endregion
 
@@ -212,19 +203,19 @@ namespace MockviewAI.Services.Implementations
                    ?? throw new InterviewException("Không tìm thấy tài khoản. Vui lòng đăng nhập lại.");
         }
 
-        // Chỉ trả về buổi luyện thuộc về người đang đăng nhập
         private async Task<InterviewSession?> FindSessionAsync(string email, int sessionId)
         {
             var user = await GetUserAsync(email);
-            return await _db.InterviewSessions
-                .Include(s => s.Answers)
-                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == user.Id);
+
+            return await _sessionRepository.GetSingleAsync(
+                predicate: s => s.Id == sessionId && s.UserId == user.Id,
+                includes: s => s.Answers
+            );
         }
 
         private static int CountAnswered(InterviewSession session) =>
             session.Answers.Count(a => a.AnsweredAt != null && !a.Skipped);
 
-        // Mức lo lắng chỉ nhận 1-10, ngoài khoảng đó coi như không có
         private static int? ClampAnxiety(int? value) =>
             value is >= 1 and <= 10 ? value : null;
 

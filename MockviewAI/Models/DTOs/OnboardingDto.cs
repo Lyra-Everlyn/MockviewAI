@@ -2,6 +2,8 @@
 
 namespace MockviewAI.Models.DTOs
 {
+    /// [SETUP PROFILE]
+    // -- After login
     public class OnboardingDto
     {
         [Required(ErrorMessage = "Please enter your major or field of study.")]

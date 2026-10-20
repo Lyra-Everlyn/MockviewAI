@@ -52,6 +52,39 @@ namespace MockviewAI.Repositories.Implementations
             return await _dbSet.FindAsync(id);
         }
 
+        public async Task<T?> GetSingleAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return await query.FirstOrDefaultAsync(predicate);
+        }
+
+        public async Task<IEnumerable<T>> GetListAsync(
+            Expression<Func<T, bool>> predicate,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            int? take = null,
+            params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet.AsNoTracking().Where(predicate);
+
+            // Kéo thêm dữ liệu bảng phụ
+            foreach (var include in includes) { query = query.Include(include); }
+
+            // Sắp xếp
+            if (orderBy != null) { query = orderBy(query); }
+
+            // Cắt bớt (Top N)
+            if (take.HasValue) { query = query.Take(take.Value); }
+
+            return await query.ToListAsync();
+
+        }
+
 
 
         public async Task AddAsync(T entity)

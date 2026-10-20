@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using MockviewAI.Models.Entities;
 using MockviewAI.Models.Security;
 using MockviewAI.Repositories.Interfaces;
-using MockviewAI.Services.Helper.Interfaces;
+using MockviewAI.Services.Emails;
 using StackExchange.Redis;
 
 namespace MockviewAI.Services.Auth

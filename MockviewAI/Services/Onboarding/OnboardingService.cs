@@ -1,9 +1,10 @@
 ﻿using MockviewAI.Models.DTOs;
-using MockviewAI.Services.Helper.Interfaces;
 using MockviewAI.Repositories.Interfaces;
 
-namespace MockviewAI.Services.Helper.Implementations
+namespace MockviewAI.Services.Onboarding
 {
+    /// [SETUP PROFILE]
+    // -- After login
     public class OnboardingService : IOnboardingService
     {
         private readonly IUserRepository _userRepository;
