@@ -40,8 +40,17 @@ namespace MockviewAI.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [EnableRateLimiting("LoginRateLimit")]
-        public async Task<IActionResult> Login(string email, string password)
+        public async Task<IActionResult> Login(string email, string password, [FromForm(Name = "cf-turnstile-response")] string turnstileToken)
         {
+            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            bool isHuman = await _turnstileService.VerifyAsync(turnstileToken, ipAddress);
+
+            if (!isHuman)
+            {
+                ModelState.AddModelError(string.Empty, "Security verification failed. Please try again.");
+                return View();
+            }
+
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
                 ModelState.AddModelError(string.Empty, "Please enter email and password.");
@@ -49,7 +58,9 @@ namespace MockviewAI.Controllers
             }
 
             var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
-            if (_throttleService.IsLockedOut(throttleKey, out var wait))
+            var emailThrottleKey = LoginThrottleService.BuildEmailKey(email);
+
+            if (_throttleService.IsLockedOut(throttleKey, emailThrottleKey, out var wait))
             {
                 var minutes = (int)Math.Ceiling(wait.TotalMinutes);
                 ModelState.AddModelError(string.Empty, $"Too many failed attempts. Please try again in {minutes} minute(s).");
@@ -60,14 +71,14 @@ namespace MockviewAI.Controllers
             {
                 var user = await _authService.AuthenticateAsync(email, password);
 
-                _throttleService.Reset(throttleKey);
+                _throttleService.Reset(throttleKey, emailThrottleKey);
 
                 await SignInUser(user!.Email, $"{user.FirstName} {user.LastName}".Trim(), user.Role, user.AvatarUrl);
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)
             {
-                _throttleService.RegisterFailure(throttleKey);
+                _throttleService.RegisterFailure(throttleKey, emailThrottleKey);
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View();
             }

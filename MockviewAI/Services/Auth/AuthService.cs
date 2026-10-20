@@ -5,6 +5,7 @@ using MockviewAI.Models.Entities;
 using MockviewAI.Models.Security;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Helper.Interfaces;
+using StackExchange.Redis;
 
 namespace MockviewAI.Services.Auth
 {
@@ -13,16 +14,18 @@ namespace MockviewAI.Services.Auth
         private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
         private readonly IDistributedCache _cache;
+        private readonly IDatabase _db;
         private readonly int _lockoutMinutes;
 
         private static readonly string DummyHash = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString());
 
-        public AuthService(IUserRepository userRepository, IEmailService emailService, IDistributedCache cache, IOptions<SecurityOptions> securityOptions)
+        public AuthService(IUserRepository userRepository, IEmailService emailService, IDistributedCache cache, IOptions<SecurityOptions> securityOptions, IConnectionMultiplexer redis)
         {
             _userRepository = userRepository;
             _emailService = emailService;
             _cache = cache;
             _lockoutMinutes = securityOptions.Value.LockoutMinutes;
+            _db = redis.GetDatabase();
         }
 
         #region Register
@@ -129,22 +132,24 @@ namespace MockviewAI.Services.Auth
             if (string.IsNullOrEmpty(savedCode))
                 throw new Exception("Verification code has expired or is invalid.");
 
+            string attemptKey = $"MockviewAI_RegOTP_Attempts_{email}";
+
             if (savedCode == code)
             {
                 await _cache.RemoveAsync($"RegOTP_{email}");
-                await _cache.RemoveAsync($"RegOTP_Attempts_{email}");
+                await _db.KeyDeleteAsync(attemptKey);
 
                 var verifiedOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) };
                 await _cache.SetStringAsync($"RegVerified_{email}", "true", verifiedOptions);
                 return true;
             }
 
-            string? attemptsStr = await _cache.GetStringAsync($"RegOTP_Attempts_{email}");
-            int attempts = string.IsNullOrEmpty(attemptsStr) ? 0 : int.Parse(attemptsStr);
-            attempts++;
+            long attempts = await _db.StringIncrementAsync(attemptKey);
 
-            var attemptOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
-            await _cache.SetStringAsync($"RegOTP_Attempts_{email}", attempts.ToString(), attemptOptions);
+            if (attempts == 1)
+            {
+                await _db.KeyExpireAsync(attemptKey, TimeSpan.FromMinutes(5));
+            }
 
             if (attempts >= 5)
             {
@@ -152,7 +157,8 @@ namespace MockviewAI.Services.Auth
                 await _cache.SetStringAsync($"BlockIP_{ipAddress}", "true", blockOptions);
 
                 await _cache.RemoveAsync($"RegOTP_{email}");
-                await _cache.RemoveAsync($"RegOTP_Attempts_{email}");
+                await _db.KeyDeleteAsync(attemptKey);
+
                 throw new Exception($"Your IP has been blocked for {_lockoutMinutes} minutes due to multiple failed attempts.");
             }
 
@@ -269,22 +275,24 @@ namespace MockviewAI.Services.Auth
             if (string.IsNullOrEmpty(savedCode))
                 throw new Exception("The reset code has expired or is invalid.");
 
+            string attemptKey = $"MockviewAI_OTP_Attempts_{email}";
+
             if (savedCode == code)
             {
                 await _cache.RemoveAsync($"OTP_{email}");
-                await _cache.RemoveAsync($"OTP_Attempts_{email}");
+                await _db.KeyDeleteAsync(attemptKey);
 
                 var verifiedOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) };
                 await _cache.SetStringAsync($"Verified_{email}", "true", verifiedOptions);
                 return true;
             }
 
-            string? attemptsStr = await _cache.GetStringAsync($"OTP_Attempts_{email}");
-            int attempts = string.IsNullOrEmpty(attemptsStr) ? 0 : int.Parse(attemptsStr);
-            attempts++;
+            long attempts = await _db.StringIncrementAsync(attemptKey);
 
-            var attemptOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
-            await _cache.SetStringAsync($"OTP_Attempts_{email}", attempts.ToString(), attemptOptions);
+            if (attempts == 1)
+            {
+                await _db.KeyExpireAsync(attemptKey, TimeSpan.FromMinutes(5));
+            }
 
             if (attempts >= 5)
             {
@@ -292,7 +300,8 @@ namespace MockviewAI.Services.Auth
                 await _cache.SetStringAsync($"BlockIP_{ipAddress}", "true", blockOptions);
 
                 await _cache.RemoveAsync($"OTP_{email}");
-                await _cache.RemoveAsync($"OTP_Attempts_{email}");
+                await _db.KeyDeleteAsync(attemptKey);
+
                 throw new Exception($"Your IP has been blocked for {_lockoutMinutes} minutes due to multiple failed attempts.");
             }
 
