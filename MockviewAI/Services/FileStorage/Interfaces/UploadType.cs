@@ -1,4 +1,4 @@
-﻿namespace MockviewAI.Services.Helper.Interfaces
+﻿namespace MockviewAI.Services.FileStorage.Interfaces
 {
     public enum UploadType
     {

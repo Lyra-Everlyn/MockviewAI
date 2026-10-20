@@ -37,7 +37,7 @@ namespace MockviewAI
 
 
             // =========================================================================
-            // PART 1: DATABASE CONFIGURATION
+            // PART 1: CONNECTION CONFIGURATION
 
             // --- A. Database
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -65,6 +65,7 @@ namespace MockviewAI
             builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
 
 
+
             // =========================================================================
             // PART 2: REGISTERING REPOSITORIES & SERVICES FOR THE MOCKVIEW AI PROJECT
 
@@ -77,11 +78,11 @@ namespace MockviewAI
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IOnboardingService, OnboardingService>();
             builder.Services.AddScoped<IFeedbackService, FeedbackService>();
-
             builder.Services.AddScoped<IInterviewService, InterviewService>();
             builder.Services.AddScoped<IInterviewScoringService, InterviewScoringService>();
             builder.Services.AddScoped<ISessionHistoryService, SessionHistoryService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
 
 
             // Configure the AI ​​Provider based on appsettings ("Mock" or "Gemini")
@@ -104,8 +105,9 @@ namespace MockviewAI
             }
 
 
+
             // =========================================================================
-            // PART 3: THIRD-PARTY & INFRASTRUCTURE CONFIGURATION
+            // PART 3: THIRD-PARTY SERVICE
 
             // --- A. GOOGLE AUTHENTICATION & COOKIES ---
             builder.Services.AddAuthentication(options =>
@@ -139,12 +141,7 @@ namespace MockviewAI
             var cloudinary = new Cloudinary(cloudinaryAccount);
             builder.Services.AddSingleton(cloudinary);
 
-            // --- C. EMAIL & CACHE ---
-            builder.Services.AddScoped<IEmailService, EmailService>();
-            builder.Services.AddMemoryCache();
-
-
-
+            
 
             // =========================================================================
             // PART 4: CONFIGURATION VIA VISUAL STUDIO & SECURITY
@@ -202,8 +199,9 @@ namespace MockviewAI
                 };
             });
 
-
             var app = builder.Build();
+
+
 
             // =========================================================================
             // PART 5: MIDDLEWARE PIPELINE

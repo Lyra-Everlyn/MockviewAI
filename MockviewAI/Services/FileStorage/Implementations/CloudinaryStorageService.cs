@@ -1,9 +1,9 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
-using MockviewAI.Services.Helper.Interfaces;
+using MockviewAI.Services.FileStorage.Interfaces;
 
-namespace MockviewAI.Services.Implementations
+namespace MockviewAI.Services.FileStorage.Implementations
 {
     public class CloudinaryStorageService : IFileStorageService
     {

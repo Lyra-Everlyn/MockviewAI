@@ -1,4 +1,6 @@
-﻿namespace MockviewAI.Services.Helper.Interfaces
+﻿using MockviewAI.Services.Helper.Interfaces;
+
+namespace MockviewAI.Services.FileStorage.Interfaces
 {
     public interface IFileStorageService
     {
