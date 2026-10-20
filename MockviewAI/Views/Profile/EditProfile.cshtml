@@ -1,6 +1,8 @@
-﻿@* <!-- @model MockviewAI.Models.ViewModels.ProfileEditViewModel --> *@
+﻿@model MockviewAI.Models.ViewModels.ProfileEditViewModel
 @{
     Layout = null;
+    var initial = string.IsNullOrEmpty(Model?.FullName) ? "?" : Model.FullName.Substring(0, 1).ToUpper();
+    var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -8,13 +10,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sửa hồ sơ - MockviewAI</title>
-    <!-- Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/EditProfile.css">
 </head>
 <body>
 
-    <!-- Header Desktop -->
     <header class="desktop-header">
         <div class="header-content">
             <div class="logo-nav">
@@ -26,78 +26,78 @@
                 </nav>
             </div>
             <div class="header-actions">
-                <span class="badge-beta">BETA</span>
-                <div class="profile-icon">Q</div>
+                <span class="badge-beta">Bản thử V1</span>
+                <div class="profile-icon" style="cursor: pointer;" title="Hồ sơ" onclick="location.href='/Profile'">
+                    @if (!string.IsNullOrEmpty(avatarUrl)) { <img src="@avatarUrl" alt="" referrerpolicy="no-referrer" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" /> } else { @initial }
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- Nội dung chính -->
     <main class="main-container">
         
-        <!-- Nút quay lại & Tiêu đề -->
         <div class="page-header">
             <a href="/Profile" class="back-link">&lsaquo; Hồ sơ</a>
             <h1 class="page-title">Sửa hồ sơ</h1>
         </div>
 
-        <!-- Thẻ chứa Form sửa hồ sơ -->
         <div class="edit-profile-card">
             
-            <!-- Khối bên trái: Ảnh đại diện -->
             <div class="avatar-section">
-                <div class="avatar-circle">@(string.IsNullOrEmpty(Model?.FullName) ? "?" : Model.FullName.Substring(0, 1))</div>
+                <div class="avatar-circle">
+                    @if (!string.IsNullOrEmpty(avatarUrl)) { <img src="@avatarUrl" alt="" referrerpolicy="no-referrer" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" /> } else { @initial }
+                </div>
                 <a href="#" class="change-avatar-btn">Đổi ảnh đại diện</a>
             </div>
 
-            <!-- Khối bên phải: Form nhập thông tin -->
-            <form class="profile-form" method="post" asp-controller="Profile" asp-action="Edit">
+            <!-- Bắn về ProfileController -->
+            <form class="profile-form" method="post" action="/Profile/Edit">
+                @Html.AntiForgeryToken()
                 
-                <!-- Họ và tên -->
                 <div class="form-group full-width">
                     <label class="form-label" for="fullname">Họ và tên</label>
-                    <input type="text" id="fullname" name="fullName" class="form-input" value="@Model.FullName">
+                    <input type="text" id="fullname" name="FullName" class="form-input" value="@Model?.FullName" maxlength="100" required>
                 </div>
 
-                <!-- Hàng 2 cột: Chuyên ngành & Vị trí ứng tuyển -->
                 <div class="form-row">
+                    <!-- THAY BẰNG INPUT TEXT -->
                     <div class="form-group">
                         <label class="form-label" for="major">Chuyên ngành</label>
-                        <div class="select-wrapper">
-                            <select id="major" name="major" class="form-select">
-                                <option value="it" selected>Công nghệ thông tin</option>
-                                <option value="is">Hệ thống thông tin</option>
-                                <option value="se">Kỹ thuật phần mềm</option>
-                            </select>
-                        </div>
+                        <input type="text" id="major" name="Major" class="form-input" value="@Model?.Major" placeholder="VD: Công nghệ thông tin">
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" for="position">Vị trí muốn ứng tuyển</label>
-                        <div class="select-wrapper">
-                            <select id="position" name="position" class="form-select">
-                                <option value="developer" selected>Lập trình viên</option>
-                                <option value="tester">Kiểm thử phần mềm</option>
-                                <option value="ba">Business Analyst</option>
-                            </select>
-                        </div>
+                        <input type="text" id="position" name="TargetPosition" class="form-input" value="@Model?.TargetPosition" placeholder="VD: Backend Developer">
                     </div>
                 </div>
 
-                <!-- Tình trạng sinh viên/ra trường -->
                 <div class="form-group full-width">
-                    <label class="form-label">Bạn là</label>
-                    <input type="hidden" id="studentStatus" name="studentStatus" value="graduating">
-                    <div class="status-options">
-                        <button type="button" class="status-btn active" onclick="selectStatus('graduating', this)">Sắp ra trường</button>
-                        <button type="button" class="status-btn" onclick="selectStatus('graduated', this)">Đã ra trường</button>
+                    <label class="form-label">Tình trạng học tập</label>
+                    <input type="hidden" id="studentStatus" name="GraduationStatus" value="@(Model?.GraduationStatus ?? "Expecting Graduation")">
+                    <div class="status-options" id="grad-options">
+                        <button type="button" class="status-btn @(Model?.GraduationStatus == "Current Student" ? "active" : "")" onclick="selectBtn('studentStatus', 'Current Student', 'grad-options', this)">Đang đi học</button>
+                        <button type="button" class="status-btn @(Model?.GraduationStatus == "Expecting Graduation" ? "active" : "")" onclick="selectBtn('studentStatus', 'Expecting Graduation', 'grad-options', this)">Sắp ra trường</button>
+                        <button type="button" class="status-btn @(Model?.GraduationStatus == "Graduated" ? "active" : "")" onclick="selectBtn('studentStatus', 'Graduated', 'grad-options', this)">Đã ra trường</button>
+                        <button type="button" class="status-btn @(Model?.GraduationStatus == "Other" ? "active" : "")" onclick="selectBtn('studentStatus', 'Other', 'grad-options', this)">Khác</button>
                     </div>
                 </div>
 
-                <!-- Cụm nút bấm lưu/huỷ -->
-                <div class="form-actions">
+                <!-- BỔ SUNG KINH NGHIỆM TỪ ONBOARDING -->
+                <div class="form-group full-width" style="margin-top: 15px;">
+                    <label class="form-label">Kinh nghiệm</label>
+                    <input type="hidden" id="experienceLevel" name="ExperienceLevel" value="@(Model?.ExperienceLevel ?? "Intern / Fresher")">
+                    <div class="status-options" id="exp-options">
+                        <button type="button" class="status-btn @(Model?.ExperienceLevel == "Intern / Fresher" ? "active" : "")" onclick="selectBtn('experienceLevel', 'Intern / Fresher', 'exp-options', this)">Intern/Fresher</button>
+                        <button type="button" class="status-btn @(Model?.ExperienceLevel == "Junior" ? "active" : "")" onclick="selectBtn('experienceLevel', 'Junior', 'exp-options', this)">Junior</button>
+                        <button type="button" class="status-btn @(Model?.ExperienceLevel == "Mid-Level" ? "active" : "")" onclick="selectBtn('experienceLevel', 'Mid-Level', 'exp-options', this)">Mid-Level</button>
+                        <button type="button" class="status-btn @(Model?.ExperienceLevel == "Senior / Lead" ? "active" : "")" onclick="selectBtn('experienceLevel', 'Senior / Lead', 'exp-options', this)">Senior</button>
+                    </div>
+                </div>
+
+                <div class="form-actions" style="margin-top: 25px;">
                     <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-                    <button type="button" class="btn btn-outline">Huỷ</button>
+                    <button type="button" class="btn btn-outline" onclick="location.href='/Profile'">Huỷ</button>
                 </div>
 
             </form>
@@ -105,14 +105,13 @@
         </div>
     </main>
 
-    @* <script>
-        function selectStatus(value, btn) {
-            document.getElementById('studentStatus').value = value;
-            document.querySelectorAll('.status-btn').forEach(function(b) {
-                b.classList.remove('active');
-            });
-            btn.classList.add('active');
+    <script>
+        function selectBtn(inputId, value, groupId, btnElement) {
+            document.getElementById(inputId).value = value;
+            document.querySelectorAll('#' + groupId + ' .status-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
         }
-    </script> *@
+    </script>
+    <partial name="Partials/_Notify" />
 </body>
 </html>

@@ -1,7 +1,9 @@
 ﻿using MockviewAI.Models.DTOs;
 
-namespace MockviewAI.Services.Helper.Interfaces
+namespace MockviewAI.Services.Onboarding
 {
+    /// [SETUP PROFILE]
+    // -- After login
     public interface IOnboardingService
     {
         Task SaveOnboardingInfoAsync(string email, OnboardingDto dto);

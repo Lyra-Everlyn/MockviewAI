@@ -1,4 +1,4 @@
-﻿namespace MockviewAI.Services.Helper.Interfaces
+﻿namespace MockviewAI.Services.Emails
 {
     public interface IEmailService
     {

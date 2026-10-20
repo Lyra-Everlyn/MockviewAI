@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MockviewAI.Models.DTOs;
-using MockviewAI.Services.Helper.Interfaces;
+using MockviewAI.Services.Onboarding;
 using System.Security.Claims;
 
 namespace MockviewAI.Controllers
 {
+    /// [SETUP PROFILE]
+    // -- After login
     public class OnboardingController : Controller
     {
         private readonly IOnboardingService _onboardingService;

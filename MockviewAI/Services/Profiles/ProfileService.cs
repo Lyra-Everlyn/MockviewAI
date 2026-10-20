@@ -1,14 +1,14 @@
 ﻿using MockviewAI.Models.Entities;
 using MockviewAI.Models.ViewModels;
 using MockviewAI.Repositories.Interfaces;
-using MockviewAI.Services.Interfaces;
+using MockviewAI.Services.Profiles;
+using MockviewAI.Services.SessionHistory;
 
-namespace MockviewAI.Services.Implementations
+namespace MockviewAI.Services.Profiles
 {
-    // Xem và sửa hồ sơ. Dữ liệu nằm trong bảng Users (đã có từ bước Onboarding).
+    /// [PROFILE]
     public class ProfileService : IProfileService
     {
-        // Tình trạng: giá trị lưu trong DB (giống Onboarding) -> chữ hiển thị
         private static readonly Dictionary<string, string> StatusTexts = new()
         {
             ["Current Student"] = "Đang đi học",
@@ -36,9 +36,10 @@ namespace MockviewAI.Services.Implementations
             {
                 FullName = fullName,
                 AvatarInitial = fullName.Length > 0 ? fullName[..1].ToUpper() : "?",
-                StatusText = StatusTexts.TryGetValue(user.GraduationStatus ?? "", out var text) ? text : string.Empty,
+                StatusText = StatusTexts.TryGetValue(user.GraduationStatus ?? "", out var text) ? text : (user.GraduationStatus ?? ""),
                 Major = user.Major ?? string.Empty,
                 TargetPosition = user.TargetPosition ?? string.Empty,
+                ExperienceLevel = user.ExperienceLevel ?? string.Empty,
                 RecentSessions = await _history.GetHistoryAsync(email, 3)
             };
         }
@@ -52,8 +53,9 @@ namespace MockviewAI.Services.Implementations
             {
                 FullName = FullName(user),
                 Major = user.Major ?? string.Empty,
-                Position = user.TargetPosition ?? string.Empty,
-                StudentStatus = user.GraduationStatus ?? string.Empty
+                TargetPosition = user.TargetPosition ?? string.Empty,
+                GraduationStatus = user.GraduationStatus ?? string.Empty,
+                ExperienceLevel = user.ExperienceLevel ?? string.Empty
             };
         }
 
@@ -62,17 +64,15 @@ namespace MockviewAI.Services.Implementations
             var user = await FindUserAsync(email);
             if (user == null) return null;
 
-            // Tên hiển thị ở mọi nơi là FirstName + " " + LastName, nên tách theo khoảng trắng đầu tiên
-            var name = model.FullName.Trim();
+            var name = (model.FullName ?? "").Trim();
             int space = name.IndexOf(' ');
             user.FirstName = space < 0 ? name : name[..space];
             user.LastName = space < 0 ? string.Empty : name[(space + 1)..].Trim();
 
-            user.Major = model.Major.Trim();
-            user.TargetPosition = model.Position.Trim();
-            // Chỉ nhận tình trạng nằm trong danh sách, giá trị lạ thì giữ nguyên
-            if (StatusTexts.ContainsKey(model.StudentStatus))
-                user.GraduationStatus = model.StudentStatus;
+            user.Major = (model.Major ?? "").Trim();
+            user.TargetPosition = (model.TargetPosition ?? "").Trim();
+            user.GraduationStatus = (model.GraduationStatus ?? "").Trim();
+            user.ExperienceLevel = (model.ExperienceLevel ?? "").Trim();
             user.UpdateAt = DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user);
@@ -85,7 +85,6 @@ namespace MockviewAI.Services.Implementations
             return await _userRepository.GetByEmailAsync(email.Trim().ToLowerInvariant());
         }
 
-        private static string FullName(User user) =>
-            (user.FirstName + " " + user.LastName).Trim();
+        private static string FullName(User user) => (user.FirstName + " " + user.LastName).Trim();
     }
 }

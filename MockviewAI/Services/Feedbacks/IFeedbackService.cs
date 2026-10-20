@@ -1,8 +1,7 @@
 ﻿using MockviewAI.Models.DTOs;
 
-namespace MockviewAI.Services.Interfaces
+namespace MockviewAI.Services.Feedbacks
 {
-    // Lưu góp ý cho bản thử V1.
     public interface IFeedbackService
     {
         Task<bool> SubmitAsync(string email, FeedbackDto dto);

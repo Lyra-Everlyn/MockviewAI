@@ -2,9 +2,8 @@
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
-using MockviewAI.Services.Helper.Interfaces;
 
-namespace MockviewAI.Services.Helper.Implementations
+namespace MockviewAI.Services.Emails
 {
     public class EmailService : IEmailService
     {
