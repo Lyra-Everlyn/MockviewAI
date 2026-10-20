@@ -1,4 +1,5 @@
 using CloudinaryDotNet;
+using StackExchange.Redis;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -57,6 +58,7 @@ namespace MockviewAI
                 options.InstanceName = "MockviewAI_";
             });
 
+            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
 
 
             // =========================================================================
