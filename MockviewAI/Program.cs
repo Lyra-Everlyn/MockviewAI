@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using MockviewAI.Data;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
+
+using MockviewAI.Services.Auth;
+
 using MockviewAI.Services.Ai;
 using MockviewAI.Services.Ai.Implementations;
 using MockviewAI.Services.Ai.Interfaces;
@@ -31,6 +34,7 @@ namespace MockviewAI
             // =========================================================================
             // PART 1: DATABASE CONFIGURATION
 
+            // --- A. Database
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -44,6 +48,15 @@ namespace MockviewAI
                     )
                 )
             );
+
+            // --- B. Redis
+            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection");
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConnectionString;
+                options.InstanceName = "MockviewAI_";
+            });
+
 
 
             // =========================================================================
@@ -129,6 +142,7 @@ namespace MockviewAI
 
 
 
+
             // =========================================================================
             // PART 4: CONFIGURATION VIA VISUAL STUDIO & SECURITY
 
@@ -143,7 +157,7 @@ namespace MockviewAI
             {
                 options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-                // Define a policy to limit OTP sending: 3 times / 15 minutes / 1 IP
+                // 1. Define a policy to limit OTP sending: 3 times / 15 minutes / 1 IP
                 options.AddPolicy("OtpRateLimit", context =>
                 {
                     // Get the user's real IP (accounting for ForwardedHeaders if a proxy is used)
@@ -154,18 +168,34 @@ namespace MockviewAI
                         factory: partition => new FixedWindowRateLimiterOptions
                         {
                             AutoReplenishment = true,
-                            PermitLimit = 3,                       // Maximum number of turns
-                            Window = TimeSpan.FromMinutes(15),     // Time frame
+                            PermitLimit = 3,
+                            Window = TimeSpan.FromMinutes(15),
                             QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                            QueueLimit = 0                         // No queuing—instant block.
+                            QueueLimit = 0
                         });
                 });
 
-                // Customize the error message returned to bots/hackers
+                options.AddPolicy("LoginRateLimit", context =>
+                {
+                    var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "unknown_ip";
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: ipAddress,
+                        factory: partition => new FixedWindowRateLimiterOptions
+                        {
+                            AutoReplenishment = true,
+                            PermitLimit = 5,
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0
+                        });
+                });
+
                 options.OnRejected = async (context, token) =>
                 {
                     context.HttpContext.Response.StatusCode = 429;
-                    await context.HttpContext.Response.WriteAsync("Too many requests from this IP. Please try again after 15 minutes.", token);
+                    context.HttpContext.Response.ContentType = "text/plain; charset=utf-8";
+
+                    await context.HttpContext.Response.WriteAsync("Too many requests from this IP. Please try again in a few minutes.", token);
                 };
             });
 
