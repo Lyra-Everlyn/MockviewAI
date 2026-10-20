@@ -1,117 +1,111 @@
-using System.Net;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using MockviewAI.Models.Security;
+using StackExchange.Redis;
+using System.Net;
 
 namespace MockviewAI.Services.Security
 {
-    /// <summary>
-    /// Dịch vụ kiểm soát tần suất đăng nhập (Rate Limiting / Throttling).
-    /// Chống tấn công Brute-force bằng cách khóa tạm thời nếu đăng nhập sai quá nhiều lần.
-    /// Cơ chế theo dõi dựa trên sự kết hợp giữa "Email + IP Address" để tránh việc kẻ xấu cố tình khóa tài khoản người khác.
-    /// LƯU Ý: Đang lưu trữ trong Memory Cache (Singleton), dữ liệu sẽ reset khi restart app. Nên cân nhắc dùng Redis khi scale up.
-    /// </summary>
-    public class LoginThrottleService
+    public class LoginThrottleService : ILoginThrottleService
     {
-        private sealed class Entry
-        {
-            public int Failures;
-            public DateTime WindowStart;
-            public DateTime? LockedUntil;
-        }
-
-        private readonly Dictionary<string, Entry> _entries = new();
-        private readonly object _lock = new();
+        private readonly IDatabase _db;
         private readonly SecurityOptions _options;
-        private readonly TimeProvider _time;
+        private readonly string _prefix = "MockviewAI_";
 
-        public LoginThrottleService(IOptions<SecurityOptions> options, TimeProvider? time = null)
+        public LoginThrottleService(IConnectionMultiplexer redis, IOptions<SecurityOptions> options)
         {
+            _db = redis.GetDatabase();
             _options = options.Value;
-            _time = time ?? TimeProvider.System;
         }
 
-        /// <summary>
-        /// Tạo key định danh duy nhất kết hợp giữa Email và IP.
-        /// </summary>
+        // --- Key kết hợp (Email + IP) -> Chống dò nhiều pass trên 1 IP
         public static string BuildKey(string email, IPAddress? ip) =>
-            $"{(email ?? string.Empty).Trim().ToLowerInvariant()}|{ip}";
+            $"Throttle|{(email ?? string.Empty).Trim().ToLowerInvariant()}|{ip}";
 
-        /// <summary>
-        /// Kiểm tra xem người dùng hiện tại có đang bị khóa đăng nhập hay không.
-        /// </summary>
-        /// <param name="key">Định danh được tạo từ BuildKey.</param>
-        /// <param name="remaining">Thời gian khóa còn lại (nếu có).</param>
-        /// <returns>True nếu đang bị khóa, False nếu được phép đăng nhập.</returns>
-        public bool IsLockedOut(string key, out TimeSpan remaining)
+        // --- Key chỉ có Email -> Chống xoay IP dò 1 tài khoản
+        public static string BuildEmailKey(string email) =>
+            $"Throttle|EmailOnly|{(email ?? string.Empty).Trim().ToLowerInvariant()}";
+
+        public bool IsLockedOut(string key, string emailKey, out TimeSpan remaining)
         {
-            lock (_lock)
+            remaining = TimeSpan.Zero;
+
+            // 1. Kiểm tra khóa IP
+            var ipLockedUntilStr = _db.StringGet($"{_prefix}{key}:LockedUntil");
+            if (ipLockedUntilStr.HasValue && DateTime.TryParse(ipLockedUntilStr, out var ipLockedUntil))
             {
-                remaining = TimeSpan.Zero;
-                if (!_entries.TryGetValue(key, out var e) || e.LockedUntil is null) return false;
-
-                var now = _time.GetUtcNow().UtcDateTime;
-                if (e.LockedUntil <= now)
+                var now = DateTime.UtcNow;
+                if (ipLockedUntil > now)
                 {
-                    _entries.Remove(key);
-                    return false;
-                }
-
-                remaining = e.LockedUntil.Value - now;
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// Ghi nhận một lần đăng nhập thất bại và tự động khóa nếu vượt quá giới hạn.
-        /// </summary>
-        public void RegisterFailure(string key)
-        {
-            lock (_lock)
-            {
-                var now = _time.GetUtcNow().UtcDateTime;
-                var window = TimeSpan.FromMinutes(_options.LockoutMinutes);
-
-                PurgeExpired(now, window);
-
-                if (!_entries.TryGetValue(key, out var e) || now - e.WindowStart > window)
-                {
-                    e = new Entry { WindowStart = now };
-                    _entries[key] = e;
-                }
-
-                e.Failures++;
-                if (e.Failures >= _options.MaxFailedLogins)
-                {
-                    e.LockedUntil = now + window;
+                    remaining = ipLockedUntil - now;
+                    return true;
                 }
             }
+
+            // 2. Kiểm tra khóa Email (Mới bổ sung)
+            var emailLockedUntilStr = _db.StringGet($"{_prefix}{emailKey}:LockedUntil");
+            if (emailLockedUntilStr.HasValue && DateTime.TryParse(emailLockedUntilStr, out var emailLockedUntil))
+            {
+                var now = DateTime.UtcNow;
+                if (emailLockedUntil > now)
+                {
+                    remaining = emailLockedUntil - now;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
-        /// <summary>
-        /// Xóa bỏ trạng thái ghi nhận khi người dùng đăng nhập thành công.
-        /// </summary>
-        public void Reset(string key)
+        public bool IsLockedOut(string key, out TimeSpan remaining) => IsLockedOut(key, "", out remaining);
+
+        public void RegisterFailure(string key, string emailKey)
         {
-            lock (_lock)
+            var failKey = $"{_prefix}{key}:Failures";
+            var lockKey = $"{_prefix}{key}:LockedUntil";
+
+            var emailFailKey = $"{_prefix}{emailKey}:Failures";
+            var emailLockKey = $"{_prefix}{emailKey}:LockedUntil";
+
+            var window = TimeSpan.FromMinutes(_options.LockoutMinutes);
+
+            var batch = _db.CreateBatch();
+            var ipIncrTask = batch.StringIncrementAsync(failKey);
+            var emailIncrTask = batch.StringIncrementAsync(emailFailKey);
+            batch.Execute();
+
+            long ipFailures = ipIncrTask.Result;
+            long emailFailures = emailIncrTask.Result;
+
+            if (ipFailures == 1) _db.KeyExpire(failKey, window);
+            if (ipFailures >= _options.MaxFailedLogins)
             {
-                _entries.Remove(key);
+                var lockedUntil = DateTime.UtcNow.Add(window);
+                _db.StringSet(lockKey, lockedUntil.ToString("O"), window);
+                _db.KeyDelete(failKey);
+            }
+
+            if (emailFailures == 1) _db.KeyExpire(emailFailKey, window);
+            if (emailFailures >= _options.MaxFailedLogins * 2)
+            {
+                var lockedUntil = DateTime.UtcNow.Add(window);
+                _db.StringSet(emailLockKey, lockedUntil.ToString("O"), window);
+                _db.KeyDelete(emailFailKey);
             }
         }
 
-        /// <summary>
-        /// Dọn dẹp bộ nhớ (Garbage Collection nội bộ), xóa bỏ các bản ghi đã hết hạn.
-        /// </summary>
-        private void PurgeExpired(DateTime now, TimeSpan window)
+        public void RegisterFailure(string key) => RegisterFailure(key, "");
+
+        public void Reset(string key, string emailKey)
         {
-            if (_entries.Count < 5000) return;
-
-            var old = _entries.Where(kv => now - kv.Value.WindowStart > window && (kv.Value.LockedUntil ?? now) <= now)
-                              .Select(kv => kv.Key).ToList();
-
-            foreach (var k in old)
-            {
-                _entries.Remove(k);
-            }
+            var batch = _db.CreateBatch();
+            batch.KeyDeleteAsync($"{_prefix}{key}:Failures");
+            batch.KeyDeleteAsync($"{_prefix}{key}:LockedUntil");
+            batch.KeyDeleteAsync($"{_prefix}{emailKey}:Failures");
+            batch.KeyDeleteAsync($"{_prefix}{emailKey}:LockedUntil");
+            batch.Execute();
         }
+
+        public void Reset(string key) => Reset(key, "");
     }
 }

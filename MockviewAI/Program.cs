@@ -1,23 +1,31 @@
 using CloudinaryDotNet;
+using StackExchange.Redis;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.RateLimiting;
-
 using Microsoft.EntityFrameworkCore;
+
 using MockviewAI.Data;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
+
+using MockviewAI.Services.Security;
+using MockviewAI.Services.Auth;
+using MockviewAI.Services.Feedbacks;
+using MockviewAI.Services.Interviews;
+using MockviewAI.Services.Profiles;
+using MockviewAI.Services.Onboarding;
+using MockviewAI.Services.Emails;
+using MockviewAI.Services.SessionHistory;
+
 using MockviewAI.Services.Ai;
 using MockviewAI.Services.Ai.Implementations;
 using MockviewAI.Services.Ai.Interfaces;
-using MockviewAI.Services.Helper.Implementations;
-using MockviewAI.Services.Helper.Interfaces;
-using MockviewAI.Services.Implementations;
-using MockviewAI.Services.Interfaces;
-using MockviewAI.Services.Security;
+
 using System.Security.Principal;
 using System.Threading.RateLimiting;
+
 
 namespace MockviewAI
 {
@@ -29,8 +37,9 @@ namespace MockviewAI
 
 
             // =========================================================================
-            // PART 1: DATABASE CONFIGURATION
+            // PART 1: CONNECTION CONFIGURATION
 
+            // --- A. Database
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -45,6 +54,17 @@ namespace MockviewAI
                 )
             );
 
+            // --- B. Redis
+            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection");
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConnectionString;
+                options.InstanceName = "MockviewAI_";
+            });
+
+            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
+
+
 
             // =========================================================================
             // PART 2: REGISTERING REPOSITORIES & SERVICES FOR THE MOCKVIEW AI PROJECT
@@ -53,11 +73,18 @@ namespace MockviewAI
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-            // --- B. CORE SERVICES (Auth, Onboarding) ---
+
+            // --- B. SERVICES ---
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IOnboardingService, OnboardingService>();
+            builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+            builder.Services.AddScoped<IInterviewService, InterviewService>();
+            builder.Services.AddScoped<IInterviewScoringService, InterviewScoringService>();
+            builder.Services.AddScoped<ISessionHistoryService, SessionHistoryService>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
 
-            // --- C. AI MODULE SERVICES ---
+
             // Configure the AI ​​Provider based on appsettings ("Mock" or "Gemini")
             builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
             builder.Services.AddSingleton<IDeliveryAnalyzer, DeliveryAnalyzer>();
@@ -77,30 +104,21 @@ namespace MockviewAI
                 builder.Services.AddScoped<IAiScoringService, MockAiScoringService>();
             }
 
-            // --- D. INTERVIEW SERVICES ---
-            builder.Services.AddScoped<IInterviewScoringService, InterviewScoringService>();
-            builder.Services.AddScoped<IInterviewService, InterviewService>();
-
-            // --- E. USER FEATURE SERVICES ---
-            // Managing user history, records, and feedback
-            builder.Services.AddScoped<ISessionHistoryService, SessionHistoryService>();
-            builder.Services.AddScoped<IProfileService, ProfileService>();
-            builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 
 
             // =========================================================================
-            // PART 3: THIRD-PARTY & INFRASTRUCTURE CONFIGURATION
+            // PART 3: THIRD-PARTY SERVICE
 
             // --- A. GOOGLE AUTHENTICATION & COOKIES ---
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
             .AddCookie(options =>
             {
                 options.LoginPath = "/Auth/Login";
-                options.LogoutPath = "/api/auth/logout";
+                options.LogoutPath = "/Auth/Logout";
 
                 // Secure cookie configuration:
                 // Enable HttpOnly (to prevent XSS) and SameSite (to prevent CSRF), and set a lifespan of 8 hours
@@ -123,11 +141,7 @@ namespace MockviewAI
             var cloudinary = new Cloudinary(cloudinaryAccount);
             builder.Services.AddSingleton(cloudinary);
 
-            // --- C. EMAIL & CACHE ---
-            builder.Services.AddScoped<IEmailService, EmailService>();
-            builder.Services.AddMemoryCache();
-
-
+            
 
             // =========================================================================
             // PART 4: CONFIGURATION VIA VISUAL STUDIO & SECURITY
@@ -143,7 +157,7 @@ namespace MockviewAI
             {
                 options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-                // Define a policy to limit OTP sending: 3 times / 15 minutes / 1 IP
+                // 1. Define a policy to limit OTP sending: 3 times / 15 minutes / 1 IP
                 options.AddPolicy("OtpRateLimit", context =>
                 {
                     // Get the user's real IP (accounting for ForwardedHeaders if a proxy is used)
@@ -154,23 +168,40 @@ namespace MockviewAI
                         factory: partition => new FixedWindowRateLimiterOptions
                         {
                             AutoReplenishment = true,
-                            PermitLimit = 3,                       // Maximum number of turns
-                            Window = TimeSpan.FromMinutes(15),     // Time frame
+                            PermitLimit = 3,
+                            Window = TimeSpan.FromMinutes(15),
                             QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                            QueueLimit = 0                         // No queuing—instant block.
+                            QueueLimit = 0
                         });
                 });
 
-                // Customize the error message returned to bots/hackers
+                options.AddPolicy("LoginRateLimit", context =>
+                {
+                    var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "unknown_ip";
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: ipAddress,
+                        factory: partition => new FixedWindowRateLimiterOptions
+                        {
+                            AutoReplenishment = true,
+                            PermitLimit = 5,
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0
+                        });
+                });
+
                 options.OnRejected = async (context, token) =>
                 {
                     context.HttpContext.Response.StatusCode = 429;
-                    await context.HttpContext.Response.WriteAsync("Too many requests from this IP. Please try again after 15 minutes.", token);
+                    context.HttpContext.Response.ContentType = "text/plain; charset=utf-8";
+
+                    await context.HttpContext.Response.WriteAsync("Too many requests from this IP. Please try again in a few minutes.", token);
                 };
             });
 
-
             var app = builder.Build();
+
+
 
             // =========================================================================
             // PART 5: MIDDLEWARE PIPELINE
@@ -187,10 +218,24 @@ namespace MockviewAI
             }
 
             // --- B. Auto update database (Migration)
+            // WARNING: Bạn sẽ bị mất toàn bộ dữ liệu database, chỉ thực hiện trên local
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                dbContext.Database.Migrate();
+
+                if (app.Environment.IsDevelopment())
+                {
+                    // 1. Delete all database data
+                    dbContext.Database.EnsureDeleted();
+
+                    // 2. Recreate a new Database
+                    dbContext.Database.EnsureCreated();
+                }
+                else
+                {
+                    // Must has Migration on Product
+                    dbContext.Database.Migrate();
+                }
             }
 
             //app.UseHttpsRedirection();

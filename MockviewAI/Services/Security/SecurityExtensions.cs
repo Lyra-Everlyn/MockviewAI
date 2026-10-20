@@ -17,13 +17,14 @@ namespace MockviewAI.Services.Security
         public static IServiceCollection AddAppSecurity(this IServiceCollection services, IConfiguration config)
         {
             services.Configure<SecurityOptions>(config.GetSection("Security"));
-            services.AddSingleton<LoginThrottleService>();
+            services.AddSingleton<ILoginThrottleService, LoginThrottleService>();
+            services.AddHttpClient<ITurnstileService, TurnstileService>();
 
             // Cấu hình nhận diện IP thật và giao thức (HTTPS) khi chạy phía sau Proxy (Nginx, Traefik, Docker...)
             services.Configure<ForwardedHeadersOptions>(o =>
             {
                 o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-                o.KnownNetworks.Clear();
+                o.KnownIPNetworks.Clear();
                 o.KnownProxies.Clear();
             });
 

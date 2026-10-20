@@ -1,0 +1,11 @@
+﻿using MockviewAI.Services.Helper.Interfaces;
+
+namespace MockviewAI.Services.FileStorage.Interfaces
+{
+    public interface IFileStorageService
+    {
+        Task<(string Url, string PublicId)> UploadFileAsync(IFormFile file, string folderName = "uploads", UploadType type = UploadType.General);
+
+        Task<bool> DeleteFileAsync(string publicId);
+    }
+}
