@@ -38,12 +38,7 @@ namespace MockviewAI
             // PART 1: CONNECTION CONFIGURATION
 
             // --- A. Database
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-            if (string.IsNullOrWhiteSpace(connectionString))
-            {
-                throw new InvalidOperationException("Database connection string is missing.");
-            }
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Database connection string is missing.");
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(
@@ -58,13 +53,7 @@ namespace MockviewAI
             );
 
             // --- B. Redis
-            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection");
-
-            if (string.IsNullOrWhiteSpace(redisConnectionString))
-            {
-                throw new InvalidOperationException("RedisConnection string is missing.");
-            }
-
+            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection") ?? throw new InvalidOperationException("RedisConnection string is missing.");
             var redisOptions = ConfigurationOptions.Parse(redisConnectionString);
 
             redisOptions.AbortOnConnectFail = false;
