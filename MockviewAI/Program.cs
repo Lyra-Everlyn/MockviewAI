@@ -222,20 +222,21 @@ namespace MockviewAI
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                dbContext.Database.Migrate();
 
-                if (app.Environment.IsDevelopment())
-                {
-                    // 1. Delete all database data
-                    dbContext.Database.EnsureDeleted();
+                //if (app.Environment.IsDevelopment())
+                //{
+                //    // 1. Delete all database data
+                //    dbContext.Database.EnsureDeleted();
 
-                    // 2. Recreate a new Database
-                    dbContext.Database.EnsureCreated();
-                }
-                else
-                {
-                    // Must has Migration on Product
-                    dbContext.Database.Migrate();
-                }
+                //    // 2. Recreate a new Database
+                //    dbContext.Database.EnsureCreated();
+                //}
+                //else
+                //{
+                //    // Must has Migration on Product
+                //    dbContext.Database.Migrate();
+                //}
             }
 
             //app.UseHttpsRedirection();
