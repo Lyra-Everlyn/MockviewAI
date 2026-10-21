@@ -1,28 +1,26 @@
 using CloudinaryDotNet;
-using StackExchange.Redis;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-
 using MockviewAI.Data;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
-
-using MockviewAI.Services.Security;
-using MockviewAI.Services.Auth;
-using MockviewAI.Services.Feedbacks;
-using MockviewAI.Services.Interviews;
-using MockviewAI.Services.Profiles;
-using MockviewAI.Services.Onboarding;
-using MockviewAI.Services.Emails;
-using MockviewAI.Services.SessionHistory;
-
 using MockviewAI.Services.Ai;
 using MockviewAI.Services.Ai.Implementations;
 using MockviewAI.Services.Ai.Interfaces;
-
+using MockviewAI.Services.Auth;
+using MockviewAI.Services.Emails;
+using MockviewAI.Services.Feedbacks;
+using MockviewAI.Services.FileStorage.Implementations;
+using MockviewAI.Services.FileStorage.Interfaces;
+using MockviewAI.Services.Interviews;
+using MockviewAI.Services.Onboarding;
+using MockviewAI.Services.Profiles;
+using MockviewAI.Services.Security;
+using MockviewAI.Services.SessionHistory;
+using StackExchange.Redis;
 using System.Security.Principal;
 using System.Threading.RateLimiting;
 
@@ -40,7 +38,7 @@ namespace MockviewAI
             // PART 1: CONNECTION CONFIGURATION
 
             // --- A. Database
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Database connection string is missing.");
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(
@@ -55,14 +53,17 @@ namespace MockviewAI
             );
 
             // --- B. Redis
-            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection");
+            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection") ?? throw new InvalidOperationException("RedisConnection string is missing.");
+            var redisOptions = ConfigurationOptions.Parse(redisConnectionString);
+
+            redisOptions.AbortOnConnectFail = false;
             builder.Services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = redisConnectionString;
+                options.ConfigurationOptions = redisOptions;
                 options.InstanceName = "MockviewAI_";
             });
 
-            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
+            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisOptions));
 
 
 
@@ -140,8 +141,8 @@ namespace MockviewAI
             var cloudinaryAccount = new Account(cloudName, apiKey, apiSecret);
             var cloudinary = new Cloudinary(cloudinaryAccount);
             builder.Services.AddSingleton(cloudinary);
+            builder.Services.AddScoped<IFileStorageService, CloudinaryStorageService>();
 
-            
 
             // =========================================================================
             // PART 4: CONFIGURATION VIA VISUAL STUDIO & SECURITY
@@ -222,20 +223,21 @@ namespace MockviewAI
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                dbContext.Database.Migrate();
 
-                if (app.Environment.IsDevelopment())
-                {
-                    // 1. Delete all database data
-                    dbContext.Database.EnsureDeleted();
+                //if (app.Environment.IsDevelopment())
+                //{
+                //    // 1. Delete all database data
+                //    dbContext.Database.EnsureDeleted();
 
-                    // 2. Recreate a new Database
-                    dbContext.Database.EnsureCreated();
-                }
-                else
-                {
-                    // Must has Migration on Product
-                    dbContext.Database.Migrate();
-                }
+                //    // 2. Recreate a new Database
+                //    dbContext.Database.EnsureCreated();
+                //}
+                //else
+                //{
+                //    // Must has Migration on Product
+                //    dbContext.Database.Migrate();
+                //}
             }
 
             //app.UseHttpsRedirection();

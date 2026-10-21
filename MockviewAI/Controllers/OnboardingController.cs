@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MockviewAI.Models.DTOs;
 using MockviewAI.Services.Onboarding;
 using System.Security.Claims;
@@ -7,6 +8,7 @@ namespace MockviewAI.Controllers
 {
     /// [SETUP PROFILE]
     // -- After login
+    [Authorize]
     public class OnboardingController : Controller
     {
         private readonly IOnboardingService _onboardingService;

@@ -24,8 +24,17 @@ namespace MockviewAI.Services.Security
             services.Configure<ForwardedHeadersOptions>(o =>
             {
                 o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-                o.KnownIPNetworks.Clear();
-                o.KnownProxies.Clear();
+
+                //o.KnownIPNetworks.Clear();
+                //o.KnownProxies.Clear();
+
+                // Chỉ đọc 1 lớp Proxy gần nhất (chống client tự chèn chuỗi X-Forwarded-For giả ở phía trước)
+                o.ForwardLimit = 1;
+
+                // Tin tưởng toàn bộ các dải IP nội bộ chuẩn RFC 1918 (Docker, LAN, Cloud VPC) + Loopback mặc định (127.0.0.1)
+                o.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("10.0.0.0/8"));
+                o.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("172.16.0.0/12"));
+                o.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("192.168.0.0/16"));
             });
 
             return services;

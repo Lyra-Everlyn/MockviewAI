@@ -6,6 +6,7 @@ using MockviewAI.Models.Security;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Emails;
 using StackExchange.Redis;
+using System.Text.Json;
 
 namespace MockviewAI.Services.Auth
 {
@@ -29,7 +30,8 @@ namespace MockviewAI.Services.Auth
         }
 
         #region Register
-        public async Task RegisterAsync(string email, string password, string confirmPassword, string firstName, string lastName)
+        private sealed record PendingRegistration(string Email, string PasswordHash, string FirstName, string LastName);
+        public async Task SendRegistrationOtpAsync(string email, string password, string confirmPassword, string firstName, string? lastName)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(confirmPassword))
                 throw new Exception("Email and password fields cannot be empty.");
@@ -43,75 +45,28 @@ namespace MockviewAI.Services.Auth
             email = email.Trim().ToLowerInvariant();
             string safeLastName = string.IsNullOrWhiteSpace(lastName) ? string.Empty : lastName.Trim();
 
-            bool isEmailExist = await _userRepository.EmailExistsAsync(email);
-            if (isEmailExist) throw new Exception("Email has already been registered.");
-
-            string passwordHash = await HashPasswordAsync(password);
-            var newUser = new User
-            {
-                Email = email,
-                PasswordHash = passwordHash,
-                FirstName = firstName.Trim(),
-                LastName = safeLastName,
-                Role = "User",
-                Status = "Active",
-                CreateAt = DateTime.UtcNow,
-                UpdateAt = DateTime.UtcNow,
-                ConsentAt = DateTime.UtcNow,
-                LastLoginAt = DateTime.UtcNow,
-            };
-
-            await _userRepository.AddAsync(newUser);
-        }
-
-        public async Task<User> RegisterGoogleAsync(string email, string firstName, string lastName, string? avatarUrl)
-        {
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(firstName))
-                throw new Exception("Email and first name cannot be empty.");
-
-            email = email.Trim().ToLowerInvariant();
-            string safeLastName = string.IsNullOrWhiteSpace(lastName) ? string.Empty : lastName.Trim();
-            string dummyPassword = Guid.NewGuid().ToString();
-            string dummyPasswordHash = await HashPasswordAsync(dummyPassword);
-
-            var newUser = new User
-            {
-                Email = email,
-                PasswordHash = dummyPasswordHash,
-                FirstName = firstName.Trim(),
-                LastName = safeLastName,
-                AvatarUrl = avatarUrl,
-                Role = "User",
-                Status = "Active",
-                CreateAt = DateTime.UtcNow,
-                UpdateAt = DateTime.UtcNow,
-                ConsentAt = DateTime.UtcNow,
-                LastLoginAt = DateTime.UtcNow,
-            };
-
-            await _userRepository.AddAsync(newUser);
-            return newUser;
-        }
-
-        public async Task SendRegistrationOtpAsync(string email)
-        {
-            email = email.Trim().ToLowerInvariant();
-
             var cooldown = await _cache.GetStringAsync($"Cooldown_RegOTP_{email}");
             if (!string.IsNullOrEmpty(cooldown))
                 throw new Exception("Please wait 60 seconds before requesting another code.");
 
-            var cooldownOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60) };
-            await _cache.SetStringAsync($"Cooldown_RegOTP_{email}", "true", cooldownOptions);
-
             bool isEmailExist = await _userRepository.EmailExistsAsync(email);
             if (isEmailExist) throw new Exception("This email has already been registered.");
 
-            string otpCode = System.Security.Cryptography.RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
+            var cooldownOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60) };
+            await _cache.SetStringAsync($"Cooldown_RegOTP_{email}", "true", cooldownOptions);
 
+            // Băm mật khẩu ngay tại bước này và lưu tạm vào Redis (TTL 10 phút), tuyệt đối không lưu plaintext vào TempData
+            string passwordHash = HashPassword(password);
+            var pendingUser = new PendingRegistration(email, passwordHash, firstName.Trim(), safeLastName);
+            var pendingOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) };
+            await _cache.SetStringAsync($"RegPending_{email}", JsonSerializer.Serialize(pendingUser), pendingOptions);
+
+            string otpCode = System.Security.Cryptography.RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
             var otpOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
             await _cache.SetStringAsync($"RegOTP_{email}", otpCode, otpOptions);
-            await _cache.SetStringAsync($"RegOTP_Attempts_{email}", "0", otpOptions);
+
+            // QUAN TRỌNG: Xóa bộ đếm cũ bằng IDatabase thay vì tạo Hash key bằng _cache.SetStringAsync (tránh lỗi WRONGTYPE)
+            await _db.KeyDeleteAsync($"MockviewAI_RegOTP_Attempts_{email}");
 
             string subject = "MockviewAI - Registration Verification";
             string body = $@"
@@ -145,7 +100,6 @@ namespace MockviewAI.Services.Auth
             }
 
             long attempts = await _db.StringIncrementAsync(attemptKey);
-
             if (attempts == 1)
             {
                 await _db.KeyExpireAsync(attemptKey, TimeSpan.FromMinutes(5));
@@ -157,12 +111,81 @@ namespace MockviewAI.Services.Auth
                 await _cache.SetStringAsync($"BlockIP_{ipAddress}", "true", blockOptions);
 
                 await _cache.RemoveAsync($"RegOTP_{email}");
+                await _cache.RemoveAsync($"RegPending_{email}");
                 await _db.KeyDeleteAsync(attemptKey);
 
                 throw new Exception($"Your IP has been blocked for {_lockoutMinutes} minutes due to multiple failed attempts.");
             }
 
             throw new Exception($"Authentication failed. You have {5 - attempts} attempts remaining.");
+        }
+
+        public async Task CompleteRegistrationAsync(string email)
+        {
+            email = email.Trim().ToLowerInvariant();
+
+            // Kiểm tra cờ xác thực OTP bắt buộc
+            string? isVerified = await _cache.GetStringAsync($"RegVerified_{email}");
+            if (string.IsNullOrEmpty(isVerified))
+                throw new Exception("Email verification is required before completing registration.");
+
+            string? pendingJson = await _cache.GetStringAsync($"RegPending_{email}");
+            if (string.IsNullOrEmpty(pendingJson))
+                throw new Exception("Registration session expired. Please register again.");
+
+            var pending = JsonSerializer.Deserialize<PendingRegistration>(pendingJson)
+                ?? throw new Exception("Invalid registration data.");
+
+            if (await _userRepository.EmailExistsAsync(email))
+                throw new Exception("Email has already been registered.");
+
+            var newUser = new User
+            {
+                Email = pending.Email,
+                PasswordHash = pending.PasswordHash,
+                FirstName = pending.FirstName,
+                LastName = pending.LastName,
+                Role = "User",
+                Status = "Active",
+                CreateAt = DateTime.UtcNow,
+                UpdateAt = DateTime.UtcNow,
+                ConsentAt = DateTime.UtcNow,
+                LastLoginAt = DateTime.UtcNow,
+            };
+
+            await _userRepository.AddAsync(newUser);
+
+            // Dọn dẹp khóa tạm sau khi tạo tài khoản thành công
+            await _cache.RemoveAsync($"RegVerified_{email}");
+            await _cache.RemoveAsync($"RegPending_{email}");
+        }
+
+        public async Task<User> RegisterGoogleAsync(string email, string firstName, string lastName, string? avatarUrl)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(firstName))
+                throw new Exception("Email and first name cannot be empty.");
+
+            email = email.Trim().ToLowerInvariant();
+            string safeLastName = string.IsNullOrWhiteSpace(lastName) ? string.Empty : lastName.Trim();
+            string dummyPasswordHash = HashPassword(Guid.NewGuid().ToString());
+
+            var newUser = new User
+            {
+                Email = email,
+                PasswordHash = dummyPasswordHash,
+                FirstName = firstName.Trim(),
+                LastName = safeLastName,
+                AvatarUrl = avatarUrl,
+                Role = "User",
+                Status = "Active",
+                CreateAt = DateTime.UtcNow,
+                UpdateAt = DateTime.UtcNow,
+                ConsentAt = DateTime.UtcNow,
+                LastLoginAt = DateTime.UtcNow,
+            };
+
+            await _userRepository.AddAsync(newUser);
+            return newUser;
         }
         #endregion
 
@@ -175,11 +198,11 @@ namespace MockviewAI.Services.Auth
 
             if (user == null)
             {
-                await VerifyPasswordHashAsync(password, DummyHash);
+                VerifyPasswordHash(password, DummyHash);
                 throw new Exception(invalidMsg);
             }
 
-            bool isCorrectPasswords = await VerifyPasswordHashAsync(password, user.PasswordHash);
+            bool isCorrectPasswords = VerifyPasswordHash(password, user.PasswordHash);
             if (!isCorrectPasswords) throw new Exception(invalidMsg);
 
             if (user.Status == "Locked") throw new Exception("Your account has been locked.");
@@ -223,15 +246,11 @@ namespace MockviewAI.Services.Auth
         #endregion
 
         #region Hashing
-        private async Task<bool> VerifyPasswordHashAsync(string inputPassword, string storedHash)
-        {
-            return await Task.Run(() => BCrypt.Net.BCrypt.Verify(inputPassword, storedHash));
-        }
+        private static bool VerifyPasswordHash(string inputPassword, string storedHash) =>
+            BCrypt.Net.BCrypt.Verify(inputPassword, storedHash);
 
-        private async Task<string> HashPasswordAsync(string password)
-        {
-            return await Task.Run(() => BCrypt.Net.BCrypt.HashPassword(password));
-        }
+        private static string HashPassword(string password) =>
+            BCrypt.Net.BCrypt.HashPassword(password);
         #endregion
 
         #region Forgot Password
@@ -258,8 +277,9 @@ namespace MockviewAI.Services.Auth
             string resetCode = System.Security.Cryptography.RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
 
             var otpOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
+            
             await _cache.SetStringAsync($"OTP_{email}", resetCode, otpOptions);
-            await _cache.SetStringAsync($"OTP_Attempts_{email}", "0", otpOptions);
+            await _db.KeyDeleteAsync($"MockviewAI_OTP_Attempts_{email}");
 
             string subject = "MockviewAI - Password Reset Code";
             string body = $@"<div style='font-family: Inter, Arial, sans-serif; padding: 20px;'><h2>Password Reset Request</h2><p>Your password reset code is: <b style='font-size: 28px; color: #3348E0; letter-spacing: 2px;'>{resetCode}</b></p><p>This code will expire in 5 minutes.</p></div>";
@@ -319,7 +339,7 @@ namespace MockviewAI.Services.Auth
             var user = await _userRepository.GetByEmailAsync(email);
             if (user == null) throw new Exception("Account not found.");
 
-            user.PasswordHash = await HashPasswordAsync(newPassword);
+            user.PasswordHash = HashPassword(newPassword);
             user.UpdateAt = DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user);

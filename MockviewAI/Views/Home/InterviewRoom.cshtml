@@ -121,6 +121,16 @@
             </div>
             <h2 class="modal-title">Dừng buổi luyện?</h2>
             <p class="modal-desc">Bạn đã trả lời <span id="answered-count">@Model.AnsweredCount</span> / @Model.TotalQuestions câu. Các câu đã trả lời vẫn được chấm điểm và lưu vào lịch sử.</p>
+            
+            <!-- Ô nhập mức độ lo lắng sau buổi luyện -->
+            <div style="margin: 14px 0; text-align: left;">
+                <label for="anxiety-after" style="display:block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: #334155;">
+                    Sau khi luyện, mức lo lắng của bạn là bao nhiêu? (1–10)
+                </label>
+                <input type="number" id="anxiety-after" min="1" max="10" value="4"
+                       style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem;" />
+            </div>
+
             <div class="modal-actions">
                 <button class="btn btn-outline" id="btn-resume">Tiếp tục phỏng vấn</button>
                 <button class="btn btn-danger-fill" id="btn-finish" type="button">Dừng và xem kết quả</button>
