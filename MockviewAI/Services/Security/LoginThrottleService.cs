@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using MockviewAI.Models.Security;
 using StackExchange.Redis;
@@ -18,48 +17,35 @@ namespace MockviewAI.Services.Security
             _options = options.Value;
         }
 
-        // --- Key kết hợp (Email + IP) -> Chống dò nhiều pass trên 1 IP
         public static string BuildKey(string email, IPAddress? ip) =>
             $"Throttle|{(email ?? string.Empty).Trim().ToLowerInvariant()}|{ip}";
 
-        // --- Key chỉ có Email -> Chống xoay IP dò 1 tài khoản
         public static string BuildEmailKey(string email) =>
             $"Throttle|EmailOnly|{(email ?? string.Empty).Trim().ToLowerInvariant()}";
 
-        public bool IsLockedOut(string key, string emailKey, out TimeSpan remaining)
+        public async Task<(bool LockedOut, TimeSpan Remaining)> IsLockedOutAsync(string key, string emailKey)
         {
-            remaining = TimeSpan.Zero;
+            var now = DateTime.UtcNow;
 
-            // 1. Kiểm tra khóa IP
-            var ipLockedUntilStr = _db.StringGet($"{_prefix}{key}:LockedUntil");
-            if (ipLockedUntilStr.HasValue && DateTime.TryParse(ipLockedUntilStr, out var ipLockedUntil))
+            var ipLockedUntilStr = await _db.StringGetAsync($"{_prefix}{key}:LockedUntil");
+            if (ipLockedUntilStr.HasValue && DateTime.TryParse(ipLockedUntilStr, out var ipLockedUntil) && ipLockedUntil > now)
             {
-                var now = DateTime.UtcNow;
-                if (ipLockedUntil > now)
+                return (true, ipLockedUntil - now);
+            }
+
+            if (!string.IsNullOrEmpty(emailKey))
+            {
+                var emailLockedUntilStr = await _db.StringGetAsync($"{_prefix}{emailKey}:LockedUntil");
+                if (emailLockedUntilStr.HasValue && DateTime.TryParse(emailLockedUntilStr, out var emailLockedUntil) && emailLockedUntil > now)
                 {
-                    remaining = ipLockedUntil - now;
-                    return true;
+                    return (true, emailLockedUntil - now);
                 }
             }
 
-            // 2. Kiểm tra khóa Email (Mới bổ sung)
-            var emailLockedUntilStr = _db.StringGet($"{_prefix}{emailKey}:LockedUntil");
-            if (emailLockedUntilStr.HasValue && DateTime.TryParse(emailLockedUntilStr, out var emailLockedUntil))
-            {
-                var now = DateTime.UtcNow;
-                if (emailLockedUntil > now)
-                {
-                    remaining = emailLockedUntil - now;
-                    return true;
-                }
-            }
-
-            return false;
+            return (false, TimeSpan.Zero);
         }
 
-        public bool IsLockedOut(string key, out TimeSpan remaining) => IsLockedOut(key, "", out remaining);
-
-        public void RegisterFailure(string key, string emailKey)
+        public async Task RegisterFailureAsync(string key, string emailKey)
         {
             var failKey = $"{_prefix}{key}:Failures";
             var lockKey = $"{_prefix}{key}:LockedUntil";
@@ -74,38 +60,36 @@ namespace MockviewAI.Services.Security
             var emailIncrTask = batch.StringIncrementAsync(emailFailKey);
             batch.Execute();
 
-            long ipFailures = ipIncrTask.Result;
-            long emailFailures = emailIncrTask.Result;
+            await Task.WhenAll(ipIncrTask, emailIncrTask);
+            long ipFailures = await ipIncrTask;
+            long emailFailures = await emailIncrTask;
 
-            if (ipFailures == 1) _db.KeyExpire(failKey, window);
+            if (ipFailures == 1) await _db.KeyExpireAsync(failKey, window);
             if (ipFailures >= _options.MaxFailedLogins)
             {
                 var lockedUntil = DateTime.UtcNow.Add(window);
-                _db.StringSet(lockKey, lockedUntil.ToString("O"), window);
-                _db.KeyDelete(failKey);
+                await _db.StringSetAsync(lockKey, lockedUntil.ToString("O"), window);
+                await _db.KeyDeleteAsync(failKey);
             }
 
-            if (emailFailures == 1) _db.KeyExpire(emailFailKey, window);
+            if (emailFailures == 1) await _db.KeyExpireAsync(emailFailKey, window);
             if (emailFailures >= _options.MaxFailedLogins * 2)
             {
                 var lockedUntil = DateTime.UtcNow.Add(window);
-                _db.StringSet(emailLockKey, lockedUntil.ToString("O"), window);
-                _db.KeyDelete(emailFailKey);
+                await _db.StringSetAsync(emailLockKey, lockedUntil.ToString("O"), window);
+                await _db.KeyDeleteAsync(emailFailKey);
             }
         }
 
-        public void RegisterFailure(string key) => RegisterFailure(key, "");
-
-        public void Reset(string key, string emailKey)
+        public async Task ResetAsync(string key, string emailKey)
         {
             var batch = _db.CreateBatch();
-            batch.KeyDeleteAsync($"{_prefix}{key}:Failures");
-            batch.KeyDeleteAsync($"{_prefix}{key}:LockedUntil");
-            batch.KeyDeleteAsync($"{_prefix}{emailKey}:Failures");
-            batch.KeyDeleteAsync($"{_prefix}{emailKey}:LockedUntil");
+            var t1 = batch.KeyDeleteAsync($"{_prefix}{key}:Failures");
+            var t2 = batch.KeyDeleteAsync($"{_prefix}{key}:LockedUntil");
+            var t3 = batch.KeyDeleteAsync($"{_prefix}{emailKey}:Failures");
+            var t4 = batch.KeyDeleteAsync($"{_prefix}{emailKey}:LockedUntil");
             batch.Execute();
+            await Task.WhenAll(t1, t2, t3, t4);
         }
-
-        public void Reset(string key) => Reset(key, "");
     }
 }

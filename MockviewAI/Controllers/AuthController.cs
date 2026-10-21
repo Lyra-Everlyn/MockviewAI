@@ -60,7 +60,8 @@ namespace MockviewAI.Controllers
             var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
             var emailThrottleKey = LoginThrottleService.BuildEmailKey(email);
 
-            if (_throttleService.IsLockedOut(throttleKey, emailThrottleKey, out var wait))
+            var (isLocked, wait) = await _throttleService.IsLockedOutAsync(throttleKey, emailThrottleKey);
+            if (isLocked)
             {
                 var minutes = (int)Math.Ceiling(wait.TotalMinutes);
                 ModelState.AddModelError(string.Empty, $"Too many failed attempts. Please try again in {minutes} minute(s).");
@@ -71,14 +72,14 @@ namespace MockviewAI.Controllers
             {
                 var user = await _authService.AuthenticateAsync(email, password);
 
-                _throttleService.Reset(throttleKey, emailThrottleKey);
+                await _throttleService.ResetAsync(throttleKey, emailThrottleKey);
 
                 await SignInUser(user!.Email, $"{user.FirstName} {user.LastName}".Trim(), user.Role, user.AvatarUrl);
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)
             {
-                _throttleService.RegisterFailure(throttleKey, emailThrottleKey);
+                await _throttleService.RegisterFailureAsync(throttleKey, emailThrottleKey);
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View();
             }
@@ -194,6 +195,7 @@ namespace MockviewAI.Controllers
         // 5. Handle the register form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting("OtpRateLimit")]
         public async Task<IActionResult> Register(string email, string password, string confirmPassword, string firstName, string? lastName, [FromForm(Name = "cf-turnstile-response")] string turnstileToken, bool terms = false)
         {
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
@@ -232,15 +234,10 @@ namespace MockviewAI.Controllers
             try
             {
                 CheckPasswordStrength(password);
-                await _authService.SendRegistrationOtpAsync(email);
-
-                TempData["RegEmail"] = email;
-                TempData["RegPassword"] = password;
-                TempData["RegFirstName"] = firstName;
-                TempData["RegLastName"] = lastName ?? string.Empty;
+                await _authService.SendRegistrationOtpAsync(email, password, confirmPassword, firstName, lastName);
 
                 TempData["SuccessMessage"] = "Verification code has been sent to your email.";
-                return RedirectToAction("VerifyRegistrationCode", new { email = email });
+                return RedirectToAction("VerifyRegistrationCode", new { email = email.Trim().ToLowerInvariant() });
             }
             catch (Exception ex)
             {
@@ -264,7 +261,6 @@ namespace MockviewAI.Controllers
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             if (await _authService.IsIpBlockedAsync(ipAddress))
             {
-                TempData.Keep();
                 ModelState.AddModelError(string.Empty, $"Your IP has been temporarily blocked due to multiple failed attempts. Please try again after {_lockoutMinutes} minutes.");
                 return View();
             }
@@ -277,22 +273,16 @@ namespace MockviewAI.Controllers
 
                 if (isValid)
                 {
-                    string password = TempData["RegPassword"]?.ToString() ?? "";
-                    string firstName = TempData["RegFirstName"]?.ToString() ?? "";
-                    string lastName = TempData["RegLastName"]?.ToString() ?? "";
-
-                    await _authService.RegisterAsync(email, password, password, firstName, lastName);
+                    await _authService.CompleteRegistrationAsync(email);
 
                     TempData["SuccessMessage"] = "Registration successful! Please log in.";
                     return RedirectToAction("Login");
                 }
 
-                TempData.Keep();
                 return View();
             }
             catch (Exception ex)
             {
-                TempData.Keep();
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View();
             }
@@ -314,6 +304,7 @@ namespace MockviewAI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting("OtpRateLimit")]
         public async Task<IActionResult> ForgotPassword(string email, [FromForm(Name = "cf-turnstile-response")] string turnstileToken)
         {
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";

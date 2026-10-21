@@ -1,28 +1,26 @@
 using CloudinaryDotNet;
-using StackExchange.Redis;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-
 using MockviewAI.Data;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
-
-using MockviewAI.Services.Security;
-using MockviewAI.Services.Auth;
-using MockviewAI.Services.Feedbacks;
-using MockviewAI.Services.Interviews;
-using MockviewAI.Services.Profiles;
-using MockviewAI.Services.Onboarding;
-using MockviewAI.Services.Emails;
-using MockviewAI.Services.SessionHistory;
-
 using MockviewAI.Services.Ai;
 using MockviewAI.Services.Ai.Implementations;
 using MockviewAI.Services.Ai.Interfaces;
-
+using MockviewAI.Services.Auth;
+using MockviewAI.Services.Emails;
+using MockviewAI.Services.Feedbacks;
+using MockviewAI.Services.FileStorage.Implementations;
+using MockviewAI.Services.FileStorage.Interfaces;
+using MockviewAI.Services.Interviews;
+using MockviewAI.Services.Onboarding;
+using MockviewAI.Services.Profiles;
+using MockviewAI.Services.Security;
+using MockviewAI.Services.SessionHistory;
+using StackExchange.Redis;
 using System.Security.Principal;
 using System.Threading.RateLimiting;
 
@@ -140,8 +138,8 @@ namespace MockviewAI
             var cloudinaryAccount = new Account(cloudName, apiKey, apiSecret);
             var cloudinary = new Cloudinary(cloudinaryAccount);
             builder.Services.AddSingleton(cloudinary);
+            builder.Services.AddScoped<IFileStorageService, CloudinaryStorageService>();
 
-            
 
             // =========================================================================
             // PART 4: CONFIGURATION VIA VISUAL STUDIO & SECURITY

@@ -3,6 +3,8 @@
 
 (function () {
     const room = document.getElementById('interview-room');
+    if (!room) return;
+
     const sessionId = parseInt(room.dataset.sessionId, 10);
     const totalQuestions = parseInt(room.dataset.total, 10);
     const token = room.querySelector('input[name="__RequestVerificationToken"]').value;
@@ -50,7 +52,7 @@
 
     function setBusy(value) {
         busy = value;
-        [btnSpeak, btnType, btnSkip, btnSend, btnStop, btnFinish].forEach(b => b.disabled = value);
+        [btnSpeak, btnType, btnSkip, btnSend, btnStop, btnFinish].forEach(b => { if (b) b.disabled = value; });
     }
 
     // ---------- Nói (speech to text) ----------
@@ -98,10 +100,12 @@
         btnSend.hidden = spokenText === '';
     }
 
-    btnSpeak.addEventListener('click', function () {
-        if (isTyping) toggleTyping(false);
-        isListening ? stopListening() : startListening();
-    });
+    if (btnSpeak) {
+        btnSpeak.addEventListener('click', function () {
+            if (isTyping) toggleTyping(false);
+            isListening ? stopListening() : startListening();
+        });
+    }
 
     // ---------- Gõ tay ----------
     function toggleTyping(on) {
@@ -112,10 +116,12 @@
         if (on) answerInput.focus();
     }
 
-    btnType.addEventListener('click', function () {
-        if (isListening) stopListening();
-        toggleTyping(!isTyping);
-    });
+    if (btnType) {
+        btnType.addEventListener('click', function () {
+            if (isListening) stopListening();
+            toggleTyping(!isTyping);
+        });
+    }
 
     // ---------- Gửi, bỏ qua ----------
     function currentAnswer() {
@@ -141,12 +147,13 @@
                 durationSeconds: isTyping ? null : speakSeconds,
                 skipped: skipped
             });
-            answeredCount.textContent = result.answeredCount;
+            if (answeredCount) answeredCount.textContent = result.answeredCount;
 
             if (result.done) {
-                await finishSession();   // hết câu hỏi: chấm điểm luôn
+                if (modal) modal.style.display = 'flex'; // Hết câu hỏi -> mở modal nhập độ lo lắng sau phỏng vấn
+                setBusy(false);
             } else {
-                showNextQuestion(result.nextNumber, result.nextQuestion);
+                showNextQuestion(result.nextNumber, result.nextQuestion);   // Đổi sang câu hỏi tiếp theo, xóa câu trả lời cũ
                 setBusy(false);
             }
         } catch (error) {
@@ -155,32 +162,39 @@
         }
     }
 
-    btnSend.addEventListener('click', () => submit(false));
-    btnSkip.addEventListener('click', () => submit(true));
+    if (btnSend) btnSend.addEventListener('click', () => submit(false));
+    if (btnSkip) btnSkip.addEventListener('click', () => submit(true));
 
-    // Đổi sang câu hỏi tiếp theo, xóa câu trả lời cũ
     function showNextQuestion(number, text) {
-        questionText.textContent = text;
+        if (questionText) questionText.textContent = text;
         document.querySelectorAll('.badge-step, .mobile-step').forEach(el => {
             el.textContent = 'Câu ' + number + ' / ' + totalQuestions;
         });
-        document.querySelector('.progress-fill').style.width = ((number - 1) * 100 / totalQuestions) + '%';
+        const progressFill = document.querySelector('.progress-fill');
+        if (progressFill) progressFill.style.width = ((number - 1) * 100 / totalQuestions) + '%';
 
         spokenText = '';
         speakSeconds = null;
-        answerInput.value = '';
-        transcriptText.textContent = PLACEHOLDER;
+        if (answerInput) answerInput.value = '';
+        if (transcriptText) transcriptText.textContent = PLACEHOLDER;
         toggleTyping(false);
-        btnSend.hidden = true;
+        if (btnSend) btnSend.hidden = true;
     }
 
     // ---------- Kết thúc và chấm điểm ----------
     async function finishSession() {
+        const anxietyInput = document.getElementById('anxiety-after');
+        const anxietyVal = anxietyInput ? parseInt(anxietyInput.value, 10) : null;
+        const validAnxiety = (anxietyVal >= 1 && anxietyVal <= 10) ? anxietyVal : null;
+
         showMessage('Đang chấm điểm, vui lòng đợi vài giây...');
-        modal.style.display = 'none';
+        if (modal) modal.style.display = 'none';
         setBusy(true);
         try {
-            const result = await postJson('/Interview/Finish', { sessionId: sessionId, anxietyAfter: null });
+            const result = await postJson('/Interview/Finish', {
+                sessionId: sessionId,
+                anxietyAfter: validAnxiety
+            });
             window.location.href = result.redirectUrl;
         } catch (error) {
             showMessage(error.message);
@@ -188,10 +202,16 @@
         }
     }
 
-    btnStop.addEventListener('click', function () {
-        if (isListening) stopListening();
-        modal.style.display = 'flex';
-    });
-    btnResume.addEventListener('click', function () { modal.style.display = 'none'; });
-    btnFinish.addEventListener('click', finishSession);
+    if (btnStop) {
+        btnStop.addEventListener('click', function () {
+            if (isListening) stopListening();
+            if (modal) modal.style.display = 'flex';
+        });
+    }
+    if (btnResume) {
+        btnResume.addEventListener('click', function () {
+            if (modal) modal.style.display = 'none';
+        });
+    }
+    if (btnFinish) btnFinish.addEventListener('click', finishSession);
 })();
