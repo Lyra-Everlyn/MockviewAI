@@ -417,3 +417,227 @@ body {
     font-size: 15px;
     resize: vertical;
 }
+
+/* =========================================
+   [#17] NÚT "NGHE LẠI" CÂU HỎI
+   ========================================= */
+.box-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+    .box-label-row .box-label {
+        margin-bottom: 0;
+    }
+
+.btn-replay {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .btn-replay svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .btn-replay:hover {
+        background: #dbeafe;
+    }
+
+    .btn-replay:disabled {
+        opacity: .5;
+        cursor: not-allowed;
+    }
+
+.voice-note {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* Nhãn trạng thái đổi màu theo việc đang làm (do JS gắn class) */
+.status-tag.is-listening {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.status-tag.is-waiting {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+/* =========================================
+   [#18] HỘP KIỂM TRA MICRO
+   ========================================= */
+.mic-icon {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.mic-test-box {
+    min-height: 56px;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    color: #334155;
+    text-align: left;
+    margin-bottom: 8px;
+}
+
+.mic-test-status {
+    min-height: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+    .mic-test-status.ok {
+        color: #047857;
+    }
+
+    .mic-test-status.error {
+        color: #dc2626;
+    }
+
+/* =========================================
+   [#20] HỘP HỎI MỨC LO LẮNG SAU BUỔI LUYỆN
+   ========================================= */
+.anxiety-scale {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.anxiety-btn {
+    padding: 12px 0;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    cursor: pointer;
+}
+
+    .anxiety-btn:hover {
+        border-color: #2949ff;
+        color: #2949ff;
+        background: #eff6ff;
+    }
+
+.link-skip {
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 13px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* =========================================
+   [21/10] SÓNG ÂM, CHỮ HIỆN TRỰC TIẾP, XÁC NHẬN ĐÃ GỬI
+   ========================================= */
+.wave {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 44px;
+    margin: 10px 0;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    border: 1px dashed #cbd5e1;
+}
+
+.wave-room {
+    margin: 0 0 8px;
+}
+
+.wave span {
+    display: block;
+    width: 5px;
+    height: 10%;
+    min-height: 4px;
+    border-radius: 3px;
+    background: #94a3b8;
+    transition: height 0.08s linear, background 0.15s;
+}
+
+.wave.is-hearing span {
+    background: #2949ff;
+}
+
+.wave[hidden] {
+    display: none;
+}
+
+.browser-warning {
+    margin: 8px 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.browser-warning[hidden] {
+    display: none;
+}
+
+/* Chữ đang nhận: phần chắc chắn đậm, phần đang nhận dạng nhạt hơn */
+.transcript-text .interim {
+    color: #94a3b8;
+}
+
+.transcript-meta {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.transcript-meta[hidden] {
+    display: none;
+}
+
+.last-answer {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.last-answer[hidden] {
+    display: none;
+}
+
+.helper-text.is-success {
+    color: #047857;
+    font-weight: 600;
+}
+
+.helper-text.is-error {
+    color: #dc2626;
+    font-weight: 600;
+}

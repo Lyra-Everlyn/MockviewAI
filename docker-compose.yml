@@ -18,13 +18,6 @@ services:
       timeout: 5s
       retries: 5
 
-  redis_mockview:
-    image: redis:alpine
-    container_name: redis_mockview_container
-    restart: always
-    ports:
-      - "127.0.0.1:6379:6379"
-      
   # TẠM ẨN WEB CONTAINER TRONG QUÁ TRÌNH DEV
   # web_mockview:
   #   build:

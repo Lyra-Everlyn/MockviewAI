@@ -56,7 +56,7 @@
             <!-- Thẻ điểm tóm tắt (Chỉ hiện trên Mobile) -->
             <div class="mobile-badges hide-on-desktop">
                 <span class="badge badge-blue">@(m.HasScore ? m.TotalScore + " điểm" : "Chưa có điểm")</span>
-                <span class="badge badge-green">Lo lắng @m.AnxietyBefore &rarr; @m.AnxietyAfter</span>
+                @if (m.AnxietyIndicator > 0) { <span class="badge badge-green">Dấu hiệu lo lắng @m.AnxietyIndicator/10</span> }
             </div>
         </div>
 
@@ -109,9 +109,9 @@
                     </div>
                     <div class="score-number">@(m.HasScore ? m.TotalScore.ToString() : "—")</div>
                     <div class="score-tags">
-                        <span class="badge badge-blue">Nội dung @m.ContentScore</span>
+                        <span class="badge badge-blue">Nội dung @(m.HasContentScore ? m.ContentScore.ToString() : "—")</span>
                         <span class="badge badge-blue">Cách nói @m.DeliveryScore</span>
-                        <span class="badge badge-green">Lo lắng @m.AnxietyBefore &rarr; @m.AnxietyAfter</span>
+                        @if (m.AnxietyIndicator > 0) { <span class="badge badge-green">Dấu hiệu lo lắng @m.AnxietyIndicator/10</span> }
                     </div>
                 </div>
 

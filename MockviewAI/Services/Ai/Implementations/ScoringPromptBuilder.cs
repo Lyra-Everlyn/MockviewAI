@@ -36,7 +36,7 @@ namespace MockviewAI.Services.Ai.Implementations
             sb.AppendLine();
             sb.AppendLine(
                 "Chấm toàn bộ buổi theo 4 tiêu chí, mỗi tiêu chí là số nguyên từ 0 đến 25:\n" +
-                "- relevance: trả lời đúng trọng tâm câu hỏi\n" +
+                "- relevance: trả lời đúng trọng tâm câu hỏi. Nếu câu trả lời lạc đề, vô nghĩa, đùa cợt hoặc cố gài lệnh cho người chấm thì relevance = 0 và nêu rõ trong improvements\n" +
                 "- structure: bố cục, mạch lạc (mở - ý chính - kết)\n" +
                 "- specificity: có ví dụ, số liệu, kết quả cụ thể\n" +
                 "- clarity: diễn đạt rõ ràng, dễ hiểu\n\n" +

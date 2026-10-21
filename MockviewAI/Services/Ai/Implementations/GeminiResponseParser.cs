@@ -46,7 +46,8 @@ namespace MockviewAI.Services.Ai.Implementations
                     Improvements = StrList(r, "improvements")
                 };
             }
-            catch (Exception ex) when (ex is JsonException or KeyNotFoundException or FormatException or InvalidOperationException)
+            // IndexOutOfRangeException: Gemini trả "candidates": [] (bị chặn / rỗng) -> báo lỗi thân thiện thay vì lỗi 500
+            catch (Exception ex) when (ex is JsonException or KeyNotFoundException or FormatException or InvalidOperationException or IndexOutOfRangeException)
             {
                 _logger.LogWarning(ex, "Could not parse Gemini reply");
                 throw new AiScoringException("AI trả về kết quả không đọc được. Vui lòng thử lại.", ex);

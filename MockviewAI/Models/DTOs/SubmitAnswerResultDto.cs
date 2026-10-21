@@ -8,5 +8,8 @@ namespace MockviewAI.Models.DTOs
         public int AnsweredCount { get; set; }
         public int? NextNumber { get; set; }
         public string? NextQuestion { get; set; }
+
+        // Thông báo kèm theo (vd: câu vừa rồi được tính là bỏ qua vì trả lời chưa phù hợp)
+        public string? Notice { get; set; }
     }
 }

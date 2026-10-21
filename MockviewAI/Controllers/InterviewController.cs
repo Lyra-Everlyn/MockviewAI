@@ -53,15 +53,15 @@ namespace MockviewAI.Controllers
         /// <param name="position">Vị trí ứng tuyển (vd: frontend, backend).</param>
         /// <param name="interviewer">Tính cách người phỏng vấn (vd: friendly, strict).</param>
         /// <param name="questionCount">Số lượng câu hỏi (vd: 5, 10).</param>
-        /// <param name="anxietyBefore">Mức độ lo lắng trước phỏng vấn (1-10).</param>
+        /// <param name="emailResult">Người dùng đồng ý nhận kết quả qua email (tick ở form).</param>
         /// <returns>Chuyển hướng người dùng vào thẳng phòng phỏng vấn (Interview Room).</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Start(string position, string interviewer, int questionCount, int? anxietyBefore)
+        public async Task<IActionResult> Start(string position, string interviewer, int questionCount, bool emailResult)
         {
             try
             {
-                int sessionId = await _interviewService.StartAsync(CurrentEmail, position, interviewer, questionCount, anxietyBefore);
+                int sessionId = await _interviewService.StartAsync(CurrentEmail, position, interviewer, questionCount, emailResult);
                 return RedirectToAction("Room", new { id = sessionId });
             }
             catch (Exception ex)
@@ -120,6 +120,11 @@ namespace MockviewAI.Controllers
                 var result = await _interviewService.SubmitAnswerAsync(CurrentEmail, dto);
                 return Json(result);
             }
+            catch (AnswerRejectedException ex)
+            {
+                // retry = true: trình duyệt xoá câu trả lời cũ để người dùng nói lại
+                return BadRequest(new { message = ex.Message, retry = true });
+            }
             catch (Exception ex)
             {
                 return BadRequest(new { message = SafeMessage(ex) });
@@ -159,7 +164,11 @@ namespace MockviewAI.Controllers
             var result = await _interviewService.GetResultAsync(CurrentEmail, id);
 
             // Nếu buổi phỏng vấn không tồn tại hoặc vẫn đang trong trạng thái InProgress (chưa nộp bài)
-            if (result == null) return NotFound();
+            if (result == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy kết quả của buổi luyện này.";
+                return RedirectToAction("History", "Home");
+            }
 
             return View(result);
         }

@@ -53,14 +53,20 @@ namespace MockviewAI
             );
 
             // --- B. Redis
+            // Thiếu cấu hình -> dùng Redis local; AbortOnConnectFail=false để Redis chưa bật thì app vẫn khởi động được
             var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection");
+            if (string.IsNullOrWhiteSpace(redisConnectionString)) redisConnectionString = "localhost:6379";
+
+            var redisOptions = ConfigurationOptions.Parse(redisConnectionString);
+            redisOptions.AbortOnConnectFail = false;
+
             builder.Services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = redisConnectionString;
+                options.ConfigurationOptions = redisOptions;
                 options.InstanceName = "MockviewAI_";
             });
 
-            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
+            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisOptions));
 
 
 
@@ -86,6 +92,8 @@ namespace MockviewAI
             // Configure the AI ​​Provider based on appsettings ("Mock" or "Gemini")
             builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
             builder.Services.AddSingleton<IDeliveryAnalyzer, DeliveryAnalyzer>();
+            builder.Services.AddSingleton<IAnxietyEstimator, AnxietyEstimator>();
+            builder.Services.AddSingleton<IAnswerQualityChecker, AnswerQualityChecker>();
 
             if (string.Equals(builder.Configuration["Ai:Provider"], "Gemini", StringComparison.OrdinalIgnoreCase))
             {
@@ -204,6 +212,9 @@ namespace MockviewAI
             // =========================================================================
             // PART 5: MIDDLEWARE PIPELINE
 
+            // --- 0. Chốt chặn lỗi toàn app (đặt ĐẦU TIÊN để bắt được mọi lỗi phía sau)
+            app.UseMiddleware<MockviewAI.Middleware.ErrorHandlingMiddleware>();
+
             // --- A. Standard security: Forwarded headers & HTTP security headers
             app.UseAppSecurity();
 
@@ -220,7 +231,8 @@ namespace MockviewAI
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                dbContext.Database.Migrate();
+                // Có Migrations -> Migrate(); chưa có thì tự tạo bảng + thêm cột còn thiếu (xem DatabaseInitializer)
+                DatabaseInitializer.Initialize(dbContext, scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseInitializer"));
 
                 //if (app.Environment.IsDevelopment())
                 //{
