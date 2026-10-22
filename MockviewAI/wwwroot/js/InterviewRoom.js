@@ -542,8 +542,13 @@
         } catch (error) {
             scoreFailures++;
             let text = error.message;
-            btnRetryScore.hidden = false;
-            if (scoreFailures >= 2) {
+            // Lỗi cấu hình (sai model/key): chấm lại cũng không được -> chỉ cho xem kết quả dự phòng
+            const configError = !!(error.body && error.body.configError);
+            btnRetryScore.hidden = configError;
+            if (configError) {
+                text += ' Bạn có thể xem kết quả dự phòng (chỉ tính phần cách nói).';
+                btnFallbackScore.hidden = false;
+            } else if (scoreFailures >= 2) {
                 text += ' AI vẫn chưa phản hồi. Bạn có thể xem kết quả dự phòng (chỉ tính phần cách nói).';
                 btnFallbackScore.hidden = false;
             }

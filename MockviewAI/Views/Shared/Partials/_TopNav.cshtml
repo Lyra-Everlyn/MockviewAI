@@ -1,0 +1,35 @@
+﻿@* Thanh điều hướng máy tính DÙNG CHUNG cho mọi trang (22/10).
+   Trước đây mỗi trang tự chép một bản thanh menu -> lệch vị trí, khác font, khác thẻ BETA.
+   Trang chọn mục đang mở bằng: ViewData["ActiveNav"] = "home" | "practice" | "history" (bỏ trống = không mục nào).
+   Kiểu dáng nằm trong wwwroot/css/theme.css (mục 3b). *@
+@{
+    var navUserName = User.Identity?.Name ?? "";
+    var navInitial = string.IsNullOrWhiteSpace(navUserName) ? "?" : navUserName.Substring(0, 1).ToUpper();
+    var navAvatarUrl = User.FindFirst("AvatarUrl")?.Value;
+    var activeNav = ViewData["ActiveNav"] as string ?? "";
+}
+<nav class="mv-topnav" aria-label="Điều hướng chính">
+    <div class="mv-topnav-inner">
+        <div class="mv-topnav-left">
+            <a href="/Home" class="mv-logo">Mockview<span>AI</span></a>
+            <ul class="mv-topnav-links">
+                <li><a href="/Home" class="@(activeNav == "home" ? "active" : null)">Trang chủ</a></li>
+                <li><a href="/Interview/Create" class="@(activeNav == "practice" ? "active" : null)">Luyện tập</a></li>
+                <li><a href="/Home/History" class="@(activeNav == "history" ? "active" : null)">Lịch sử</a></li>
+            </ul>
+        </div>
+        <div class="mv-topnav-right">
+            <span class="mv-badge-beta">BETA</span>
+            <a href="/Profile" class="mv-avatar" title="Hồ sơ">
+                @if (!string.IsNullOrEmpty(navAvatarUrl))
+                {
+                    <img src="@navAvatarUrl" alt="Ảnh đại diện" referrerpolicy="no-referrer" />
+                }
+                else
+                {
+                    @navInitial
+                }
+            </a>
+        </div>
+    </div>
+</nav>

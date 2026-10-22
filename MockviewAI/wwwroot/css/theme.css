@@ -82,6 +82,62 @@ body {
     border: 1px solid rgba(124, 58, 237, .25);
 }
 
+
+/* ---------- 3b. THANH ĐIỀU HƯỚNG DÙNG CHUNG (Partials/_TopNav.cshtml) ----------
+   Tên class riêng "mv-" để CSS của từng trang không làm lệch thanh menu. */
+.mv-topnav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255, 255, 255, .65);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border-bottom: 1px solid var(--mv-line);
+    padding: 16px 0;
+}
+.mv-topnav *, .mv-topnav *::before, .mv-topnav *::after { box-sizing: border-box; }
+.mv-topnav-inner {
+    max-width: 1040px; margin: 0 auto; padding: 0 24px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.mv-topnav-left, .mv-topnav-right { display: flex; align-items: center; }
+.mv-topnav-left { gap: 40px; }
+.mv-topnav-right { gap: 16px; }
+.mv-logo {
+    font-size: 20px; font-weight: 800; letter-spacing: -.02em;
+    color: var(--mv-text); text-decoration: none;
+}
+.mv-logo span {
+    background: var(--mv-grad);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.mv-topnav-links { display: flex; gap: 24px; list-style: none; margin: 0; padding: 0; }
+.mv-topnav-links li { margin: 0; padding: 0; }
+.mv-topnav-links a {
+    position: relative; display: inline-block;
+    color: var(--mv-muted); font-size: 14px; font-weight: 500; text-decoration: none;
+    transition: color .2s;
+}
+.mv-topnav-links a:hover { color: var(--mv-text); }
+.mv-topnav-links a.active { color: var(--mv-primary); font-weight: 600; }
+.mv-topnav-links a.active::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px;
+    border-radius: 2px; background: var(--mv-grad);
+}
+.mv-badge-beta {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: .02em;
+    background: rgba(255, 255, 255, .8); color: var(--mv-primary-2);
+    border: 1px solid rgba(124, 58, 237, .25);
+}
+.mv-avatar {
+    width: 34px; height: 34px; border-radius: 50%; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--mv-grad); color: #fff; font-size: 14px; font-weight: 600; text-decoration: none;
+    box-shadow: 0 0 0 3px #fff, 0 0 0 4px rgba(79, 70, 229, .25);
+}
+.mv-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+@media (max-width: 768px) {
+    .mv-topnav { display: none; }   /* điện thoại dùng thanh menu dưới đáy của từng trang */
+}
+
 /* ---------- 4. THẺ KÍNH MỜ ---------- */
 .session-card, .item-tip, .card {
     background: var(--mv-glass) !important;

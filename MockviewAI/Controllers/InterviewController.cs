@@ -91,6 +91,22 @@ namespace MockviewAI.Controllers
                     // Tự động gọi hàm chấm điểm và chốt sổ buổi phỏng vấn
                     await _interviewService.FinishAsync(CurrentEmail, new FinishSessionDto { SessionId = id });
                 }
+                catch (AiScoringException ex)
+                {
+                    // AI lỗi khi mở lại buổi đã trả lời xong: không để buổi kẹt mãi ở "đang làm".
+                    // Chấm dự phòng (chỉ tính cách nói) rồi mở trang Kết quả, kèm lý do để người dùng biết.
+                    try
+                    {
+                        await _interviewService.FinishAsync(CurrentEmail, new FinishSessionDto { SessionId = id, Fallback = true });
+                        TempData["InfoMessage"] = ex.Message + " Kết quả dưới đây chỉ tính phần cách nói.";
+                        return RedirectToAction("Result", new { id });
+                    }
+                    catch (Exception inner)
+                    {
+                        TempData["ErrorMessage"] = SafeMessage(inner);
+                        return RedirectToAction("History", "Home");
+                    }
+                }
                 catch (Exception ex)
                 {
                     TempData["ErrorMessage"] = SafeMessage(ex);
@@ -145,6 +161,11 @@ namespace MockviewAI.Controllers
             {
                 await _interviewService.FinishAsync(CurrentEmail, dto);
                 return Json(new { redirectUrl = Url.Action("Result", new { id = dto.SessionId }) });
+            }
+            catch (AiScoringException ex)
+            {
+                // configError = true: lỗi cấu hình (sai model/key), bấm "Chấm lại" vô ích -> giao diện mở ngay nút dự phòng
+                return BadRequest(new { message = ex.Message, configError = ex.IsConfigurationError });
             }
             catch (Exception ex)
             {

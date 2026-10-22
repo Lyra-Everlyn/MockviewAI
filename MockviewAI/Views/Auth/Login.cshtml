@@ -42,7 +42,7 @@
                 </div>
 
                 <!-- Template Form từ Tech Lead -->
-                <form method="post" asp-controller="Auth" asp-action="Login" id="loginForm">
+                <form method="post" asp-controller="Auth" asp-action="Login" id="loginForm" data-loading-text="Đang đăng nhập...">
 
                     <!-- Google Login Button -->
                     <a asp-controller="Auth" asp-action="LoginGoogle" class="btn-google">
@@ -93,5 +93,6 @@
 
     <partial name="Partials/_Notify"/>
     <script src="~/js/_TogglePassword.js"></script>
+    <script src="~/js/_SubmitLoading.js"></script>
 </body>
 </html>
