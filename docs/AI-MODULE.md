@@ -62,7 +62,7 @@ ScoreRequest
 |---|---|---|
 | `Ai:Provider` | `Ai__Provider` | `Mock` (mặc định, không tốn tiền) hoặc `Gemini` |
 | `Gemini:ApiKey` | `Gemini__ApiKey` | Key lấy ở Google AI Studio hoặc Google Cloud. **Không commit** |
-| `Gemini:Model` | `Gemini__Model` | Mặc định `gemini-2.5-flash`. Tên model có thể đổi theo Google: kiểm tra danh sách model hiện hành và chỉ sửa khóa này, không sửa code |
+| `Gemini:Model` | `Gemini__Model` | Mặc định `gemini-3.8-flash`. Phải là model **văn bản** (không dùng `-tts`, `-live`, `-image`, `embedding`: hệ thống sẽ báo lỗi cấu hình). Tên model có thể đổi theo Google: kiểm tra danh sách model hiện hành và chỉ sửa khóa này, không sửa code. Lỗi 404 = sai tên model; log ghi rõ lý do Google trả về |
 
 Chạy từ Visual Studio thì đặt bằng `dotnet user-secrets` (xem lệnh mẫu cuối file `.env.example`). Chưa có key thì để `Ai:Provider=Mock`: giao diện vẫn chạy với điểm mẫu có nhãn `[MOCK]`.
 

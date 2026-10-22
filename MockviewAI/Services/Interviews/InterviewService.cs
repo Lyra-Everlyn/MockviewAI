@@ -1,10 +1,11 @@
-﻿using MockviewAI.Models.Ai;
+using MockviewAI.Models.Ai;
 using MockviewAI.Models.DTOs;
 using MockviewAI.Models.Entities;
 using MockviewAI.Models.ViewModels;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Ai;
 using MockviewAI.Services.Ai.Interfaces;
+using MockviewAI.Services.Emails;
 using MockviewAI.Services.Exceptions;
 
 namespace MockviewAI.Services.Interviews
@@ -15,19 +16,37 @@ namespace MockviewAI.Services.Interviews
         private const int MaxAnswerLength = 2000;
         private static readonly int[] AllowedQuestionCounts = { 5, 10 };
 
+        // [#14] Mỗi buổi gọi AI chấm 1 lần -> giới hạn số buổi mới để không bị spam tốn tiền API
+        private const int MaxSessionsPerHour = 10;
+
+        // Mỗi câu được trả lời tối đa 3 lần: 2 lần đầu bị từ chối thì được nói lại, lần thứ 3 vẫn không ổn thì tính là bỏ qua
+        private const int MaxAttemptsPerQuestion = 3;
+
         private readonly IRepository<InterviewSession> _sessionRepository;
         private readonly IUserRepository _userRepository;
         private readonly IInterviewScoringService _scoring;
+        private readonly IAnswerQualityChecker _quality;
+        private readonly IEmailService _email;
+        private readonly ILogger<InterviewService> _logger;
 
-        public InterviewService(IRepository<InterviewSession> sessionRepository, IUserRepository userRepository, IInterviewScoringService scoring)
+        public InterviewService(
+            IRepository<InterviewSession> sessionRepository,
+            IUserRepository userRepository,
+            IInterviewScoringService scoring,
+            IAnswerQualityChecker quality,
+            IEmailService email,
+            ILogger<InterviewService> logger)
         {
             _sessionRepository = sessionRepository;
             _userRepository = userRepository;
             _scoring = scoring;
+            _quality = quality;
+            _email = email;
+            _logger = logger;
         }
 
         #region Start
-        public async Task<int> StartAsync(string email, string positionKey, string interviewerKey, int questionCount, int? anxietyBefore)
+        public async Task<int> StartAsync(string email, string positionKey, string interviewerKey, int questionCount, bool emailResult)
         {
             var user = await GetUserAsync(email);
 
@@ -38,13 +57,19 @@ namespace MockviewAI.Services.Interviews
             if (!AllowedQuestionCounts.Contains(questionCount))
                 throw new InterviewException("Số câu hỏi không hợp lệ.");
 
+            // Đếm theo tài khoản (không theo IP) vì nhiều người test có thể dùng chung wifi
+            var oneHourAgo = DateTime.UtcNow.AddHours(-1);
+            var recentSessions = await _sessionRepository.GetListAsync(s => s.UserId == user.Id && s.StartedAt >= oneHourAgo);
+            if (recentSessions.Count() >= MaxSessionsPerHour)
+                throw new InterviewException($"Bạn đã tạo {MaxSessionsPerHour} buổi luyện trong 1 giờ qua. Hãy nghỉ một chút rồi thử lại nhé.");
+
             var session = new InterviewSession
             {
                 UserId = user.Id,
                 Position = positionName,
                 Interviewer = interviewerKey!,
                 QuestionCount = questionCount,
-                AnxietyBefore = ClampAnxiety(anxietyBefore)
+                EmailResult = emailResult
             };
 
             var questions = QuestionBank.GetQuestions(interviewerKey!, positionName, questionCount);
@@ -61,8 +86,9 @@ namespace MockviewAI.Services.Interviews
         #region Room
         public async Task<InterviewRoomViewModel?> GetRoomAsync(string email, int sessionId)
         {
-            var session = await FindSessionAsync(email, sessionId);
-            if (session == null || session.Status != "InProgress") return null;
+            var user = await GetUserAsync(email);
+            var session = await FindSessionAsync(user, sessionId);
+            if (session == null || session.Status != SessionStatus.InProgress) return null;
 
             var current = session.Answers.OrderBy(a => a.OrderNo).FirstOrDefault(a => a.AnsweredAt == null);
             if (current == null) return null;
@@ -83,13 +109,16 @@ namespace MockviewAI.Services.Interviews
 
         public async Task<SubmitAnswerResultDto> SubmitAnswerAsync(string email, SubmitAnswerDto dto)
         {
-            var session = await FindSessionAsync(email, dto.SessionId);
-            if (session == null || session.Status != "InProgress")
+            var user = await GetUserAsync(email);
+            var session = await FindSessionAsync(user, dto.SessionId);
+            if (session == null || session.Status != SessionStatus.InProgress)
                 throw new InterviewException("Không tìm thấy buổi luyện đang diễn ra.");
 
             var current = session.Answers.OrderBy(a => a.OrderNo).FirstOrDefault(a => a.AnsweredAt == null);
             if (current == null)
                 throw new InterviewException("Bạn đã trả lời hết các câu hỏi.");
+
+            string? notice = null;
 
             if (dto.Skipped)
             {
@@ -103,8 +132,27 @@ namespace MockviewAI.Services.Interviews
                 if (answer.Length > MaxAnswerLength)
                     throw new InterviewException($"Câu trả lời tối đa {MaxAnswerLength} ký tự.");
 
-                current.Answer = answer;
-                current.DurationSeconds = dto.DurationSeconds is > 0 and < 600 ? dto.DurationSeconds : null;
+                // Chặn câu trả lời vớ vẩn: cho nói lại, quá số lần thì tính là bỏ qua (không có điểm)
+                string? problem = _quality.FindProblem(answer);
+                if (problem != null)
+                {
+                    current.Attempts++;
+                    if (current.Attempts < MaxAttemptsPerQuestion)
+                    {
+                        await _sessionRepository.UpdateAsync(session);
+                        int left = MaxAttemptsPerQuestion - current.Attempts;
+                        throw new AnswerRejectedException($"{problem} Bạn còn {left} lần để trả lời lại câu này.");
+                    }
+
+                    current.Skipped = true;
+                    notice = "Câu này được tính là bỏ qua vì câu trả lời chưa phù hợp. Hãy thử câu tiếp theo nhé.";
+                }
+                else
+                {
+                    current.Answer = answer;
+                    current.DurationSeconds = dto.DurationSeconds is > 0 and < 600 ? dto.DurationSeconds : null;
+                    current.LongestPauseSeconds = current.DurationSeconds == null ? null : LongestPause(dto.PausesSeconds);
+                }
             }
             current.AnsweredAt = DateTime.UtcNow;
 
@@ -116,7 +164,8 @@ namespace MockviewAI.Services.Interviews
                 Done = next == null,
                 AnsweredCount = CountAnswered(session),
                 NextNumber = next?.OrderNo,
-                NextQuestion = next?.Question
+                NextQuestion = next?.Question,
+                Notice = notice
             };
         }
         #endregion
@@ -124,12 +173,12 @@ namespace MockviewAI.Services.Interviews
         #region Finish
         public async Task FinishAsync(string email, FinishSessionDto dto)
         {
-            var session = await FindSessionAsync(email, dto.SessionId);
+            var user = await GetUserAsync(email);
+            var session = await FindSessionAsync(user, dto.SessionId);
             if (session == null) throw new InterviewException("Không tìm thấy buổi luyện.");
-            if (session.Status != "InProgress") return;
+            if (session.Status != SessionStatus.InProgress) return;
 
             session.FinishedAt = DateTime.UtcNow;
-            session.AnxietyAfter = ClampAnxiety(dto.AnxietyAfter);
 
             var answered = session.Answers
                 .Where(a => a.AnsweredAt != null && !a.Skipped && !string.IsNullOrEmpty(a.Answer))
@@ -138,7 +187,7 @@ namespace MockviewAI.Services.Interviews
 
             if (answered.Count == 0)
             {
-                session.Status = "Stopped";
+                session.Status = SessionStatus.Stopped;
                 await _sessionRepository.UpdateAsync(session);
                 return;
             }
@@ -146,48 +195,108 @@ namespace MockviewAI.Services.Interviews
             var request = new ScoreRequest
             {
                 Position = session.Position,
+                QuestionCount = session.QuestionCount,
+                SkippedCount = session.Answers.Count(a => a.AnsweredAt != null && a.Skipped),
                 Answers = answered.Select(a => new InterviewAnswer
                 {
                     Question = a.Question,
                     Answer = a.Answer!,
-                    DurationSeconds = a.DurationSeconds
+                    DurationSeconds = a.DurationSeconds,
+                    // Có đo khoảng lặng thì đưa vào chấm điểm; gõ tay thì để trống (không bị trừ điểm)
+                    PausesSeconds = a.LongestPauseSeconds is double pause ? new List<double> { pause } : new List<double>()
                 }).ToList()
             };
 
-            var result = await _scoring.ScoreAsync(request);
+            // AI lỗi (AiScoringException) thì để lỗi nổi lên: buổi vẫn còn InProgress để người dùng bấm "Chấm lại".
+            // Fallback = true: người dùng đồng ý xem kết quả dự phòng (chỉ tính cách nói).
+            var result = dto.Fallback
+                ? _scoring.ScoreDeliveryOnly(request)
+                : await _scoring.ScoreAsync(request);
 
-            session.Status = "Completed";
+            session.Status = SessionStatus.Completed;
             session.TotalScore = result.Total;
-            session.ContentScore = result.Content.Total;
+            session.ContentScore = result.ContentAvailable ? result.Content.Total : null;
             session.DeliveryScore = result.Delivery.Total;
+            session.AnxietyIndicator = result.AnxietyIndicator > 0 ? result.AnxietyIndicator : null;
             session.AiSummary = result.Content.Summary;
             session.Strengths = string.Join("\n", result.Content.Strengths);
             session.Improvements = string.Join("\n", result.Content.Improvements);
             session.DeliveryTips = string.Join("\n", result.Delivery.Tips);
 
             await _sessionRepository.UpdateAsync(session);
+
+            if (session.EmailResult)
+                SendResultEmailInBackground(user, session, result);
+        }
+
+        // Gửi email ở nền: lỗi SMTP chỉ ghi log, không làm hỏng việc xem kết quả của người dùng
+        private void SendResultEmailInBackground(User user, InterviewSession session, InterviewScoreResult result)
+        {
+            string toEmail = user.Email;
+            var model = new ResultEmailModel
+            {
+                FirstName = user.FirstName,
+                Position = session.Position,
+                InterviewerName = QuestionBank.Interviewers[session.Interviewer].Name,
+                StartedAt = session.StartedAt.ToLocalTime(),
+                QuestionCount = session.QuestionCount,
+                TotalScore = result.Total,
+                ContentScore = result.ContentAvailable ? result.Content.Total : null,
+                DeliveryScore = result.Delivery.Total,
+                AnxietyIndicator = result.AnxietyIndicator,
+                AnxietyReasons = result.AnxietyReasons,
+                Summary = result.Content.Summary,
+                Strengths = result.Content.Strengths,
+                Improvements = result.Content.Improvements,
+                DeliveryTips = result.Delivery.Tips
+            };
+
+            string subject = ResultEmailBuilder.BuildSubject(model);
+            string body = ResultEmailBuilder.BuildHtml(model);
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _email.SendEmailAsync(toEmail, subject, body);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Không gửi được email kết quả buổi luyện {SessionId}.", session.Id);
+                }
+            });
         }
         #endregion
 
         #region Result
         public async Task<SessionResultViewModel?> GetResultAsync(string email, int sessionId)
         {
-            var session = await FindSessionAsync(email, sessionId);
-            if (session == null || session.Status == "InProgress") return null;
+            var user = await GetUserAsync(email);
+            var session = await FindSessionAsync(user, sessionId);
+            if (session == null || session.Status == SessionStatus.InProgress) return null;
+
+            // Buổi trước đó (nếu có) để hiện xu hướng dấu hiệu lo lắng
+            var startedAt = session.StartedAt;
+            var previous = await _sessionRepository.GetListAsync(
+                predicate: s => s.UserId == user.Id && s.StartedAt < startedAt && s.AnxietyIndicator != null,
+                orderBy: q => q.OrderByDescending(s => s.StartedAt),
+                take: 1);
 
             return new SessionResultViewModel
             {
                 SessionId = session.Id,
                 Position = session.Position,
                 InterviewerName = QuestionBank.Interviewers[session.Interviewer].Name,
-                StartedAt = session.StartedAt,
+                StartedAt = session.StartedAt.ToLocalTime(),
                 QuestionCount = session.QuestionCount,
                 HasScore = session.TotalScore != null,
+                HasContentScore = session.ContentScore != null,
                 TotalScore = session.TotalScore ?? 0,
                 ContentScore = session.ContentScore ?? 0,
                 DeliveryScore = session.DeliveryScore ?? 0,
-                AnxietyBefore = session.AnxietyBefore ?? 0,
-                AnxietyAfter = session.AnxietyAfter ?? 0,
+                AnxietyIndicator = session.AnxietyIndicator ?? 0,
+                PreviousAnxietyIndicator = previous.FirstOrDefault()?.AnxietyIndicator ?? 0,
+                EmailRequested = session.EmailResult && session.TotalScore != null,
                 AiSummary = session.AiSummary ?? "",
                 Strengths = SplitLines(session.Strengths),
                 Improvements = SplitLines(session.Improvements),
@@ -203,10 +312,8 @@ namespace MockviewAI.Services.Interviews
                    ?? throw new InterviewException("Không tìm thấy tài khoản. Vui lòng đăng nhập lại.");
         }
 
-        private async Task<InterviewSession?> FindSessionAsync(string email, int sessionId)
+        private async Task<InterviewSession?> FindSessionAsync(User user, int sessionId)
         {
-            var user = await GetUserAsync(email);
-
             return await _sessionRepository.GetSingleAsync(
                 predicate: s => s.Id == sessionId && s.UserId == user.Id,
                 includes: s => s.Answers
@@ -216,8 +323,12 @@ namespace MockviewAI.Services.Interviews
         private static int CountAnswered(InterviewSession session) =>
             session.Answers.Count(a => a.AnsweredAt != null && !a.Skipped);
 
-        private static int? ClampAnxiety(int? value) =>
-            value is >= 1 and <= 10 ? value : null;
+        // Lấy khoảng lặng dài nhất; bỏ số vô lý (<= 0 hoặc >= 120 giây) vì dữ liệu đến từ trình duyệt
+        private static double LongestPause(List<double>? pauses)
+        {
+            var valid = (pauses ?? new List<double>()).Where(p => p > 0 && p < 120).ToList();
+            return valid.Count == 0 ? 0 : Math.Round(valid.Max(), 1);
+        }
 
         private static List<string> SplitLines(string? text) =>
             string.IsNullOrWhiteSpace(text)

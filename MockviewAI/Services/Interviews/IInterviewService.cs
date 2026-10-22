@@ -1,4 +1,4 @@
-﻿using MockviewAI.Models.DTOs;
+using MockviewAI.Models.DTOs;
 using MockviewAI.Models.ViewModels;
 
 namespace MockviewAI.Services.Interviews
@@ -7,7 +7,7 @@ namespace MockviewAI.Services.Interviews
     public interface IInterviewService
     {
         // Tạo buổi luyện mới, trả về Id của buổi
-        Task<int> StartAsync(string email, string positionKey, string interviewerKey, int questionCount, int? anxietyBefore);
+        Task<int> StartAsync(string email, string positionKey, string interviewerKey, int questionCount, bool emailResult);
 
         
         // Lấy câu hỏi hiện tại để vẽ phòng phỏng vấn. Trả về null nếu không tìm thấy buổi, hoặc buổi đã kết thúc.

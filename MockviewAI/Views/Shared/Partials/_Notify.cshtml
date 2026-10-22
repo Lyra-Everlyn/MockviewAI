@@ -15,6 +15,7 @@
 <script>
     window.SystemAlerts = {
         success: @Html.Raw(Json.Serialize(TempData["SuccessMessage"])),
+        info: @Html.Raw(Json.Serialize(TempData["InfoMessage"])),
         error: @Html.Raw(Json.Serialize(errorMessage))
     };
 </script>

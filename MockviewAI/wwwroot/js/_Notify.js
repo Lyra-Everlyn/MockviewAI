@@ -15,6 +15,18 @@
             });
         }
 
+        // Thông báo quan trọng cần người dùng đọc (vd "Đã gửi mã tới email"): hiện giữa màn hình, có nút OK
+        const infoMsg = window.SystemAlerts.info;
+        if (infoMsg) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Thông báo',
+                text: infoMsg,
+                confirmButtonText: 'Đã hiểu',
+                confirmButtonColor: '#4361ee'
+            });
+        }
+
         if (errorMsg) {
             Swal.fire({
                 icon: 'error',

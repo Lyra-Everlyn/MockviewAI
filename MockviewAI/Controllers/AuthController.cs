@@ -236,7 +236,7 @@ namespace MockviewAI.Controllers
                 CheckPasswordStrength(password);
                 await _authService.SendRegistrationOtpAsync(email, password, confirmPassword, firstName, lastName);
 
-                TempData["SuccessMessage"] = "Verification code has been sent to your email.";
+                TempData["InfoMessage"] = "A 6-digit verification code has been sent to your email. Please check your inbox (and the Spam folder).";
                 return RedirectToAction("VerifyRegistrationCode", new { email = email.Trim().ToLowerInvariant() });
             }
             catch (Exception ex)
@@ -331,7 +331,7 @@ namespace MockviewAI.Controllers
             try
             {
                 await _authService.RequestPasswordResetAsync(email);
-                TempData["SuccessMessage"] = "If your email is registered, a reset code has been sent.";
+                TempData["InfoMessage"] = "If your email is registered, a 6-digit reset code has been sent. Please check your inbox (and the Spam folder).";
                 return RedirectToAction("VerifyResetCode", new { email = email });
             }
             catch (Exception ex)
@@ -424,7 +424,7 @@ namespace MockviewAI.Controllers
                 CheckPasswordStrength(newPassword);
                 await _authService.ResetPasswordAsync(email, newPassword);
 
-                TempData["SuccessMessage"] = "Your password has been reset successfully. Please login.";
+                TempData["InfoMessage"] = "Your password has been reset successfully. Please log in with your new password.";
                 return RedirectToAction("Login");
             }
             catch (Exception ex)

@@ -6,6 +6,8 @@ namespace MockviewAI.Models.DTOs
     public class FinishSessionDto
     {
         public int SessionId { get; set; }
-        public int? AnxietyAfter { get; set; }
+
+        // true: AI không phản hồi, người dùng chọn xem kết quả dự phòng (chỉ tính cách nói)
+        public bool Fallback { get; set; }
     }
 }
