@@ -38,7 +38,7 @@ namespace MockviewAI
             // PART 1: CONNECTION CONFIGURATION
 
             // --- A. Database
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Database connection string is missing.");
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(
