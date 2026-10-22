@@ -12,7 +12,7 @@ using MockviewAI.Data;
 namespace MockviewAI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261021101119_InitialCreate")]
+    [Migration("20261022085710_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -75,6 +75,9 @@ namespace MockviewAI.Migrations
                     b.Property<int?>("AnxietyBefore")
                         .HasColumnType("int");
 
+                    b.Property<int?>("AnxietyIndicator")
+                        .HasColumnType("int");
+
                     b.Property<int?>("ContentScore")
                         .HasColumnType("int");
 
@@ -83,6 +86,9 @@ namespace MockviewAI.Migrations
 
                     b.Property<string>("DeliveryTips")
                         .HasColumnType("longtext");
+
+                    b.Property<bool>("EmailResult")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime?>("FinishedAt")
                         .HasPrecision(3)
@@ -145,7 +151,13 @@ namespace MockviewAI.Migrations
                         .HasPrecision(3)
                         .HasColumnType("datetime(3)");
 
+                    b.Property<int>("Attempts")
+                        .HasColumnType("int");
+
                     b.Property<double?>("DurationSeconds")
+                        .HasColumnType("double");
+
+                    b.Property<double?>("LongestPauseSeconds")
                         .HasColumnType("double");
 
                     b.Property<int>("OrderNo")

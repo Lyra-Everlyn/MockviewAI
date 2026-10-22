@@ -53,10 +53,11 @@ namespace MockviewAI
             );
 
             // --- B. Redis
-            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection") ?? throw new InvalidOperationException("RedisConnection string is missing.");
+            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection") ?? throw new InvalidOperationException("Redis connection string is missing.");
             var redisOptions = ConfigurationOptions.Parse(redisConnectionString);
 
             redisOptions.AbortOnConnectFail = false;
+
             builder.Services.AddStackExchangeRedisCache(options =>
             {
                 options.ConfigurationOptions = redisOptions;
@@ -89,6 +90,8 @@ namespace MockviewAI
             // Configure the AI ​​Provider based on appsettings ("Mock" or "Gemini")
             builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
             builder.Services.AddSingleton<IDeliveryAnalyzer, DeliveryAnalyzer>();
+            builder.Services.AddSingleton<IAnxietyEstimator, AnxietyEstimator>();
+            builder.Services.AddSingleton<IAnswerQualityChecker, AnswerQualityChecker>();
 
             if (string.Equals(builder.Configuration["Ai:Provider"], "Gemini", StringComparison.OrdinalIgnoreCase))
             {
@@ -142,6 +145,7 @@ namespace MockviewAI
             var cloudinary = new Cloudinary(cloudinaryAccount);
             builder.Services.AddSingleton(cloudinary);
             builder.Services.AddScoped<IFileStorageService, CloudinaryStorageService>();
+
 
 
             // =========================================================================
@@ -207,6 +211,9 @@ namespace MockviewAI
             // =========================================================================
             // PART 5: MIDDLEWARE PIPELINE
 
+            // --- 0. Chốt chặn lỗi toàn app (đặt ĐẦU TIÊN để bắt được mọi lỗi phía sau)
+            app.UseMiddleware<MockviewAI.Middleware.ErrorHandlingMiddleware>();
+
             // --- A. Standard security: Forwarded headers & HTTP security headers
             app.UseAppSecurity();
 
@@ -218,34 +225,21 @@ namespace MockviewAI
                 app.UseHsts();
             }
 
-            // --- B. Auto update database (Migration)
-            // WARNING: Bạn sẽ bị mất toàn bộ dữ liệu database, chỉ thực hiện trên local
+            // --- B. Auto update database
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 dbContext.Database.Migrate();
-
-                //if (app.Environment.IsDevelopment())
-                //{
-                //    // 1. Delete all database data
-                //    dbContext.Database.EnsureDeleted();
-
-                //    // 2. Recreate a new Database
-                //    dbContext.Database.EnsureCreated();
-                //}
-                //else
-                //{
-                //    // Must has Migration on Product
-                //    dbContext.Database.Migrate();
-                //}
             }
 
             //app.UseHttpsRedirection();
 
             app.UseRouting();
 
+
             // --- C. Enable rate limitter (MUST BE PLACED AFTER UseRouting AND BEFORE UseAuth) ---
             app.UseRateLimiter();
+
 
             // --- D. Enforce security workflow: Identity check before permission check
             app.UseAuthentication();

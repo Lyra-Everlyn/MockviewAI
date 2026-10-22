@@ -1,6 +1,7 @@
 @model List<MockviewAI.Models.ViewModels.RecentSessionViewModel>
 @{
     Layout = null;
+    ViewData["ActiveNav"] = "home";   // mục sáng trên thanh menu dùng chung
     // Chữ cái đầu của tên người đang đăng nhập (hiện trên avatar góc phải)
     var userName = User.Identity?.Name ?? "";
     var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
@@ -17,25 +18,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trang chủ - MockviewAI</title>
     <link rel="stylesheet" href="~/css/Index.css">
+    <link rel="stylesheet" href="~/css/theme.css"> <!-- thử giao diện mới (theme.css) -->
 </head>
 <body>
     <!-- THANH ĐIỀU HƯỚNG MÁY TÍNH -->
-    <nav class="desktop-nav hide-on-mobile">
-        <div class="nav-container">
-            <div class="nav-left">
-                <div class="logo">Mockview<span>AI</span></div>
-                <ul class="nav-links">
-                    <li><a href="/Home" class="active">Trang chủ</a></li>
-                    <li><a href="/Interview/Create">Luyện tập</a></li>
-                    <li><a href="/Home/History">Lịch sử</a></li>
-                </ul>
-            </div>
-            <div class="nav-right">
-                <span class="badge badge-v1">BETA</span>
-                <div class="avatar" style="cursor: pointer;" title="Hồ sơ" onclick="location.href='/Profile'">@if (!string.IsNullOrEmpty(avatarUrl)) { <img src="@avatarUrl" alt="" referrerpolicy="no-referrer" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" /> } else { @initial }</div>
-            </div>
-        </div>
-    </nav>
+    <partial name="Partials/_TopNav" />
 
     <!-- NỘI DUNG CHÍNH -->
     <main class="dashboard-layout">

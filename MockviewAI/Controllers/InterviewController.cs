@@ -53,15 +53,15 @@ namespace MockviewAI.Controllers
         /// <param name="position">Vị trí ứng tuyển (vd: frontend, backend).</param>
         /// <param name="interviewer">Tính cách người phỏng vấn (vd: friendly, strict).</param>
         /// <param name="questionCount">Số lượng câu hỏi (vd: 5, 10).</param>
-        /// <param name="anxietyBefore">Mức độ lo lắng trước phỏng vấn (1-10).</param>
+        /// <param name="emailResult">Người dùng đồng ý nhận kết quả qua email (tick ở form).</param>
         /// <returns>Chuyển hướng người dùng vào thẳng phòng phỏng vấn (Interview Room).</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Start(string position, string interviewer, int questionCount, int? anxietyBefore)
+        public async Task<IActionResult> Start(string position, string interviewer, int questionCount, bool emailResult)
         {
             try
             {
-                int sessionId = await _interviewService.StartAsync(CurrentEmail, position, interviewer, questionCount, anxietyBefore);
+                int sessionId = await _interviewService.StartAsync(CurrentEmail, position, interviewer, questionCount, emailResult);
                 return RedirectToAction("Room", new { id = sessionId });
             }
             catch (Exception ex)
@@ -90,6 +90,22 @@ namespace MockviewAI.Controllers
                 {
                     // Tự động gọi hàm chấm điểm và chốt sổ buổi phỏng vấn
                     await _interviewService.FinishAsync(CurrentEmail, new FinishSessionDto { SessionId = id });
+                }
+                catch (AiScoringException ex)
+                {
+                    // AI lỗi khi mở lại buổi đã trả lời xong: không để buổi kẹt mãi ở "đang làm".
+                    // Chấm dự phòng (chỉ tính cách nói) rồi mở trang Kết quả, kèm lý do để người dùng biết.
+                    try
+                    {
+                        await _interviewService.FinishAsync(CurrentEmail, new FinishSessionDto { SessionId = id, Fallback = true });
+                        TempData["InfoMessage"] = ex.Message + " Kết quả dưới đây chỉ tính phần cách nói.";
+                        return RedirectToAction("Result", new { id });
+                    }
+                    catch (Exception inner)
+                    {
+                        TempData["ErrorMessage"] = SafeMessage(inner);
+                        return RedirectToAction("History", "Home");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -120,6 +136,11 @@ namespace MockviewAI.Controllers
                 var result = await _interviewService.SubmitAnswerAsync(CurrentEmail, dto);
                 return Json(result);
             }
+            catch (AnswerRejectedException ex)
+            {
+                // retry = true: trình duyệt xoá câu trả lời cũ để người dùng nói lại
+                return BadRequest(new { message = ex.Message, retry = true });
+            }
             catch (Exception ex)
             {
                 return BadRequest(new { message = SafeMessage(ex) });
@@ -141,6 +162,11 @@ namespace MockviewAI.Controllers
                 await _interviewService.FinishAsync(CurrentEmail, dto);
                 return Json(new { redirectUrl = Url.Action("Result", new { id = dto.SessionId }) });
             }
+            catch (AiScoringException ex)
+            {
+                // configError = true: lỗi cấu hình (sai model/key), bấm "Chấm lại" vô ích -> giao diện mở ngay nút dự phòng
+                return BadRequest(new { message = ex.Message, configError = ex.IsConfigurationError });
+            }
             catch (Exception ex)
             {
                 return BadRequest(new { message = SafeMessage(ex) });
@@ -159,7 +185,11 @@ namespace MockviewAI.Controllers
             var result = await _interviewService.GetResultAsync(CurrentEmail, id);
 
             // Nếu buổi phỏng vấn không tồn tại hoặc vẫn đang trong trạng thái InProgress (chưa nộp bài)
-            if (result == null) return NotFound();
+            if (result == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy kết quả của buổi luyện này.";
+                return RedirectToAction("History", "Home");
+            }
 
             return View(result);
         }

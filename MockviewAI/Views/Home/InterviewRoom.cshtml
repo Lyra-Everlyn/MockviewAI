@@ -1,4 +1,4 @@
-﻿@model MockviewAI.Models.ViewModels.InterviewRoomViewModel
+@model MockviewAI.Models.ViewModels.InterviewRoomViewModel
 @{
     Layout = null; 
 }
@@ -60,28 +60,43 @@
                         </svg>
                     </div>
                     <div class="interviewer-name">@Model.InterviewerName &middot; @Model.InterviewerRole</div>
-                    <div class="status-tag">Đang hỏi...</div>
+                    <div class="status-tag" id="status-tag">Đang hỏi...</div>
                 </div>
 
                 <!-- Khu vực Câu hỏi -->
                 <div class="question-box">
-                    <div class="box-label">Câu hỏi</div>
+                    <div class="box-label-row">
+                        <div class="box-label">Câu hỏi</div>
+                        <!-- [#17] Đọc lại câu hỏi bằng giọng nói -->
+                        <button class="btn-replay" id="btn-replay" type="button" title="Nghe lại câu hỏi">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+                            Nghe lại
+                        </button>
+                    </div>
                     <div class="question-text" id="question-text">@Model.QuestionText</div>
+                    <p class="voice-note" id="voice-note" hidden>Máy chưa có giọng đọc tiếng Việt. Bạn vẫn đọc câu hỏi ở trên và trả lời bình thường.</p>
                 </div>
 
                 <!-- Khu vực Bản ghi câu trả lời -->
                 <div class="transcript-box">
                     <div class="box-label">Bản ghi chữ câu trả lời của bạn</div>
                     <div class="transcript-text" id="transcript-text">Câu trả lời của bạn sẽ hiện ở đây.</div>
+                    <div class="transcript-meta" id="transcript-meta" hidden></div>
                     <textarea class="answer-input" id="answer-input" rows="4" maxlength="2000" hidden
                               placeholder="Gõ câu trả lời của bạn..."></textarea>
                 </div>
+
+                <!-- Xác nhận câu trả lời vừa gửi: để người dùng biết hệ thống đã nhận -->
+                <div class="last-answer" id="last-answer" hidden></div>
             </div>
 
             <!-- CỘT PHẢI: Bảng điều khiển -->
             <div class="control-pane">
                 <h3 class="control-title hide-on-mobile">Điều khiển</h3>
                 
+                <!-- Sóng âm đo trực tiếp từ micro: thấy sóng động = hệ thống đang nghe thấy bạn -->
+                <div class="wave wave-room" id="room-wave" aria-hidden="true" hidden></div>
+
                 <button class="btn btn-primary" id="btn-speak" type="button">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
                     Bấm để nói
@@ -103,6 +118,10 @@
                 <button class="btn btn-primary" id="btn-send" type="button" hidden>Gửi câu trả lời</button>
                 <p class="helper-text" id="room-message" hidden></p>
 
+                <!-- Hiện khi AI chấm lỗi -->
+                <button class="btn btn-primary" id="btn-retry-score" type="button" hidden>Chấm lại</button>
+                <button class="btn btn-outline" id="btn-fallback-score" type="button" hidden>Xem kết quả dự phòng (chỉ tính cách nói)</button>
+
                 <button class="btn btn-danger" id="btn-stop-session" type="button">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12" rx="2" ry="2"></rect></svg>
                     Dừng buổi luyện
@@ -121,19 +140,29 @@
             </div>
             <h2 class="modal-title">Dừng buổi luyện?</h2>
             <p class="modal-desc">Bạn đã trả lời <span id="answered-count">@Model.AnsweredCount</span> / @Model.TotalQuestions câu. Các câu đã trả lời vẫn được chấm điểm và lưu vào lịch sử.</p>
-            
-            <!-- Ô nhập mức độ lo lắng sau buổi luyện -->
-            <div style="margin: 14px 0; text-align: left;">
-                <label for="anxiety-after" style="display:block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: #334155;">
-                    Sau khi luyện, mức lo lắng của bạn là bao nhiêu? (1–10)
-                </label>
-                <input type="number" id="anxiety-after" min="1" max="10" value="4"
-                       style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem;" />
-            </div>
-
             <div class="modal-actions">
                 <button class="btn btn-outline" id="btn-resume">Tiếp tục phỏng vấn</button>
                 <button class="btn btn-danger-fill" id="btn-finish" type="button">Dừng và xem kết quả</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- [#18] HỘP THOẠI: Kiểm tra micro trước khi bắt đầu (chỉ hiện khi chưa trả lời câu nào) -->
+    <div class="modal-overlay" id="mic-check" style="display: @(Model.AnsweredCount == 0 ? "flex" : "none");">
+        <div class="modal-box">
+            <div class="modal-icon mic-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+            </div>
+            <h2 class="modal-title">Kiểm tra micro</h2>
+            <p class="modal-desc">Bấm nút bên dưới rồi nói thử: <strong>"Xin chào, tôi sẵn sàng phỏng vấn"</strong>.</p>
+            <p class="browser-warning" id="browser-warning" hidden></p>
+            <div class="wave" id="mic-wave" aria-hidden="true"></div>
+            <div class="mic-test-box" id="mic-test-text">Chữ bạn nói sẽ hiện ở đây.</div>
+            <p class="mic-test-status" id="mic-test-status"></p>
+            <button class="btn btn-outline" id="btn-mic-test" type="button">Bấm để nói thử</button>
+            <div class="modal-actions">
+                <button class="btn btn-outline" id="btn-mic-skip" type="button">Bỏ qua, tôi sẽ gõ chữ</button>
+                <button class="btn btn-primary" id="btn-mic-ok" type="button">Vào phỏng vấn</button>
             </div>
         </div>
     </div>

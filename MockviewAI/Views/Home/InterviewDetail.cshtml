@@ -1,6 +1,7 @@
 @model MockviewAI.Models.ViewModels.InterviewDetailViewModel
 @{
     Layout = null;
+    ViewData["ActiveNav"] = "history";   // mục sáng trên thanh menu dùng chung
     var m = Model;
     var userName = User.Identity?.Name ?? "";
     var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
@@ -15,26 +16,12 @@
     <title>Chi tiết buổi hội thoại - MockviewAI</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/InterviewDetail.css">
+    <link rel="stylesheet" href="~/css/theme.css"> <!-- giao diện chung: nạp SAU CSS của trang -->
 </head>
 <body>
 
     <!-- Header Desktop -->
-    <header class="desktop-header">
-        <div class="header-content">
-            <div class="logo-nav">
-                <div class="logo">Mockview<span>AI</span></div>
-                <nav class="nav-links">
-                    <a href="/Home">Trang chủ</a>
-                    <a href="/Interview/Create">Luyện tập</a>
-                    <a href="/Home/History" class="active">Lịch sử</a>
-                </nav>
-            </div>
-            <div class="header-actions">
-                <span class="badge-beta">Bản thử V1</span>
-                <div class="profile-icon" style="cursor: pointer;" title="Hồ sơ" onclick="location.href='/Profile'">@if (!string.IsNullOrEmpty(avatarUrl)) { <img src="@avatarUrl" alt="" referrerpolicy="no-referrer" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" /> } else { @initial }</div>
-            </div>
-        </div>
-    </header>
+    <partial name="Partials/_TopNav" />
 
     <!-- Main Content -->
     <main class="main-container">
@@ -56,7 +43,7 @@
             <!-- Thẻ điểm tóm tắt (Chỉ hiện trên Mobile) -->
             <div class="mobile-badges hide-on-desktop">
                 <span class="badge badge-blue">@(m.HasScore ? m.TotalScore + " điểm" : "Chưa có điểm")</span>
-                <span class="badge badge-green">Lo lắng @m.AnxietyBefore &rarr; @m.AnxietyAfter</span>
+                @if (m.AnxietyIndicator > 0) { <span class="badge badge-green">Dấu hiệu lo lắng @m.AnxietyIndicator/10</span> }
             </div>
         </div>
 
@@ -109,9 +96,9 @@
                     </div>
                     <div class="score-number">@(m.HasScore ? m.TotalScore.ToString() : "—")</div>
                     <div class="score-tags">
-                        <span class="badge badge-blue">Nội dung @m.ContentScore</span>
+                        <span class="badge badge-blue">Nội dung @(m.HasContentScore ? m.ContentScore.ToString() : "—")</span>
                         <span class="badge badge-blue">Cách nói @m.DeliveryScore</span>
-                        <span class="badge badge-green">Lo lắng @m.AnxietyBefore &rarr; @m.AnxietyAfter</span>
+                        @if (m.AnxietyIndicator > 0) { <span class="badge badge-green">Dấu hiệu lo lắng @m.AnxietyIndicator/10</span> }
                     </div>
                 </div>
 

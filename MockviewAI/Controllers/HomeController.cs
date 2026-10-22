@@ -53,7 +53,11 @@ namespace MockviewAI.Controllers
         public async Task<IActionResult> InterviewDetail(int id)
         {
             var detail = await _history.GetDetailAsync(CurrentEmail, id);
-            if (detail == null) return NotFound();
+            if (detail == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy buổi luyện.";
+                return RedirectToAction("History");
+            }
             return View(detail);
         }
 

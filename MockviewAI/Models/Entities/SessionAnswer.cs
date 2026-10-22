@@ -27,7 +27,13 @@ namespace MockviewAI.Models.Entities
         // Thời gian nói (giây). Null nếu gõ tay.
         public double? DurationSeconds { get; set; }
 
+        // Khoảng lặng dài nhất khi nói (giây). Null nếu gõ tay. Dùng để chấm điểm "khoảng lặng".
+        public double? LongestPauseSeconds { get; set; }
+
         public bool Skipped { get; set; }
+
+        // Số lần câu trả lời bị từ chối vì quá ngắn / lạc đề / vô nghĩa (tối đa 2 lần, lần 3 tính là bỏ qua)
+        public int Attempts { get; set; }
 
         // Null = chưa trả lời, cũng chưa bỏ qua
         [Precision(3)]

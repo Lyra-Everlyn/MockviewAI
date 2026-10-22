@@ -1,0 +1,287 @@
+/* =========================================================
+   MockviewAI — theme.css (bản thử "thay da")
+   1 file dùng chung cho mọi trang. Nạp SAU file CSS của trang.
+   Không đổi HTML, chỉ đổi màu / nền / bóng / chuyển động.
+   ========================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+
+/* ---------- 1. BIẾN DÙNG CHUNG (design tokens) ---------- */
+:root {
+    --mv-font: 'Be Vietnam Pro', 'Inter', system-ui, sans-serif;
+
+    /* Màu chính: chàm -> tím (bình tĩnh, tin cậy) */
+    --mv-primary: #4f46e5;
+    --mv-primary-2: #7c3aed;
+    --mv-accent: #06b6d4;            /* xanh ngọc: điểm nhấn nhỏ */
+    --mv-grad: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #a855f7 100%);
+
+    --mv-text: #0f172a;
+    --mv-muted: #64748b;
+    --mv-bg: #f7f7fb;
+
+    /* Thẻ kính mờ */
+    --mv-glass: rgba(255, 255, 255, 0.72);
+    --mv-glass-border: rgba(255, 255, 255, 0.9);
+    --mv-line: rgba(15, 23, 42, 0.07);
+
+    --mv-radius: 22px;
+    --mv-radius-sm: 14px;
+    --mv-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 8px 24px -8px rgba(79, 70, 229, .18);
+    --mv-shadow-lg: 0 2px 4px rgba(15, 23, 42, .04), 0 24px 48px -16px rgba(79, 70, 229, .35);
+
+    --mv-green: #059669;
+    --mv-green-soft: #ecfdf5;
+    --mv-amber: #b45309;
+    --mv-amber-soft: #fffbeb;
+
+    --mv-ease: cubic-bezier(.2, .8, .2, 1);
+}
+
+/* ---------- 2. NỀN: quầng sáng mờ phía sau ---------- */
+body {
+    font-family: var(--mv-font) !important;
+    color: var(--mv-text);
+    background-color: var(--mv-bg) !important;
+    background-image:
+        radial-gradient(900px 500px at 8% -10%, rgba(124, 58, 237, .16), transparent 60%),
+        radial-gradient(700px 420px at 100% 0%, rgba(6, 182, 212, .14), transparent 60%),
+        radial-gradient(800px 600px at 50% 110%, rgba(79, 70, 229, .10), transparent 60%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+}
+* { font-family: inherit; }
+
+/* ---------- 3. THANH ĐIỀU HƯỚNG: kính mờ, dính trên cùng ---------- */
+.desktop-nav, .desktop-header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255, 255, 255, .65) !important;
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: none !important;
+    border-bottom: 1px solid var(--mv-line) !important;
+    box-shadow: none !important;
+}
+.logo { letter-spacing: -.02em; }
+.logo span {
+    background: var(--mv-grad);
+    -webkit-background-clip: text; background-clip: text; color: transparent !important;
+}
+.nav-links a { color: var(--mv-muted) !important; position: relative; transition: color .2s; }
+.nav-links a:hover { color: var(--mv-text) !important; }
+.nav-links a.active { color: var(--mv-primary) !important; }
+.nav-links a.active::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px;
+    border-radius: 2px; background: var(--mv-grad);
+}
+.avatar, .profile-icon {
+    background: var(--mv-grad) !important;
+    box-shadow: 0 0 0 3px #fff, 0 0 0 4px rgba(79, 70, 229, .25);
+}
+.badge-v1, .badge-beta {
+    background: rgba(255, 255, 255, .8) !important; color: var(--mv-primary-2) !important;
+    border: 1px solid rgba(124, 58, 237, .25);
+}
+
+
+/* ---------- 3b. THANH ĐIỀU HƯỚNG DÙNG CHUNG (Partials/_TopNav.cshtml) ----------
+   Tên class riêng "mv-" để CSS của từng trang không làm lệch thanh menu. */
+.mv-topnav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255, 255, 255, .65);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border-bottom: 1px solid var(--mv-line);
+    padding: 16px 0;
+}
+.mv-topnav *, .mv-topnav *::before, .mv-topnav *::after { box-sizing: border-box; }
+.mv-topnav-inner {
+    max-width: 1040px; margin: 0 auto; padding: 0 24px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.mv-topnav-left, .mv-topnav-right { display: flex; align-items: center; }
+.mv-topnav-left { gap: 40px; }
+.mv-topnav-right { gap: 16px; }
+.mv-logo {
+    font-size: 20px; font-weight: 800; letter-spacing: -.02em;
+    color: var(--mv-text); text-decoration: none;
+}
+.mv-logo span {
+    background: var(--mv-grad);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.mv-topnav-links { display: flex; gap: 24px; list-style: none; margin: 0; padding: 0; }
+.mv-topnav-links li { margin: 0; padding: 0; }
+.mv-topnav-links a {
+    position: relative; display: inline-block;
+    color: var(--mv-muted); font-size: 14px; font-weight: 500; text-decoration: none;
+    transition: color .2s;
+}
+.mv-topnav-links a:hover { color: var(--mv-text); }
+.mv-topnav-links a.active { color: var(--mv-primary); font-weight: 600; }
+.mv-topnav-links a.active::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px;
+    border-radius: 2px; background: var(--mv-grad);
+}
+.mv-badge-beta {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: .02em;
+    background: rgba(255, 255, 255, .8); color: var(--mv-primary-2);
+    border: 1px solid rgba(124, 58, 237, .25);
+}
+.mv-avatar {
+    width: 34px; height: 34px; border-radius: 50%; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--mv-grad); color: #fff; font-size: 14px; font-weight: 600; text-decoration: none;
+    box-shadow: 0 0 0 3px #fff, 0 0 0 4px rgba(79, 70, 229, .25);
+}
+.mv-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+@media (max-width: 768px) {
+    .mv-topnav { display: none; }   /* điện thoại dùng thanh menu dưới đáy của từng trang */
+}
+
+/* ---------- 4. THẺ KÍNH MỜ ---------- */
+.session-card, .item-tip, .card {
+    background: var(--mv-glass) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--mv-glass-border) !important;
+    border-radius: var(--mv-radius) !important;
+    box-shadow: var(--mv-shadow) !important;
+    transition: transform .35s var(--mv-ease), box-shadow .35s var(--mv-ease);
+}
+.session-card:hover { transform: translateY(-4px); box-shadow: var(--mv-shadow-lg) !important; }
+
+/* ---------- 5. TRANG CHỦ ---------- */
+.greeting-sub { color: var(--mv-primary) !important; font-weight: 600; letter-spacing: .02em; }
+.greeting-main { font-size: 34px !important; font-weight: 800 !important; letter-spacing: -.03em; }
+
+/* Khối CTA: gradient sâu + quầng sáng chuyển động chậm */
+.item-cta {
+    position: relative; overflow: hidden; isolation: isolate;
+    background: var(--mv-grad) !important;
+    border-radius: 28px !important;
+    padding: 36px !important;
+    box-shadow: 0 30px 60px -20px rgba(79, 70, 229, .55) !important;
+}
+.item-cta::before, .item-cta::after {
+    content: ""; position: absolute; z-index: -1; border-radius: 50%; filter: blur(40px);
+}
+.item-cta::before {
+    width: 320px; height: 320px; right: -80px; top: -120px;
+    background: rgba(6, 182, 212, .55);
+    animation: mv-float 9s ease-in-out infinite;
+}
+.item-cta::after {
+    width: 260px; height: 260px; left: -60px; bottom: -140px;
+    background: rgba(236, 72, 153, .35);
+    animation: mv-float 11s ease-in-out infinite reverse;
+}
+.item-cta h2 { font-size: 30px !important; font-weight: 800; letter-spacing: -.02em; }
+.item-cta p { color: rgba(255, 255, 255, .85) !important; }
+
+/* Nút chính: trắng, có ánh sáng lướt qua */
+.btn-create {
+    position: relative; overflow: hidden;
+    color: var(--mv-primary) !important;
+    padding: 14px 26px !important;
+    box-shadow: 0 10px 24px -8px rgba(15, 23, 42, .35);
+    transition: transform .25s var(--mv-ease), box-shadow .25s;
+}
+.btn-create:hover { transform: translateY(-2px) scale(1.02); }
+.btn-create::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(110deg, transparent 30%, rgba(124, 58, 237, .18) 50%, transparent 70%);
+    transform: translateX(-100%);
+    animation: mv-shine 3.2s var(--mv-ease) infinite 1.2s;
+}
+
+.item-beta {
+    background: linear-gradient(135deg, #fff7ed, #fffbeb) !important;
+    border: 1px solid rgba(251, 146, 60, .25) !important;
+    border-radius: var(--mv-radius) !important;
+    box-shadow: var(--mv-shadow);
+    transition: transform .3s var(--mv-ease);
+}
+.item-beta:hover { transform: translateY(-3px); }
+.item-tip h3::before { content: "💡 "; }
+
+.item-recent-header h3 { font-size: 18px !important; letter-spacing: -.01em; }
+.link-primary, .link-help { color: var(--mv-primary) !important; }
+.tag { border-radius: 999px !important; padding: 5px 12px !important; }
+.tag-blue { background: rgba(79, 70, 229, .08) !important; color: var(--mv-primary) !important; }
+.tag-green { background: var(--mv-green-soft) !important; color: var(--mv-green) !important; }
+
+/* ---------- 6. TRANG KẾT QUẢ ---------- */
+.page-title-section h1 { font-size: 38px !important; font-weight: 800 !important; letter-spacing: -.03em; }
+.score-number {
+    font-size: 84px !important;
+    background: var(--mv-grad);
+    -webkit-background-clip: text; background-clip: text; color: transparent !important;
+    letter-spacing: -.04em;
+}
+.badge-reference {
+    background: var(--mv-amber-soft) !important; color: var(--mv-amber) !important;
+    border: 1px solid rgba(180, 83, 9, .15);
+}
+.progress-bar { background: rgba(15, 23, 42, .06) !important; height: 12px !important; }
+.progress-fill {
+    background: var(--mv-grad) !important;
+    transform-origin: left;
+    animation: mv-grow 1.1s var(--mv-ease) both .4s;
+}
+.metric-item + .metric-item .progress-fill {
+    background: linear-gradient(90deg, #06b6d4, #4f46e5) !important;
+    animation-delay: .55s;
+}
+.anxiety-card {
+    background: linear-gradient(135deg, #ecfdf5 0%, #f0fdfa 100%) !important;
+    border: 1px solid rgba(5, 150, 105, .18) !important;
+    border-radius: var(--mv-radius) !important;
+    box-shadow: 0 12px 30px -14px rgba(5, 150, 105, .35);
+}
+.anxiety-values { font-size: 28px !important; }
+.badge-reduced { box-shadow: 0 0 0 4px rgba(5, 150, 105, .08); }
+.btn { border-radius: var(--mv-radius-sm) !important; transition: transform .25s var(--mv-ease), box-shadow .25s !important; }
+.btn:hover { transform: translateY(-2px); }
+.btn-primary {
+    background: var(--mv-grad) !important;
+    box-shadow: 0 14px 28px -12px rgba(79, 70, 229, .6);
+}
+.btn-outline {
+    background: rgba(255, 255, 255, .7) !important;
+    border: 1px solid rgba(79, 70, 229, .3) !important; color: var(--mv-primary) !important;
+}
+.btn-feedback { background: var(--mv-amber-soft) !important; color: var(--mv-amber) !important; }
+
+/* ---------- 7. ĐIỆN THOẠI ---------- */
+.mobile-nav {
+    background: rgba(255, 255, 255, .8) !important;
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--mv-line) !important;
+}
+.nav-item.active { color: var(--mv-primary) !important; }
+@media (max-width: 768px) {
+    .greeting-main { font-size: 26px !important; }
+    .item-cta { padding: 26px !important; }
+    .item-cta h2 { font-size: 24px !important; }
+    .score-number { font-size: 68px !important; }
+}
+
+/* ---------- 8. CHUYỂN ĐỘNG KHI MỞ TRANG (xuất hiện lần lượt) ---------- */
+.dashboard-layout > *, .page-title-section, .result-grid > *, .actions-column > * {
+    animation: mv-rise .7s var(--mv-ease) backwards;
+}
+.dashboard-layout > :nth-child(2), .result-grid > :nth-child(1) { animation-delay: .08s; }
+.dashboard-layout > :nth-child(3), .result-grid > :nth-child(2) { animation-delay: .16s; }
+.dashboard-layout > :nth-child(4) { animation-delay: .24s; }
+.dashboard-layout > :nth-child(5) { animation-delay: .30s; }
+.dashboard-layout > :nth-child(6) { animation-delay: .36s; }
+
+@keyframes mv-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes mv-float { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-30px, 25px); } }
+@keyframes mv-shine { 0% { transform: translateX(-100%); } 60%, 100% { transform: translateX(100%); } }
+@keyframes mv-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Tôn trọng người dùng bật "giảm chuyển động" (Accessibility) */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+}

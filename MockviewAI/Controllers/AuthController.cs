@@ -38,52 +38,52 @@ namespace MockviewAI.Controllers
 
         // 2. Handle the login form submission
         [HttpPost]
+        [Route("Auth/Login")]
         [ValidateAntiForgeryToken]
         [EnableRateLimiting("LoginRateLimit")]
         public async Task<IActionResult> Login(string email, string password, [FromForm(Name = "cf-turnstile-response")] string turnstileToken)
         {
-            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            bool isHuman = await _turnstileService.VerifyAsync(turnstileToken, ipAddress);
-
-            if (!isHuman)
-            {
-                ModelState.AddModelError(string.Empty, "Security verification failed. Please try again.");
-                return View();
-            }
-
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
-            {
-                ModelState.AddModelError(string.Empty, "Please enter email and password.");
-                return View();
-            }
-
-            var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
-            var emailThrottleKey = LoginThrottleService.BuildEmailKey(email);
-
-            var (isLocked, wait) = await _throttleService.IsLockedOutAsync(throttleKey, emailThrottleKey);
-            if (isLocked)
-            {
-                var minutes = (int)Math.Ceiling(wait.TotalMinutes);
-                ModelState.AddModelError(string.Empty, $"Too many failed attempts. Please try again in {minutes} minute(s).");
-                return View();
-            }
-
             try
             {
+                string ipAddressString = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                bool isHuman = await _turnstileService.VerifyAsync(turnstileToken, ipAddressString);
+                if (!isHuman)
+                {
+                    ViewData["ErrorMessage"] = "Xác thực bảo mật thất bại (Captcha không hợp lệ).";
+                    return View();
+                }
+
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+                {
+                    ViewData["ErrorMessage"] = "Vui lòng nhập đầy đủ Email và Mật khẩu.";
+                    return View();
+                }
+
+                var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
+                var emailThrottleKey = LoginThrottleService.BuildEmailKey(email);
+
+                var (isLocked, wait) = await _throttleService.IsLockedOutAsync(throttleKey, emailThrottleKey);
+                if (isLocked)
+                {
+                    var minutes = (int)Math.Ceiling(wait.TotalMinutes);
+                    ViewData["ErrorMessage"] = $"Đăng nhập sai quá nhiều. Vui lòng thử lại sau {minutes} phút.";
+                    return View();
+                }
+
                 var user = await _authService.AuthenticateAsync(email, password);
 
                 await _throttleService.ResetAsync(throttleKey, emailThrottleKey);
-
                 await SignInUser(user!.Email, $"{user.FirstName} {user.LastName}".Trim(), user.Role, user.AvatarUrl);
+
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)
             {
-                await _throttleService.RegisterFailureAsync(throttleKey, emailThrottleKey);
-                ModelState.AddModelError(string.Empty, ex.Message);
+                ViewData["ErrorMessage"] = ex.Message;
                 return View();
             }
         }
+
 
         // b. Google login method
         [HttpGet]
@@ -236,7 +236,7 @@ namespace MockviewAI.Controllers
                 CheckPasswordStrength(password);
                 await _authService.SendRegistrationOtpAsync(email, password, confirmPassword, firstName, lastName);
 
-                TempData["SuccessMessage"] = "Verification code has been sent to your email.";
+                TempData["InfoMessage"] = "A 6-digit verification code has been sent to your email. Please check your inbox (and the Spam folder).";
                 return RedirectToAction("VerifyRegistrationCode", new { email = email.Trim().ToLowerInvariant() });
             }
             catch (Exception ex)
@@ -331,7 +331,7 @@ namespace MockviewAI.Controllers
             try
             {
                 await _authService.RequestPasswordResetAsync(email);
-                TempData["SuccessMessage"] = "If your email is registered, a reset code has been sent.";
+                TempData["InfoMessage"] = "If your email is registered, a 6-digit reset code has been sent. Please check your inbox (and the Spam folder).";
                 return RedirectToAction("VerifyResetCode", new { email = email });
             }
             catch (Exception ex)
@@ -424,7 +424,7 @@ namespace MockviewAI.Controllers
                 CheckPasswordStrength(newPassword);
                 await _authService.ResetPasswordAsync(email, newPassword);
 
-                TempData["SuccessMessage"] = "Your password has been reset successfully. Please login.";
+                TempData["InfoMessage"] = "Your password has been reset successfully. Please log in with your new password.";
                 return RedirectToAction("Login");
             }
             catch (Exception ex)

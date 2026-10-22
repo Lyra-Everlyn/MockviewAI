@@ -8,7 +8,7 @@ namespace MockviewAI.Services.Ai
     public class GeminiOptions
     {
         public string ApiKey { get; set; } = string.Empty;
-        public string Model { get; set; } = "gemini-2.5-flash";
+        public string Model { get; set; } = "gemini-3.8-flash";   // model VĂN BẢN; không dùng bản -tts/-live/-image
         public int MaxTokens { get; set; } = 2048;
     }
 }

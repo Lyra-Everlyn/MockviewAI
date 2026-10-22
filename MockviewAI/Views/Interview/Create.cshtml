@@ -1,41 +1,29 @@
 @{
     Layout = null;
+    ViewData["ActiveNav"] = "practice";   // mục sáng trên thanh menu dùng chung
+    // Chữ cái đầu của tên người đang đăng nhập (avatar góc phải)
     var userName = User.Identity?.Name ?? "";
     var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
+    // Ảnh Google của tài khoản (nếu có), không có thì hiện chữ cái đầu
     var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
 }
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tạo buổi luyện - MockviewAI</title>
+    <!-- Import font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Import FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/CreateSession.css">
+    <link rel="stylesheet" href="~/css/theme.css"> <!-- giao diện chung: nạp SAU CSS của trang -->
 </head>
 <body>
 
     <!-- Header Desktop -->
-    <header class="desktop-header">
-        <div class="header-content">
-            <div class="logo-nav">
-                <div class="logo">Mockview<span>AI</span></div>
-                <nav class="nav-links">
-                    <a href="/Home">Trang chủ</a>
-                    <a href="/Interview/Create" class="active">Luyện tập</a>
-                    <a href="/Home/History">Lịch sử</a>
-                </nav>
-            </div>
-            <div class="header-actions">
-                <span class="badge-beta">Bản thử V1</span>
-                <div class="profile-icon" style="cursor: pointer;" title="Hồ sơ" onclick="location.href='/Profile'">
-                    @if (!string.IsNullOrEmpty(avatarUrl)) { <img src="@avatarUrl" alt="" referrerpolicy="no-referrer" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" /> } else { @initial }
-                </div>
-            </div>
-        </div>
-    </header>
+    <partial name="Partials/_TopNav" />
 
     <!-- Header Mobile -->
     <header class="mobile-header">
@@ -73,24 +61,22 @@
                                 <option value="10">10 câu</option>
                             </select>
                         </div>
+                        <!-- Email kết quả: CHỈ gửi khi người dùng tick đồng ý -->
                         <div class="form-group half">
-                            <label>Ngôn ngữ</label>
-                            <select name="language">
-                                <option value="vi">Tiếng Việt</option>
-                                <option value="en">Tiếng Anh</option>
-                            </select>
+                            <label>Nhận kết quả qua email</label>
+                            <label style="display:flex;gap:8px;align-items:flex-start;font-weight:500;cursor:pointer;line-height:1.4;margin-top:6px">
+                                <input type="checkbox" name="emailResult" value="true" style="margin-top:3px;width:auto">
+                                <span>Gửi kết quả về email tài khoản của tôi sau buổi luyện</span>
+                            </label>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Mức độ lo lắng hiện tại (1 = Rất thoải mái, 10 = Rất căng thẳng)</label>
-                        <input type="number" name="anxietyBefore" min="1" max="10" value="5" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;" />
-                    </div>
-
+                    @* [#22] Tạm ẩn: server chưa dùng "Mô tả công việc" nên không hứa "AI hỏi sát hơn". Bật lại khi làm tính năng #25.
                     <div class="form-group">
                         <label>Mô tả công việc (không bắt buộc)</label>
-                        <textarea name="description" rows="3" placeholder="Dán mô tả công việc để AI hỏi sát hơn..."></textarea>
+                        <textarea name="description" rows="4" placeholder="Dán mô tả công việc để AI hỏi sát hơn..."></textarea>
                     </div>
+                    *@
                 </div>
 
                 <!-- Cột phải (Desktop) / Phần 1 (Mobile) -->

@@ -15,6 +15,17 @@
             });
         }
 
+        const infoMsg = window.SystemAlerts.info;
+        if (infoMsg) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Notify',
+                text: infoMsg,
+                confirmButtonText: 'Ok',
+                confirmButtonColor: '#4361ee'
+            });
+        }
+
         if (errorMsg) {
             Swal.fire({
                 icon: 'error',

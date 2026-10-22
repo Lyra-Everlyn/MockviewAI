@@ -1,4 +1,4 @@
-﻿using MockviewAI.Models.Entities;
+using MockviewAI.Models.Entities;
 using MockviewAI.Models.ViewModels;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Ai;
@@ -43,11 +43,11 @@ namespace MockviewAI.Services.SessionHistory
                 StartedAt = session.StartedAt.ToLocalTime(),
                 QuestionCount = session.QuestionCount,
                 HasScore = session.TotalScore != null,
+                HasContentScore = session.ContentScore != null,
                 TotalScore = session.TotalScore ?? 0,
                 ContentScore = session.ContentScore ?? 0,
                 DeliveryScore = session.DeliveryScore ?? 0,
-                AnxietyBefore = session.AnxietyBefore ?? 0,
-                AnxietyAfter = session.AnxietyAfter ?? 0,
+                AnxietyIndicator = session.AnxietyIndicator ?? 0,
                 AiSummary = session.AiSummary ?? string.Empty,
                 Improvements = SplitLines(session.Improvements),
 
@@ -94,7 +94,7 @@ namespace MockviewAI.Services.SessionHistory
 
         private static RecentSessionViewModel ToCard(InterviewSession s)
         {
-            bool hasAnxiety = s.AnxietyBefore.HasValue && s.AnxietyAfter.HasValue;
+            bool hasAnxiety = s.AnxietyIndicator.HasValue;
             return new RecentSessionViewModel
             {
                 SessionId = s.Id,
@@ -102,11 +102,11 @@ namespace MockviewAI.Services.SessionHistory
                 DateFormatted = s.StartedAt.ToLocalTime().ToString("dd/MM"),
                 QuestionCount = s.QuestionCount,
                 Score = s.TotalScore ?? 0,
-                AnxietyText = hasAnxiety ? $"Lo lắng {s.AnxietyBefore} → {s.AnxietyAfter}" : string.Empty,
-                AnxietyImproved = hasAnxiety && s.AnxietyBefore - s.AnxietyAfter >= 2,
+                AnxietyText = hasAnxiety ? $"Dấu hiệu lo lắng {s.AnxietyIndicator}/10" : string.Empty,
+                AnxietyImproved = hasAnxiety && s.AnxietyIndicator <= 3,   // badge xanh khi thấp
                 HasScore = s.TotalScore != null,
-                IsInProgress = s.Status == "InProgress",
-                StatusText = s.Status == "InProgress" ? "Chưa xong" : s.TotalScore == null ? "Đã dừng" : string.Empty
+                IsInProgress = s.Status == SessionStatus.InProgress,
+                StatusText = s.Status == SessionStatus.InProgress ? "Chưa xong" : s.TotalScore == null ? "Đã dừng" : string.Empty
             };
         }
 

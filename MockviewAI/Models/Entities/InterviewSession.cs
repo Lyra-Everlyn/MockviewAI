@@ -25,7 +25,7 @@ namespace MockviewAI.Models.Entities
 
         // InProgress = đang làm, Completed = đã chấm điểm, Stopped = dừng khi chưa trả lời câu nào
         [Required, MaxLength(20)]
-        public string Status { get; set; } = "InProgress";
+        public string Status { get; set; } = SessionStatus.InProgress;
 
         [Precision(3)]
         public DateTime StartedAt { get; set; } = DateTime.UtcNow;
@@ -45,8 +45,15 @@ namespace MockviewAI.Models.Entities
         public string? DeliveryTips { get; set; }
 
         // Mức lo lắng tự đánh giá 1-10 (phục vụ nghiên cứu)
+        // (Cũ, không còn dùng từ 21/10: người dùng không còn tự chấm. Giữ cột để không mất dữ liệu cũ.)
         public int? AnxietyBefore { get; set; }
         public int? AnxietyAfter { get; set; }
+
+        // Dấu hiệu lo lắng 1-10 do hệ thống ước tính từ cách nói (ngập ngừng, từ đệm...). Null nếu chưa đủ dữ liệu.
+        public int? AnxietyIndicator { get; set; }
+
+        // Người dùng đồng ý nhận kết quả qua email (tick ở trang Tạo buổi luyện)
+        public bool EmailResult { get; set; }
 
         public List<SessionAnswer> Answers { get; set; } = new();
     }
