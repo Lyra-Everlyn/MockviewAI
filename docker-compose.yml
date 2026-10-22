@@ -9,7 +9,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
       MYSQL_DATABASE: mockview_database
     ports:
-      - "127.0.0.1:3306:3306"   # only reachable from this machine, not from the internet
+      - "127.0.0.1:3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -17,8 +17,14 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      
+  redis_mockview:
+    image: redis:alpine
+    container_name: redis_mockview_container
+    restart: always
+    ports:
+      - "127.0.0.1:6379:6379"
 
-  # TẠM ẨN WEB CONTAINER TRONG QUÁ TRÌNH DEV
   # web_mockview:
   #   build:
   #     context: .

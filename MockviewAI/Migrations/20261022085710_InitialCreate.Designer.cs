@@ -12,8 +12,8 @@ using MockviewAI.Data;
 namespace MockviewAI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261021200000_AddAnxietyIndicatorAndAttempts")]
-    partial class AddAnxietyIndicatorAndAttempts
+    [Migration("20261022085710_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

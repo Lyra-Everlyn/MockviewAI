@@ -53,11 +53,9 @@ namespace MockviewAI
             );
 
             // --- B. Redis
-            // Thiếu cấu hình -> dùng Redis local; AbortOnConnectFail=false để Redis chưa bật thì app vẫn khởi động được
-            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection");
-            if (string.IsNullOrWhiteSpace(redisConnectionString)) redisConnectionString = "localhost:6379";
-
+            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection") ?? throw new InvalidOperationException("Redis connection string is missing.");
             var redisOptions = ConfigurationOptions.Parse(redisConnectionString);
+
             redisOptions.AbortOnConnectFail = false;
 
             builder.Services.AddStackExchangeRedisCache(options =>
@@ -149,6 +147,7 @@ namespace MockviewAI
             builder.Services.AddScoped<IFileStorageService, CloudinaryStorageService>();
 
 
+
             // =========================================================================
             // PART 4: CONFIGURATION VIA VISUAL STUDIO & SECURITY
 
@@ -226,35 +225,21 @@ namespace MockviewAI
                 app.UseHsts();
             }
 
-            // --- B. Auto update database (Migration)
-            // WARNING: Bạn sẽ bị mất toàn bộ dữ liệu database, chỉ thực hiện trên local
+            // --- B. Auto update database
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                // Có Migrations -> Migrate(); chưa có thì tự tạo bảng + thêm cột còn thiếu (xem DatabaseInitializer)
-                DatabaseInitializer.Initialize(dbContext, scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseInitializer"));
-
-                //if (app.Environment.IsDevelopment())
-                //{
-                //    // 1. Delete all database data
-                //    dbContext.Database.EnsureDeleted();
-
-                //    // 2. Recreate a new Database
-                //    dbContext.Database.EnsureCreated();
-                //}
-                //else
-                //{
-                //    // Must has Migration on Product
-                //    dbContext.Database.Migrate();
-                //}
+                dbContext.Database.Migrate();
             }
 
             //app.UseHttpsRedirection();
 
             app.UseRouting();
 
+
             // --- C. Enable rate limitter (MUST BE PLACED AFTER UseRouting AND BEFORE UseAuth) ---
             app.UseRateLimiter();
+
 
             // --- D. Enforce security workflow: Identity check before permission check
             app.UseAuthentication();

@@ -41,10 +41,9 @@
                     <p class="subtitle">Luyện phỏng vấn với AI, miễn phí.</p>
                 </div>
 
-                <!-- Template Form từ Tech Lead -->
-                <form method="post" asp-controller="Auth" asp-action="Login" id="loginForm" data-loading-text="Đang đăng nhập...">
-
-                    <!-- Google Login Button -->
+                <form method="post" asp-controller="Auth" asp-action="Login" id="loginForm" data-loading-text="Loading ...">
+                    @Html.AntiForgeryToken()
+                    
                     <a asp-controller="Auth" asp-action="LoginGoogle" class="btn-google">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
                         Đăng nhập với Google

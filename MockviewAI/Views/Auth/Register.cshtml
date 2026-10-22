@@ -51,6 +51,7 @@
 
                 <form method="post" asp-controller="Auth" asp-action="Register" data-loading-text="Creating account..." data-loading-overlay="Sending a verification code to your email. This can take a few seconds...">
                     @Html.AntiForgeryToken()
+
                     <div class="form-grid">
                         <div class="form-group">
                             <label>First Name</label>

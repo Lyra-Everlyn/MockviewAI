@@ -112,7 +112,9 @@ namespace MockviewAI.Migrations
                     DeliveryTips = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     AnxietyBefore = table.Column<int>(type: "int", nullable: true),
-                    AnxietyAfter = table.Column<int>(type: "int", nullable: true)
+                    AnxietyAfter = table.Column<int>(type: "int", nullable: true),
+                    AnxietyIndicator = table.Column<int>(type: "int", nullable: true),
+                    EmailResult = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -139,7 +141,9 @@ namespace MockviewAI.Migrations
                     Answer = table.Column<string>(type: "varchar(4000)", maxLength: 4000, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     DurationSeconds = table.Column<double>(type: "double", nullable: true),
+                    LongestPauseSeconds = table.Column<double>(type: "double", nullable: true),
                     Skipped = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    Attempts = table.Column<int>(type: "int", nullable: false),
                     AnsweredAt = table.Column<DateTime>(type: "datetime(3)", precision: 3, nullable: true)
                 },
                 constraints: table =>
