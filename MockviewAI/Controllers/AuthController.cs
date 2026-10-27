@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
@@ -13,6 +12,10 @@ using System.Security.Claims;
 
 namespace MockviewAI.Controllers
 {
+    /// <summary>
+    /// Authentication Controller
+    /// Handles Local Login, Google Login, Registration, and Password Recovery.
+    /// </summary>
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
@@ -29,14 +32,10 @@ namespace MockviewAI.Controllers
         }
 
         #region Login
-        // 1. Return the login view
-        [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
-        }
 
-        // 2. Handle the login form submission
+        [HttpGet]
+        public IActionResult Login() => View();
+
         [HttpPost]
         [Route("Auth/Login")]
         [ValidateAntiForgeryToken]
@@ -84,8 +83,6 @@ namespace MockviewAI.Controllers
             }
         }
 
-
-        // b. Google login method
         [HttpGet]
         [Route("Auth/LoginGoogle")]
         public IActionResult LoginGoogle()
@@ -101,22 +98,21 @@ namespace MockviewAI.Controllers
 
             if (!result.Succeeded)
             {
-                TempData["ErrorMessage"] = "Google authentication failed.";
+                TempData["ErrorMessage"] = "Xác thực Google thất bại.";
                 return RedirectToAction("Login", "Auth");
             }
 
             var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
-
             var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
             var givenName = claims?.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value;
             var surname = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value;
             var avatarUrl = claims?.FirstOrDefault(c => c.Type == "urn:google:picture" || c.Type == "picture")?.Value;
-
             var emailVerified = claims?.FirstOrDefault(c => c.Type == "email_verified")?.Value;
+
             if (email == null || string.Equals(emailVerified, "false", StringComparison.OrdinalIgnoreCase))
             {
-                TempData["ErrorMessage"] = "Cannot retrieve a verified email from your Google account.";
+                TempData["ErrorMessage"] = "Không thể lấy email đã xác thực từ tài khoản Google của bạn.";
                 return RedirectToAction("Login", "Auth");
             }
 
@@ -140,7 +136,6 @@ namespace MockviewAI.Controllers
             }
         }
 
-        // Helper method set up Cookie
         private async Task SignInUser(string email, string fullName, string role, string? avatarUrl)
         {
             var claims = new List<Claim>
@@ -161,7 +156,6 @@ namespace MockviewAI.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
         }
 
-        // Helper method redirect to the appropriate page after successful login
         private IActionResult RedirectAfterLogin(User user)
         {
             if (user.Role == "Admin") return RedirectToAction("Index", "Admin");
@@ -176,7 +170,7 @@ namespace MockviewAI.Controllers
         #endregion
 
         #region Logout and Register
-        // 3. Logout
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
@@ -185,14 +179,9 @@ namespace MockviewAI.Controllers
             return RedirectToAction("Login", "Auth");
         }
 
-        // 4. Return the register view
         [HttpGet]
-        public IActionResult Register()
-        {
-            return View();
-        }
+        public IActionResult Register() => View();
 
-        // 5. Handle the register form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
         [EnableRateLimiting("OtpRateLimit")]
@@ -203,31 +192,31 @@ namespace MockviewAI.Controllers
 
             if (!isHuman)
             {
-                ModelState.AddModelError(string.Empty, "Security verification failed. Please try again.");
+                ModelState.AddModelError(string.Empty, "Xác thực bảo mật thất bại (Captcha không hợp lệ).");
                 return View();
             }
 
             if (await _authService.IsIpBlockedAsync(ipAddress))
             {
-                ModelState.AddModelError(string.Empty, $"Your IP has been temporarily blocked due to multiple failed attempts. Please try again after {_lockoutMinutes} minutes.");
+                ModelState.AddModelError(string.Empty, $"IP của bạn đã bị khóa tạm thời. Vui lòng thử lại sau {_lockoutMinutes} phút.");
                 return View();
             }
 
             if (!terms)
             {
-                ModelState.AddModelError(string.Empty, "You must agree to the Terms of Service and Privacy Policy.");
+                ModelState.AddModelError(string.Empty, "Bạn phải đồng ý với Điều khoản dịch vụ và Chính sách bảo mật.");
                 return View();
             }
 
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword) || string.IsNullOrEmpty(firstName))
             {
-                ModelState.AddModelError(string.Empty, "Please fill in all required fields (Email, Password, First Name).");
+                ModelState.AddModelError(string.Empty, "Vui lòng điền đầy đủ các thông tin bắt buộc.");
                 return View();
             }
 
             if (password != confirmPassword)
             {
-                ModelState.AddModelError(string.Empty, "Passwords do not match.");
+                ModelState.AddModelError(string.Empty, "Mật khẩu xác nhận không khớp.");
                 return View();
             }
 
@@ -236,7 +225,7 @@ namespace MockviewAI.Controllers
                 CheckPasswordStrength(password);
                 await _authService.SendRegistrationOtpAsync(email, password, confirmPassword, firstName, lastName);
 
-                TempData["InfoMessage"] = "A 6-digit verification code has been sent to your email. Please check your inbox (and the Spam folder).";
+                TempData["InfoMessage"] = "Mã xác thực 6 số đã được gửi. Vui lòng kiểm tra hộp thư (và thư mục Spam).";
                 return RedirectToAction("VerifyRegistrationCode", new { email = email.Trim().ToLowerInvariant() });
             }
             catch (Exception ex)
@@ -261,7 +250,7 @@ namespace MockviewAI.Controllers
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             if (await _authService.IsIpBlockedAsync(ipAddress))
             {
-                ModelState.AddModelError(string.Empty, $"Your IP has been temporarily blocked due to multiple failed attempts. Please try again after {_lockoutMinutes} minutes.");
+                ModelState.AddModelError(string.Empty, $"IP của bạn đã bị khóa tạm thời. Vui lòng thử lại sau {_lockoutMinutes} phút.");
                 return View();
             }
 
@@ -274,8 +263,7 @@ namespace MockviewAI.Controllers
                 if (isValid)
                 {
                     await _authService.CompleteRegistrationAsync(email);
-
-                    TempData["SuccessMessage"] = "Registration successful! Please log in.";
+                    TempData["SuccessMessage"] = "Đăng ký thành công! Vui lòng đăng nhập.";
                     return RedirectToAction("Login");
                 }
 
@@ -296,11 +284,9 @@ namespace MockviewAI.Controllers
         #endregion
 
         #region Forgot Password
+
         [HttpGet]
-        public IActionResult ForgotPassword()
-        {
-            return View();
-        }
+        public IActionResult ForgotPassword() => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -312,26 +298,26 @@ namespace MockviewAI.Controllers
 
             if (!isHuman)
             {
-                ModelState.AddModelError(string.Empty, "Security verification failed. Please try again.");
+                ModelState.AddModelError(string.Empty, "Xác thực bảo mật thất bại (Captcha không hợp lệ).");
                 return View();
             }
 
             if (await _authService.IsIpBlockedAsync(ipAddress))
             {
-                ModelState.AddModelError(string.Empty, $"Your IP has been temporarily blocked due to multiple failed attempts. Please try again after {_lockoutMinutes} minutes.");
+                ModelState.AddModelError(string.Empty, $"IP của bạn đã bị khóa tạm thời. Vui lòng thử lại sau {_lockoutMinutes} phút.");
                 return View();
             }
 
             if (string.IsNullOrEmpty(email))
             {
-                ModelState.AddModelError(string.Empty, "Please enter your email address.");
+                ModelState.AddModelError(string.Empty, "Vui lòng nhập địa chỉ email.");
                 return View();
             }
 
             try
             {
                 await _authService.RequestPasswordResetAsync(email);
-                TempData["InfoMessage"] = "If your email is registered, a 6-digit reset code has been sent. Please check your inbox (and the Spam folder).";
+                TempData["InfoMessage"] = "Nếu email hợp lệ, mã khôi phục 6 số đã được gửi. Vui lòng kiểm tra hộp thư.";
                 return RedirectToAction("VerifyResetCode", new { email = email });
             }
             catch (Exception ex)
@@ -354,7 +340,7 @@ namespace MockviewAI.Controllers
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(code))
             {
-                ModelState.AddModelError(string.Empty, "Invalid request. Please ensure all fields are filled.");
+                ModelState.AddModelError(string.Empty, "Yêu cầu không hợp lệ. Vui lòng điền đủ thông tin.");
                 return View();
             }
 
@@ -362,7 +348,7 @@ namespace MockviewAI.Controllers
 
             if (await _authService.IsIpBlockedAsync(ipAddress))
             {
-                ModelState.AddModelError(string.Empty, $"Your IP has been temporarily blocked due to multiple failed attempts. Please try again after {_lockoutMinutes} minutes.");
+                ModelState.AddModelError(string.Empty, $"IP của bạn đã bị khóa tạm thời. Vui lòng thử lại sau {_lockoutMinutes} phút.");
                 return View();
             }
 
@@ -372,7 +358,7 @@ namespace MockviewAI.Controllers
 
                 if (isValid)
                 {
-                    TempData["SuccessMessage"] = "Code verified successfully. Please enter your new password.";
+                    TempData["SuccessMessage"] = "Xác thực mã thành công. Vui lòng nhập mật khẩu mới.";
                     return RedirectToAction("ResetPassword", new { email = email, code = code });
                 }
 
@@ -401,7 +387,7 @@ namespace MockviewAI.Controllers
 
             if (await _authService.IsIpBlockedAsync(ipAddress))
             {
-                ModelState.AddModelError(string.Empty, $"Your IP has been temporarily blocked due to multiple failed attempts. Please try again after {_lockoutMinutes} minutes.");
+                ModelState.AddModelError(string.Empty, $"IP của bạn đã bị khóa tạm thời. Vui lòng thử lại sau {_lockoutMinutes} phút.");
                 return View();
             }
 
@@ -409,13 +395,13 @@ namespace MockviewAI.Controllers
 
             if (string.IsNullOrEmpty(newPassword) || string.IsNullOrEmpty(confirmPassword))
             {
-                ModelState.AddModelError(string.Empty, "Please fill in all fields.");
+                ModelState.AddModelError(string.Empty, "Vui lòng điền đầy đủ các trường.");
                 return View();
             }
 
             if (newPassword != confirmPassword)
             {
-                ModelState.AddModelError(string.Empty, "Passwords do not match.");
+                ModelState.AddModelError(string.Empty, "Mật khẩu xác nhận không khớp.");
                 return View();
             }
 
@@ -424,7 +410,7 @@ namespace MockviewAI.Controllers
                 CheckPasswordStrength(newPassword);
                 await _authService.ResetPasswordAsync(email, newPassword);
 
-                TempData["InfoMessage"] = "Your password has been reset successfully. Please log in with your new password.";
+                TempData["InfoMessage"] = "Đặt lại mật khẩu thành công. Vui lòng đăng nhập bằng mật khẩu mới.";
                 return RedirectToAction("Login");
             }
             catch (Exception ex)
