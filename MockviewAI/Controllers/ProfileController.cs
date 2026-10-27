@@ -8,9 +8,10 @@ using MockviewAI.Services.Profiles;
 
 namespace MockviewAI.Controllers
 {
+    /// [PROFILE]
+    
     [Authorize]
     [Route("Profile")]
-    /// [PROFILE]
     public class ProfileController : Controller
     {
         private readonly IProfileService _profileService;

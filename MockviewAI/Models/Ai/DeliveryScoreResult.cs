@@ -1,8 +1,11 @@
-// [AI-MODULE] Lớp dữ liệu vào/ra của module AI. Mỗi file một lớp.
-
 namespace MockviewAI.Models.Ai
 {
-    // Delivery score computed by plain code (no AI), 0-100
+    /// <summary>
+    /// // [AI-MODULE] 
+    /// -- Lớp dữ liệu vào/ra của module AI
+    /// -- Delivery score computed by plain code (no AI), 0-100
+    /// </summary>
+    
     public class DeliveryScoreResult
     {
         public double WordsPerMinute { get; set; }     // 0 when duration unknown

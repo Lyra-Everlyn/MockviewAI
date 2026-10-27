@@ -1,7 +1,10 @@
 namespace MockviewAI.Models.DTOs
 {
-    /// [AI-INTERVIEW] 
-    // -- Người dùng gửi lên khi trả lời hoặc bỏ qua một câu
+    /// <summary>
+    /// [AI-INTERVIEW]
+    /// -- Người dùng gửi lên khi trả lời hoặc bỏ qua một câu
+    /// </summary>
+
     public class SubmitAnswerDto
     {
         public int SessionId { get; set; }

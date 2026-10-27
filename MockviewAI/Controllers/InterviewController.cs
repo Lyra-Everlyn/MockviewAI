@@ -12,6 +12,7 @@ namespace MockviewAI.Controllers
     /// Controller chịu trách nhiệm quản lý toàn bộ vòng đời của một buổi phỏng vấn AI.
     /// Bao gồm: Khởi tạo, Phòng phỏng vấn, Ghi nhận câu trả lời, Chấm điểm và Xem kết quả.
     /// </summary>
+    
     [Authorize]
     public class InterviewController : Controller
     {

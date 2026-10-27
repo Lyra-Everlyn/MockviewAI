@@ -1,8 +1,11 @@
 namespace MockviewAI.Models.DTOs
 {
 
+    /// <summary>
     /// [AI-INTERVIEW]
-    // -- Người dùng gửi lên khi kết thúc buổi
+    /// -- Người dùng gửi lên khi kết thúc buổi
+    /// </summary>
+    
     public class FinishSessionDto
     {
         public int SessionId { get; set; }

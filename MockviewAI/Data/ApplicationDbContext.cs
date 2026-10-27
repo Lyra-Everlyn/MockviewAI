@@ -9,15 +9,10 @@ namespace MockviewAI.Data
         {
         }
 
-
-        public DbSet<User> Users { get; set; }
-
-        // [AI-INTERVIEW] buổi luyện phỏng vấn và câu trả lời
-        public DbSet<InterviewSession> InterviewSessions { get; set; }
+        public DbSet<User> Users { get; set; }   
+        public DbSet<InterviewSession> InterviewSessions { get; set; } // [AI-INTERVIEW]: buổi luyện phỏng vấn và câu trả lời
         public DbSet<SessionAnswer> SessionAnswers { get; set; }
-
-        // Góp ý cho bản thử V1
-        public DbSet<Feedback> Feedbacks { get; set; }
+        public DbSet<Feedback> Feedbacks { get; set; } // [FEEDBACK]: Phản hồi từ người dùng
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

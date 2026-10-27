@@ -1,11 +1,14 @@
-// [AI-INTERVIEW] Một câu hỏi trong buổi luyện và câu trả lời của người dùng.
-// Câu hỏi được tạo sẵn lúc bắt đầu buổi (Answer còn trống, AnsweredAt = null).
-
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
 namespace MockviewAI.Models.Entities
 {
+    /// <summary>
+    /// [AI-INTERVIEW] 
+    /// -- Một câu hỏi trong buổi luyện và câu trả lời của người dùng.
+    /// -- Câu hỏi được tạo sẵn lúc bắt đầu buổi (Answer còn trống, AnsweredAt = null).
+    /// </summary>
+    
     public class SessionAnswer
     {
         [Key]
