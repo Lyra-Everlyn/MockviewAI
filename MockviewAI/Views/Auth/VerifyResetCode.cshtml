@@ -4,11 +4,11 @@
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Reset Code - MockviewAI</title>
+    <title>Xác thực mã khôi phục - MockviewAI</title>
     <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -21,39 +21,38 @@
 
             <div class="info-panel">
                 <div class="logo">Mockview<span>AI</span></div>
-                <h1>Secure your account</h1>
-                <p class="subtitle">We've sent a secure code to your email. This step ensures that only you can access your account.</p>
+                <h1>Bảo vệ tài khoản của bạn</h1>
+                <p class="subtitle">Chúng tôi đã gửi mã xác thực an toàn đến email của bạn. Bước này giúp đảm bảo chỉ có bạn mới có quyền truy cập vào tài khoản.</p>
                 <ul class="features">
-                    <li><span class="step"><i class="fas fa-envelope"></i></span> Enter your registered email</li>
-                    <li><span class="step active"><i class="fas fa-paper-plane"></i></span> Receive a secure reset code</li>
-                    <li><span class="step"><i class="fas fa-lock"></i></span> Create a new password</li>
+                    <li><span class="step"><i class="fas fa-envelope"></i></span> Nhập email đã đăng ký</li>
+                    <li><span class="step active"><i class="fas fa-paper-plane"></i></span> Nhận mã khôi phục bảo mật</li>
+                    <li><span class="step"><i class="fas fa-lock"></i></span> Tạo mật khẩu mới</li>
                 </ul>
             </div>
 
-
             <div class="form-panel">
-                
+
                 <div class="mobile-header hide-on-desktop">
                     <div class="logo-dark">Mockview<span>AI</span></div>
                 </div>
 
                 <div class="form-header">
-                    <h2>Check your email</h2>
+                    <h2>Kiểm tra hộp thư của bạn</h2>
                 </div>
-                
+
                 <p class="description">
-                    We've sent a 6-digit verification code to <strong>@email</strong>. 
-                    The code expires in 5 minutes.
+                    Chúng tôi đã gửi mã xác thực 6 số đến <strong>@email</strong>.
+                    Mã này sẽ hết hạn trong vòng 5 phút.
                 </p>
 
                 <form method="post" asp-controller="Auth" asp-action="VerifyResetCode" id="verifyForm">
                     @Html.AntiForgeryToken()
-                    
+
                     <input type="hidden" name="email" value="@email" />
                     <input type="hidden" name="code" id="finalCode" />
 
                     <div class="form-group">
-                        <label>Verification Code</label>
+                        <label>Mã xác thực</label>
                         <div class="otp-wrapper">
                             <input type="text" class="otp-input" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" aria-label="Chữ số 1" required autofocus>
                             <input type="text" class="otp-input" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Chữ số 2" required>
@@ -64,10 +63,10 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-submit">Verify Code</button>
+                    <button type="submit" class="btn-submit">Xác thực mã</button>
 
                     <div class="back-link">
-                        <a href="/Auth/ForgotPassword"><i class="fas fa-arrow-left"></i> Wrong email? Go back</a>
+                        <a href="/Auth/ForgotPassword"><i class="fas fa-arrow-left"></i> Nhầm email? Quay lại</a>
                     </div>
                 </form>
 
@@ -75,7 +74,7 @@
         </div>
     </div>
 
-    <partial name="Partials/_Notify"/>
+    <partial name="Partials/_Notify" />
     <script src="~/js/VerifyCode.js"></script>
 </body>
 </html>
