@@ -1,14 +1,16 @@
-// [AI-MODULE] AnxietyEstimator
-// Ước tính dấu hiệu lo lắng bằng code thuần (không dùng AI), dựa trên 5 tín hiệu có thể quan sát:
-//   từ đệm 30% - khoảng lặng dài 25% - nói quá nhanh/chậm 15% - câu trả lời quá ngắn 15% - số câu bỏ qua 15%.
-// Tín hiệu nào không đo được (vd: gõ tay không có tốc độ/khoảng lặng) thì bỏ ra và chia lại trọng số.
-// LƯU Ý khi viết báo cáo: đây là chỉ số ước tính từ lời nói (proxy), không thay thế thang đo tự đánh giá hay chẩn đoán.
-
 using MockviewAI.Models.Ai;
 using MockviewAI.Services.Ai.Interfaces;
 
 namespace MockviewAI.Services.Ai.Implementations
 {
+    /// <summary>
+    /// [AI-MODULE] 
+    /// AnxietyEstimator
+    /// -- Ước tính dấu hiệu lo lắng bằng code thuần (không dùng AI), dựa trên 5 tín hiệu có thể quan sát:
+    /// -- từ đệm 30% - khoảng lặng dài 25% - nói quá nhanh/chậm 15% - câu trả lời quá ngắn 15% - số câu bỏ qua 15%.
+    /// -- Tín hiệu nào không đo được (vd: gõ tay không có tốc độ/khoảng lặng) thì bỏ ra và chia lại trọng số.
+    /// -- LƯU Ý khi viết báo cáo: đây là chỉ số ước tính từ lời nói (proxy), không thay thế thang đo tự đánh giá hay chẩn đoán.
+    /// </summary>
     public class AnxietyEstimator : IAnxietyEstimator
     {
         public (int Level, List<string> Reasons) Estimate(DeliveryScoreResult d, int questionCount, int skippedCount)

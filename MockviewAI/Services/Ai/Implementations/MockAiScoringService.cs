@@ -1,12 +1,15 @@
-// [AI-MODULE] MockAiScoringService
-// Bộ chấm GIẢ: không cần API key, không tốn tiền.
-// Dùng để dev giao diện/test khi chưa có key. Kết quả luôn gắn nhãn [MOCK].
-
 using MockviewAI.Models.Ai;
 using MockviewAI.Services.Ai.Interfaces;
 
 namespace MockviewAI.Services.Ai.Implementations
 {
+    /// <summary>
+    /// [AI-MODULE] 
+    /// MockAiScoringService
+    /// -- Bộ chấm GIẢ: không cần API key, không tốn tiền.
+    /// -- Dùng để dev giao diện/test khi chưa có key. Kết quả luôn gắn nhãn [MOCK].
+    /// </summary>
+    
     // Fake scorer: no API key, no cost. Same input always gives the same output.
     public class MockAiScoringService : IAiScoringService
     {

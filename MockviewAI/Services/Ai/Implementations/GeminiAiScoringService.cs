@@ -1,7 +1,3 @@
-// [AI-MODULE] GeminiAiScoringService
-// Chỉ lo việc GỬI REQUEST tới Gemini (Google Generative Language API, generateContent) bằng HttpClient.
-// Soạn prompt do IScoringPromptBuilder, đọc kết quả do IAiResponseParser. API key không bao giờ được log.
-
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -13,7 +9,14 @@ using MockviewAI.Services.Exceptions;
 
 namespace MockviewAI.Services.Ai.Implementations
 {
-    // Calls the Gemini generateContent REST API directly with HttpClient (no extra NuGet package).
+    /// <summary>
+    /// [AI-MODULE] 
+    /// GeminiAiScoringService
+    /// -- Chỉ lo việc GỬI REQUEST tới Gemini bằng HttpClient.
+    /// -- Soạn prompt do IScoringPromptBuilder, đọc kết quả do IAiResponseParser. API key không bao giờ được log.
+    /// -- Calls the Gemini generateContent REST API directly with HttpClient (no extra NuGet package).
+    /// </summary>
+
     public class GeminiAiScoringService : IAiScoringService
     {
         private readonly HttpClient _http;

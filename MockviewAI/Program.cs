@@ -24,7 +24,6 @@ using StackExchange.Redis;
 using System.Security.Principal;
 using System.Threading.RateLimiting;
 
-
 namespace MockviewAI
 {
     public class Program
@@ -100,7 +99,7 @@ namespace MockviewAI
                 builder.Services.AddHttpClient<IAiScoringService, GeminiAiScoringService>(c =>
                 {
                     c.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
-                    c.Timeout = TimeSpan.FromSeconds(60);
+                    c.Timeout = TimeSpan.FromSeconds(180);
                 });
             }
             else
@@ -162,10 +161,8 @@ namespace MockviewAI
             {
                 options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-                // 1. Define a policy to limit OTP sending: 3 times / 15 minutes / 1 IP
                 options.AddPolicy("OtpRateLimit", context =>
                 {
-                    // Get the user's real IP (accounting for ForwardedHeaders if a proxy is used)
                     var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "unknown_ip";
 
                     return RateLimitPartition.GetFixedWindowLimiter(

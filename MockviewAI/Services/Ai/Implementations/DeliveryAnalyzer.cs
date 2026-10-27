@@ -1,14 +1,17 @@
-// [AI-MODULE] DeliveryAnalyzer
-// Chấm CÁCH NÓI bằng code thuần (không dùng AI): tốc độ, từ đệm, độ dài, khoảng lặng.
-// Trọng số: tốc độ 30, từ đệm 30, độ dài 25, khoảng lặng 15. Muốn chỉnh ngưỡng thì sửa các số trong hàm Analyze.
-
 using System.Text.RegularExpressions;
 using MockviewAI.Models.Ai;
 using MockviewAI.Services.Ai.Interfaces;
 
 namespace MockviewAI.Services.Ai.Implementations
 {
-    // Scores HOW the candidate speaks, using plain code (fast, free, explainable).
+    /// <summary>
+    /// [AI-MODULE] 
+    /// DeliveryAnalyzer
+    /// -- Chấm CÁCH NÓI bằng code thuần (không dùng AI): tốc độ, từ đệm, độ dài, khoảng lặng.
+    /// -- Trọng số: tốc độ 30, từ đệm 30, độ dài 25, khoảng lặng 15. Muốn chỉnh ngưỡng thì sửa các số trong hàm Analyze.
+    /// -- Scores HOW the candidate speaks, using plain code (fast, free, explainable).
+    /// </summary>
+    
     public class DeliveryAnalyzer : IDeliveryAnalyzer
     {
         // Filler words/phrases (Vietnamese + English). Matched as whole words only.
