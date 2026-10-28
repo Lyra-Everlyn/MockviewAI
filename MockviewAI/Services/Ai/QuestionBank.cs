@@ -1,8 +1,8 @@
-// [AI-INTERVIEW] Ngân hàng câu hỏi mẫu và thông tin 3 người phỏng vấn.
-// Nhóm có thể sửa/thêm câu hỏi ngay trong file này. {position} sẽ được thay bằng vị trí ứng tuyển.
-
 namespace MockviewAI.Services.Ai
 {
+    /// [AI-INTERVIEW] 
+    /// Ngân hàng câu hỏi mẫu và thông tin 3 người phỏng vấn.
+    // Nhóm có thể sửa/thêm câu hỏi ngay trong file này. {position} sẽ được thay bằng vị trí ứng tuyển.
     public static class QuestionBank
     {
         // Vị trí ứng tuyển cho phép (khóa gửi từ form -> tên hiển thị)

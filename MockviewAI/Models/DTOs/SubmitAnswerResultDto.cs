@@ -1,7 +1,10 @@
 namespace MockviewAI.Models.DTOs
 {
+    /// <summary>
     /// [AI-INTERVIEW]
-    // -- Kết quả sau khi gửi một câu: còn câu tiếp theo hay đã hết
+    /// -- Kết quả sau khi gửi một câu: còn câu tiếp theo hay đã hết
+    /// </summary>
+   
     public class SubmitAnswerResultDto
     {
         public bool Done { get; set; }

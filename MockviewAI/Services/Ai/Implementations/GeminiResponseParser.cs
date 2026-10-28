@@ -1,6 +1,3 @@
-// [AI-MODULE] GeminiResponseParser
-// Chỉ lo việc ĐỌC phản hồi của Gemini: lấy JSON điểm, ép mỗi điểm về 0..25 (không tin model).
-
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using MockviewAI.Models.Ai;
@@ -9,6 +6,12 @@ using MockviewAI.Services.Exceptions;
 
 namespace MockviewAI.Services.Ai.Implementations
 {
+    /// <summary>
+    /// [AI-MODULE] 
+    /// GeminiResponseParser
+    /// -- Chỉ lo việc ĐỌC phản hồi của Gemini: lấy JSON điểm, ép mỗi điểm về 0..25 (không tin model).
+    /// </summary>
+
     public class GeminiResponseParser : IAiResponseParser
     {
         private readonly ILogger<GeminiResponseParser> _logger;

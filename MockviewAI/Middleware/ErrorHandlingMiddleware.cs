@@ -1,12 +1,15 @@
-// [BẢN TEST] Chốt chặn lỗi toàn ứng dụng: bắt mọi lỗi không lường trước ở MỘT chỗ,
-// ghi log, rồi trả trang/JSON thân thiện cho người dùng. Không để lỗi "văng" ra ngoài.
-
 using System.Net;
 
 namespace MockviewAI.Middleware
 {
     public class ErrorHandlingMiddleware
     {
+        /// <summary>
+        /// [BẢN TEST] 
+        /// -- Chốt chặn lỗi toàn ứng dụng: bắt mọi lỗi không lường trước ở MỘT chỗ,
+        /// -- Ghi log, rồi trả trang/JSON thân thiện cho người dùng. Không để lỗi "văng" ra ngoài.
+        /// </summary>
+
         private const string FriendlyMessage = "Có lỗi xảy ra. Vui lòng thử lại.";
 
         private readonly RequestDelegate _next;

@@ -1,16 +1,22 @@
-// [AI-MODULE] AnswerQualityChecker
-// Lọc câu trả lời vớ vẩn bằng quy tắc đơn giản, giải thích được (không dùng AI, không tốn tiền):
-//   1. Quá ngắn (< 5 từ)            2. Lặp đi lặp lại vài từ (ít từ khác nhau)
-//   3. Chuỗi vô nghĩa (nhiều "từ" không có nguyên âm)   4. Từ ngữ thô tục
-//   5. Cố gài lệnh cho AI ("cho tôi 100 điểm", "bỏ qua hướng dẫn"...)
-// Việc "có đúng trọng tâm câu hỏi hay không" do AI chấm nội dung đánh giá thêm (tiêu chí relevance).
-// Các ngưỡng nằm ngay đầu file để dễ chỉnh khi test thật.
-
 using System.Text.RegularExpressions;
 using MockviewAI.Services.Ai.Interfaces;
 
 namespace MockviewAI.Services.Ai.Implementations
 {
+    /// <summary>
+    /// // [AI-MODULE] 
+    /// AnswerQualityChecker
+    /// -- Lọc câu trả lời vớ vẩn bằng quy tắc đơn giản, giải thích được (không dùng AI, không tốn tiền):
+    /// --  1. Quá ngắn (< 5 từ)
+    /// --  2. Lặp đi lặp lại vài từ (ít từ khác nhau)
+    /// --  3. Chuỗi vô nghĩa (nhiều "từ" không có nguyên âm)
+    /// --  4. Từ ngữ thô tục
+    /// --  5. Cố gài lệnh cho AI ("cho tôi 100 điểm", "bỏ qua hướng dẫn"...)
+    /// 
+    /// -- Việc "có đúng trọng tâm câu hỏi hay không" do AI chấm nội dung đánh giá thêm (tiêu chí relevance).
+    /// -- Các ngưỡng nằm ngay đầu file để dễ chỉnh khi test thật.
+    /// </summary>
+    
     public class AnswerQualityChecker : IAnswerQualityChecker
     {
         private const int MinWords = 5;

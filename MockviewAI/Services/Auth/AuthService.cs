@@ -31,31 +31,32 @@ namespace MockviewAI.Services.Auth
 
         #region Register
         private sealed record PendingRegistration(string Email, string PasswordHash, string FirstName, string LastName);
+
         public async Task SendRegistrationOtpAsync(string email, string password, string confirmPassword, string firstName, string? lastName)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(confirmPassword))
-                throw new Exception("Email and password fields cannot be empty.");
+                throw new Exception("Vui lòng nhập đầy đủ Email và Mật khẩu.");
 
             if (string.IsNullOrWhiteSpace(firstName))
-                throw new Exception("First name cannot be empty.");
+                throw new Exception("Vui lòng nhập Tên.");
 
             if (password != confirmPassword)
-                throw new Exception("Passwords do not match.");
+                throw new Exception("Mật khẩu xác nhận không khớp.");
 
             email = email.Trim().ToLowerInvariant();
             string safeLastName = string.IsNullOrWhiteSpace(lastName) ? string.Empty : lastName.Trim();
 
             var cooldown = await _cache.GetStringAsync($"Cooldown_RegOTP_{email}");
             if (!string.IsNullOrEmpty(cooldown))
-                throw new Exception("Please wait 60 seconds before requesting another code.");
+                throw new Exception("Vui lòng đợi 60 giây trước khi yêu cầu mã mới.");
 
             bool isEmailExist = await _userRepository.EmailExistsAsync(email);
-            if (isEmailExist) throw new Exception("This email has already been registered.");
+            if (isEmailExist) throw new Exception("Email này đã được đăng ký.");
 
             var cooldownOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60) };
             await _cache.SetStringAsync($"Cooldown_RegOTP_{email}", "true", cooldownOptions);
 
-            // Băm mật khẩu ngay tại bước này và lưu tạm vào Redis (TTL 10 phút), tuyệt đối không lưu plaintext vào TempData
+            // Hash password and store in Redis temporarily (10 mins TTL)
             string passwordHash = HashPassword(password);
             var pendingUser = new PendingRegistration(email, passwordHash, firstName.Trim(), safeLastName);
             var pendingOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) };
@@ -65,15 +66,15 @@ namespace MockviewAI.Services.Auth
             var otpOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
             await _cache.SetStringAsync($"RegOTP_{email}", otpCode, otpOptions);
 
-            // QUAN TRỌNG: Xóa bộ đếm cũ bằng IDatabase thay vì tạo Hash key bằng _cache.SetStringAsync (tránh lỗi WRONGTYPE)
+            // Reset attempt counter
             await _db.KeyDeleteAsync($"MockviewAI_RegOTP_Attempts_{email}");
 
-            string subject = "MockviewAI - Registration Verification";
+            string subject = "MockviewAI - Xác thực đăng ký";
             string body = $@"
                 <div style='font-family: Inter, Arial, sans-serif; padding: 20px;'>
-                    <h2>Verify Your Email</h2>
-                    <p>Your verification code is: <b style='font-size: 28px; color: #3348E0; letter-spacing: 2px;'>{otpCode}</b></p>
-                    <p>This code is valid for 5 minutes.</p>
+                    <h2>Xác thực Email của bạn</h2>
+                    <p>Mã xác thực của bạn là: <b style='font-size: 28px; color: #3348E0; letter-spacing: 2px;'>{otpCode}</b></p>
+                    <p>Mã này có hiệu lực trong 5 phút.</p>
                 </div>";
 
             await _emailService.SendEmailAsync(email, subject, body);
@@ -85,7 +86,7 @@ namespace MockviewAI.Services.Auth
 
             string? savedCode = await _cache.GetStringAsync($"RegOTP_{email}");
             if (string.IsNullOrEmpty(savedCode))
-                throw new Exception("Verification code has expired or is invalid.");
+                throw new Exception("Mã xác thực đã hết hạn hoặc không hợp lệ.");
 
             string attemptKey = $"MockviewAI_RegOTP_Attempts_{email}";
 
@@ -114,30 +115,29 @@ namespace MockviewAI.Services.Auth
                 await _cache.RemoveAsync($"RegPending_{email}");
                 await _db.KeyDeleteAsync(attemptKey);
 
-                throw new Exception($"Your IP has been blocked for {_lockoutMinutes} minutes due to multiple failed attempts.");
+                throw new Exception($"IP của bạn đã bị khóa tạm thời {_lockoutMinutes} phút do nhập sai quá nhiều lần.");
             }
 
-            throw new Exception($"Authentication failed. You have {5 - attempts} attempts remaining.");
+            throw new Exception($"Xác thực thất bại. Bạn còn {5 - attempts} lần thử.");
         }
 
         public async Task CompleteRegistrationAsync(string email)
         {
             email = email.Trim().ToLowerInvariant();
 
-            // Kiểm tra cờ xác thực OTP bắt buộc
             string? isVerified = await _cache.GetStringAsync($"RegVerified_{email}");
             if (string.IsNullOrEmpty(isVerified))
-                throw new Exception("Email verification is required before completing registration.");
+                throw new Exception("Yêu cầu xác thực email trước khi hoàn tất đăng ký.");
 
             string? pendingJson = await _cache.GetStringAsync($"RegPending_{email}");
             if (string.IsNullOrEmpty(pendingJson))
-                throw new Exception("Registration session expired. Please register again.");
+                throw new Exception("Phiên đăng ký đã hết hạn. Vui lòng thao tác lại.");
 
             var pending = JsonSerializer.Deserialize<PendingRegistration>(pendingJson)
-                ?? throw new Exception("Invalid registration data.");
+                ?? throw new Exception("Dữ liệu đăng ký không hợp lệ.");
 
             if (await _userRepository.EmailExistsAsync(email))
-                throw new Exception("Email has already been registered.");
+                throw new Exception("Email này đã được đăng ký.");
 
             var newUser = new User
             {
@@ -155,7 +155,6 @@ namespace MockviewAI.Services.Auth
 
             await _userRepository.AddAsync(newUser);
 
-            // Dọn dẹp khóa tạm sau khi tạo tài khoản thành công
             await _cache.RemoveAsync($"RegVerified_{email}");
             await _cache.RemoveAsync($"RegPending_{email}");
         }
@@ -163,7 +162,7 @@ namespace MockviewAI.Services.Auth
         public async Task<User> RegisterGoogleAsync(string email, string firstName, string lastName, string? avatarUrl)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(firstName))
-                throw new Exception("Email and first name cannot be empty.");
+                throw new Exception("Vui lòng nhập đầy đủ Email và Tên.");
 
             email = email.Trim().ToLowerInvariant();
             string safeLastName = string.IsNullOrWhiteSpace(lastName) ? string.Empty : lastName.Trim();
@@ -194,7 +193,7 @@ namespace MockviewAI.Services.Auth
         {
             email = email.Trim().ToLowerInvariant();
             var user = await _userRepository.GetByEmailAsync(email);
-            const string invalidMsg = "Incorrect email or password.";
+            const string invalidMsg = "Email hoặc mật khẩu không chính xác.";
 
             if (user == null)
             {
@@ -205,8 +204,8 @@ namespace MockviewAI.Services.Auth
             bool isCorrectPasswords = VerifyPasswordHash(password, user.PasswordHash);
             if (!isCorrectPasswords) throw new Exception(invalidMsg);
 
-            if (user.Status == "Locked") throw new Exception("Your account has been locked.");
-            if (user.Status == "Inactive") throw new Exception("Your account has been temporarily suspended.");
+            if (user.Status == "Locked") throw new Exception("Tài khoản của bạn đã bị khóa.");
+            if (user.Status == "Inactive") throw new Exception("Tài khoản của bạn đã bị đình chỉ tạm thời.");
 
             user.LastLoginAt = DateTime.UtcNow;
             await _userRepository.UpdateAsync(user);
@@ -224,8 +223,8 @@ namespace MockviewAI.Services.Auth
                 return await RegisterGoogleAsync(email, firstName, lastName, avatarUrl);
             }
 
-            if (existingUser.Status == "Locked") throw new Exception("Your account has been locked.");
-            if (existingUser.Status == "Inactive") throw new Exception("Your account has been temporarily suspended.");
+            if (existingUser.Status == "Locked") throw new Exception("Tài khoản của bạn đã bị khóa.");
+            if (existingUser.Status == "Inactive") throw new Exception("Tài khoản của bạn đã bị đình chỉ tạm thời.");
 
             if (!string.IsNullOrEmpty(avatarUrl) && existingUser.AvatarUrl != avatarUrl)
             {
@@ -266,7 +265,7 @@ namespace MockviewAI.Services.Auth
 
             var cooldown = await _cache.GetStringAsync($"Cooldown_ResetOTP_{email}");
             if (!string.IsNullOrEmpty(cooldown))
-                throw new Exception("Please wait 60 seconds before requesting another code.");
+                throw new Exception("Vui lòng đợi 60 giây trước khi yêu cầu mã mới.");
 
             var cooldownOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60) };
             await _cache.SetStringAsync($"Cooldown_ResetOTP_{email}", "true", cooldownOptions);
@@ -277,12 +276,17 @@ namespace MockviewAI.Services.Auth
             string resetCode = System.Security.Cryptography.RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
 
             var otpOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
-            
+
             await _cache.SetStringAsync($"OTP_{email}", resetCode, otpOptions);
             await _db.KeyDeleteAsync($"MockviewAI_OTP_Attempts_{email}");
 
-            string subject = "MockviewAI - Password Reset Code";
-            string body = $@"<div style='font-family: Inter, Arial, sans-serif; padding: 20px;'><h2>Password Reset Request</h2><p>Your password reset code is: <b style='font-size: 28px; color: #3348E0; letter-spacing: 2px;'>{resetCode}</b></p><p>This code will expire in 5 minutes.</p></div>";
+            string subject = "MockviewAI - Mã khôi phục mật khẩu";
+            string body = $@"
+                <div style='font-family: Inter, Arial, sans-serif; padding: 20px;'>
+                    <h2>Yêu cầu khôi phục mật khẩu</h2>
+                    <p>Mã khôi phục của bạn là: <b style='font-size: 28px; color: #3348E0; letter-spacing: 2px;'>{resetCode}</b></p>
+                    <p>Mã này có hiệu lực trong 5 phút.</p>
+                </div>";
 
             await _emailService.SendEmailAsync(email, subject, body);
         }
@@ -293,7 +297,7 @@ namespace MockviewAI.Services.Auth
 
             string? savedCode = await _cache.GetStringAsync($"OTP_{email}");
             if (string.IsNullOrEmpty(savedCode))
-                throw new Exception("The reset code has expired or is invalid.");
+                throw new Exception("Mã khôi phục đã hết hạn hoặc không hợp lệ.");
 
             string attemptKey = $"MockviewAI_OTP_Attempts_{email}";
 
@@ -317,15 +321,15 @@ namespace MockviewAI.Services.Auth
             if (attempts >= 5)
             {
                 var blockOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_lockoutMinutes) };
+                
                 await _cache.SetStringAsync($"BlockIP_{ipAddress}", "true", blockOptions);
-
                 await _cache.RemoveAsync($"OTP_{email}");
                 await _db.KeyDeleteAsync(attemptKey);
 
-                throw new Exception($"Your IP has been blocked for {_lockoutMinutes} minutes due to multiple failed attempts.");
+                throw new Exception($"IP của bạn đã bị khóa tạm thời {_lockoutMinutes} phút do nhập sai quá nhiều lần.");
             }
 
-            throw new Exception($"Incorrect reset code. You have {5 - attempts} attempts left.");
+            throw new Exception($"Mã khôi phục không chính xác. Bạn còn {5 - attempts} lần thử.");
         }
 
         public async Task ResetPasswordAsync(string email, string newPassword)
@@ -334,10 +338,10 @@ namespace MockviewAI.Services.Auth
 
             string? verified = await _cache.GetStringAsync($"Verified_{email}");
             if (string.IsNullOrEmpty(verified))
-                throw new Exception("Unauthorized request. Please verify your email again.");
+                throw new Exception("Yêu cầu trái phép. Vui lòng xác thực lại email.");
 
             var user = await _userRepository.GetByEmailAsync(email);
-            if (user == null) throw new Exception("Account not found.");
+            if (user == null) throw new Exception("Tài khoản không tồn tại.");
 
             user.PasswordHash = HashPassword(newPassword);
             user.UpdateAt = DateTime.UtcNow;

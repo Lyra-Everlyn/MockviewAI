@@ -1,8 +1,11 @@
-// [AI-MODULE] Lớp dữ liệu vào/ra của module AI. Mỗi file một lớp.
-
 namespace MockviewAI.Models.Ai
 {
-    // Input for scoring a whole practice session
+    /// <summary>
+    /// [AI-MODULE] 
+    /// -- Lớp dữ liệu vào/ra của module AI
+    /// -- Input for scoring a whole practice session
+    /// </summary>
+    
     public class ScoreRequest
     {
         public string Position { get; set; } = string.Empty;   // e.g. "Lập trình viên"

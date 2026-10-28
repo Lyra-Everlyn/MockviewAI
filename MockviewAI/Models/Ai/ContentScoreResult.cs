@@ -1,8 +1,11 @@
-// [AI-MODULE] Lớp dữ liệu vào/ra của module AI. Mỗi file một lớp.
-
 namespace MockviewAI.Models.Ai
 {
-    // Content score from the AI: 4 criteria x 25 points = 100
+    /// <summary>
+    /// [AI-MODULE] 
+    /// -- Lớp dữ liệu vào/ra của module AI
+    /// -- Content score from the AI: 4 criteria x 25 points = 100
+    /// </summary>
+    
     public class ContentScoreResult
     {
         public int Relevance { get; set; }     // Trả lời đúng câu hỏi

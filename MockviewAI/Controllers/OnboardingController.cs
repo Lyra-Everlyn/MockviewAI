@@ -8,6 +8,7 @@ namespace MockviewAI.Controllers
 {
     /// [SETUP PROFILE]
     // -- After login
+
     [Authorize]
     public class OnboardingController : Controller
     {

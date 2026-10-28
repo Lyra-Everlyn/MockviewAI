@@ -16,7 +16,7 @@ namespace MockviewAI.Services.Interviews
         private const int MaxAnswerLength = 2000;
         private static readonly int[] AllowedQuestionCounts = { 5, 10 };
 
-        // [#14] Mỗi buổi gọi AI chấm 1 lần -> giới hạn số buổi mới để không bị spam tốn tiền API
+        // Mỗi buổi gọi AI chấm 1 lần -> giới hạn số buổi mới để không bị spam tốn tiền API
         private const int MaxSessionsPerHour = 10;
 
         // Mỗi câu được trả lời tối đa 3 lần: 2 lần đầu bị từ chối thì được nói lại, lần thứ 3 vẫn không ổn thì tính là bỏ qua

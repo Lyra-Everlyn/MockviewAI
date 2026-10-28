@@ -1,8 +1,13 @@
-// [AI-MODULE] Lớp dữ liệu vào/ra của module AI. Mỗi file một lớp.
+using System.Runtime.InteropServices;
 
 namespace MockviewAI.Models.Ai
 {
-    // Final combined score shown to the user (always labelled "Điểm tham khảo")
+    /// <summary>
+    /// [AI-MODULE] 
+    /// -- Lớp dữ liệu vào/ra của module AI.Mỗi file một lớp.
+    /// -- Final combined score shown to the user (always labelled "Điểm tham khảo")
+    /// </summary>
+    
     public class InterviewScoreResult
     {
         public ContentScoreResult Content { get; set; } = new();

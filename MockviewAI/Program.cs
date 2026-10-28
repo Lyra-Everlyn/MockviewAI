@@ -24,7 +24,6 @@ using StackExchange.Redis;
 using System.Security.Principal;
 using System.Threading.RateLimiting;
 
-
 namespace MockviewAI
 {
     public class Program
@@ -57,7 +56,6 @@ namespace MockviewAI
             var redisOptions = ConfigurationOptions.Parse(redisConnectionString);
 
             redisOptions.AbortOnConnectFail = false;
-
             builder.Services.AddStackExchangeRedisCache(options =>
             {
                 options.ConfigurationOptions = redisOptions;
@@ -87,7 +85,9 @@ namespace MockviewAI
             builder.Services.AddScoped<IEmailService, EmailService>();
 
 
-            // Configure the AI ​​Provider based on appsettings ("Mock" or "Gemini")
+            // --- C. THIRD-PARTY SERVICE ---
+
+            // -- AI Service
             builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
             builder.Services.AddSingleton<IDeliveryAnalyzer, DeliveryAnalyzer>();
             builder.Services.AddSingleton<IAnxietyEstimator, AnxietyEstimator>();
@@ -100,7 +100,7 @@ namespace MockviewAI
                 builder.Services.AddHttpClient<IAiScoringService, GeminiAiScoringService>(c =>
                 {
                     c.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
-                    c.Timeout = TimeSpan.FromSeconds(60);
+                    c.Timeout = TimeSpan.FromSeconds(180);
                 });
             }
             else
@@ -109,11 +109,7 @@ namespace MockviewAI
             }
 
 
-
-            // =========================================================================
-            // PART 3: THIRD-PARTY SERVICE
-
-            // --- A. GOOGLE AUTHENTICATION & COOKIES ---
+            // -- Google Authentication % Cookies
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -135,7 +131,8 @@ namespace MockviewAI
                 options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
             });
 
-            // --- B. CLOUDINARY (Media Storage) ---
+
+            // -- Cloudinary (Media Storage)
             var cloudinarySettings = builder.Configuration.GetSection("CloudinarySettings");
             string cloudName = cloudinarySettings["CloudName"] ?? throw new InvalidOperationException("Cloudinary CloudName is missing.");
             string apiKey = cloudinarySettings["ApiKey"] ?? throw new InvalidOperationException("Cloudinary ApiKey is missing.");
@@ -148,6 +145,7 @@ namespace MockviewAI
 
 
 
+
             // =========================================================================
             // PART 4: CONFIGURATION VIA VISUAL STUDIO & SECURITY
 
@@ -157,15 +155,14 @@ namespace MockviewAI
             // Password-guessing protection (throttling), proxy configuration, and system security policies
             builder.Services.AddAppSecurity(builder.Configuration);
 
+
             // --- B. IP-BASED RATE LIMITING CONFIGURATION ---
             builder.Services.AddRateLimiter(options =>
             {
                 options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-                // 1. Define a policy to limit OTP sending: 3 times / 15 minutes / 1 IP
                 options.AddPolicy("OtpRateLimit", context =>
                 {
-                    // Get the user's real IP (accounting for ForwardedHeaders if a proxy is used)
                     var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "unknown_ip";
 
                     return RateLimitPartition.GetFixedWindowLimiter(
@@ -204,28 +201,29 @@ namespace MockviewAI
                 };
             });
 
+
+
             var app = builder.Build();
-
-
 
             // =========================================================================
             // PART 5: MIDDLEWARE PIPELINE
 
-            // --- 0. Chốt chặn lỗi toàn app (đặt ĐẦU TIÊN để bắt được mọi lỗi phía sau)
-            app.UseMiddleware<MockviewAI.Middleware.ErrorHandlingMiddleware>();
+            // --- Global error-handling checkpoint for the entire app
+            app.UseMiddleware<Middleware.ErrorHandlingMiddleware>();
 
-            // --- A. Standard security: Forwarded headers & HTTP security headers
+
+            // --- Standard security: Forwarded headers & HTTP security headers
             app.UseAppSecurity();
 
 
-            // Configuring error handling and HTTPS for a production environment
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
 
-            // --- B. Auto update database
+
+            // --- Auto update database
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -233,15 +231,12 @@ namespace MockviewAI
             }
 
             //app.UseHttpsRedirection();
-
             app.UseRouting();
 
-
-            // --- C. Enable rate limitter (MUST BE PLACED AFTER UseRouting AND BEFORE UseAuth) ---
+            // --- Enable rate limitter
             app.UseRateLimiter();
 
-
-            // --- D. Enforce security workflow: Identity check before permission check
+            // --- Enforce security workflow: Identity check before permission check
             app.UseAuthentication();
             app.UseAuthorization();
 

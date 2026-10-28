@@ -1,6 +1,7 @@
 // [AI-INTERVIEW] Phòng phỏng vấn: nói hoặc gõ câu trả lời -> gửi lên server -> sang câu tiếp -> chấm điểm.
 // Giọng nói dùng SpeechRecognition của trình duyệt (Chrome/Edge). Trình duyệt không hỗ trợ thì dùng nút "Gõ câu trả lời".
 // 21/10 (sáng): [#17] đọc câu hỏi + "Nghe lại"; [#18] kiểm tra micro; [#3] đo khoảng lặng khi nói.
+// 28/10: nút "Xoá ghi âm, nói lại" dưới bản ghi chữ (huỷ nghe nếu đang nói, xoá chữ đã ghi).
 // 21/10 (chiều): sóng âm đo từ micro (thấy sóng = hệ thống nghe thấy bạn); chữ hiện trực tiếp khi nói;
 //                báo lỗi rõ ràng (vd Opera không nhận giọng nói); xác nhận "Đã ghi nhận câu trả lời";
 //                câu trả lời bị từ chối thì nói lại; AI chấm lỗi thì "Chấm lại" / kết quả dự phòng.
@@ -23,6 +24,7 @@
     const btnType = document.getElementById('btn-type');
     const btnSkip = document.getElementById('btn-skip');
     const btnSend = document.getElementById('btn-send');
+    const btnClear = document.getElementById('btn-clear-answer');
     const btnStop = document.getElementById('btn-stop-session');
     const btnResume = document.getElementById('btn-resume');
     const btnFinish = document.getElementById('btn-finish');
@@ -97,7 +99,7 @@
 
     function setBusy(value) {
         busy = value;
-        [btnSpeak, btnType, btnSkip, btnSend, btnStop, btnFinish, btnReplay].forEach(b => b.disabled = value);
+        [btnSpeak, btnType, btnSkip, btnSend, btnStop, btnFinish, btnReplay, btnClear].forEach(b => b.disabled = value);
     }
 
     // Nhãn dưới avatar: "Đang hỏi..." / "Đang lắng nghe..." / "Chờ bạn trả lời"
@@ -246,6 +248,7 @@
     // finalPart: phần đã chắc chắn (đậm). interimPart: phần trình duyệt đang nhận dạng (nhạt).
     function renderTranscript(finalPart, interimPart) {
         transcriptText.textContent = '';
+        btnClear.hidden = isTyping || (!finalPart && !interimPart);   // có chữ mới cho xoá
         if (!finalPart && !interimPart) {
             transcriptText.textContent = PLACEHOLDER;
             transcriptMeta.hidden = true;
@@ -428,6 +431,7 @@
         transcriptText.hidden = on;
         transcriptMeta.hidden = on || transcriptMeta.hidden;
         btnSend.hidden = !on;
+        btnClear.hidden = on || spokenText === '';
         if (on) answerInput.focus();
     }
 
@@ -456,6 +460,28 @@
         renderTranscript('', '');
         btnSend.hidden = !isTyping;
     }
+
+    // 28/10: người dùng thấy nói sai -> xoá bản ghi để nói lại.
+    // Đang nghe thì dùng abort() (không phải stop()): abort bỏ luôn phần trình duyệt đang nhận dạng dở,
+    // nên chữ cũ không bị "hiện lại" sau khi đã xoá.
+    function clearRecording() {
+        if (busy) return;
+        if (isListening) {
+            isListening = false;
+            clearHintTimer();
+            try { recognition.abort(); } catch (e) { }
+            stopMeter();
+            roomWave.hidden = true;
+            btnSpeak.lastChild.textContent = ' Bấm để nói';
+        }
+        resetAnswer();
+        lastAnswer.hidden = true;
+        setStatus('Chờ bạn trả lời', 'is-waiting');
+        showMessage('Đã xoá ghi âm. Bấm "Bấm để nói" để trả lời lại.');
+        logEvent('answer_cleared');
+    }
+
+    btnClear.addEventListener('click', clearRecording);
 
     async function submit(skipped) {
         if (busy) return;

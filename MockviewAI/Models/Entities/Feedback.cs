@@ -2,7 +2,11 @@
 
 namespace MockviewAI.Models.Entities
 {
-    // Góp ý của người dùng cho bản thử V1 (trang Feedback).
+    /// <summary>
+    /// [FEEDBACK]
+    /// -- Phản hồi của người dùng dành cho ứng dụng
+    /// </summary>
+
     public class Feedback
     {
         [Key]

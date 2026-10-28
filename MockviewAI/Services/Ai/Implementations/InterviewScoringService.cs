@@ -1,14 +1,17 @@
-// [AI-MODULE] InterviewScoringService
-// Điểm vào chính của module AI: gộp điểm nội dung (60%) + cách nói (40%).
-// Nhóm bạn chỉ cần gọi ScoreAsync(ScoreRequest) từ phòng phỏng vấn. Điểm luôn hiển thị là 'Điểm tham khảo'.
-// Khi AI lỗi: gọi ScoreDeliveryOnly (chấm dự phòng, chỉ tính cách nói).
-
 using MockviewAI.Models.Ai;
 using MockviewAI.Services.Ai.Interfaces;
 
 namespace MockviewAI.Services.Ai.Implementations
 {
-    // Combines AI content score (60%) + code-based delivery score (40%)
+    /// <summary>
+    /// [AI-MODULE] 
+    /// InterviewScoringService
+    /// -- Điểm vào chính của module AI: gộp điểm nội dung (60%) + cách nói (40%).
+    /// -- Nhóm bạn chỉ cần gọi ScoreAsync(ScoreRequest) từ phòng phỏng vấn. Điểm luôn hiển thị là 'Điểm tham khảo'.
+    /// -- Khi AI lỗi: gọi ScoreDeliveryOnly (chấm dự phòng, chỉ tính cách nói).
+    /// -- Combines AI content score (60%) + code-based delivery score (40%)
+    /// </summary>
+
     public class InterviewScoringService : IInterviewScoringService
     {
         private const double ContentWeight = 0.6;

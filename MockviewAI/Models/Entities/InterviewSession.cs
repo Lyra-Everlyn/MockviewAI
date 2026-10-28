@@ -1,11 +1,14 @@
-// [AI-INTERVIEW] Một buổi luyện phỏng vấn của một người dùng.
-// Điểm (Total/Content/Delivery) chỉ có sau khi bấm "Dừng và xem kết quả" hoặc trả lời hết câu.
-
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
 namespace MockviewAI.Models.Entities
 {
+    /// <summary>
+    /// [AI-INTERVIEW] 
+    /// -- Một buổi luyện phỏng vấn của một người dùng.
+    /// -- Điểm (Total/Content/Delivery) chỉ có sau khi bấm "Dừng và xem kết quả" hoặc trả lời hết câu.
+    /// </summary>
+    
     public class InterviewSession
     {
         [Key]

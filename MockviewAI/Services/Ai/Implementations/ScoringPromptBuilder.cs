@@ -1,12 +1,14 @@
-// [AI-MODULE] ScoringPromptBuilder
-// Chỉ lo việc SOẠN PROMPT: lệnh hệ thống, nội dung buổi phỏng vấn, chống prompt injection (bỏ dấu < >, giới hạn độ dài).
-
 using System.Text;
 using MockviewAI.Models.Ai;
 using MockviewAI.Services.Ai.Interfaces;
 
 namespace MockviewAI.Services.Ai.Implementations
 {
+    /// <summary>
+    /// [AI-MODULE] 
+    /// ScoringPromptBuilder
+    /// -- Chỉ lo việc SOẠN PROMPT: lệnh hệ thống, nội dung buổi phỏng vấn, chống prompt injection (bỏ dấu < >, giới hạn độ dài).
+    /// </summary>
     public class ScoringPromptBuilder : IScoringPromptBuilder
     {
         private const int MaxAnswers = 10;           // cost + abuse limit

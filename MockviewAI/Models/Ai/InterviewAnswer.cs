@@ -1,8 +1,11 @@
-// [AI-MODULE] Lớp dữ liệu vào/ra của module AI. Mỗi file một lớp.
-
 namespace MockviewAI.Models.Ai
 {
-    // One question + the candidate's answer (text from speech-to-text or typed)
+    /// <summary>
+    /// [AI-MODULE]
+    /// -- Lớp dữ liệu vào/ra của module AI
+    /// -- One question + the candidate's answer (text from speech-to-text or typed)
+    /// </summary>
+    // 
     public class InterviewAnswer
     {
         public string Question { get; set; } = string.Empty;
