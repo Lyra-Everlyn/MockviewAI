@@ -617,6 +617,40 @@ body {
     display: none;
 }
 
+/* 28/10: nút xoá ghi âm, nằm ngay dưới bản ghi chữ */
+.btn-clear-answer {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    background: #fff;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .btn-clear-answer svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .btn-clear-answer:hover {
+        background: #fef2f2;
+    }
+
+    .btn-clear-answer:disabled {
+        opacity: .5;
+        cursor: not-allowed;
+    }
+
+    .btn-clear-answer[hidden] {
+        display: none;
+    }
+
 .last-answer {
     margin-top: 12px;
     padding: 10px 14px;
