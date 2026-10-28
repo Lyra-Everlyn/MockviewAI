@@ -82,6 +82,11 @@
                     <div class="box-label">Bản ghi chữ câu trả lời của bạn</div>
                     <div class="transcript-text" id="transcript-text">Câu trả lời của bạn sẽ hiện ở đây.</div>
                     <div class="transcript-meta" id="transcript-meta" hidden></div>
+                    <!-- 28/10: nói sai thì xoá bản ghi để nói lại (chỉ hiện khi đã có chữ) -->
+                    <button class="btn-clear-answer" id="btn-clear-answer" type="button" hidden>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>
+                        Xoá ghi âm, nói lại
+                    </button>
                     <textarea class="answer-input" id="answer-input" rows="4" maxlength="2000" hidden
                               placeholder="Gõ câu trả lời của bạn..."></textarea>
                 </div>
