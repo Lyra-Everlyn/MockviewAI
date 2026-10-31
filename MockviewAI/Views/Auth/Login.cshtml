@@ -9,6 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập - MockviewAI</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/Login.css">
@@ -19,7 +20,7 @@
 
     <div class="login-wrapper">
         <div class="login-box">
-            
+
             <div class="login-banner">
                 <div class="banner-logo">MockviewAI</div>
                 <h1 class="banner-title">Luyện phỏng vấn với AI trước ngày phỏng vấn thật</h1>
@@ -31,26 +32,25 @@
                 </ul>
             </div>
 
-            <!-- Phần Form bên phải -->
             <div class="login-form-container">
                 <div class="form-header">
                     <div class="title-wrapper">
                         <h2>Đăng nhập</h2>
-                        <span class="badge-beta">Beta</span>
+                        <span class="badge-beta">BETA</span>
                     </div>
-                    <p class="subtitle">Luyện phỏng vấn với AI, miễn phí.</p>
+                    <p class="subtitle">Luyện phỏng vấn với AI, hoàn toàn miễn phí.</p>
                 </div>
 
-                <form method="post" asp-controller="Auth" asp-action="Login" id="loginForm" data-loading-text="Loading ...">
+                <form method="post" asp-controller="Auth" asp-action="Login" id="loginForm" data-loading-text="Đang đăng nhập...">
                     @Html.AntiForgeryToken()
-                    
+
                     <a asp-controller="Auth" asp-action="LoginGoogle" class="btn-google">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
-                        Đăng nhập với Google
+                        Đăng nhập bằng Google
                     </a>
 
                     <div class="divider">
-                        <span>HOẶC VỚI TÀI KHOẢN LOCAL</span>
+                        <span>HOẶC VỚI TÀI KHOẢN MOCKVIEW</span>
                     </div>
 
                     <div class="form-group">
@@ -71,7 +71,7 @@
                     </div>
 
                     <div class="form-group">
-                        <a href="/Auth/ForgotPassword" class="forgot-password-link">Forgot Password?</a>
+                        <a href="/Auth/ForgotPassword" class="forgot-password-link">Quên mật khẩu?</a>
                     </div>
 
                     <div class="form-group">
@@ -81,16 +81,16 @@
                     <button type="submit" class="btn-submit">Đăng nhập</button>
 
                 </form>
-                
+
                 <div class="auth-switch">
-                    Chưa có tài khoản? <a href="/Auth/Register">Đăng ký</a>
+                    Chưa có tài khoản? <a href="/Auth/Register">Đăng ký ngay</a>
                 </div>
             </div>
 
         </div>
     </div>
 
-    <partial name="Partials/_Notify"/>
+    <partial name="Partials/_Notify" />
     <script src="~/js/_TogglePassword.js"></script>
     <script src="~/js/_SubmitLoading.js"></script>
 </body>

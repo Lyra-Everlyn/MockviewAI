@@ -4,11 +4,11 @@
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create an account - MockviewAI</title>
+    <title>Tạo tài khoản - MockviewAI</title>
     <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -23,12 +23,12 @@
 
             <div class="info-panel">
                 <div class="logo">Mockview<span>AI</span></div>
-                <h1>Practice interviewing with AI before your real interview day</h1>
-                <p class="subtitle">Designed for upcoming graduates and entry-level professionals.</p>
+                <h1>Luyện phỏng vấn với AI trước ngày phỏng vấn thật</h1>
+                <p class="subtitle">Dành cho sinh viên sắp tốt nghiệp và người mới đi làm.</p>
                 <ul class="features">
-                    <li><span class="step">1</span> Choose your role and interviewer</li>
-                    <li><span class="step">2</span> Respond via voice or text</li>
-                    <li><span class="step">3</span> View your score, feedback, and anxiety level</li>
+                    <li><span class="step">1</span> Chọn vị trí ứng tuyển và người phỏng vấn</li>
+                    <li><span class="step">2</span> Trả lời bằng giọng nói hoặc văn bản</li>
+                    <li><span class="step">3</span> Xem điểm số, nhận xét và mức độ lo lắng</li>
                 </ul>
             </div>
 
@@ -39,27 +39,27 @@
                     <span class="badge badge-beta">BETA</span>
                 </div>
                 <div class="mobile-title hide-on-desktop">
-                    <h2>Create an account</h2>
-                    <p>Practice interviewing with AI, for free.</p>
+                    <h2>Tạo tài khoản</h2>
+                    <p>Luyện phỏng vấn với AI, hoàn toàn miễn phí.</p>
                 </div>
 
                 <!-- Desktop Header -->
                 <div class="form-header hide-on-mobile">
-                    <h2>Create an account</h2>
+                    <h2>Tạo tài khoản</h2>
                     <span class="badge badge-beta">BETA</span>
                 </div>
 
-                <form method="post" asp-controller="Auth" asp-action="Register" data-loading-text="Creating account..." data-loading-overlay="Sending a verification code to your email. This can take a few seconds...">
+                <form method="post" asp-controller="Auth" asp-action="Register" data-loading-text="Đang tạo tài khoản..." data-loading-overlay="Đang gửi mã xác thực đến email của bạn. Quá trình này có thể mất vài giây...">
                     @Html.AntiForgeryToken()
 
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>First Name</label>
-                            <input type="text" name="firstName" placeholder="First Name" required>
+                            <label>Tên</label>
+                            <input type="text" name="firstName" placeholder="Nhập tên" required>
                         </div>
                         <div class="form-group">
-                            <label>Last Name</label>
-                            <input type="text" name="lastName" placeholder="Last Name" required>
+                            <label>Họ</label>
+                            <input type="text" name="lastName" placeholder="Nhập họ" required>
                         </div>
 
                         <div class="form-group full-width">
@@ -68,16 +68,16 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Password</label>
+                            <label>Mật khẩu</label>
                             <div class="input-group">
-                                <input type="password" name="password" id="reg-pass" placeholder="At least 8 characters" required>
+                                <input type="password" name="password" id="reg-pass" placeholder="Tối thiểu 8 ký tự" required>
                                 <i class="far fa-eye toggle-password" onclick="togglePass('reg-pass', this)"></i>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Confirm Password</label>
+                            <label>Xác nhận mật khẩu</label>
                             <div class="input-group">
-                                <input type="password" name="confirmPassword" id="reg-confirm-pass" placeholder="Confirm your password" required>
+                                <input type="password" name="confirmPassword" id="reg-confirm-pass" placeholder="Nhập lại mật khẩu" required>
                                 <i class="far fa-eye toggle-password" onclick="togglePass('reg-confirm-pass', this)"></i>
                             </div>
                         </div>
@@ -86,24 +86,24 @@
 
                     <div class="checkbox-group">
                         <input type="checkbox" id="terms" name="terms" value="true" required>
-                        <label for="terms">I agree to the Terms of Service and Privacy Policy</label>
+                        <label for="terms">Tôi đồng ý với Điều khoản dịch vụ và Chính sách bảo mật</label>
                     </div>
 
                     <div class="form-group">
                         <div class="cf-turnstile" data-theme="light" data-size="flexible" data-sitekey="@Configuration["Turnstile:SiteKey"]"></div>
                     </div>
 
-                    <button type="submit" class="btn-submit">Create account</button>
+                    <button type="submit" class="btn-submit">Tạo tài khoản</button>
 
                     <div class="login-link">
-                        Already have an account? <a href="/Auth/Login">Login</a>
+                        Đã có tài khoản? <a href="/Auth/Login">Đăng nhập</a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <partial name="Partials/_Notify"/>
+    <partial name="Partials/_Notify" />
     <script src="~/js/_TogglePassword.js"></script>
     <script src="~/js/_SubmitLoading.js"></script>
 </body>
