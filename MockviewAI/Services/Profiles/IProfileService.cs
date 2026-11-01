@@ -7,6 +7,6 @@ namespace MockviewAI.Services.Profiles
     {
         Task<ProfileViewModel?> GetProfileAsync(string email);
         Task<ProfileEditViewModel?> GetEditAsync(string email);
-        Task<string?> UpdateAsync(string email, ProfileEditViewModel model);
+        Task<(string FullName, string? AvatarUrl)?> UpdateAsync(string email, ProfileEditViewModel model);
     }
 }

@@ -5,6 +5,8 @@ namespace MockviewAI.Models.ViewModels
     /// [PROFILE]
     public class ProfileEditViewModel
     {
+        public IFormFile? AvatarFile { get; set; }
+
         [StringLength(50, ErrorMessage = "Họ tối đa 50 ký tự.")]
         public string? LastName { get; set; } = string.Empty;
 

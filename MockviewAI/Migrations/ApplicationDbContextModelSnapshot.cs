@@ -226,7 +226,6 @@ namespace MockviewAI.Migrations
                         .HasColumnType("datetime(3)");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 

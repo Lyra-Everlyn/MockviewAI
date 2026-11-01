@@ -1,12 +1,11 @@
 ﻿using MockviewAI.Models.Entities;
 using MockviewAI.Models.ViewModels;
 using MockviewAI.Repositories.Interfaces;
-using MockviewAI.Services.Profiles;
+using MockviewAI.Services.FileStorage.Interfaces;
 using MockviewAI.Services.SessionHistory;
 
 namespace MockviewAI.Services.Profiles
 {
-    /// [PROFILE]
     public class ProfileService : IProfileService
     {
         private static readonly Dictionary<string, string> StatusTexts = new()
@@ -19,11 +18,13 @@ namespace MockviewAI.Services.Profiles
 
         private readonly IUserRepository _userRepository;
         private readonly ISessionHistoryService _history;
+        private readonly IFileStorageService _fileStorage;
 
-        public ProfileService(IUserRepository userRepository, ISessionHistoryService history)
+        public ProfileService(IUserRepository userRepository, ISessionHistoryService history, IFileStorageService fileStorage)
         {
             _userRepository = userRepository;
             _history = history;
+            _fileStorage = fileStorage;
         }
 
         public async Task<ProfileViewModel?> GetProfileAsync(string email)
@@ -60,10 +61,21 @@ namespace MockviewAI.Services.Profiles
             };
         }
 
-        public async Task<string?> UpdateAsync(string email, ProfileEditViewModel model)
+        public async Task<(string FullName, string? AvatarUrl)?> UpdateAsync(string email, ProfileEditViewModel model)
         {
             var user = await FindUserAsync(email);
             if (user == null) return null;
+
+            if (model.AvatarFile != null && model.AvatarFile.Length > 0)
+            {
+                await DeleteOldCloudinaryAvatarAsync(user.AvatarUrl);
+
+                var (url, _) = await _fileStorage.UploadFileAsync(model.AvatarFile, "MockviewAI/Avatars", UploadType.Avatar);
+                if (!string.IsNullOrEmpty(url))
+                {
+                    user.AvatarUrl = url;
+                }
+            }
 
             user.FirstName = (model.FirstName ?? "").Trim();
             user.LastName = (model.LastName ?? "").Trim();
@@ -74,7 +86,38 @@ namespace MockviewAI.Services.Profiles
             user.UpdateAt = DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user);
-            return FullName(user);
+
+            return (FullName(user), user.AvatarUrl);
+        }
+
+
+        private async Task DeleteOldCloudinaryAvatarAsync(string? avatarUrl)
+        {
+            if (string.IsNullOrEmpty(avatarUrl) || !avatarUrl.Contains("cloudinary.com/"))
+                return;
+
+            try
+            {
+                int uploadIndex = avatarUrl.IndexOf("/upload/");
+                if (uploadIndex > 0)
+                {
+                    string afterUpload = avatarUrl.Substring(uploadIndex + 8);
+                    var parts = afterUpload.Split('/');
+
+                    if (parts.Length > 1 && parts[0].StartsWith("v") && parts[0].Length > 1 && char.IsDigit(parts[0][1]))
+                    {
+                        afterUpload = string.Join("/", parts.Skip(1));
+                    }
+
+                    int lastDot = afterUpload.LastIndexOf('.');
+                    string publicId = lastDot > 0 ? afterUpload.Substring(0, lastDot) : afterUpload;
+
+                    await _fileStorage.DeleteFileAsync(publicId);
+                }
+            }
+            catch
+            {
+            }
         }
 
         private async Task<User?> FindUserAsync(string email)
@@ -83,6 +126,6 @@ namespace MockviewAI.Services.Profiles
             return await _userRepository.GetByEmailAsync(email.Trim().ToLowerInvariant());
         }
 
-        private static string FullName(User user) => (user.FirstName + " " + user.LastName).Trim();
+        private static string FullName(User user) => (user.LastName + " " + user.FirstName).Trim();
     }
 }

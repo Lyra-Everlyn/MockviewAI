@@ -8,8 +8,6 @@ using MockviewAI.Services.Profiles;
 
 namespace MockviewAI.Controllers
 {
-    /// [PROFILE]
-    
     [Authorize]
     [Route("Profile")]
     public class ProfileController : Controller
@@ -23,7 +21,6 @@ namespace MockviewAI.Controllers
 
         private string CurrentEmail => User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
 
-        // GET: /Profile
         [HttpGet("")]
         public async Task<IActionResult> ViewProfile()
         {
@@ -33,7 +30,6 @@ namespace MockviewAI.Controllers
             return View(profile);
         }
 
-        // GET: /Profile/Edit
         [HttpGet("Edit")]
         public async Task<IActionResult> EditProfile()
         {
@@ -43,26 +39,31 @@ namespace MockviewAI.Controllers
             return View(model);
         }
 
-        // POST: /Profile/Edit
         [HttpPost("Edit")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ProfileEditViewModel model)
         {
             if (!ModelState.IsValid) return View("EditProfile", model);
 
-            var newName = await _profileService.UpdateAsync(CurrentEmail, model);
-            if (newName == null) return RedirectToAction("Login", "Auth");
+            var result = await _profileService.UpdateAsync(CurrentEmail, model);
+            if (result == null) return RedirectToAction("Login", "Auth");
 
-            await RefreshNameClaimAsync(newName);
+            await RefreshClaimsAsync(result.Value.FullName, result.Value.AvatarUrl);
             TempData["SuccessMessage"] = "Đã lưu hồ sơ.";
 
             return RedirectToAction("ViewProfile");
         }
 
-        private async Task RefreshNameClaimAsync(string fullName)
+        private async Task RefreshClaimsAsync(string fullName, string? avatarUrl)
         {
-            var claims = User.Claims.Where(c => c.Type != ClaimTypes.Name).ToList();
+            var claims = User.Claims.Where(c => c.Type != ClaimTypes.Name && c.Type != "AvatarUrl").ToList();
+
             claims.Add(new Claim(ClaimTypes.Name, fullName));
+            if (!string.IsNullOrEmpty(avatarUrl))
+            {
+                claims.Add(new Claim("AvatarUrl", avatarUrl));
+            }
+
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
         }
