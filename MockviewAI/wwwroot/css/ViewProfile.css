@@ -1,6 +1,5 @@
 ﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* ViewProfile page styles */
 :root {
     --profile-ink: #172033;
     --profile-muted: #748096;
@@ -1134,15 +1133,6 @@ body {
             color: var(--profile-primary);
         }
 
-        .nav-item svg {
-            width: 21px;
-            height: 21px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 1.8;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
 }
 
 @media (max-width: 360px) {

@@ -25,7 +25,7 @@ namespace MockviewAI.Models.Entities
         public string FirstName { get; set; } = string.Empty;
 
         [MaxLength(50)]
-        public string LastName { get; set; } = string.Empty;
+        public string? LastName { get; set; } = string.Empty;
 
         public DateTime? DateOfBirth { get; set; }
         public string? AvatarUrl { get; set; }

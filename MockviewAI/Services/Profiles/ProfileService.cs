@@ -51,7 +51,8 @@ namespace MockviewAI.Services.Profiles
 
             return new ProfileEditViewModel
             {
-                FullName = FullName(user),
+                FirstName = user.FirstName ?? string.Empty,
+                LastName = user.LastName ?? string.Empty,
                 Major = user.Major ?? string.Empty,
                 TargetPosition = user.TargetPosition ?? string.Empty,
                 GraduationStatus = user.GraduationStatus ?? string.Empty,
@@ -64,11 +65,8 @@ namespace MockviewAI.Services.Profiles
             var user = await FindUserAsync(email);
             if (user == null) return null;
 
-            var name = (model.FullName ?? "").Trim();
-            int space = name.IndexOf(' ');
-            user.FirstName = space < 0 ? name : name[..space];
-            user.LastName = space < 0 ? string.Empty : name[(space + 1)..].Trim();
-
+            user.FirstName = (model.FirstName ?? "").Trim();
+            user.LastName = (model.LastName ?? "").Trim();
             user.Major = (model.Major ?? "").Trim();
             user.TargetPosition = (model.TargetPosition ?? "").Trim();
             user.GraduationStatus = (model.GraduationStatus ?? "").Trim();

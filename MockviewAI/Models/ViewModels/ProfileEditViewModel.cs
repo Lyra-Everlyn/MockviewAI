@@ -5,20 +5,23 @@ namespace MockviewAI.Models.ViewModels
     /// [PROFILE]
     public class ProfileEditViewModel
     {
-        [Required(ErrorMessage = "Vui lòng nhập họ và tên.")]
-        [StringLength(100, ErrorMessage = "Họ và tên tối đa 100 ký tự.")]
-        public string FullName { get; set; } = string.Empty;
+        [StringLength(50, ErrorMessage = "Họ tối đa 50 ký tự.")]
+        public string? LastName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Vui lòng nhập tên.")]
+        [StringLength(50, ErrorMessage = "Tên tối đa 50 ký tự.")]
+        public string FirstName { get; set; } = string.Empty;
 
         [StringLength(100)]
         public string Major { get; set; } = string.Empty;
 
         [StringLength(100)]
-        public string TargetPosition { get; set; } = string.Empty; // Đổi tên từ Position
+        public string TargetPosition { get; set; } = string.Empty;
 
         [StringLength(50)]
-        public string GraduationStatus { get; set; } = string.Empty; // Đổi tên từ StudentStatus
+        public string GraduationStatus { get; set; } = string.Empty;
 
         [StringLength(50)]
-        public string ExperienceLevel { get; set; } = string.Empty; // Bổ sung mới
+        public string ExperienceLevel { get; set; } = string.Empty;
     }
 }
