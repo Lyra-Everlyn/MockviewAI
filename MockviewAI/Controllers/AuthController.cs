@@ -72,7 +72,7 @@ namespace MockviewAI.Controllers
                 var user = await _authService.AuthenticateAsync(email, password);
 
                 await _throttleService.ResetAsync(throttleKey, emailThrottleKey);
-                await SignInUser(user!.Email, $"{user.FirstName} {user.LastName}".Trim(), user.Role, user.AvatarUrl);
+                await SignInUser(user!.Email, $"{user.LastName} {user.FirstName}".Trim(), user.Role, user.AvatarUrl);
 
                 return RedirectAfterLogin(user);
             }
@@ -106,7 +106,7 @@ namespace MockviewAI.Controllers
             var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
             var givenName = claims?.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value;
-            var surname = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value;
+            var surname = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value ?? string.Empty;
             var avatarUrl = claims?.FirstOrDefault(c => c.Type == "urn:google:picture" || c.Type == "picture")?.Value;
             var emailVerified = claims?.FirstOrDefault(c => c.Type == "email_verified")?.Value;
 
@@ -126,7 +126,7 @@ namespace MockviewAI.Controllers
             try
             {
                 var user = await _authService.AuthenticateGoogleUserAsync(email, givenName, surname, avatarUrl);
-                await SignInUser(user.Email, $"{user.FirstName} {user.LastName}".Trim(), user.Role, user.AvatarUrl);
+                await SignInUser(user.Email, $"{user.LastName} {user.FirstName}".Trim(), user.Role, user.AvatarUrl);
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)

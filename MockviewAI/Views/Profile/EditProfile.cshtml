@@ -1,102 +1,303 @@
 ﻿@model MockviewAI.Models.ViewModels.ProfileEditViewModel
 @{
     Layout = null;
-    ViewData["ActiveNav"] = "";   // mục sáng trên thanh menu dùng chung
-    var initial = string.IsNullOrEmpty(Model?.FullName) ? "?" : Model.FullName.Substring(0, 1).ToUpper();
+    ViewData["ActiveNav"] = "";
+    var userName = User.Identity?.Name ?? "";
+    var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
     var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
 }
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sửa hồ sơ - MockviewAI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Chỉnh sửa hồ sơ - MockviewAI</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="~/css/EditProfile.css">
-    <link rel="stylesheet" href="~/css/theme.css"> <!-- giao diện chung: nạp SAU CSS của trang -->
+    <link rel="stylesheet" href="~/css/theme.css">
 </head>
 <body>
-
     <partial name="Partials/_TopNav" />
 
-    <main class="main-container">
-        
-        <div class="page-header">
-            <a href="/Profile" class="back-link">&lsaquo; Hồ sơ</a>
-            <h1 class="page-title">Sửa hồ sơ</h1>
-        </div>
-
-        <div class="edit-profile-card">
-            
-            <div class="avatar-section">
-                <div class="avatar-circle">
-                    @if (!string.IsNullOrEmpty(avatarUrl)) { <img src="@avatarUrl" alt="" referrerpolicy="no-referrer" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" /> } else { @initial }
-                </div>
-                <a href="#" class="change-avatar-btn">Đổi ảnh đại diện</a>
+    <main class="edit-page">
+        <header class="page-heading">
+            <div>
+                <h1 class="page-title">Chỉnh sửa hồ sơ</h1>
+                <p class="page-description">Cập nhật thông tin để MockviewAI cá nhân hoá trải nghiệm luyện phỏng vấn tốt hơn.</p>
             </div>
+        </header>
 
-            <!-- Bắn về ProfileController -->
-            <form class="profile-form" method="post" action="/Profile/Edit">
-                @Html.AntiForgeryToken()
-                
-                <div class="form-group full-width">
-                    <label class="form-label" for="fullname">Họ và tên</label>
-                    <input type="text" id="fullname" name="FullName" class="form-input" value="@Model?.FullName" maxlength="100" required>
+        <div class="edit-grid">
+            <aside class="profile-preview-card">
+                <div class="preview-avatar-wrap">
+                    <div class="preview-avatar">
+                        @if (!string.IsNullOrEmpty(avatarUrl))
+                        {
+                            <img src="@avatarUrl" alt="" referrerpolicy="no-referrer" />
+                        }
+                        else
+                        {
+                            @initial
+                        }
+                    </div>
+                    <span class="profile-status-dot" aria-label="Tài khoản đang hoạt động"></span>
                 </div>
 
-                <div class="form-row">
-                    <!-- THAY BẰNG INPUT TEXT -->
-                    <div class="form-group">
-                        <label class="form-label" for="major">Chuyên ngành</label>
-                        <input type="text" id="major" name="Major" class="form-input" value="@Model?.Major" placeholder="VD: Công nghệ thông tin">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="position">Vị trí muốn ứng tuyển</label>
-                        <input type="text" id="position" name="TargetPosition" class="form-input" value="@Model?.TargetPosition" placeholder="VD: Backend Developer">
-                    </div>
+                <div class="preview-copy">
+                    <h2>@userName</h2>
+                    <p>Ảnh đại diện giúp hồ sơ của bạn dễ nhận biết hơn.</p>
                 </div>
 
-                <div class="form-group full-width">
-                    <label class="form-label">Tình trạng học tập</label>
-                    <input type="hidden" id="studentStatus" name="GraduationStatus" value="@(Model?.GraduationStatus ?? "Expecting Graduation")">
-                    <div class="status-options" id="grad-options">
-                        <button type="button" class="status-btn @(Model?.GraduationStatus == "Current Student" ? "active" : "")" onclick="selectBtn('studentStatus', 'Current Student', 'grad-options', this)">Đang đi học</button>
-                        <button type="button" class="status-btn @(Model?.GraduationStatus == "Expecting Graduation" ? "active" : "")" onclick="selectBtn('studentStatus', 'Expecting Graduation', 'grad-options', this)">Sắp ra trường</button>
-                        <button type="button" class="status-btn @(Model?.GraduationStatus == "Graduated" ? "active" : "")" onclick="selectBtn('studentStatus', 'Graduated', 'grad-options', this)">Đã ra trường</button>
-                        <button type="button" class="status-btn @(Model?.GraduationStatus == "Other" ? "active" : "")" onclick="selectBtn('studentStatus', 'Other', 'grad-options', this)">Khác</button>
-                    </div>
-                </div>
+                <a href="#" class="change-avatar-btn">
+                    <i class="bi bi-camera" aria-hidden="true"></i>
+                    Đổi ảnh đại diện
+                </a>
 
-                <!-- BỔ SUNG KINH NGHIỆM TỪ ONBOARDING -->
-                <div class="form-group full-width" style="margin-top: 15px;">
-                    <label class="form-label">Kinh nghiệm</label>
-                    <input type="hidden" id="experienceLevel" name="ExperienceLevel" value="@(Model?.ExperienceLevel ?? "Intern / Fresher")">
-                    <div class="status-options" id="exp-options">
-                        <button type="button" class="status-btn @(Model?.ExperienceLevel == "Intern / Fresher" ? "active" : "")" onclick="selectBtn('experienceLevel', 'Intern / Fresher', 'exp-options', this)">Intern/Fresher</button>
-                        <button type="button" class="status-btn @(Model?.ExperienceLevel == "Junior" ? "active" : "")" onclick="selectBtn('experienceLevel', 'Junior', 'exp-options', this)">Junior</button>
-                        <button type="button" class="status-btn @(Model?.ExperienceLevel == "Mid-Level" ? "active" : "")" onclick="selectBtn('experienceLevel', 'Mid-Level', 'exp-options', this)">Mid-Level</button>
-                        <button type="button" class="status-btn @(Model?.ExperienceLevel == "Senior / Lead" ? "active" : "")" onclick="selectBtn('experienceLevel', 'Senior / Lead', 'exp-options', this)">Senior</button>
+                <div class="preview-divider"></div>
+
+                <div class="preview-note">
+                    <span class="preview-note-icon"><i class="bi bi-info-circle"></i></span>
+                    <div>
+                        <strong>Mẹo nhỏ</strong>
+                        <p>Thông tin càng sát với mục tiêu nghề nghiệp, nội dung luyện tập càng phù hợp.</p>
                     </div>
                 </div>
+            </aside>
 
-                <div class="form-actions" style="margin-top: 25px;">
-                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-                    <button type="button" class="btn btn-outline" onclick="location.href='/Profile'">Huỷ</button>
+            <section class="form-card">
+                <div class="form-card-header">
+                    <span class="eyebrow">THÔNG TIN HỒ SƠ</span>
+                    <h2>Thông tin cá nhân & nghề nghiệp</h2>
+                    <p>Các thay đổi sẽ được lưu vào hồ sơ hiện tại của bạn.</p>
                 </div>
 
-            </form>
+                <form class="profile-form" method="post" action="/Profile/Edit">
+                    @Html.AntiForgeryToken()
 
+                    <section class="form-section">
+                        <div class="form-section-title">
+                            <span class="form-section-icon"><i class="bi bi-person"></i></span>
+                            <div>
+                                <h3>Thông tin cơ bản</h3>
+                                <p>Tên hiển thị trên hồ sơ MockviewAI.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="lastName">Họ</label>
+                                <input type="text"
+                                       id="lastName"
+                                       name="LastName"
+                                       class="form-input"
+                                       value="@Model?.LastName"
+                                       maxlength="50"
+                                       placeholder="Nhập họ">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="firstName">Tên</label>
+                                <input type="text"
+                                       id="firstName"
+                                       name="FirstName"
+                                       class="form-input"
+                                       value="@Model?.FirstName"
+                                       maxlength="50"
+                                       placeholder="Nhập tên"
+                                       required>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="section-divider"></div>
+
+                    <section class="form-section">
+                        <div class="form-section-title">
+                            <span class="form-section-icon"><i class="bi bi-briefcase"></i></span>
+                            <div>
+                                <h3>Định hướng nghề nghiệp</h3>
+                                <p>Giúp hệ thống hiểu lĩnh vực và vị trí bạn đang hướng tới.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="major">Chuyên ngành</label>
+                                <div class="input-with-icon">
+                                    <i class="bi bi-mortarboard" aria-hidden="true"></i>
+                                    <input type="text"
+                                           id="major"
+                                           name="Major"
+                                           class="form-input"
+                                           value="@Model?.Major"
+                                           placeholder="VD: Software Engineering">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="position">Vị trí muốn ứng tuyển</label>
+                                <div class="input-with-icon">
+                                    <i class="bi bi-crosshair" aria-hidden="true"></i>
+                                    <input type="text"
+                                           id="position"
+                                           name="TargetPosition"
+                                           class="form-input"
+                                           value="@Model?.TargetPosition"
+                                           placeholder="VD: Backend Developer">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="section-divider"></div>
+
+                    <section class="form-section">
+                        <div class="form-section-title">
+                            <span class="form-section-icon"><i class="bi bi-book"></i></span>
+                            <div>
+                                <h3>Trạng thái hiện tại</h3>
+                                <p>Chọn tình trạng học tập phù hợp nhất với bạn.</p>
+                            </div>
+                        </div>
+
+                        <input type="hidden"
+                               id="studentStatus"
+                               name="GraduationStatus"
+                               value="@(Model?.GraduationStatus ?? "Expecting Graduation")">
+
+                        <div class="choice-grid" id="grad-options">
+                            <button type="button"
+                                    class="choice-card @(Model?.GraduationStatus == "Current Student" ? "active" : "")"
+                                    onclick="selectBtn('studentStatus', 'Current Student', 'grad-options', this)">
+                                <span class="choice-icon"><i class="bi bi-journal-bookmark"></i></span>
+                                <span class="choice-copy">
+                                    <strong>Đang đi học</strong>
+                                    <small>Đang theo học tại trường</small>
+                                </span>
+                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                            </button>
+
+                            <button type="button"
+                                    class="choice-card @(Model?.GraduationStatus == "Expecting Graduation" ? "active" : "")"
+                                    onclick="selectBtn('studentStatus', 'Expecting Graduation', 'grad-options', this)">
+                                <span class="choice-icon"><i class="bi bi-mortarboard"></i></span>
+                                <span class="choice-copy">
+                                    <strong>Sắp ra trường</strong>
+                                    <small>Đang chuẩn bị tốt nghiệp</small>
+                                </span>
+                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                            </button>
+
+                            <button type="button"
+                                    class="choice-card @(Model?.GraduationStatus == "Graduated" ? "active" : "")"
+                                    onclick="selectBtn('studentStatus', 'Graduated', 'grad-options', this)">
+                                <span class="choice-icon"><i class="bi bi-award"></i></span>
+                                <span class="choice-copy">
+                                    <strong>Đã ra trường</strong>
+                                    <small>Đã hoàn thành chương trình học</small>
+                                </span>
+                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                            </button>
+
+                            <button type="button"
+                                    class="choice-card @(Model?.GraduationStatus == "Other" ? "active" : "")"
+                                    onclick="selectBtn('studentStatus', 'Other', 'grad-options', this)">
+                                <span class="choice-icon"><i class="bi bi-three-dots"></i></span>
+                                <span class="choice-copy">
+                                    <strong>Khác</strong>
+                                    <small>Trạng thái khác</small>
+                                </span>
+                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                            </button>
+                        </div>
+                    </section>
+
+                    <div class="section-divider"></div>
+
+                    <section class="form-section">
+                        <div class="form-section-title">
+                            <span class="form-section-icon"><i class="bi bi-bar-chart"></i></span>
+                            <div>
+                                <h3>Mức kinh nghiệm</h3>
+                                <p>Chọn mức gần nhất với kinh nghiệm thực tế của bạn.</p>
+                            </div>
+                        </div>
+
+                        <input type="hidden"
+                               id="experienceLevel"
+                               name="ExperienceLevel"
+                               value="@(Model?.ExperienceLevel ?? "Intern / Fresher")">
+
+                        <div class="choice-grid experience-grid" id="exp-options">
+                            <button type="button"
+                                    class="choice-card @(Model?.ExperienceLevel == "Intern / Fresher" ? "active" : "")"
+                                    onclick="selectBtn('experienceLevel', 'Intern / Fresher', 'exp-options', this)">
+                                <span class="choice-icon"><i class="bi bi-search"></i></span>
+                                <span class="choice-copy">
+                                    <strong>Intern / Fresher</strong>
+                                    <small>Mới bắt đầu sự nghiệp</small>
+                                </span>
+                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                            </button>
+
+                            <button type="button"
+                                    class="choice-card @(Model?.ExperienceLevel == "Junior" ? "active" : "")"
+                                    onclick="selectBtn('experienceLevel', 'Junior', 'exp-options', this)">
+                                <span class="choice-icon"><i class="bi bi-graph-up-arrow"></i></span>
+                                <span class="choice-copy">
+                                    <strong>Junior</strong>
+                                    <small>Đã có kinh nghiệm nền tảng</small>
+                                </span>
+                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                            </button>
+
+                            <button type="button"
+                                    class="choice-card @(Model?.ExperienceLevel == "Mid-Level" ? "active" : "")"
+                                    onclick="selectBtn('experienceLevel', 'Mid-Level', 'exp-options', this)">
+                                <span class="choice-icon"><i class="bi bi-layers"></i></span>
+                                <span class="choice-copy">
+                                    <strong>Mid-Level</strong>
+                                    <small>Có kinh nghiệm làm việc độc lập</small>
+                                </span>
+                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                            </button>
+
+                            <button type="button"
+                                    class="choice-card @(Model?.ExperienceLevel == "Senior / Lead" ? "active" : "")"
+                                    onclick="selectBtn('experienceLevel', 'Senior / Lead', 'exp-options', this)">
+                                <span class="choice-icon"><i class="bi bi-stars"></i></span>
+                                <span class="choice-copy">
+                                    <strong>Senior / Lead</strong>
+                                    <small>Kinh nghiệm chuyên sâu hoặc dẫn dắt</small>
+                                </span>
+                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                            </button>
+                        </div>
+                    </section>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="location.href='/Profile'">
+                            Quay về
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check2" aria-hidden="true"></i>
+                            Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+            </section>
         </div>
     </main>
 
     <script>
-        function selectBtn(inputId, value, groupId, btnElement) {
-            document.getElementById(inputId).value = value;
-            document.querySelectorAll('#' + groupId + ' .status-btn').forEach(b => b.classList.remove('active'));
-            btnElement.classList.add('active');
-        }
+            function selectBtn(inputId, value, groupId, btnElement) {
+                document.getElementById(inputId).value = value;
+                document.querySelectorAll('#' + groupId + ' .choice-card')
+                    .forEach(b => b.classList.remove('active'));
+                btnElement.classList.add('active');
+            }
     </script>
+
     <partial name="Partials/_Notify" />
 </body>
 </html>

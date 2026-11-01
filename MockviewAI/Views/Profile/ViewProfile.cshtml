@@ -23,7 +23,7 @@
     <main class="profile-page">
         <header class="page-heading">
             <div>
-                <span class="eyebrow">TÀI KHOẢN CỦA BẠN</span>
+                
                 <h1 class="page-title">Hồ sơ cá nhân</h1>
                 <p class="page-description">Quản lý thông tin và theo dõi hành trình luyện phỏng vấn của bạn.</p>
             </div>
@@ -47,7 +47,7 @@
                     </div>
 
                     <div class="user-titles">
-                        <h2>@Model.FullName</h2>
+                        <h2>@userName</h2>
                         <p class="user-status">@Model.StatusText</p>
                         @if (!string.IsNullOrEmpty(Model.ExperienceLevel))
                         {
@@ -96,8 +96,8 @@
                 <a class="feedback-card" href="/Feedback">
                     <span class="feedback-icon" aria-hidden="true"><i class="bi bi-stars"></i></span>
                     <span class="feedback-content">
-                        <strong>Góp ý cho bản BETA</strong>
-                        <span>Chia sẻ trải nghiệm để MockviewAI tốt hơn.</span>
+                        <strong>Đóng góp ý kiến</strong>
+                        <span>Chia sẻ trải nghiệm để MockviewAI cải thiện tốt hơn.</span>
                         <em>Gửi góp ý <i class="bi bi-arrow-right" aria-hidden="true"></i></em>
                     </span>
                 </a>
