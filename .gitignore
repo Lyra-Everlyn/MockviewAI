@@ -5,6 +5,12 @@ obj/
 *.user
 *.suo
 
+x64/
+x86/
+**/x64/
+**/x86/
+*.dll
+
 # Secrets
 .env
 appsettings.Local.json

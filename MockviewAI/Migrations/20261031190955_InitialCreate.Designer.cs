@@ -12,7 +12,7 @@ using MockviewAI.Data;
 namespace MockviewAI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261022085710_InitialCreate")]
+    [Migration("20261031190955_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -229,7 +229,6 @@ namespace MockviewAI.Migrations
                         .HasColumnType("datetime(3)");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 

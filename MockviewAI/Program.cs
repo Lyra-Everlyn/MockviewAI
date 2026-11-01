@@ -16,6 +16,7 @@ using MockviewAI.Services.Feedbacks;
 using MockviewAI.Services.FileStorage.Implementations;
 using MockviewAI.Services.FileStorage.Interfaces;
 using MockviewAI.Services.Interviews;
+using MockviewAI.Services.KeyManagement.ProviderExtensions;
 using MockviewAI.Services.Onboarding;
 using MockviewAI.Services.Profiles;
 using MockviewAI.Services.Security;
@@ -87,7 +88,7 @@ namespace MockviewAI
 
             // --- C. THIRD-PARTY SERVICE ---
 
-            // -- AI Service
+            // -- AI Service v1
             builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
             builder.Services.AddSingleton<IDeliveryAnalyzer, DeliveryAnalyzer>();
             builder.Services.AddSingleton<IAnxietyEstimator, AnxietyEstimator>();
@@ -107,6 +108,26 @@ namespace MockviewAI
             {
                 builder.Services.AddScoped<IAiScoringService, MockAiScoringService>();
             }
+
+
+            // -- AI Service v2
+            builder.Services.AddSingleton<GeminiKeyProvider>();
+            builder.Services.AddSingleton<GroqKeyProvider>();
+
+            builder.Services.AddTransient<GeminiKeyHandler>();
+            builder.Services.AddTransient<GroqKeyHandler>();
+
+            builder.Services.AddHttpClient("GeminiClient", client =>
+            {
+                client.BaseAddress = new Uri("https://generativelanguage.googleapis.com/v1beta/");
+            }).AddHttpMessageHandler<GeminiKeyHandler>();
+
+            builder.Services.AddHttpClient("GroqClient", client =>
+            {
+                client.BaseAddress = new Uri("https://api.groq.com/openai/v1/");
+            }).AddHttpMessageHandler<GroqKeyHandler>();
+
+
 
 
             // -- Google Authentication % Cookies
