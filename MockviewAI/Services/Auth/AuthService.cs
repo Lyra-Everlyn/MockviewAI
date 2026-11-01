@@ -226,7 +226,7 @@ namespace MockviewAI.Services.Auth
             if (existingUser.Status == "Locked") throw new Exception("Tài khoản của bạn đã bị khóa.");
             if (existingUser.Status == "Inactive") throw new Exception("Tài khoản của bạn đã bị đình chỉ tạm thời.");
 
-            if (!string.IsNullOrEmpty(avatarUrl) && existingUser.AvatarUrl != avatarUrl)
+            if (!string.IsNullOrEmpty(avatarUrl))
             {
                 existingUser.AvatarUrl = avatarUrl;
             }
