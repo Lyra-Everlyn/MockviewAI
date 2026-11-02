@@ -1,0 +1,85 @@
+/* =========================================================
+   dark-base.css — phần VIẾT TAY dùng chung cho các trang cũ khi chuyển giao diện tối (Đợt 5, 02/11/2026).
+   Nạp CUỐI CÙNG (sau CSS trang, theme.css và các file *.dark.css sinh tự động).
+   Cùng bảng màu với studio.css (4 trang Đợt 4).
+   ========================================================= */
+html:root {
+    --ink: #0f1626; --panel: #161f34; --raised: #1e2944; --line: #2a3756;
+    --text: #e8ecf6; --text-2: #c3cbe0; --muted: #93a0ba; --brand: #8f86ff;
+    /* Màu chàm cũ (#4f46e5) khó đọc trên nền tối -> dùng tím nhạt của studio */
+    --mv-primary: #8f86ff;
+    --primary-color: #8f86ff;
+    color-scheme: dark;
+}
+html body {
+    background-color: var(--ink) !important;
+    color: var(--text) !important;
+}
+
+/* Thanh menu dùng chung: giống hệt 4 trang Đợt 4 */
+html body .mv-topnav { background: rgba(15, 22, 38, .85) !important; border-bottom: 1px solid var(--line) !important; box-shadow: none !important; }
+html body .mv-logo { color: var(--text) !important; }
+html body .mv-logo span { background: none !important; -webkit-text-fill-color: var(--brand) !important; color: var(--brand) !important; }
+html body .mv-topnav-links a { color: var(--muted) !important; }
+html body .mv-topnav-links a:hover, html body .mv-topnav-links a.active { color: var(--text) !important; }
+html body .mv-topnav-links a.active::after { background: var(--brand) !important; }
+html body .mv-badge-beta { background: transparent !important; color: var(--brand) !important; border: 1px solid rgba(143, 134, 255, .35) !important; }
+html body .mv-avatar { background: var(--raised) !important; color: var(--text) !important; box-shadow: none !important; }
+
+/* Logo / menu riêng của các trang cũ */
+html body .logo span { background: none !important; -webkit-text-fill-color: var(--brand) !important; color: var(--brand) !important; }
+
+/* Ô nhập liệu */
+html body input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="file"]),
+html body textarea, html body select {
+    background-color: var(--raised) !important;
+    color: var(--text) !important;
+    border-color: var(--line) !important;
+}
+html body input::placeholder, html body textarea::placeholder { color: #6f7c97 !important; }
+html body input:focus, html body textarea:focus, html body select:focus { border-color: var(--brand) !important; outline-color: var(--brand) !important; }
+html body input:-webkit-autofill { -webkit-box-shadow: 0 0 0 1000px var(--raised) inset !important; -webkit-text-fill-color: var(--text) !important; }
+html body input[type="checkbox"], html body input[type="radio"] { accent-color: var(--brand); }
+html body option { background: var(--panel); color: var(--text); }
+
+/* Chữ chàm/tím đậm cũ -> tím nhạt dễ đọc */
+html body a { color: inherit; }
+html body .link-primary, html body .link-help { color: var(--brand) !important; }
+
+/* Kiểu viết thẳng trong HTML (style="...") ở vài trang */
+html body [style*="color: #666"], html body [style*="color: #555"] { color: var(--muted) !important; }
+html body [style*="color: #b91c1c"] { color: #fca5a5 !important; }
+
+/* Hộp thông báo SweetAlert (_Notify) */
+html body .swal2-popup { background: var(--panel) !important; color: var(--text) !important; border: 1px solid var(--line); }
+html body .swal2-title, html body .swal2-html-container { color: var(--text) !important; }
+html body .swal2-confirm { background: var(--brand) !important; color: #14102e !important; }
+html body .swal2-cancel { background: var(--raised) !important; color: var(--text) !important; }
+
+/* Thanh cuộn + bôi đen chữ */
+html body ::selection { background: rgba(143, 134, 255, .35); color: var(--text); }
+html { scrollbar-color: #3b4a70 var(--ink); }
+
+/* Trang lỗi / trang dùng _Layout (Bootstrap) */
+html body .text-muted { color: var(--muted) !important; }
+html body .btn-primary { background-color: var(--brand) !important; border-color: var(--brand) !important; color: #14102e !important; }
+html body footer, html body .footer { color: var(--muted) !important; border-color: var(--line) !important; }
+html body .navbar { background: var(--panel) !important; border-color: var(--line) !important; }
+html body .navbar a, html body .navbar-brand { color: var(--text) !important; }
+
+/* Trang đăng nhập / đăng ký / quên mật khẩu / OTP / giới thiệu (Onboarding):
+   cột trái nền tím mực đậm (chữ trắng đọc rõ), nút chính tím nhạt + chữ tối như 4 trang Đợt 4 */
+html body .login-banner, html body .info-panel {
+    background: linear-gradient(160deg, #2c2575 0%, #1b2347 100%) !important;
+    color: #ffffff !important;
+}
+html body .login-banner .logo span, html body .info-panel .logo span { -webkit-text-fill-color: #b9b3ff !important; color: #b9b3ff !important; }
+html body .btn-submit, html body .info-panel ~ * .btn-primary, html body .onboarding-container .btn-primary, html body form .btn-primary {
+    background: var(--brand) !important; color: #14102e !important; border-color: var(--brand) !important;
+}
+html body .btn-submit:disabled, html body .btn-primary:disabled { opacity: .55; }
+
+/* Trang chủ: thẻ "Sẵn sàng luyện phỏng vấn?" giữ nền gradient tím (bị luật .card tối đè mất) */
+html body .item-cta { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #a855f7 100%) !important; border: 0 !important; }
+html body .item-cta h2, html body .item-cta p { color: #ffffff !important; }
+html body .item-cta .btn-create { background: #ffffff !important; color: #3b2fb8 !important; }

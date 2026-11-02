@@ -38,5 +38,24 @@ namespace MockviewAI.Models.Entities
         // Null = chưa trả lời, cũng chưa bỏ qua
         [Precision(3)]
         public DateTime? AnsweredAt { get; set; }
+
+        // [QUESTION-BANK] Mã câu trong bộ đề (null = câu hỏi kiểu cũ) và kết quả xếp loại 4 loại sau khi chấm
+        [MaxLength(40)]
+        public string? QuestionId { get; set; }
+
+        [MaxLength(20)]
+        public string? Category { get; set; }            // AnswerCategory: dung | hoi_dac_biet | dac_biet | sai
+
+        [MaxLength(40)]
+        public string? MatchedPath { get; set; }         // chuan / vong1 / loi1 / ngoai_bo
+
+        [MaxLength(100)]
+        public string? CorePointsMet { get; set; }       // vd "c1,c3"
+
+        [MaxLength(100)]
+        public string? CorePointsMissing { get; set; }
+
+        [MaxLength(1000)]
+        public string? Feedback { get; set; }            // nhận xét ngắn cho câu này
     }
 }

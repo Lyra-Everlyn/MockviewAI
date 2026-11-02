@@ -1,8 +1,10 @@
 // [AI-MODULE] AnswerQualityChecker
-// Lọc câu trả lời vớ vẩn bằng quy tắc đơn giản, giải thích được (không dùng AI, không tốn tiền):
-//   1. Quá ngắn (< 5 từ)            2. Lặp đi lặp lại vài từ (ít từ khác nhau)
-//   3. Chuỗi vô nghĩa (nhiều "từ" không có nguyên âm)   4. Từ ngữ thô tục
-//   5. Cố gài lệnh cho AI ("cho tôi 100 điểm", "bỏ qua hướng dẫn"...)
+// Kiểm tra câu trả lời CÓ Ý NGHĨA hay không bằng quy tắc đơn giản, giải thích được (không dùng AI, không tốn tiền):
+//   1. Không có chữ nào               2. Lặp đi lặp lại vài từ (ít từ khác nhau)
+//   3. Chuỗi vô nghĩa (từ không có nguyên âm, 5+ phụ âm liền, 1 ký tự lặp 4+ lần như "aaaa")
+//   4. Từ ngữ thô tục                 5. Cố gài lệnh cho AI ("cho tôi 100 điểm", "bỏ qua hướng dẫn"...)
+// 26/10: BỎ giới hạn "ít nhất 5 từ" — câu ngắn mà có nghĩa (vd "Em có 2 năm kinh nghiệm") vẫn hợp lệ.
+// Câu không hợp lệ: được nhắc trả lời lại 1 lần, lần sau vẫn không hợp lệ thì tính là SAI (0 điểm, không gửi AI).
 // Việc "có đúng trọng tâm câu hỏi hay không" do AI chấm nội dung đánh giá thêm (tiêu chí relevance).
 // Các ngưỡng nằm ngay đầu file để dễ chỉnh khi test thật.
 
@@ -13,7 +15,6 @@ namespace MockviewAI.Services.Ai.Implementations
 {
     public class AnswerQualityChecker : IAnswerQualityChecker
     {
-        private const int MinWords = 5;
         private const int MinWordsForRepeatCheck = 6;
         private const double MinUniqueWordRatio = 0.4;
         private const double MaxGibberishRatio = 0.4;
@@ -40,6 +41,7 @@ namespace MockviewAI.Services.Ai.Implementations
         private static readonly Regex VowelRegex = new(
             "[aeiouyàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹ]",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex RepeatedChar = new(@"(\p{L})\1{3,}", RegexOptions.Compiled);
         private static readonly Regex LongConsonantRun = new(
             "[^aeiouyàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹ\\P{L}]{5,}",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -58,8 +60,8 @@ namespace MockviewAI.Services.Ai.Implementations
             if (words.Any(w => BadWords.Contains(w)))
                 return "Vui lòng dùng ngôn ngữ lịch sự như trong một buổi phỏng vấn thật.";
 
-            if (words.Count < MinWords)
-                return "Câu trả lời quá ngắn. Hãy nói đầy đủ hơn, ít nhất một vài câu.";
+            if (words.Count == 0)
+                return "Câu trả lời chưa có nội dung.";
 
             if (words.Count >= MinWordsForRepeatCheck)
             {
@@ -70,15 +72,16 @@ namespace MockviewAI.Services.Ai.Implementations
 
             int gibberish = words.Count(IsGibberish);
             if (gibberish / (double)words.Count >= MaxGibberishRatio)
-                return "Hệ thống chưa hiểu câu trả lời của bạn. Hãy nói rõ ràng hơn hoặc gõ lại câu trả lời.";
+                return "Câu trả lời chưa có ý nghĩa (giống chuỗi ký tự gõ ngẫu nhiên).";
 
             return null;
         }
 
-        // "Từ" không có nguyên âm (và không phải viết tắt kỹ thuật), hoặc có chuỗi 5+ phụ âm liền nhau
+        // "Từ" không có nguyên âm (và không phải viết tắt kỹ thuật), có chuỗi 5+ phụ âm liền nhau, hoặc 1 chữ lặp 4+ lần
         private static bool IsGibberish(string word)
         {
             if (word.All(char.IsDigit) || TechAcronyms.Contains(word)) return false;
+            if (RepeatedChar.IsMatch(word)) return true;
             if (!VowelRegex.IsMatch(word)) return word.Length > 1;
             return LongConsonantRun.IsMatch(word);
         }

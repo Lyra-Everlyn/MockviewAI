@@ -1,0 +1,22 @@
+/* Feedback.dark.css — SINH TỰ ĐỘNG từ Feedback.css bởi tools/dark-theme/make_dark_css.py (Đợt 5).
+   Không sửa tay: sửa CSS gốc hoặc công cụ rồi chạy lại. Nạp SAU Feedback.css và theme.css. */
+html body { background-color: #0f1626 !important; color: #e8ecf6 !important; }
+html .desktop-nav { background: #161f34 !important; border-bottom: 1px solid #2a3756 !important; }
+html .logo span { color: #7086ff !important; }
+html .nav-links a { color: #aeb6c1 !important; }
+html .badge-v1 { background: rgba(240, 170, 76, 0.14) !important; color: #f09b7f !important; }
+html .feedback-container { background: #161f34 !important; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18) !important; }
+html .header-section h1 { color: #e8ecf6 !important; }
+html .header-section .subtitle { color: #acb6c3 !important; }
+html .feedback-box { border: 1px solid #2a3756 !important; }
+html .box-label { color: #e8ecf6 !important; }
+html .star.active { color: #f9c876 !important; }
+html .segment-group { background: #161f34 !important; border: 1px solid #2a3756 !important; }
+html .segment-group label { color: #e8ecf6 !important; }
+html .segment-group input:checked + label { background: rgba(76, 148, 240, 0.14) !important; color: #819eee !important; border-color: #547be8 !important; }
+html textarea { border: 1px solid #2a3756 !important; }
+html textarea:focus { border-color: #3d5aff !important; }
+html textarea::placeholder { color: #a9b5c6 !important; }
+@media (max-width: 768px) {
+    html .back-link { color: #7086ff !important; }
+}

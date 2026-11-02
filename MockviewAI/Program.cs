@@ -11,6 +11,8 @@ using MockviewAI.Services.Ai;
 using MockviewAI.Services.Ai.Implementations;
 using MockviewAI.Services.Ai.Interfaces;
 using MockviewAI.Services.Auth;
+using MockviewAI.Services.InterviewQuestions.Implementations;
+using MockviewAI.Services.InterviewQuestions.Interfaces;
 using MockviewAI.Services.Emails;
 using MockviewAI.Services.Feedbacks;
 using MockviewAI.Services.FileStorage.Implementations;
@@ -53,11 +55,9 @@ namespace MockviewAI
             );
 
             // --- B. Redis
-            // Thiếu cấu hình -> dùng Redis local; AbortOnConnectFail=false để Redis chưa bật thì app vẫn khởi động được
-            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection");
-            if (string.IsNullOrWhiteSpace(redisConnectionString)) redisConnectionString = "localhost:6379";
-
+            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection") ?? throw new InvalidOperationException("Redis connection string is missing.");
             var redisOptions = ConfigurationOptions.Parse(redisConnectionString);
+
             redisOptions.AbortOnConnectFail = false;
 
             builder.Services.AddStackExchangeRedisCache(options =>
@@ -95,6 +95,13 @@ namespace MockviewAI
             builder.Services.AddSingleton<IAnxietyEstimator, AnxietyEstimator>();
             builder.Services.AddSingleton<IAnswerQualityChecker, AnswerQualityChecker>();
 
+            // [QUESTION-BANK] Bộ đề có đáp án + xếp loại 4 nhãn. Đọc Data/InterviewQuestions/question-bank.v1.json một lần khi chạy.
+            builder.Services.AddSingleton<IQuestionBankStore>(sp => new JsonQuestionBankStore(
+                Path.Combine(sp.GetRequiredService<IWebHostEnvironment>().ContentRootPath, "Data", "InterviewQuestions")));
+            builder.Services.AddSingleton<IQuestionSelector>(sp => new RandomQuestionSelector(sp.GetRequiredService<IQuestionBankStore>()));
+            builder.Services.AddSingleton<IAnswerVerdictValidator, AnswerVerdictValidator>();
+            builder.Services.AddSingleton<IOfflineAnswerScorer, BankKeywordScorer>();   // chấm sơ bộ khi AI lỗi
+
             if (string.Equals(builder.Configuration["Ai:Provider"], "Gemini", StringComparison.OrdinalIgnoreCase))
             {
                 builder.Services.AddSingleton<IScoringPromptBuilder, ScoringPromptBuilder>();
@@ -102,7 +109,7 @@ namespace MockviewAI
                 builder.Services.AddHttpClient<IAiScoringService, GeminiAiScoringService>(c =>
                 {
                     c.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
-                    c.Timeout = TimeSpan.FromSeconds(60);
+                    c.Timeout = TimeSpan.FromSeconds(180);   // 26/10: model "suy nghĩ" lâu -> chờ tối đa 3 phút mỗi lần gọi
                 });
             }
             else
@@ -147,6 +154,7 @@ namespace MockviewAI
             var cloudinary = new Cloudinary(cloudinaryAccount);
             builder.Services.AddSingleton(cloudinary);
             builder.Services.AddScoped<IFileStorageService, CloudinaryStorageService>();
+
 
 
             // =========================================================================
@@ -226,35 +234,21 @@ namespace MockviewAI
                 app.UseHsts();
             }
 
-            // --- B. Auto update database (Migration)
-            // WARNING: Bạn sẽ bị mất toàn bộ dữ liệu database, chỉ thực hiện trên local
+            // --- B. Auto update database
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                // Có Migrations -> Migrate(); chưa có thì tự tạo bảng + thêm cột còn thiếu (xem DatabaseInitializer)
-                DatabaseInitializer.Initialize(dbContext, scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseInitializer"));
-
-                //if (app.Environment.IsDevelopment())
-                //{
-                //    // 1. Delete all database data
-                //    dbContext.Database.EnsureDeleted();
-
-                //    // 2. Recreate a new Database
-                //    dbContext.Database.EnsureCreated();
-                //}
-                //else
-                //{
-                //    // Must has Migration on Product
-                //    dbContext.Database.Migrate();
-                //}
+                dbContext.Database.Migrate();
             }
 
             //app.UseHttpsRedirection();
 
             app.UseRouting();
 
+
             // --- C. Enable rate limitter (MUST BE PLACED AFTER UseRouting AND BEFORE UseAuth) ---
             app.UseRateLimiter();
+
 
             // --- D. Enforce security workflow: Identity check before permission check
             app.UseAuthentication();

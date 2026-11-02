@@ -1,0 +1,30 @@
+/* Index.dark.css — SINH TỰ ĐỘNG từ Index.css bởi tools/dark-theme/make_dark_css.py (Đợt 5).
+   Không sửa tay: sửa CSS gốc hoặc công cụ rồi chạy lại. Nạp SAU Index.css và theme.css. */
+html body { background-color: #0f1626 !important; color: #e8ecf6 !important; }
+html .badge-v1 { background: rgba(240, 170, 76, 0.14) !important; color: #f09b7f !important; }
+html .avatar-img { border: 1px solid #2a3756 !important; }
+html .user-name { color: #e8ecf6 !important; }
+html .desktop-nav { background: #161f34 !important; border-bottom: 1px solid #2a3756 !important; }
+html .logo { color: #e8ecf6 !important; }
+html .logo span { color: #7086ff !important; }
+html .nav-links a { color: #aeb6c1 !important; }
+html .nav-links a.active { color: #7086ff !important; }
+html .greeting-sub { color: #b1b5be !important; }
+html .greeting-main { color: #e8ecf6 !important; }
+html .btn-create { background: #161f34 !important; color: #7086ff !important; }
+html .item-beta { background: rgba(240, 167, 76, 0.14) !important; border: 1px solid rgba(240, 164, 76, 0.35) !important; }
+html .item-beta h3 { color: #f09b7f !important; }
+html .item-beta p { color: #efa880 !important; }
+html .item-tip { background: #161f34 !important; border: 1px solid #2a3756 !important; }
+html .item-tip p { color: #aeb6c1 !important; }
+html .link-primary { color: #7086ff !important; }
+html .link-help { color: #7086ff !important; }
+html .session-card { background: #161f34 !important; border: 1px solid #2a3756 !important; }
+html .card-header .date { color: #b1b5be !important; }
+html .tag-blue { background: rgba(76, 148, 240, 0.14) !important; color: #819eee !important; }
+html .tag-green { background: #161f34 !important; color: #84ebab !important; }
+@media (max-width: 768px) {
+    html .mobile-nav { background: #161f34 !important; border-top: 1px solid #2a3756 !important; }
+    html .nav-item { color: #b0b6bf !important; }
+    html .nav-item.active { color: #7086ff !important; }
+}

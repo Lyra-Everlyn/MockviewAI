@@ -1,0 +1,131 @@
+/* =========================================================
+   MockviewAI — studio.css (Đợt 4, 02/11/2026): giao diện TỐI "phòng thu"
+   Dùng cho 4 trang: Tạo buổi luyện, Phòng phỏng vấn, Kết quả, Xem lại hội thoại.
+   Các trang này KHÔNG nạp theme.css / CSS cũ. Trang khác vẫn dùng giao diện sáng như trước.
+   Điểm nhấn: "dải băng" chia đoạn, mỗi đoạn = 1 câu hỏi (.tape).
+   ========================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --ink: #0f1626;        /* nền trang */
+    --panel: #161f34;      /* khối */
+    --raised: #1e2944;     /* khối nổi, ô nhập */
+    --line: #2a3756;       /* viền */
+    --text: #e8ecf6;
+    --text-2: #c3cbe0;     /* chữ phụ sáng */
+    --muted: #93a0ba;
+    --brand: #8f86ff;      /* nút chính */
+    --brand-ink: #14102e;  /* chữ trên nút chính */
+    --tally: #ff7a59;      /* "đèn thu": CHỈ dùng khi đang ghi âm / câu đang hỏi */
+    --ok: #34d399;         /* Đúng */
+    --alt: #60c5fa;        /* Hơi đặc biệt */
+    --star: #f5c451;       /* Đặc biệt */
+    --bad: #f87171;        /* Sai */
+    --r-lg: 20px; --r-md: 12px; --r-sm: 8px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body.studio {
+    margin: 0; min-height: 100vh;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-size: 15px; line-height: 1.55;
+    color: var(--text); background: var(--ink);
+    background-image: radial-gradient(1100px 520px at 85% -12%, rgba(143, 134, 255, .13), transparent 60%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+}
+.studio h1, .studio h2, .studio h3, .studio p { margin: 0; }
+.studio button, .studio input, .studio textarea, .studio select { font: inherit; color: inherit; }
+.studio a { color: inherit; }
+.studio [hidden] { display: none !important; }
+
+/* ---------- Thanh menu dùng chung (_TopNav) phiên bản tối ---------- */
+.studio .mv-topnav { position: sticky; top: 0; z-index: 50; background: rgba(15, 22, 38, .85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); padding: 14px 0; }
+.studio .mv-topnav-inner { max-width: 1120px; margin: 0 auto; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; }
+.studio .mv-topnav-left, .studio .mv-topnav-right { display: flex; align-items: center; }
+.studio .mv-topnav-left { gap: 36px; }
+.studio .mv-topnav-right { gap: 14px; }
+.studio .mv-logo { font-size: 18px; font-weight: 800; letter-spacing: -.02em; color: var(--text); text-decoration: none; }
+.studio .mv-logo span { color: var(--brand); }
+.studio .mv-topnav-links { display: flex; gap: 22px; list-style: none; margin: 0; padding: 0; }
+.studio .mv-topnav-links a { color: var(--muted); font-size: 14px; font-weight: 500; text-decoration: none; }
+.studio .mv-topnav-links a:hover { color: var(--text); }
+.studio .mv-topnav-links a.active { color: var(--text); font-weight: 600; }
+.studio .mv-badge-beta { padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--brand); border: 1px solid rgba(143, 134, 255, .35); }
+.studio .mv-avatar { width: 32px; height: 32px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: var(--raised); color: var(--text); font-size: 13px; font-weight: 700; text-decoration: none; }
+.studio .mv-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* ---------- Khung trang ---------- */
+.studio .wrap { max-width: 1120px; margin: 0 auto; padding: 36px 40px 64px; }
+.studio h1 { font-size: 30px; font-weight: 800; letter-spacing: -.025em; line-height: 1.2; }
+.studio .sub { color: var(--muted); margin-top: 6px; }
+.studio .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 24px; }
+.studio .label { font-size: 13px; color: var(--muted); font-weight: 500; margin-bottom: 10px; display: block; }
+.studio .muted { color: var(--muted); }
+
+/* ---------- Nút ---------- */
+.studio .btn { border: 0; border-radius: var(--r-md); padding: 13px 20px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; line-height: 1.2; transition: filter .15s, background-color .15s; }
+.studio .btn svg { width: 18px; height: 18px; flex: none; }
+.studio .btn:disabled { opacity: .5; cursor: not-allowed; }
+.studio .btn-main { background: var(--brand); color: var(--brand-ink); }
+.studio .btn-main:hover:not(:disabled) { filter: brightness(1.08); }
+.studio .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--text); font-weight: 600; }
+.studio .btn-ghost:hover:not(:disabled) { background: var(--raised); }
+.studio .btn-stop { background: transparent; border: 1px solid rgba(248, 113, 113, .4); color: var(--bad); font-weight: 600; }
+.studio .btn-stop:hover:not(:disabled) { background: rgba(248, 113, 113, .08); }
+.studio .btn-stop-fill { background: var(--bad); color: #2a0a0a; }
+.studio .btn:focus-visible, .studio .choice input:focus-visible + span, .studio a:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+/* ---------- Dải băng: mỗi đoạn = 1 câu hỏi ---------- */
+.studio .tape { display: flex; gap: 4px; }
+.studio .tape .seg { flex: 1; height: 8px; border-radius: 3px; background: var(--raised); transition: background-color .3s; }
+.studio .tape .seg.done { background: var(--brand); opacity: .55; }
+.studio .tape .seg.now { background: var(--tally); }
+.studio .tape.big .seg { height: 44px; border-radius: 6px; display: grid; place-items: center; font-weight: 800; font-size: 14px; color: var(--ink); text-decoration: none; }
+.studio .seg.is-dung { background: var(--ok); }
+.studio .seg.is-hoi_dac_biet { background: var(--alt); }
+.studio .seg.is-dac_biet { background: var(--star); }
+.studio .seg.is-sai { background: var(--bad); }
+.studio .seg.is-none { background: var(--raised); color: var(--muted); }
+.studio .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--muted); }
+.studio .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+/* ---------- Nhãn cách tiếp cận ---------- */
+.studio .tag { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+.studio .tag.is-dung { background: rgba(52, 211, 153, .14); color: var(--ok); }
+.studio .tag.is-hoi_dac_biet { background: rgba(96, 197, 250, .14); color: var(--alt); }
+.studio .tag.is-dac_biet { background: rgba(245, 196, 81, .14); color: var(--star); }
+.studio .tag.is-sai { background: rgba(248, 113, 113, .14); color: var(--bad); }
+.studio .c-dung { color: var(--ok); } .studio .c-hoi_dac_biet { color: var(--alt); }
+.studio .c-dac_biet { color: var(--star); } .studio .c-sai { color: var(--bad); }
+.studio .bg-dung { background: var(--ok); } .studio .bg-hoi_dac_biet { background: var(--alt); }
+.studio .bg-dac_biet { background: var(--star); } .studio .bg-sai { background: var(--bad); }
+
+/* Ô người phỏng vấn (chữ cái đầu) */
+.studio .face { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-weight: 800; flex: none; background: #23325a; color: #a9b8ff; }
+.studio .face.f-nam { background: #1d3a3a; color: #7fe0c4; }
+.studio .face.f-an { background: #3a2d4a; color: #d6b3ff; }
+
+/* Ghi chú trạng thái */
+.studio .note { font-size: 14px; border-radius: var(--r-md); padding: 12px 14px; margin-top: 14px; }
+.studio .note.warn { background: rgba(245, 196, 81, .10); color: #f3d68a; }
+.studio .note.err { background: rgba(248, 113, 113, .10); color: #fca5a5; }
+.studio .note.info { background: var(--raised); color: var(--text-2); }
+
+/* Thanh menu dưới đáy (điện thoại) */
+.studio .mobile-bottom-nav { display: none; }
+
+@media (max-width: 760px) {
+    .studio .mv-topnav { padding: 12px 0; }
+    .studio .mv-topnav-inner { padding: 0 16px; }
+    .studio .mv-topnav-links, .studio .mv-badge-beta { display: none; }
+    .studio .wrap { padding: 20px 16px 96px; }
+    .studio h1 { font-size: 24px; }
+    .studio .panel { padding: 18px; border-radius: 16px; }
+    .studio .tape.big .seg { height: 36px; }
+    .studio .mobile-bottom-nav { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; justify-content: space-around; padding: 10px 0 14px; background: var(--panel); border-top: 1px solid var(--line); font-size: 12px; }
+    .studio .mobile-bottom-nav a { color: var(--muted); text-decoration: none; }
+    .studio .mobile-bottom-nav a.active { color: var(--brand); font-weight: 700; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .studio *, .studio *::before, .studio *::after { animation: none !important; transition: none !important; }
+}

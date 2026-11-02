@@ -38,52 +38,52 @@ namespace MockviewAI.Controllers
 
         // 2. Handle the login form submission
         [HttpPost]
+        [Route("Auth/Login")]
         [ValidateAntiForgeryToken]
         [EnableRateLimiting("LoginRateLimit")]
         public async Task<IActionResult> Login(string email, string password, [FromForm(Name = "cf-turnstile-response")] string turnstileToken)
         {
-            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            bool isHuman = await _turnstileService.VerifyAsync(turnstileToken, ipAddress);
-
-            if (!isHuman)
-            {
-                ModelState.AddModelError(string.Empty, "Security verification failed. Please try again.");
-                return View();
-            }
-
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
-            {
-                ModelState.AddModelError(string.Empty, "Please enter email and password.");
-                return View();
-            }
-
-            var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
-            var emailThrottleKey = LoginThrottleService.BuildEmailKey(email);
-
-            var (isLocked, wait) = await _throttleService.IsLockedOutAsync(throttleKey, emailThrottleKey);
-            if (isLocked)
-            {
-                var minutes = (int)Math.Ceiling(wait.TotalMinutes);
-                ModelState.AddModelError(string.Empty, $"Too many failed attempts. Please try again in {minutes} minute(s).");
-                return View();
-            }
-
             try
             {
+                string ipAddressString = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                bool isHuman = await _turnstileService.VerifyAsync(turnstileToken, ipAddressString);
+                if (!isHuman)
+                {
+                    ViewData["ErrorMessage"] = "Xác thực bảo mật thất bại (Captcha không hợp lệ).";
+                    return View();
+                }
+
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+                {
+                    ViewData["ErrorMessage"] = "Vui lòng nhập đầy đủ Email và Mật khẩu.";
+                    return View();
+                }
+
+                var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
+                var emailThrottleKey = LoginThrottleService.BuildEmailKey(email);
+
+                var (isLocked, wait) = await _throttleService.IsLockedOutAsync(throttleKey, emailThrottleKey);
+                if (isLocked)
+                {
+                    var minutes = (int)Math.Ceiling(wait.TotalMinutes);
+                    ViewData["ErrorMessage"] = $"Đăng nhập sai quá nhiều. Vui lòng thử lại sau {minutes} phút.";
+                    return View();
+                }
+
                 var user = await _authService.AuthenticateAsync(email, password);
 
                 await _throttleService.ResetAsync(throttleKey, emailThrottleKey);
-
                 await SignInUser(user!.Email, $"{user.FirstName} {user.LastName}".Trim(), user.Role, user.AvatarUrl);
+
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)
             {
-                await _throttleService.RegisterFailureAsync(throttleKey, emailThrottleKey);
-                ModelState.AddModelError(string.Empty, ex.Message);
+                ViewData["ErrorMessage"] = ex.Message;
                 return View();
             }
         }
+
 
         // b. Google login method
         [HttpGet]

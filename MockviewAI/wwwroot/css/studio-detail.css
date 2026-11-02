@@ -1,0 +1,67 @@
+/* studio-detail.css — Xem lại hội thoại (giao diện tối, Đợt 4). Biến màu ở studio.css */
+.studio .back-link { display: inline-block; font-size: 14px; color: var(--muted); text-decoration: none; margin-bottom: 10px; }
+.studio .back-link:hover { color: var(--text); }
+.studio h2 { font-size: 17px; font-weight: 700; }
+
+/* Tóm tắt */
+.studio .summary-strip { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; margin-top: 24px; padding: 18px 24px; }
+.studio .stat .label { margin-bottom: 2px; }
+.studio .stat b { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.studio .stat small { font-size: 14px; color: var(--muted); font-weight: 500; }
+.studio .strip-acts { margin-left: auto; display: flex; gap: 10px; }
+.studio .strip-acts form { margin: 0; }
+.studio .strip-acts .btn { padding: 10px 16px; font-size: 14px; }
+
+/* Bố cục */
+.studio .layout { display: grid; grid-template-columns: 240px 1fr; gap: 32px; margin-top: 28px; align-items: start; }
+.studio .index { position: sticky; top: 84px; display: flex; flex-direction: column; gap: 2px; }
+.studio .index a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; text-decoration: none; font-size: 14px; color: var(--muted); min-width: 0; }
+.studio .index a:hover { background: var(--panel); color: var(--text); }
+.studio .index .idx-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.studio .dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.studio .dot-none { background: var(--raised); }
+
+/* Từng lượt hỏi - đáp */
+.studio .turn { padding-bottom: 28px; border-bottom: 1px solid var(--line); scroll-margin-top: 90px; }
+.studio .turn + .turn { padding-top: 28px; }
+.studio .turn .asker { display: flex; align-items: center; gap: 10px; }
+.studio .face.sm { width: 28px; height: 28px; border-radius: 9px; font-size: 13px; }
+.studio .qno { font-size: 13px; color: var(--muted); }
+.studio .q { font-size: 20px; font-weight: 700; line-height: 1.4; letter-spacing: -.01em; margin: 10px 0 14px; max-width: 46ch; }
+.studio .mine { background: var(--raised); border-radius: 4px 16px 16px 16px; padding: 14px 18px; color: #d6dcea; max-width: 68ch; white-space: pre-wrap; }
+.studio .mine.skipped { color: var(--muted); font-style: italic; }
+
+/* Ghi nhận cách tiếp cận */
+.studio .verdict { margin-top: 14px; border-left: 3px solid var(--line); padding: 4px 0 4px 16px; max-width: 72ch; }
+.studio .verdict.is-dung { border-color: var(--ok); }
+.studio .verdict.is-hoi_dac_biet { border-color: var(--alt); }
+.studio .verdict.is-dac_biet { border-color: var(--star); }
+.studio .verdict.is-sai { border-color: var(--bad); }
+.studio .verdict-head { display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; }
+.studio .path { font-size: 13px; color: var(--muted); }
+.studio .desc { font-size: 13px; color: var(--muted); margin-top: 8px; }
+.studio .why { font-size: 14px; color: var(--text-2); margin-top: 6px; }
+.studio .points { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; }
+.studio .points .met { color: var(--ok); }
+.studio .points .miss { color: var(--bad); }
+
+.studio .ai-feedback { margin-top: 28px; }
+.studio .ai-feedback p { margin-top: 8px; color: var(--text-2); font-size: 14px; }
+.studio .ai-feedback ul { margin: 10px 0 0; padding-left: 18px; font-size: 14px; color: #d6dcea; }
+.studio .ai-feedback li + li { margin-top: 4px; }
+
+@media (max-width: 860px) {
+    .studio .layout { grid-template-columns: 1fr; gap: 16px; }
+    .studio .index { position: sticky; top: 56px; z-index: 5; flex-direction: row; overflow-x: auto; gap: 4px; padding: 8px 0; background: var(--ink); }
+    .studio .index .idx-q { display: none; }
+    .studio .index a { flex: none; }
+}
+@media (max-width: 760px) {
+    .studio .summary-strip { gap: 14px 22px; padding: 16px 18px; }
+    .studio .stat b { font-size: 22px; }
+    .studio .strip-acts { margin-left: 0; width: 100%; }
+    .studio .strip-acts .btn, .studio .strip-acts form { flex: 1; }
+    .studio .strip-acts form .btn { width: 100%; }
+    .studio .q { font-size: 18px; }
+    .studio .turn { scroll-margin-top: 110px; }
+}

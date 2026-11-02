@@ -7,6 +7,7 @@ using MockviewAI.Services.Ai;
 using MockviewAI.Services.Ai.Interfaces;
 using MockviewAI.Services.Emails;
 using MockviewAI.Services.Exceptions;
+using MockviewAI.Services.InterviewQuestions.Interfaces;
 
 namespace MockviewAI.Services.Interviews
 {
@@ -14,13 +15,15 @@ namespace MockviewAI.Services.Interviews
     public class InterviewService : IInterviewService
     {
         private const int MaxAnswerLength = 2000;
-        private static readonly int[] AllowedQuestionCounts = { 5, 10 };
+        private const int MinQuestions = 5, MaxQuestions = 10;   // [QUESTION-BANK] người dùng chọn 5..10 câu
 
         // [#14] Mỗi buổi gọi AI chấm 1 lần -> giới hạn số buổi mới để không bị spam tốn tiền API
         private const int MaxSessionsPerHour = 10;
 
-        // Mỗi câu được trả lời tối đa 3 lần: 2 lần đầu bị từ chối thì được nói lại, lần thứ 3 vẫn không ổn thì tính là bỏ qua
-        private const int MaxAttemptsPerQuestion = 3;
+        // 26/10: câu trả lời không có ý nghĩa được NHẮC 1 lần để trả lời lại; lần sau vẫn không hợp lệ thì
+        // vẫn lưu lại nhưng tính là SAI (0 điểm, không gửi AI chấm). Không còn giới hạn số từ tối thiểu.
+        private const int MaxReminders = 1;
+
 
         private readonly IRepository<InterviewSession> _sessionRepository;
         private readonly IUserRepository _userRepository;
@@ -28,6 +31,8 @@ namespace MockviewAI.Services.Interviews
         private readonly IAnswerQualityChecker _quality;
         private readonly IEmailService _email;
         private readonly ILogger<InterviewService> _logger;
+        private readonly IQuestionBankStore _bank;
+        private readonly IQuestionSelector _selector;
 
         public InterviewService(
             IRepository<InterviewSession> sessionRepository,
@@ -35,7 +40,9 @@ namespace MockviewAI.Services.Interviews
             IInterviewScoringService scoring,
             IAnswerQualityChecker quality,
             IEmailService email,
-            ILogger<InterviewService> logger)
+            ILogger<InterviewService> logger,
+            IQuestionBankStore bank,
+            IQuestionSelector selector)
         {
             _sessionRepository = sessionRepository;
             _userRepository = userRepository;
@@ -43,6 +50,8 @@ namespace MockviewAI.Services.Interviews
             _quality = quality;
             _email = email;
             _logger = logger;
+            _bank = bank;
+            _selector = selector;
         }
 
         #region Start
@@ -54,8 +63,8 @@ namespace MockviewAI.Services.Interviews
                 throw new InterviewException("Vị trí ứng tuyển không hợp lệ.");
             if (!QuestionBank.Interviewers.ContainsKey(interviewerKey ?? ""))
                 throw new InterviewException("Người phỏng vấn không hợp lệ.");
-            if (!AllowedQuestionCounts.Contains(questionCount))
-                throw new InterviewException("Số câu hỏi không hợp lệ.");
+            if (questionCount < MinQuestions || questionCount > MaxQuestions)
+                throw new InterviewException($"Số câu hỏi phải từ {MinQuestions} đến {MaxQuestions}.");
 
             // Đếm theo tài khoản (không theo IP) vì nhiều người test có thể dùng chung wifi
             var oneHourAgo = DateTime.UtcNow.AddHours(-1);
@@ -72,10 +81,25 @@ namespace MockviewAI.Services.Interviews
                 EmailResult = emailResult
             };
 
-            var questions = QuestionBank.GetQuestions(interviewerKey!, positionName, questionCount);
-            for (int i = 0; i < questions.Count; i++)
+            // [QUESTION-BANK] Người phỏng vấn + vị trí đã có trong bộ đề -> dùng bộ đề có đáp án (xếp loại 4 nhãn);
+            // chưa có (người phỏng vấn / vị trí chưa có trong bộ đề) -> câu hỏi cũ trong QuestionBank.cs
+            var picked = _selector.Select(interviewerKey!, positionKey!, questionCount);
+            if (picked.Count > 0)
             {
-                session.Answers.Add(new SessionAnswer { OrderNo = i + 1, Question = questions[i] });
+                session.QuestionBankVersion = _bank.Version;
+                session.QuestionCount = picked.Count;
+                for (int i = 0; i < picked.Count; i++)
+                {
+                    session.Answers.Add(new SessionAnswer { OrderNo = i + 1, Question = picked[i].Question, QuestionId = picked[i].Id });
+                }
+            }
+            else
+            {
+                var questions = QuestionBank.GetQuestions(interviewerKey!, positionName, questionCount);
+                for (int i = 0; i < questions.Count; i++)
+                {
+                    session.Answers.Add(new SessionAnswer { OrderNo = i + 1, Question = questions[i] });
+                }
             }
 
             await _sessionRepository.AddAsync(session);
@@ -132,27 +156,22 @@ namespace MockviewAI.Services.Interviews
                 if (answer.Length > MaxAnswerLength)
                     throw new InterviewException($"Câu trả lời tối đa {MaxAnswerLength} ký tự.");
 
-                // Chặn câu trả lời vớ vẩn: cho nói lại, quá số lần thì tính là bỏ qua (không có điểm)
+                // Câu trả lời không có ý nghĩa: nhắc 1 lần (Attempts = số lần đã nhắc)
                 string? problem = _quality.FindProblem(answer);
-                if (problem != null)
+                if (problem != null && current.Attempts < MaxReminders)
                 {
                     current.Attempts++;
-                    if (current.Attempts < MaxAttemptsPerQuestion)
-                    {
-                        await _sessionRepository.UpdateAsync(session);
-                        int left = MaxAttemptsPerQuestion - current.Attempts;
-                        throw new AnswerRejectedException($"{problem} Bạn còn {left} lần để trả lời lại câu này.");
-                    }
+                    await _sessionRepository.UpdateAsync(session);
+                    throw new AnswerRejectedException(
+                        $"{problem} Bạn có thể trả lời lại câu này 1 lần. Nếu câu trả lời vẫn chưa có ý nghĩa, câu này sẽ được tính là sai.");
+                }
 
-                    current.Skipped = true;
-                    notice = "Câu này được tính là bỏ qua vì câu trả lời chưa phù hợp. Hãy thử câu tiếp theo nhé.";
-                }
-                else
-                {
-                    current.Answer = answer;
-                    current.DurationSeconds = dto.DurationSeconds is > 0 and < 600 ? dto.DurationSeconds : null;
-                    current.LongestPauseSeconds = current.DurationSeconds == null ? null : LongestPause(dto.PausesSeconds);
-                }
+                // Hợp lệ, hoặc đã nhắc mà vẫn không hợp lệ -> lưu lại (để xem lại hội thoại); câu không hợp lệ tính sai khi chấm
+                current.Answer = answer;
+                current.DurationSeconds = dto.DurationSeconds is > 0 and < 600 ? dto.DurationSeconds : null;
+                current.LongestPauseSeconds = current.DurationSeconds == null ? null : LongestPause(dto.PausesSeconds);
+                if (problem != null)
+                    notice = "Câu trả lời vẫn chưa có ý nghĩa nên câu này được tính là sai (0 điểm). Chuyển sang câu tiếp theo.";
             }
             current.AnsweredAt = DateTime.UtcNow;
 
@@ -192,42 +211,63 @@ namespace MockviewAI.Services.Interviews
                 return;
             }
 
+            // Câu không có ý nghĩa (đã được nhắc mà vẫn vậy) tính là SAI: không gửi AI, kéo điểm nội dung xuống theo tỉ lệ
+            var invalid = answered.Where(a => _quality.FindProblem(a.Answer!) != null).ToList();
+            var valid = answered.Except(invalid).ToList();
+
             var request = new ScoreRequest
             {
                 Position = session.Position,
                 QuestionCount = session.QuestionCount,
                 SkippedCount = session.Answers.Count(a => a.AnsweredAt != null && a.Skipped),
-                Answers = answered.Select(a => new InterviewAnswer
-                {
-                    Question = a.Question,
-                    Answer = a.Answer!,
-                    DurationSeconds = a.DurationSeconds,
-                    // Có đo khoảng lặng thì đưa vào chấm điểm; gõ tay thì để trống (không bị trừ điểm)
-                    PausesSeconds = a.LongestPauseSeconds is double pause ? new List<double> { pause } : new List<double>()
-                }).ToList()
+                Answers = valid.Select(ToInterviewAnswer).ToList(),
+                InvalidAnswers = invalid.Select(ToInterviewAnswer).ToList()
             };
 
             // AI lỗi (AiScoringException) thì để lỗi nổi lên: buổi vẫn còn InProgress để người dùng bấm "Chấm lại".
-            // Fallback = true: người dùng đồng ý xem kết quả dự phòng (chỉ tính cách nói).
+            // Fallback = true: người dùng chọn xem kết quả ngay, không chờ AI -> chấm sơ bộ theo bộ đề (câu kiểu cũ: chỉ cách nói).
             var result = dto.Fallback
-                ? _scoring.ScoreDeliveryOnly(request)
+                ? _scoring.ScoreWithoutAi(request)
                 : await _scoring.ScoreAsync(request);
 
             session.Status = SessionStatus.Completed;
             session.TotalScore = result.Total;
             session.ContentScore = result.ContentAvailable ? result.Content.Total : null;
             session.DeliveryScore = result.Delivery.Total;
+            session.ScoringMode = result.ScoringMode;
             session.AnxietyIndicator = result.AnxietyIndicator > 0 ? result.AnxietyIndicator : null;
             session.AiSummary = result.Content.Summary;
             session.Strengths = string.Join("\n", result.Content.Strengths);
             session.Improvements = string.Join("\n", result.Content.Improvements);
             session.DeliveryTips = string.Join("\n", result.Delivery.Tips);
 
+            // [QUESTION-BANK] Lưu xếp loại từng câu (câu thuộc bộ đề; AI chấm hoặc chấm sơ bộ theo bộ đề)
+            foreach (var verdict in result.Content.Verdicts)
+            {
+                var answer = session.Answers.FirstOrDefault(a => a.QuestionId == verdict.QuestionId);
+                if (answer == null) continue;
+                answer.Category = verdict.Category;
+                answer.MatchedPath = verdict.MatchedPath;
+                answer.CorePointsMet = string.Join(",", verdict.MetCorePoints);
+                answer.CorePointsMissing = string.Join(",", verdict.MissingCorePoints);
+                answer.Feedback = verdict.Feedback;
+            }
+
             await _sessionRepository.UpdateAsync(session);
 
             if (session.EmailResult)
                 SendResultEmailInBackground(user, session, result);
         }
+
+        private static InterviewAnswer ToInterviewAnswer(SessionAnswer a) => new()
+        {
+            QuestionId = a.QuestionId,
+            Question = a.Question,
+            Answer = a.Answer!,
+            DurationSeconds = a.DurationSeconds,
+            // Có đo khoảng lặng thì đưa vào chấm điểm; gõ tay thì để trống (không bị trừ điểm)
+            PausesSeconds = a.LongestPauseSeconds is double pause ? new List<double> { pause } : new List<double>()
+        };
 
         // Gửi email ở nền: lỗi SMTP chỉ ghi log, không làm hỏng việc xem kết quả của người dùng
         private void SendResultEmailInBackground(User user, InterviewSession session, InterviewScoreResult result)
@@ -297,6 +337,14 @@ namespace MockviewAI.Services.Interviews
                 AnxietyIndicator = session.AnxietyIndicator ?? 0,
                 PreviousAnxietyIndicator = previous.FirstOrDefault()?.AnxietyIndicator ?? 0,
                 EmailRequested = session.EmailResult && session.TotalScore != null,
+                InvalidAnswerCount = session.Answers.Count(a => a.AnsweredAt != null && !a.Skipped
+                                                                && !string.IsNullOrEmpty(a.Answer) && _quality.FindProblem(a.Answer!) != null),
+                CorrectCount = session.Answers.Count(a => a.Category == AnswerCategory.Correct),
+                AlternativePathCount = session.Answers.Count(a => a.Category == AnswerCategory.AlternativePath),
+                SpecialCount = session.Answers.Count(a => a.Category == AnswerCategory.Special),
+                WrongCount = session.Answers.Count(a => a.Category == AnswerCategory.Wrong),
+                IsPreliminaryScore = session.ScoringMode == ScoringModes.BankRules,
+                AnswerCategories = session.Answers.OrderBy(a => a.OrderNo).Select(a => a.Category).ToList(),
                 AiSummary = session.AiSummary ?? "",
                 Strengths = SplitLines(session.Strengths),
                 Improvements = SplitLines(session.Improvements),

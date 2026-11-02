@@ -12,6 +12,9 @@ namespace MockviewAI.Models.Ai
         // false khi AI không phản hồi và hệ thống chấm dự phòng (chỉ tính cách nói)
         public bool ContentAvailable { get; set; } = true;
 
+        // [QUESTION-BANK] Cách chấm: ScoringModes.Ai / BankRules (sơ bộ theo bộ đề, không cần AI) / DeliveryOnly
+        public string ScoringMode { get; set; } = ScoringModes.Ai;
+
         // Dấu hiệu lo lắng ước tính 1-10 (0 = chưa đủ dữ liệu) và các lý do đi kèm
         public int AnxietyIndicator { get; set; }
         public List<string> AnxietyReasons { get; set; } = new();

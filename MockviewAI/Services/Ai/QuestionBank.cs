@@ -16,9 +16,9 @@ namespace MockviewAI.Services.Ai
         // Người phỏng vấn: khóa -> (tên, vai trò)
         public static readonly Dictionary<string, (string Name, string Role)> Interviewers = new()
         {
-            ["linh"] = ("Linh", "Nhân sự"),
-            ["nam"] = ("Nam", "Kỹ thuật"),
-            ["an"] = ("An", "Quản lý")
+            ["linh"] = ("Linh", "Chuyên viên tuyển dụng (HR)"),
+            ["nam"] = ("Nam", "Trưởng nhóm kỹ thuật (Tech Lead)"),
+            ["an"] = ("An", "Quản lý dự án (Project Manager)")
         };
 
         // Mỗi người phỏng vấn có 10 câu. Câu 1 luôn là "giới thiệu bản thân".

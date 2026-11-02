@@ -1,0 +1,13 @@
+/* ThankYou.dark.css — SINH TỰ ĐỘNG từ ThankYou.css bởi tools/dark-theme/make_dark_css.py (Đợt 5).
+   Không sửa tay: sửa CSS gốc hoặc công cụ rồi chạy lại. Nạp SAU ThankYou.css và theme.css. */
+html body { background-color: #0f1626 !important; color: #e8ecf6 !important; }
+html .desktop-nav { background: #161f34 !important; border-bottom: 1px solid #2a3756 !important; }
+html .logo span { color: #7086ff !important; }
+html .nav-links a { color: #aeb6c1 !important; }
+html .badge-v1 { background: rgba(240, 170, 76, 0.14) !important; color: #f09b7f !important; }
+html .thankyou-container { background: #161f34 !important; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18) !important; }
+html .success-icon { background-color: #161f34 !important; color: #80efa9 !important; }
+html .thankyou-container h1 { color: #e8ecf6 !important; }
+html .thankyou-container p { color: #aeb6c1 !important; }
+html .btn-outline { background-color: #161f34 !important; color: #7086ff !important; border: 1px solid rgba(76, 104, 240, 0.35) !important; }
+html .btn-outline:hover { background-color: #161f34 !important; }

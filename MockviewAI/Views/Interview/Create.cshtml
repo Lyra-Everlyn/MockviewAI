@@ -1,11 +1,6 @@
 @{
     Layout = null;
     ViewData["ActiveNav"] = "practice";   // mục sáng trên thanh menu dùng chung
-    // Chữ cái đầu của tên người đang đăng nhập (avatar góc phải)
-    var userName = User.Identity?.Name ?? "";
-    var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
-    // Ảnh Google của tài khoản (nếu có), không có thì hiện chữ cái đầu
-    var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -13,130 +8,124 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tạo buổi luyện - MockviewAI</title>
-    <!-- Import font Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Import FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="~/css/CreateSession.css">
-    <link rel="stylesheet" href="~/css/theme.css"> <!-- giao diện chung: nạp SAU CSS của trang -->
+    @* [UI-DARK] Đợt 4 (02/11): giao diện tối "phòng thu". Bản sáng cũ: CreateSession.css + theme.css *@
+    <link rel="stylesheet" href="~/css/studio.css">
+    <link rel="stylesheet" href="~/css/studio-create.css">
 </head>
-<body>
-
-    <!-- Header Desktop -->
+<body class="studio">
     <partial name="Partials/_TopNav" />
 
-    <!-- Header Mobile -->
-    <header class="mobile-header">
-        <a href="/Home" class="back-btn"><i class="fas fa-chevron-left"></i> Trang chủ</a>
-    </header>
+    <main class="wrap">
+        <h1>Tạo buổi luyện</h1>
+        <p class="sub">Chọn người phỏng vấn trước, mỗi người hỏi một kiểu khác nhau.</p>
 
-    <main class="main-container">
-        <div class="page-title-section">
-            <h1>Tạo buổi luyện</h1>
-            <p class="desktop-subtitle">Chọn vị trí, người phỏng vấn và bắt đầu.</p>
-            <p class="mobile-subtitle">Chọn người phỏng vấn và vị trí bạn muốn luyện.</p>
-        </div>
+        <form method="post" asp-controller="Interview" asp-action="Start" id="createSessionForm" class="create-grid">
 
-        <form method="post" asp-controller="Interview" asp-action="Start" id="createSessionForm">
-            <div class="form-grid">
-                
-                <!-- Cột trái (Desktop) / Phần 2 (Mobile) -->
-                <div class="card info-card">
-                    <h3 class="section-title"><span class="step-num">1. </span>Thông tin buổi luyện</h3>
-                    
-                    <div class="form-group">
-                        <label>Vị trí ứng tuyển</label>
-                        <select name="position" required>
-                            <option value="developer">Lập trình viên</option>
-                            <option value="tester">Kiểm thử viên (Tester)</option>
-                            <option value="ba">Chuyên viên Phân tích (BA)</option>
-                        </select>
+            <!-- Người phỏng vấn -->
+            <fieldset class="people">
+                <legend class="sr-only">Người phỏng vấn</legend>
+
+                <label class="person">
+                    <input type="radio" name="interviewer" value="linh" data-name="Linh" checked>
+                    <span class="face">L</span>
+                    <span class="person-body">
+                        <span class="pname">Linh</span>
+                        <span class="prole">Chuyên viên tuyển dụng (HR)</span>
+                        <span class="pask"><em>Hỏi về:</em> bản thân, động lực, làm việc nhóm, vì sao chọn công ty</span>
+                        <span class="picked">Đã chọn</span>
+                    </span>
+                </label>
+
+                <label class="person">
+                    <input type="radio" name="interviewer" value="nam" data-name="Nam">
+                    <span class="face f-nam">N</span>
+                    <span class="person-body">
+                        <span class="pname">Nam</span>
+                        <span class="prole">Trưởng nhóm kỹ thuật (Tech Lead)</span>
+                        <span class="pask"><em>Hỏi về:</em> kiến thức chuyên môn theo vị trí: code, kiểm thử, phân tích yêu cầu</span>
+                        <span class="picked">Đã chọn</span>
+                    </span>
+                </label>
+
+                <label class="person">
+                    <input type="radio" name="interviewer" value="an" data-name="An">
+                    <span class="face f-an">A</span>
+                    <span class="person-body">
+                        <span class="pname">An</span>
+                        <span class="prole">Quản lý dự án (Project Manager)</span>
+                        <span class="pask"><em>Hỏi về:</em> deadline, ưu tiên công việc, xử lý tình huống trong dự án</span>
+                        <span class="picked">Đã chọn</span>
+                    </span>
+                </label>
+            </fieldset>
+
+            <!-- Thông tin buổi luyện -->
+            <section class="panel setup" aria-label="Thông tin buổi luyện">
+                <fieldset class="field">
+                    <legend class="label">Vị trí ứng tuyển</legend>
+                    <div class="pills">
+                        <label class="choice"><input type="radio" name="position" value="developer" checked><span>Lập trình viên</span></label>
+                        <label class="choice"><input type="radio" name="position" value="tester"><span>Tester</span></label>
+                        <label class="choice"><input type="radio" name="position" value="ba"><span>BA</span></label>
                     </div>
+                </fieldset>
 
-                    <div class="row-group">
-                        <div class="form-group half">
-                            <label>Số câu hỏi</label>
-                            <select name="questionCount">
-                                <option value="5">5 câu</option>
-                                <option value="10">10 câu</option>
-                            </select>
-                        </div>
-                        <!-- Email kết quả: CHỈ gửi khi người dùng tick đồng ý -->
-                        <div class="form-group half">
-                            <label>Nhận kết quả qua email</label>
-                            <label style="display:flex;gap:8px;align-items:flex-start;font-weight:500;cursor:pointer;line-height:1.4;margin-top:6px">
-                                <input type="checkbox" name="emailResult" value="true" style="margin-top:3px;width:auto">
-                                <span>Gửi kết quả về email tài khoản của tôi sau buổi luyện</span>
-                            </label>
-                        </div>
+                <fieldset class="field">
+                    <legend class="label">Số câu hỏi</legend>
+                    <div class="counts">
+                        @* [QUESTION-BANK] Chọn từ 5 đến 10 câu (server kiểm tra lại khoảng này) *@
+                        @for (int n = 5; n <= 10; n++)
+                        {
+                            <label class="choice"><input type="radio" name="questionCount" value="@n" @(n == 5 ? "checked" : null)><span>@n</span></label>
+                        }
                     </div>
+                </fieldset>
 
-                    @* [#22] Tạm ẩn: server chưa dùng "Mô tả công việc" nên không hứa "AI hỏi sát hơn". Bật lại khi làm tính năng #25.
-                    <div class="form-group">
-                        <label>Mô tả công việc (không bắt buộc)</label>
-                        <textarea name="description" rows="4" placeholder="Dán mô tả công việc để AI hỏi sát hơn..."></textarea>
-                    </div>
-                    *@
+                <!-- Email kết quả: CHỈ gửi khi người dùng tick đồng ý -->
+                <label class="check-row field">
+                    <input type="checkbox" name="emailResult" value="true">
+                    <span>Gửi kết quả về email tài khoản của tôi sau buổi luyện</span>
+                </label>
+
+                <div class="summary">
+                    <span class="label">Buổi của bạn</span>
+                    <div class="tape" id="preview-tape" aria-hidden="true"></div>
+                    <p id="preview-text">5 câu với Linh · khoảng 10–15 phút · câu đầu luôn là giới thiệu bản thân</p>
+                    <button type="submit" class="btn btn-main start">Bắt đầu phỏng vấn</button>
                 </div>
-
-                <!-- Cột phải (Desktop) / Phần 1 (Mobile) -->
-                <div class="card interviewer-card">
-                    <h3 class="section-title"><span class="step-num">2. </span>Chọn người phỏng vấn <span class="mobile-only">(khuôn mặt AI)</span></h3>
-                    
-                    <div class="interviewer-list">
-                        <!-- Lựa chọn 1: Linh -->
-                        <input type="radio" name="interviewer" id="int-linh" value="linh" checked>
-                        <label for="int-linh" class="interviewer-item">
-                            <div class="avatar avatar-linh">
-                                <div class="avatar-inner bg-blue"><i class="fas fa-user"></i></div>
-                            </div>
-                            <div class="int-name">Linh</div>
-                            <div class="int-role desktop-role">Nhân sự</div>
-                            <div class="int-role mobile-role">HR</div>
-                        </label>
-
-                        <!-- Lựa chọn 2: Nam -->
-                        <input type="radio" name="interviewer" id="int-nam" value="nam">
-                        <label for="int-nam" class="interviewer-item">
-                            <div class="avatar avatar-nam">
-                                <div class="avatar-inner bg-green"><i class="fas fa-user"></i></div>
-                            </div>
-                            <div class="int-name">Nam</div>
-                            <div class="int-role desktop-role">Kỹ thuật</div>
-                            <div class="int-role mobile-role">Kỹ thuật</div>
-                        </label>
-
-                        <!-- Lựa chọn 3: An -->
-                        <input type="radio" name="interviewer" id="int-an" value="an">
-                        <label for="int-an" class="interviewer-item">
-                            <div class="avatar avatar-an">
-                                <div class="avatar-inner bg-purple"><i class="fas fa-user"></i></div>
-                            </div>
-                            <div class="int-name">An</div>
-                            <div class="int-role desktop-role">Quản lý</div>
-                            <div class="int-role mobile-role">Quản lý</div>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Phần text phụ và nút Submit -->
-                <div class="form-actions">
-                    <p class="helper-text desktop-only">Linh hỏi về bản thân và thái độ làm việc; Nam hỏi kỹ thuật; An hỏi tình huống quản lý.</p>
-                    <p class="time-text">Buổi 5 câu mất khoảng 10-15 phút.</p>
-                    <button type="submit" class="btn-submit">Bắt đầu phỏng vấn</button>
-                </div>
-
-            </div>
+            </section>
         </form>
     </main>
 
-    <!-- Bottom Navigation Mobile -->
-    <nav class="mobile-bottom-nav">
-        <a href="/Home" class="nav-item"><i class="fas fa-home"></i></a>
-        <a href="/Interview/Create" class="nav-item active"><i class="fas fa-microphone"></i></a>
-        <a href="/Home/History" class="nav-item"><i class="fas fa-history"></i></a>
-        <a href="/Profile" class="nav-item"><i class="far fa-user"></i></a>
+    <!-- Menu dưới đáy (điện thoại) -->
+    <nav class="mobile-bottom-nav" aria-label="Điều hướng">
+        <a href="/Home">Trang chủ</a>
+        <a href="/Interview/Create" class="active">Luyện</a>
+        <a href="/Home/History">Lịch sử</a>
+        <a href="/Profile">Hồ sơ</a>
     </nav>
+
+    <script>
+        // Xem trước buổi luyện: dải băng theo số câu + người phỏng vấn + thời gian ước tính (~2–3 phút/câu)
+        (function () {
+            var form = document.getElementById('createSessionForm');
+            var tape = document.getElementById('preview-tape');
+            var text = document.getElementById('preview-text');
+            function update() {
+                var n = parseInt(form.querySelector('input[name="questionCount"]:checked').value, 10);
+                var who = form.querySelector('input[name="interviewer"]:checked').dataset.name;
+                tape.innerHTML = '';
+                for (var i = 0; i < n; i++) {
+                    var seg = document.createElement('span');
+                    seg.className = 'seg' + (i === 0 ? ' now' : '');
+                    tape.appendChild(seg);
+                }
+                text.textContent = n + ' câu với ' + who + ' · khoảng ' + (n * 2) + '–' + (n * 3) + ' phút · câu đầu luôn là giới thiệu bản thân';
+            }
+            form.addEventListener('change', update);
+            update();
+        })();
+    </script>
     <partial name="Partials/_Notify" />
 </body>
 </html>

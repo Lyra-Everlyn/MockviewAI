@@ -9,7 +9,9 @@ namespace MockviewAI.Services.Ai.Interfaces
     {
         Task<InterviewScoreResult> ScoreAsync(ScoreRequest request, CancellationToken ct = default);
 
-        // Chấm DỰ PHÒNG khi AI không phản hồi: không gọi AI, chỉ tính cách nói (điểm tổng = điểm cách nói)
-        InterviewScoreResult ScoreDeliveryOnly(ScoreRequest request);
+        // Chấm KHÔNG CẦN AI khi AI lỗi / quá tải:
+        //  - câu thuộc bộ đề -> chấm SƠ BỘ theo bộ đề (ý cốt lõi, lỗi hay gặp) + cách nói, có nhãn 4 loại;
+        //  - câu hỏi kiểu cũ (không có bộ đề) -> chỉ tính cách nói như trước.
+        InterviewScoreResult ScoreWithoutAi(ScoreRequest request);
     }
 }

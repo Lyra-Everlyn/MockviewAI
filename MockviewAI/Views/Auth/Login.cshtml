@@ -12,6 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/Login.css">
+    @* [UI-DARK] Đợt 5 (02/11): giao diện tối cho mọi trang. Bỏ các dòng dưới để về bản sáng. *@
+    <link rel="stylesheet" href="~/css/dark/Login.dark.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dark/dark-base.css" asp-append-version="true" />
 
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
@@ -41,10 +44,9 @@
                     <p class="subtitle">Luyện phỏng vấn với AI, miễn phí.</p>
                 </div>
 
-                <!-- Template Form từ Tech Lead -->
-                <form method="post" asp-controller="Auth" asp-action="Login" id="loginForm" data-loading-text="Đang đăng nhập...">
-
-                    <!-- Google Login Button -->
+                <form method="post" asp-controller="Auth" asp-action="Login" id="loginForm" data-loading-text="Loading ...">
+                    @Html.AntiForgeryToken()
+                    
                     <a asp-controller="Auth" asp-action="LoginGoogle" class="btn-google">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
                         Đăng nhập với Google

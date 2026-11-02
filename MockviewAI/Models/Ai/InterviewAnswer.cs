@@ -5,6 +5,9 @@ namespace MockviewAI.Models.Ai
     // One question + the candidate's answer (text from speech-to-text or typed)
     public class InterviewAnswer
     {
+        // [QUESTION-BANK] Mã câu trong bộ đề (null = câu hỏi kiểu cũ, không có đáp án để so)
+        public string? QuestionId { get; set; }
+
         public string Question { get; set; } = string.Empty;
         public string Answer { get; set; } = string.Empty;
 
