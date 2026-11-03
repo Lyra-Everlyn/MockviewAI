@@ -57,11 +57,6 @@ namespace MockviewAI.Controllers
                     ViewData["ErrorMessage"] = "Vui lòng nhập đầy đủ Email và Mật khẩu.";
                     return View();
                 }
-                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
-                {
-                    ViewData["ErrorMessage"] = "Vui lòng nhập đầy đủ Email và Mật khẩu.";
-                    return View();
-                }
 
                 var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
                 var emailThrottleKey = LoginThrottleService.BuildEmailKey(email);
@@ -84,7 +79,6 @@ namespace MockviewAI.Controllers
             }
             catch (Exception ex)
             {
-                ViewData["ErrorMessage"] = ex.Message;
                 ViewData["ErrorMessage"] = ex.Message;
                 return View();
             }

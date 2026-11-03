@@ -61,7 +61,6 @@ namespace MockviewAI
             var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection") ?? throw new InvalidOperationException("Redis connection string is missing.");
             var redisOptions = ConfigurationOptions.Parse(redisConnectionString);
 
-
             redisOptions.AbortOnConnectFail = false;
             builder.Services.AddStackExchangeRedisCache(options =>
             {
@@ -261,7 +260,6 @@ namespace MockviewAI
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                dbContext.Database.Migrate();
                 dbContext.Database.Migrate();
             }
 
