@@ -1,3 +1,7 @@
+// [AI-MODULE] GeminiOptions
+// Cấu hình Gemini: ApiKey, Model, MaxTokens.
+// Đọc từ appsettings hoặc biến môi trường Gemini__ApiKey, Gemini__Model. KHÔNG ghi key vào file.
+
 namespace MockviewAI.Services.Ai
 {
     /// <summary>

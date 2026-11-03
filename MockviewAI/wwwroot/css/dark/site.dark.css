@@ -1,0 +1,3 @@
+/* site.dark.css — SINH TỰ ĐỘNG từ site.css bởi tools/dark-theme/make_dark_css.py (Đợt 5).
+   Không sửa tay: sửa CSS gốc hoặc công cụ rồi chạy lại. Nạp SAU site.css và theme.css. */
+html .btn:focus, html .btn:active:focus, html .btn-link.nav-link:focus, html .form-control:focus, html .form-check-input:focus { box-shadow: 0 0 0 0.1rem rgba(0, 0, 0, 0.45), 0 0 0 0.25rem rgba(0, 0, 0, 0.45) !important; }

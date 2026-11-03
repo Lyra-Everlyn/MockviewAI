@@ -538,6 +538,11 @@
             el.textContent = 'Câu ' + number + ' / ' + totalQuestions;
         });
         document.querySelector('.progress-fill').style.width = ((number - 1) * 100 / totalQuestions) + '%';
+        // [UI-DARK] Dải băng: các câu trước = done, câu đang hỏi = now
+        document.querySelectorAll('.tape-room .seg').forEach(function (seg, i) {
+            seg.classList.toggle('done', i < number - 1);
+            seg.classList.toggle('now', i === number - 1);
+        });
 
         resetAnswer();
         toggleTyping(false);
@@ -552,7 +557,8 @@
     }
 
     // ---------- Kết thúc và chấm điểm ----------
-    // AI chấm lỗi: giữ buổi luyện, hiện nút "Chấm lại". Lỗi quá 2 lần thì thêm nút xem kết quả dự phòng (chỉ tính cách nói).
+    // AI chấm lỗi: giữ buổi luyện, hiện NGAY 2 lựa chọn: "Chấm lại" bằng AI, hoặc "Xem kết quả ngay" (chấm sơ bộ theo bộ đề,
+    // không cần AI) -> người dùng không bị kẹt khi AI miễn phí quá tải. Lỗi cấu hình (sai key/model) thì ẩn "Chấm lại".
     async function finishSession(fallback) {
         if (isListening) stopListening();
         stopSpeaking();
@@ -560,7 +566,7 @@
         setBusy(true);
         btnRetryScore.hidden = true;
         btnFallbackScore.hidden = true;
-        showMessage('Đang chấm điểm, vui lòng đợi vài giây...');
+        showMessage('Đang chấm điểm. AI có thể mất 1–2 phút, vui lòng không tắt trang...');
         logEvent('finish', fallback ? 'fallback' : 'ai');
         try {
             const result = await postJson('/Interview/Finish', { sessionId: sessionId, fallback: !!fallback });
@@ -568,16 +574,13 @@
         } catch (error) {
             scoreFailures++;
             let text = error.message;
-            // Lỗi cấu hình (sai model/key): chấm lại cũng không được -> chỉ cho xem kết quả dự phòng
+            // Lỗi cấu hình (sai model/key): chấm lại cũng không được -> chỉ cho xem kết quả ngay
             const configError = !!(error.body && error.body.configError);
             btnRetryScore.hidden = configError;
-            if (configError) {
-                text += ' Bạn có thể xem kết quả dự phòng (chỉ tính phần cách nói).';
-                btnFallbackScore.hidden = false;
-            } else if (scoreFailures >= 2) {
-                text += ' AI vẫn chưa phản hồi. Bạn có thể xem kết quả dự phòng (chỉ tính phần cách nói).';
-                btnFallbackScore.hidden = false;
-            }
+            btnFallbackScore.hidden = false;
+            text += configError
+                ? ' Bạn có thể xem kết quả ngay (chấm sơ bộ, không cần AI).'
+                : (scoreFailures >= 2 ? ' AI vẫn chưa phản hồi.' : '') + ' Bạn có thể chấm lại bằng AI, hoặc xem kết quả ngay (chấm sơ bộ, không cần AI).';
             showMessage(text, 'error');
         }
     }

@@ -1,0 +1,27 @@
+/* History.dark.css — SINH TỰ ĐỘNG từ History.css bởi tools/dark-theme/make_dark_css.py (Đợt 5).
+   Không sửa tay: sửa CSS gốc hoặc công cụ rồi chạy lại. Nạp SAU History.css và theme.css. */
+html body { background-color: #0f1626 !important; color: #e8ecf6 !important; }
+html .desktop-nav { background: #161f34 !important; border-bottom: 1px solid #2a3756 !important; }
+html .logo span { color: #7086ff !important; }
+html .nav-links a { color: #aeb6c1 !important; }
+html .nav-links a.active { color: #7086ff !important; }
+html .badge-v1 { background: rgba(240, 170, 76, 0.14) !important; color: #f09b7f !important; }
+html .main-card { background: #161f34 !important; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18) !important; }
+html .back-link { color: #7086ff !important; }
+html .title-area h1 { color: #e8ecf6 !important; }
+html .title-area p { color: #acb6c3 !important; }
+html .search-area label { color: #e8ecf6 !important; }
+html .search-area input { border: 1px solid #2a3756 !important; }
+html .search-area input:focus { border-color: #3d5aff !important; }
+html .history-card { background: #161f34 !important; border: 1px solid #2a3756 !important; }
+html .history-card:hover { border-color: rgba(132, 156, 184, 0.35) !important; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18) !important; }
+html .role { color: #e8ecf6 !important; }
+html .date { color: #acb6c3 !important; }
+html .badge-score { background: rgba(76, 148, 240, 0.14) !important; color: #819eee !important; }
+html .badge-anxiety-good { background: rgba(76, 240, 133, 0.14) !important; color: #8ae5ad !important; }
+html .badge-anxiety-warn { background: rgba(240, 170, 76, 0.14) !important; color: #f09b7f !important; }
+@media (max-width: 768px) {
+    html .mobile-nav { background: #161f34 !important; border-top: 1px solid #2a3756 !important; }
+    html .nav-item { color: #b0b6bf !important; }
+    html .nav-item.active { color: #7086ff !important; }
+}

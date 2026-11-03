@@ -38,10 +38,20 @@ namespace MockviewAI.Controllers
 
         [HttpPost]
         [Route("Auth/Login")]
+        [Route("Auth/Login")]
         [ValidateAntiForgeryToken]
         [EnableRateLimiting("LoginRateLimit")]
         public async Task<IActionResult> LoginApp(string email, string password, [FromForm(Name = "cf-turnstile-response")] string turnstileToken)
         {
+            try
+            {
+                string ipAddressString = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                bool isHuman = await _turnstileService.VerifyAsync(turnstileToken, ipAddressString);
+                if (!isHuman)
+                {
+                    ViewData["ErrorMessage"] = "Xác thực bảo mật thất bại (Captcha không hợp lệ).";
+                    return View();
+                }
             try
             {
                 string ipAddressString = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
@@ -57,10 +67,24 @@ namespace MockviewAI.Controllers
                     ViewData["ErrorMessage"] = "Vui lòng nhập đầy đủ Email và Mật khẩu.";
                     return View();
                 }
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+                {
+                    ViewData["ErrorMessage"] = "Vui lòng nhập đầy đủ Email và Mật khẩu.";
+                    return View();
+                }
 
                 var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
                 var emailThrottleKey = LoginThrottleService.BuildEmailKey(email);
+                var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
+                var emailThrottleKey = LoginThrottleService.BuildEmailKey(email);
 
+                var (isLocked, wait) = await _throttleService.IsLockedOutAsync(throttleKey, emailThrottleKey);
+                if (isLocked)
+                {
+                    var minutes = (int)Math.Ceiling(wait.TotalMinutes);
+                    ViewData["ErrorMessage"] = $"Đăng nhập sai quá nhiều. Vui lòng thử lại sau {minutes} phút.";
+                    return View();
+                }
                 var (isLocked, wait) = await _throttleService.IsLockedOutAsync(throttleKey, emailThrottleKey);
                 if (isLocked)
                 {
@@ -79,9 +103,11 @@ namespace MockviewAI.Controllers
             catch (Exception ex)
             {
                 ViewData["ErrorMessage"] = ex.Message;
+                ViewData["ErrorMessage"] = ex.Message;
                 return View();
             }
         }
+
 
         [HttpGet]
         [Route("Auth/LoginGoogle")]
