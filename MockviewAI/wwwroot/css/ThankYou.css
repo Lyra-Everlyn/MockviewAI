@@ -1,249 +1,88 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+﻿/* ThankYou: only page-specific arrangement. Generic colors/components
+   come from base.css, components.css and the selected theme. */
 
-/* =========================================
-   RESET CSS & GLOBAL
-   ========================================= */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+.thankyou-page {
+    display: grid;
+    min-height: min(650px, calc(100dvh - 66px));
+    place-items: center;
 }
 
-body {
-    font-family: 'Inter', sans-serif;
-    background-color: #eef2f6; /* Nền xám nhạt toàn trang */
-    color: #111827;
-    min-height: 100vh;
+.thankyou-panel {
     display: flex;
+    width: min(100%, 650px);
     flex-direction: column;
-}
-
-a {
-    text-decoration: none;
-}
-
-ul {
-    list-style: none;
-}
-
-/* =========================================
-   THANH ĐIỀU HƯỚNG MÁY TÍNH
-   ========================================= */
-.desktop-nav {
-    background: #fff;
-    padding: 16px 0;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.nav-container {
-    max-width: 1040px;
-    margin: 0 auto;
-    padding: 0 24px;
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-}
-
-.nav-left {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-}
-
-.nav-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.logo {
-    font-size: 20px;
-    font-weight: 700;
-}
-
-    .logo span {
-        color: #2949ff;
-    }
-
-.nav-links {
-    display: flex;
-    gap: 24px;
-}
-
-    .nav-links a {
-        color: #4b5563;
-        font-size: 14px;
-        font-weight: 500;
-    }
-
-.badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-}
-
-.badge-v1 {
-    background: #ffedd5;
-    color: #9a3412;
-}
-
-.avatar {
-    width: 34px;
-    height: 34px;
-    background: #2949ff;
-    color: #fff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 15px;
-}
-
-/* =========================================
-   BỐ CỤC CHÍNH (CẢM ƠN) - MÁY TÍNH
-   ========================================= */
-.thankyou-wrapper {
-    flex: 1; /* Chiếm toàn bộ không gian còn lại dưới navbar */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 24px;
-    width: 100%;
-    max-width: 1040px;
-    margin: 0 auto;
-}
-
-.thankyou-container {
-    background: #fff;
-    width: 100%;
-    min-height: 480px; /* Chiều cao tối thiểu để tạo không gian trắng rộng như thiết kế */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    padding: 52px 36px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-panel);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-panel);
     text-align: center;
-    border-radius: 12px;
-    padding: 40px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
 }
 
-/* Icon Tích xanh */
-.success-icon {
-    width: 64px;
-    height: 64px;
-    background-color: #e6f4ea; /* Nền xanh pastel nhạt */
-    color: #0d652d; /* Màu tích xanh đậm */
+.thankyou-panel__icon {
+    display: grid;
+    width: 68px;
+    height: 68px;
+    place-items: center;
+    margin-bottom: 22px;
     border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-/* Tiêu đề & Căn chỉnh chữ */
-.thankyou-container h1 {
+    background: var(--color-success-soft);
+    color: var(--color-success);
     font-size: 28px;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 12px;
 }
 
-.thankyou-container p {
+.thankyou-panel__title {
+    color: var(--color-text);
+    font-size: clamp(24px, 3vw, 30px);
+    font-weight: 800;
+    line-height: 1.3;
+    letter-spacing: -.03em;
+}
+
+.thankyou-panel__description {
+    max-width: 460px;
+    margin-top: 12px;
+    color: var(--color-muted);
     font-size: 14px;
-    color: #4b5563;
-    line-height: 1.5;
-    margin-bottom: 32px;
+    line-height: 1.7;
 }
 
-/* Cụm Nút bấm */
-.action-buttons {
+.thankyou-panel__actions {
     display: flex;
-    gap: 16px;
+    flex-wrap: wrap;
     justify-content: center;
-}
-
-.btn {
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
-    min-width: 180px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.btn-primary {
-    background-color: #2949ff;
-    color: white;
-}
-
-    .btn-primary:hover {
-        background-color: #1e3a8a;
-    }
-
-.btn-outline {
-    background-color: #fff;
-    color: #2949ff;
-    border: 1px solid #a5b4fc; /* Viền xanh nhạt */
-}
-
-    .btn-outline:hover {
-        background-color: #f8fafc;
-        border-color: #818cf8;
-    }
-
-/* =========================================
-   MOBILE RESPONSIVE (DƯỚI 768px)
-   ========================================= */
-.hide-on-desktop {
-    display: none;
+    gap: 12px;
+    margin-top: 30px;
 }
 
 @media (max-width: 768px) {
-    .hide-on-desktop {
-        display: block;
+    .thankyou-page {
+        min-height: calc(100dvh - 110px - env(safe-area-inset-bottom));
     }
 
-    .hide-on-mobile {
-        display: none !important;
+    .thankyou-panel {
+        padding: 38px 22px;
     }
 
-    .thankyou-wrapper {
-        padding: 16px;
-        align-items: stretch;
+    .thankyou-panel__icon {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
     }
 
-    .thankyou-container {
-        border-radius: 20px;
-        padding: 40px 24px;
-        min-height: 80vh; /* Kéo dài Form card chiếm gần hết màn hình dọc */
-        justify-content: center;
+    .thankyou-panel__description {
+        font-size: 13px;
     }
+}
 
-        .thankyou-container h1 {
-            font-size: 24px;
-        }
-
-        .thankyou-container p {
-            margin-bottom: 28px;
-            font-size: 13.5px;
-        }
-
-    /* Đổi Cụm nút bấm từ hàng ngang sang xếp dọc */
-    .action-buttons {
-        flex-direction: column;
+@media (max-width: 420px) {
+    .thankyou-panel__actions {
         width: 100%;
-        gap: 12px;
+        flex-direction: column;
     }
 
-    .btn {
-        width: 100%; /* Mở rộng nút full viền */
-        padding: 14px 20px;
+    .thankyou-panel__actions .button {
+        width: 100%;
     }
 }

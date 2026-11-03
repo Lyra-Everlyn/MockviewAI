@@ -1,12 +1,24 @@
 @model List<MockviewAI.Models.ViewModels.RecentSessionViewModel>
+
 @{
     Layout = null;
     ViewData["ActiveNav"] = "home";
+
     var userName = User.Identity?.Name ?? "";
-    var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
-    var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
     var hour = DateTime.Now.Hour;
-    var greeting = hour >= 5 && hour < 12 ? "Chào buổi sáng" : hour >= 12 && hour < 18 ? "Chào buổi chiều" : "Chào buổi tối";
+
+    var greeting = hour >= 5 && hour < 12
+        ? "Chào buổi sáng"
+        : hour >= 12 && hour < 18
+            ? "Chào buổi chiều"
+            : "Chào buổi tối";
+
+    var recentSessions = Model ?? new List<MockviewAI.Models.ViewModels.RecentSessionViewModel>();
+    var scoredSessions = recentSessions.Where(x => x.HasScore).ToList();
+    var inProgressSessions = recentSessions.Count(x => x.IsInProgress);
+    var averageScore = scoredSessions.Any()
+        ? Math.Round(scoredSessions.Average(x => x.Score))
+        : (double?)null;
 }
 
 <!DOCTYPE html>
@@ -14,123 +26,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Trang chủ - MockviewAI</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="~/css/base.css">
+    <link rel="stylesheet" href="~/css/components.css">
     <link rel="stylesheet" href="~/css/Index.css">
-    <link rel="stylesheet" href="~/css/theme.css">
-    @* [UI-DARK] Đợt 5 (02/11): giao diện tối cho mọi trang. Bỏ các dòng dưới để về bản sáng. *@
-    <link rel="stylesheet" href="~/css/dark/theme.dark.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark/Index.dark.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark/dark-base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/themes/theme-indigo.css">
 </head>
+
 <body>
-    <!-- THANH ĐIỀU HƯỚNG MÁY TÍNH -->
-    <partial name="Partials/_TopNav" />
+    <partial name="Partials/_AppNavigation" />
 
-    <!-- NỘI DUNG CHÍNH -->
-    <main class="dashboard-layout">
-
-        <!-- Header (Lời chào) -->
-        <div class="item-greeting">
-            <div class="greeting-texts">
-                <div class="greeting-sub">@greeting</div>
-                <div class="greeting-main">Xin chào, @userName</div>
+    <main class="page-shell">
+        <header class="page-header">
+            <div class="page-header__content">
+                <span class="page-header__eyebrow">@greeting</span>
+                <h1 class="page-header__title">Xin chào, @userName</h1>
+                <p class="page-header__description">
+                    Tiếp tục luyện tập, theo dõi tiến độ và chuẩn bị cho buổi phỏng vấn tiếp theo.
+                </p>
             </div>
-            <!-- Avatar hiển thị cạnh lời chào trên Điện thoại -->
-            <div class="avatar hide-on-desktop">@initial</div>
-        </div>
+        </header>
 
-        <!-- Khối CTA chính (Xanh biển) -->
-        <div class="box cta-box item-cta">
-            <h2>Sẵn sàng luyện phỏng vấn?</h2>
-            <p>Chọn vị trí, AI sẽ hỏi bạn như một buổi phỏng vấn thật.</p>
-            <button type="button" class="btn-create" onclick="location.href='/Interview/Create'">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                    <line x1="12" y1="19" x2="12" y2="22"></line>
-                </svg>
-                Tạo buổi luyện
-            </button>
-        </div>
+        <section class="content-grid content-grid--hero" aria-label="Bắt đầu luyện tập">
+            <article class="panel panel--primary">
+                <div class="panel__content">
+                    <span class="panel__eyebrow">LUYỆN PHỎNG VẤN</span>
+                    <h2 class="panel__title">Sẵn sàng cho buổi luyện tiếp theo?</h2>
+                    <p class="panel__description">
+                        Chọn vị trí ứng tuyển và bắt đầu một phiên phỏng vấn mô phỏng với AI.
+                    </p>
 
-        <!-- Khối thông báo Beta (Màu cam nhạt) -->
-        <div class="box beta-box item-beta" style="cursor: pointer;" onclick="location.href='/Feedback'">
-            <h3>Bạn đang dùng bản BETA</h3>
-            <p>Bấm vào đây để góp ý, mất khoảng 2 phút.</p>
-        </div>
-
-        <!-- Khối Mẹo hôm nay -->
-        <div class="box tip-box item-tip">
-            <h3>Mẹo hôm nay</h3>
-            <p>Trả lời theo cấu trúc STAR: Tình huống, Nhiệm vụ, Hành động, Kết quả.</p>
-        </div>
-
-        <!-- Header Buổi gần đây -->
-        <div class="recent-header item-recent-header">
-            <h3>Buổi gần đây</h3>
-            <div class="header-actions hide-on-mobile">
-                <a href="/Home/History" class="link-primary">Xem toàn bộ lịch sử</a>
-                <a href="#" class="link-help">? Hướng dẫn nhanh</a>
-            </div>
-            <div class="header-actions hide-on-desktop">
-                <a href="/Home/History" class="link-primary">Xem tất cả</a>
-            </div>
-        </div>
-
-        <!-- Danh sách thẻ (Cards) Buổi gần đây -->
-        <div class="item-recent-cards">
-            @if (!Model.Any())
-            {
-                <div class="session-card">
-                    <div class="card-header">
-                        <span class="role">Bạn chưa có buổi luyện nào. Bấm "Tạo buổi luyện" để bắt đầu.</span>
+                    <div class="panel__actions">
+                        <a href="/Interview/Create" class="button button--primary">
+                            <i class="fa-solid fa-microphone" aria-hidden="true"></i>
+                            Tạo buổi luyện
+                        </a>
                     </div>
                 </div>
-            }
-            @for (int i = 0; i < Model.Count; i++)
+            </article>
+
+            <div class="stack">
+                <a href="/Feedback" class="action-card feedback-action-card">
+                    <div class="action-card__icon" aria-hidden="true">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div class="action-card__content">
+                        <span class="action-card__eyebrow">BETA</span>
+                        <h3 class="action-card__title">Đóng góp ý kiến</h3>
+                        <p class="action-card__description">
+                            Chia sẻ trải nghiệm để MockviewAI cải thiện tốt hơn.
+                        </p>
+                        <span class="action-card__action">
+                            Gửi góp ý
+                            <span class="action-card__chevron" aria-hidden="true">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </span>
+                        </span>
+                    </div>
+                </a>
+
+                <article class="info-card">
+                    <div class="info-card__icon" aria-hidden="true">
+                        <i class="fa-regular fa-lightbulb"></i>
+                    </div>
+                    <div class="info-card__content">
+                        <span class="info-card__eyebrow">MẸO HÔM NAY</span>
+                        <h3 class="info-card__title">Trả lời theo cấu trúc STAR</h3>
+                        <p class="info-card__description">
+                            Tình huống · Nhiệm vụ · Hành động · Kết quả.
+                        </p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="page-section" aria-labelledby="overview-title">
+            <div class="section-header">
+                <div class="section-header__content">
+                    <span class="section-header__eyebrow">TỔNG QUAN</span>
+                    <h2 id="overview-title" class="section-header__title">Tiến độ gần đây</h2>
+                    <p class="section-header__description">
+                        Tóm tắt nhanh dựa trên các buổi luyện gần nhất đang hiển thị.
+                    </p>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <span class="stat-card__label">Buổi gần đây</span>
+                    <strong class="stat-card__value">@recentSessions.Count</strong>
+                    <span class="stat-card__description">Phiên đang hiển thị</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-card__label">Đã chấm điểm</span>
+                    <strong class="stat-card__value">@scoredSessions.Count</strong>
+                    <span class="stat-card__description">Phiên có kết quả</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-card__label">Đang thực hiện</span>
+                    <strong class="stat-card__value">@inProgressSessions</strong>
+                    <span class="stat-card__description">Phiên chưa hoàn tất</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-card__label">Điểm trung bình</span>
+                    <strong class="stat-card__value">
+                        @(averageScore.HasValue ? averageScore.Value.ToString("0") : "—")
+                    </strong>
+                    <span class="stat-card__description">Từ các phiên đã chấm</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="page-section" aria-labelledby="recent-title">
+            <div class="section-header section-header--with-action">
+                <div class="section-header__content">
+                    <span class="section-header__eyebrow">LỊCH SỬ</span>
+                    <h2 id="recent-title" class="section-header__title">Buổi luyện gần đây</h2>
+                    <p class="section-header__description">
+                        Tiếp tục phiên đang dở hoặc xem lại kết quả các buổi gần nhất.
+                    </p>
+                </div>
+
+                <a href="/Home/History" class="section-header__action">
+                    Xem tất cả
+                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                </a>
+            </div>
+
+            @if (!recentSessions.Any())
             {
-                var s = Model[i];
-                // Thẻ thứ 2 ẩn trên điện thoại như thiết kế
-                <div class="session-card @(i >= 1 ? "hide-on-mobile" : "")" style="cursor: pointer;"
-                     onclick="location.href='@(s.IsInProgress ? "/Interview/Room/" + s.SessionId : "/Home/InterviewDetail/" + s.SessionId)'">
-                    <div class="card-header">
-                        <span class="role">@s.RoleName</span>
-                        <span class="date">@s.DateFormatted</span>
+                <div class="empty-state">
+                    <div class="empty-state__icon" aria-hidden="true">
+                        <i class="fa-regular fa-clock"></i>
                     </div>
-                    <div class="card-tags">
-                        <span class="tag tag-blue">@(s.HasScore ? s.Score + " điểm" : s.StatusText)</span>
-                        @if (!string.IsNullOrEmpty(s.AnxietyText))
-                        {
-                            <span class="tag tag-green">@s.AnxietyText</span>
-                        }
+
+                    <div class="empty-state__content">
+                        <h3 class="empty-state__title">Chưa có buổi luyện nào</h3>
+                        <p class="empty-state__description">
+                            Bắt đầu phiên đầu tiên để lịch sử và tiến độ xuất hiện tại đây.
+                        </p>
                     </div>
+
+                    <a href="/Interview/Create" class="button button--secondary">
+                        Tạo buổi luyện
+                    </a>
                 </div>
             }
-        </div>
+            else
+            {
+                <div class="session-list">
+                    @foreach (var session in recentSessions)
+                    {
+                        <partial name="Partials/_SessionCard" model="session" />
+                    }
+                </div>
+            }
+        </section>
 
-        <!-- Link Hướng dẫn nhanh cho Điện thoại -->
-        <a href="#" class="link-help mobile-help item-mobile-help hide-on-desktop">? Hướng dẫn nhanh</a>
+        <section class="page-section" aria-labelledby="quick-actions-title">
+            <div class="section-header">
+                <div class="section-header__content">
+                    <span class="section-header__eyebrow">TRUY CẬP NHANH</span>
+                    <h2 id="quick-actions-title" class="section-header__title">Bạn muốn làm gì tiếp theo?</h2>
+                </div>
+            </div>
+
+            <div class="action-grid">
+                <a href="/Interview/Create" class="action-card">
+                    <div class="action-card__icon" aria-hidden="true">
+                        <i class="fa-solid fa-microphone"></i>
+                    </div>
+                    <div class="action-card__content">
+                        <h3 class="action-card__title">Luyện phỏng vấn</h3>
+                        <p class="action-card__description">Bắt đầu một phiên luyện mới.</p>
+                    </div>
+                    <span class="action-card__chevron" aria-hidden="true">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </span>
+                </a>
+
+                <a href="/Home/History" class="action-card">
+                    <div class="action-card__icon" aria-hidden="true">
+                        <i class="fa-regular fa-clock"></i>
+                    </div>
+                    <div class="action-card__content">
+                        <h3 class="action-card__title">Xem lịch sử</h3>
+                        <p class="action-card__description">Xem lại các phiên đã thực hiện.</p>
+                    </div>
+                    <span class="action-card__chevron" aria-hidden="true">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </span>
+                </a>
+
+                <a href="/Profile" class="action-card">
+                    <div class="action-card__icon" aria-hidden="true">
+                        <i class="fa-regular fa-user"></i>
+                    </div>
+                    <div class="action-card__content">
+                        <h3 class="action-card__title">Hồ sơ cá nhân</h3>
+                        <p class="action-card__description">Kiểm tra thông tin và định hướng nghề nghiệp.</p>
+                    </div>
+                    <span class="action-card__chevron" aria-hidden="true">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </span>
+                </a>
+            </div>
+        </section>
     </main>
 
-    <!-- THANH ĐIỀU HƯỚNG DƯỚI ĐÁY CHO ĐIỆN THOẠI -->
-    <nav class="mobile-nav hide-on-desktop">
-        <a href="/Home" class="nav-item active">
-            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-            <span>Trang chủ</span>
-        </a>
-        <a href="/Interview/Create" class="nav-item">
-            <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg>
-            <span>Luyện tập</span>
-        </a>
-        <a href="/Home/History" class="nav-item">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            <span>Lịch sử</span>
-        </a>
-        <a href="/Profile" class="nav-item">
-            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <span>Hồ sơ</span>
-        </a>
-    </nav>
     <partial name="Partials/_Notify" />
+    <partial name="Partials/_AppFooter" />
 </body>
 </html>

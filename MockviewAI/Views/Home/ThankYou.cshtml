@@ -1,11 +1,6 @@
 ﻿@{
     Layout = null;
-    ViewData["ActiveNav"] = "";   // mục sáng trên thanh menu dùng chung
-    // Chữ cái đầu của tên người đang đăng nhập (hiện trên avatar góc phải)
-    var userName = User.Identity?.Name ?? "";
-    var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
-    // Ảnh Google của tài khoản (nếu có), không có thì hiện chữ cái đầu
-    var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
+    ViewData["ActiveNav"] = "";
 }
 
 <!DOCTYPE html>
@@ -13,41 +8,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cảm ơn - MockviewAI</title>
-    <link rel="stylesheet" href="~/css/ThankYou.css">
-    <link rel="stylesheet" href="~/css/theme.css"> <!-- giao diện chung: nạp SAU CSS của trang -->
-    @* [UI-DARK] Đợt 5 (02/11): giao diện tối cho mọi trang. Bỏ các dòng dưới để về bản sáng. *@
-    <link rel="stylesheet" href="~/css/dark/theme.dark.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark/ThankYou.dark.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark/dark-base.css" asp-append-version="true" />
+    <title>Cảm ơn bạn - MockviewAI</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/ThankYou.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/themes/theme-indigo.css" asp-append-version="true">
 </head>
 <body>
-    <!-- THANH ĐIỀU HƯỚNG MÁY TÍNH -->
-    <partial name="Partials/_TopNav" />
+    <partial name="Partials/_AppNavigation" />
 
-    <!-- NỘI DUNG CHÍNH -->
-    <main class="thankyou-wrapper">
-        <div class="thankyou-container">
-            
-            <!-- Biểu tượng dấu tích xanh -->
-            <div class="success-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-            </div>
-            
-            <!-- Tiêu đề và mô tả -->
-            <h1>Cảm ơn bạn đã góp ý!</h1>
-            <p>Ý kiến của bạn đã được ghi nhận và sẽ giúp nhóm cải thiện phiên bản <br class="hide-on-mobile"> tiếp theo.</p>
-            
-            <!-- Cụm nút bấm -->
-            <div class="action-buttons">
-                <button type="button" class="btn btn-primary" onclick="location.href='/Home'">Về trang chủ</button>
-                <button type="button" class="btn btn-outline" onclick="location.href='/Interview/Create'">Luyện thêm một buổi</button>
-            </div>
+    <main class="page-shell thankyou-page">
+        <section class="thankyou-panel" aria-labelledby="thankyou-title">
+            <span class="thankyou-panel__icon" aria-hidden="true">
+                <i class="fa-solid fa-check"></i>
+            </span>
 
-        </div>
+            <h1 class="thankyou-panel__title" id="thankyou-title">
+                Cảm ơn bạn đã góp ý!
+            </h1>
+            <p class="thankyou-panel__description">
+                Ý kiến của bạn đã được ghi nhận và sẽ giúp nhóm cải thiện phiên bản tiếp theo.
+            </p>
+
+            <div class="thankyou-panel__actions">
+                <a class="button button--primary" href="/Home">
+                    <i class="fa-solid fa-house" aria-hidden="true"></i>
+                    Về trang chủ
+                </a>
+                <a class="button button--secondary" href="/Interview/Create">
+                    <i class="fa-solid fa-microphone" aria-hidden="true"></i>
+                    Luyện thêm một buổi
+                </a>
+            </div>
+        </section>
     </main>
+
     <partial name="Partials/_Notify" />
+    <partial name="Partials/_AppFooter" />
 </body>
 </html>

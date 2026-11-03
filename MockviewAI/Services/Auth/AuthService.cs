@@ -293,6 +293,9 @@ namespace MockviewAI.Services.Auth
 
         public async Task<bool> VerifyResetCodeAsync(string email, string code, string ipAddress)
         {
+            if (string.IsNullOrWhiteSpace(email))
+                throw new ArgumentException("Email không hợp lệ.");
+
             email = email.Trim().ToLowerInvariant();
 
             string? savedCode = await _cache.GetStringAsync($"OTP_{email}");

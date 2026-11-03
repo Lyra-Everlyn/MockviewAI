@@ -1,0 +1,16 @@
+<footer class="app-footer" aria-label="Thông tin website">
+    <div class="app-footer__inner">
+        <div class="app-footer__identity">
+            <a class="app-footer__brand" asp-controller="Home" asp-action="Index"
+               aria-label="MockviewAI - Trang chủ">Mockview<span>AI</span></a>
+            <p class="app-footer__description">Luyện phỏng vấn, tự tin tiến bước.</p>
+        </div>
+
+        <nav class="app-footer__links" aria-label="Liên kết cuối trang">
+            <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+            <a asp-controller="Home" asp-action="Feedback">Góp ý</a>
+        </nav>
+
+        <p class="app-footer__copyright">&copy; @DateTime.Now.Year MockviewAI</p>
+    </div>
+</footer>

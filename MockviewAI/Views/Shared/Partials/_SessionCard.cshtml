@@ -1,0 +1,25 @@
+﻿@model MockviewAI.Models.ViewModels.RecentSessionViewModel
+@{
+    var sessionUrl = Model.IsInProgress
+        ? $"/Interview/Room/{Model.SessionId}"
+        : $"/Home/InterviewDetail/{Model.SessionId}";
+}
+<a href="@sessionUrl" class="session-card">
+    <div class="session-card__main">
+        <h3 class="session-card__title">@Model.RoleName</h3>
+        <div class="session-card__meta">
+            <span class="status-chip">@(Model.HasScore ? Model.Score + " điểm" : Model.StatusText)</span>
+            @if (!string.IsNullOrWhiteSpace(Model.AnxietyText))
+            {
+                <span class="status-chip @(Model.AnxietyImproved ? "status-chip--success" : "status-chip--warning")">@Model.AnxietyText</span>
+            }
+        </div>
+    </div>
+    <div class="session-card__side">
+        <span class="session-card__details">
+            <span class="session-card__date">@Model.DateFormatted</span>
+            <span class="session-card__count">@Model.QuestionCount câu hỏi</span>
+        </span>
+        <span class="session-card__chevron" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+    </div>
+</a>

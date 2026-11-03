@@ -1,100 +1,110 @@
+@inject IConfiguration Configuration
 @{
     Layout = null;
-    @inject IConfiguration Configuration
 }
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Đăng nhập - MockviewAI</title>
     <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="~/css/Login.css">
-    @* [UI-DARK] Đợt 5 (02/11): giao diện tối cho mọi trang. Bỏ các dòng dưới để về bản sáng. *@
-    <link rel="stylesheet" href="~/css/dark/Login.dark.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark/dark-base.css" asp-append-version="true" />
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Login.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/themes/theme-indigo.css" asp-append-version="true" />
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
-<body>
-
-    <div class="login-wrapper">
-        <div class="login-box">
-
-            <div class="login-banner">
-                <div class="banner-logo">MockviewAI</div>
-                <h1 class="banner-title">Luyện phỏng vấn với AI trước ngày phỏng vấn thật</h1>
-                <p class="banner-subtitle">Dành cho sinh viên sắp ra trường và người mới đi làm.</p>
-                <ul class="banner-features">
-                    <li><span class="step-num">1</span> Chọn vị trí và người phỏng vấn</li>
-                    <li><span class="step-num">2</span> Trả lời bằng giọng nói hoặc gõ chữ</li>
-                    <li><span class="step-num">3</span> Xem điểm, nhận xét và mức lo lắng</li>
-                </ul>
-            </div>
-
-            <div class="login-form-container">
-                <div class="form-header">
-                    <div class="title-wrapper">
-                        <h2>Đăng nhập</h2>
-                        <span class="badge-beta">BETA</span>
+<body class="app-layout app-layout--auth">
+    <div class="app-layout__content">
+        <main class="auth-page">
+            <div class="auth-shell">
+                <section class="auth-intro" aria-labelledby="auth-intro-title">
+                    <div class="auth-intro__top">
+                        <a class="auth-brand" asp-controller="Home" asp-action="Index" aria-label="MockviewAI - Trang chủ">
+                            <span class="auth-brand__mark" aria-hidden="true"><img src="~/favicon.ico" asp-append-version="true" alt="" /></span>
+                            <span>Mockview<span>AI</span></span>
+                        </a>
+                        <span class="auth-intro__badge">BETA</span>
                     </div>
-                    <p class="subtitle">Luyện phỏng vấn với AI, hoàn toàn miễn phí.</p>
-                </div>
+                    <div class="auth-intro__body">
+                        <span class="auth-intro__eyebrow"><i class="fa-solid fa-sparkles" aria-hidden="true"></i> NỀN TẢNG LUYỆN PHỎNG VẤN</span>
+                        <h1 id="auth-intro-title">Tự tin hơn trong mỗi buổi phỏng vấn.</h1>
+                        <p>Rèn luyện với AI trong môi trường mô phỏng, theo dõi tiến bộ và chuẩn bị cho cơ hội nghề nghiệp của bạn.</p>
+                        <ol class="auth-steps" aria-label="Ba bước luyện tập">
+                            <li><span class="auth-steps__icon"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></span><span><strong>Chọn vị trí ứng tuyển</strong><small>Cá nhân hóa buổi phỏng vấn theo mục tiêu.</small></span></li>
+                            <li><span class="auth-steps__icon"><i class="fa-solid fa-microphone" aria-hidden="true"></i></span><span><strong>Thực hành cùng AI</strong><small>Trả lời bằng giọng nói hoặc văn bản.</small></span></li>
+                            <li><span class="auth-steps__icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span><span><strong>Nhận đánh giá</strong><small>Xem điểm số và nhận xét để cải thiện.</small></span></li>
+                        </ol>
+                    </div>
+                    <p class="auth-intro__bottom">Luyện tập hôm nay, vững vàng ngày mai.</p>
+                </section>
 
-                <form method="post" asp-controller="Auth" asp-action="LoginApp" id="loginForm" data-loading-text="Đang đăng nhập...">
-                    @Html.AntiForgeryToken()
+                <section class="auth-panel" aria-labelledby="login-heading">
+                    <div class="auth-panel__mobile-brand">
+                        <span class="auth-brand__mark" aria-hidden="true"><img src="~/favicon.ico" asp-append-version="true" alt="" /></span>
+                        <strong>Mockview<span>AI</span></strong>
+                    </div>
+                    <div class="auth-panel__header">
+                        <span class="auth-panel__eyebrow">CHÀO MỪNG TRỞ LẠI</span>
+                        <h2 id="login-heading">Đăng nhập tài khoản</h2>
+                        <p>Tiếp tục hành trình luyện phỏng vấn của bạn.</p>
+                    </div>
 
-                    <a asp-controller="Auth" asp-action="LoginGoogle" class="btn-google">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
-                        Đăng nhập bằng Google
+                    <a class="auth-google" asp-controller="Auth" asp-action="LoginGoogle">
+                        <i class="fa-brands fa-google" aria-hidden="true"></i>
+                        <span>Tiếp tục với Google</span>
                     </a>
 
-                    <div class="divider">
-                        <span>HOẶC VỚI TÀI KHOẢN MOCKVIEW</span>
-                    </div>
+                    <div class="auth-divider" aria-hidden="true"><span>HOẶC ĐĂNG NHẬP BẰNG EMAIL</span></div>
 
-                    <div class="form-group">
-                        <label for="email-login">Email</label>
-                        <div class="input-group">
-                            <i class="fas fa-envelope icon-left"></i>
-                            <input type="email" name="email" id="email-login" placeholder="you@email.com" required>
+                    <form id="loginForm" class="auth-form" method="post" asp-controller="Auth" asp-action="LoginApp"
+                          data-loading-text="Đang đăng nhập..." data-loading-overlay="Hệ thống đang xác thực tài khoản của bạn.">
+                        @Html.AntiForgeryToken()
+                        <div class="form-field">
+                            <label class="form-field__label" for="email-login">Địa chỉ email</label>
+                            <div class="form-control-wrap">
+                                <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+                                <input class="form-control" id="email-login" name="email" type="email" placeholder="you@email.com" autocomplete="username" required />
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="pass-login">Mật khẩu</label>
-                        <div class="input-group">
-                            <i class="fas fa-lock icon-left"></i>
-                            <input type="password" name="password" id="pass-login" placeholder="Nhập mật khẩu" required>
-                            <i class="far fa-eye toggle-password" onclick="togglePass('pass-login', this)"></i>
+                        <div class="form-field">
+                            <div class="auth-label-row">
+                                <label class="form-field__label" for="pass-login">Mật khẩu</label>
+                                <a class="text-link" asp-controller="Auth" asp-action="ForgotPassword">Quên mật khẩu?</a>
+                            </div>
+                            <div class="form-control-wrap auth-password-field">
+                                <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                                <input class="form-control" id="pass-login" name="password" type="password" placeholder="Nhập mật khẩu" autocomplete="current-password" required />
+                                <button class="auth-password-toggle" type="button" data-password-toggle="pass-login" aria-controls="pass-login" aria-label="Hiển thị mật khẩu" aria-pressed="false">
+                                    <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <a href="/Auth/ForgotPassword" class="forgot-password-link">Quên mật khẩu?</a>
-                    </div>
+                        <div class="auth-turnstile">
+                            <div class="cf-turnstile" data-theme="light" data-size="flexible" data-sitekey="@Configuration["Turnstile:SiteKey"]"></div>
+                        </div>
 
-                    <div class="form-group">
-                        <div class="cf-turnstile" data-theme="light" data-size="flexible" data-sitekey="@Configuration["Turnstile:SiteKey"]"></div>
-                    </div>
+                        <button class="button button--primary auth-submit" type="submit">
+                            <span>Đăng nhập</span>
+                            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                        </button>
+                    </form>
 
-                    <button type="submit" class="btn-submit">Đăng nhập</button>
-
-                </form>
-
-                <div class="auth-switch">
-                    Chưa có tài khoản? <a href="/Auth/Register">Đăng ký ngay</a>
-                </div>
+                    <p class="auth-register">Chưa có tài khoản? <a class="text-link" asp-controller="Auth" asp-action="Register">Đăng ký ngay</a></p>
+                    <p class="auth-panel__note"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Xác thực an toàn để bảo vệ tài khoản của bạn.</p>
+                </section>
             </div>
-
-        </div>
+        </main>
     </div>
 
+    <partial name="Partials/_AppFooter" />
     <partial name="Partials/_Notify" />
-    <script src="~/js/_TogglePassword.js"></script>
-    <script src="~/js/_SubmitLoading.js"></script>
+
+    <script src="~/js/_TogglePassword.js" asp-append-version="true" defer></script>
+    <script src="~/js/_SubmitLoading.js" asp-append-version="true" defer></script>
 </body>
 </html>

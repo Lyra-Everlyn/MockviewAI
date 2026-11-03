@@ -2,78 +2,105 @@
     Layout = null;
     var email = ViewBag.Email ?? Context.Request.Query["email"].ToString();
 }
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xác thực mã đăng ký - MockviewAI</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Xác thực email - MockviewAI</title>
     <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
-    <link rel="stylesheet" href="~/css/ForgotPassword.css">
-    @* [UI-DARK] Đợt 5 (02/11): giao diện tối cho mọi trang. Bỏ các dòng dưới để về bản sáng. *@
-    <link rel="stylesheet" href="~/css/dark/ForgotPassword.dark.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark/dark-base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Login.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/VerifyRegistrationCode.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/themes/theme-indigo.css" asp-append-version="true" />
 </head>
-
-<body>
-    <div class="forgot-wrapper">
-        <div class="forgot-container">
-
-            <div class="info-panel">
-                <div class="logo">Mockview<span>AI</span></div>
-                <h1>Xác thực địa chỉ email của bạn</h1>
-                <p class="subtitle">Chỉ còn một bước nữa! Chúng tôi cần xác thực email để kích hoạt và bảo vệ tài khoản mới của bạn.</p>
-                <ul class="features">
-                    <li><span class="step">1</span> Điền thông tin cá nhân</li>
-                    <li><span class="step active">2</span> Xác thực email</li>
-                    <li><span class="step">3</span> Bắt đầu luyện phỏng vấn</li>
-                </ul>
-            </div>
-
-            <div class="form-panel">
-                <div class="mobile-header hide-on-desktop">
-                    <div class="logo-dark">Mockview<span>AI</span></div>
-                </div>
-
-                <div class="form-header">
-                    <h2>Kiểm tra hộp thư của bạn</h2>
-                </div>
-
-                <p class="description">
-                    Chúng tôi đã gửi mã xác thực 6 số đến <strong>@email</strong>.
-                    Mã này sẽ hết hạn trong vòng 5 phút.
-                </p>
-
-                <form method="post" asp-controller="Auth" asp-action="VerifyRegistrationCode" id="verifyForm">
-                    @Html.AntiForgeryToken()
-
-                    <input type="hidden" name="email" value="@email" />
-                    <input type="hidden" name="code" id="finalCode" />
-
-                    <div class="form-group">
-                        <label>Mã xác thực</label>
-                        <div class="otp-wrapper">
-                            <input type="text" class="otp-input" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" aria-label="Chữ số 1" required autofocus>
-                            <input type="text" class="otp-input" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Chữ số 2" required>
-                            <input type="text" class="otp-input" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Chữ số 3" required>
-                            <input type="text" class="otp-input" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Chữ số 4" required>
-                            <input type="text" class="otp-input" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Chữ số 5" required>
-                            <input type="text" class="otp-input" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Chữ số 6" required>
-                        </div>
-
+<body class="app-layout app-layout--auth">
+    <div class="app-layout__content">
+        <main class="auth-page otp-page">
+            <div class="auth-shell otp-shell">
+                <section class="auth-intro" aria-labelledby="otp-intro-title">
+                    <div class="auth-intro__top">
+                        <a class="auth-brand" asp-controller="Home" asp-action="Index" aria-label="MockviewAI - Trang chủ">
+                            <span class="auth-brand__mark" aria-hidden="true"><img src="~/favicon.ico" asp-append-version="true" alt="" /></span>
+                            <span>Mockview<span>AI</span></span>
+                        </a>
+                        <span class="auth-intro__badge">BETA</span>
                     </div>
-                    <button type="submit" class="btn-submit">Xác thực tài khoản</button>
-
-                    <div class="back-link">
-                        <a href="/Auth/Register">Nhầm email? Quay lại đăng ký</a>
+                    <div class="auth-intro__body">
+                        <span class="auth-intro__eyebrow"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> BẢO VỆ TÀI KHOẢN</span>
+                        <h1 id="otp-intro-title">Chỉ còn một bước để bắt đầu.</h1>
+                        <p>Xác minh địa chỉ email để kích hoạt tài khoản và bảo vệ thông tin của bạn.</p>
+                        <ol class="auth-steps otp-steps" aria-label="Tiến trình đăng ký">
+                            <li class="otp-steps__done">
+                                <span class="auth-steps__icon"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                                <span><strong>Điền thông tin cá nhân</strong><small>Đã hoàn tất</small></span>
+                            </li>
+                            <li class="otp-steps__current" aria-current="step">
+                                <span class="auth-steps__icon"><i class="fa-solid fa-envelope-circle-check" aria-hidden="true"></i></span>
+                                <span><strong>Xác thực địa chỉ email</strong><small>Đang thực hiện</small></span>
+                            </li>
+                            <li>
+                                <span class="auth-steps__icon"><i class="fa-solid fa-microphone" aria-hidden="true"></i></span>
+                                <span><strong>Bắt đầu luyện phỏng vấn</strong><small>Sẵn sàng sau khi xác thực</small></span>
+                            </li>
+                        </ol>
                     </div>
-                </form>
+                    <p class="auth-intro__bottom">Xác thực an toàn · MockviewAI</p>
+                </section>
 
+                <section class="auth-panel otp-panel" aria-labelledby="otp-heading">
+                    <div class="auth-panel__mobile-brand">
+                        <span class="auth-brand__mark" aria-hidden="true"><img src="~/favicon.ico" asp-append-version="true" alt="" /></span>
+                        <strong>Mockview<span>AI</span></strong>
+                    </div>
+                    <div class="otp-panel__symbol" aria-hidden="true"><i class="fa-regular fa-envelope-open"></i></div>
+                    <div class="auth-panel__header otp-panel__header">
+                        <span class="auth-panel__eyebrow">XÁC THỰC ĐĂNG KÝ</span>
+                        <h2 id="otp-heading">Kiểm tra hộp thư của bạn</h2>
+                        <p>Nhập mã xác thực gồm 6 chữ số đã được gửi đến:</p>
+                        <p class="otp-panel__email"><i class="fa-regular fa-envelope" aria-hidden="true"></i> <strong>@email</strong></p>
+                        <p class="otp-panel__expiry"><i class="fa-regular fa-clock" aria-hidden="true"></i> Mã có hiệu lực trong 5 phút.</p>
+                    </div>
+
+                    <form id="verifyForm" class="auth-form otp-form" method="post"
+                          asp-controller="Auth" asp-action="VerifyRegistrationCode"
+                          data-loading-text="Đang xác thực..."
+                          data-loading-overlay="Hệ thống đang kiểm tra mã và kích hoạt tài khoản của bạn.">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="email" value="@email" />
+                        <input type="hidden" name="code" id="finalCode" />
+
+                        <fieldset class="otp-fieldset">
+                            <legend class="form-field__label">Mã xác thực</legend>
+                            <div class="otp-control" role="group" aria-label="Mã xác thực gồm 6 chữ số">
+                                @for (int i = 0; i < 6; i++)
+                                {
+                                    <input class="otp-control__digit otp-input" type="text"
+                                           inputmode="numeric" pattern="[0-9]*" autocomplete="@(i == 0 ? "one-time-code" : "off")"
+                                           aria-label="Chữ số @(i + 1)" required />
+                                }
+                            </div>
+                            <p class="otp-control__message" id="otp-message" role="status" aria-live="polite"></p>
+                        </fieldset>
+                        <button class="button button--primary auth-submit" type="submit">
+                            <span>Xác thực tài khoản</span>
+                            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                        </button>
+                    </form>
+
+                    <p class="otp-panel__help">Chưa nhận được mã? Hãy kiểm tra cả thư mục Spam hoặc Thư rác.</p>
+                    <a class="otp-panel__back text-link" asp-controller="Auth" asp-action="Register">
+                        <i class="fa-solid fa-chevron-left" aria-hidden="true"></i> Nhầm email? Quay lại đăng ký
+                    </a>
+                </section>
             </div>
-        </div>
+        </main>
     </div>
+    <partial name="Partials/_AppFooter" />
     <partial name="Partials/_Notify" />
-    <script src="~/js/VerifyCode.js"></script>
+    <script src="~/js/VerifyCode.js" asp-append-version="true" defer></script>
+    <script src="~/js/_SubmitLoading.js" asp-append-version="true" defer></script>
 </body>
 </html>

@@ -1,112 +1,118 @@
 ﻿@model MockviewAI.Models.ViewModels.ProfileEditViewModel
 @{
     Layout = null;
-    ViewData["ActiveNav"] = "";
+    ViewData["ActiveNav"] = "profile";
     var userName = User.Identity?.Name ?? "";
     var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
     var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
 }
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chỉnh sửa hồ sơ - MockviewAI</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="~/css/base.css">
+    <link rel="stylesheet" href="~/css/components.css">
     <link rel="stylesheet" href="~/css/EditProfile.css">
-    <link rel="stylesheet" href="~/css/theme.css">
-    @* [UI-DARK] Đợt 5 (02/11): giao diện tối cho mọi trang. Bỏ các dòng dưới để về bản sáng. *@
-    <link rel="stylesheet" href="~/css/dark/theme.dark.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark/EditProfile.dark.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark/dark-base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/themes/theme-indigo.css">
 </head>
 <body>
-    <partial name="Partials/_TopNav" />
+    <partial name="Partials/_AppNavigation" />
 
-    <main class="edit-page">
-        <header class="page-heading">
-            <div>
-                <h1 class="page-title">Chỉnh sửa hồ sơ</h1>
-                <p class="page-description">Cập nhật thông tin để MockviewAI cá nhân hoá trải nghiệm luyện phỏng vấn tốt hơn.</p>
+    <main class="page-shell edit-profile-page">
+        <header class="page-header edit-profile-page__header">
+            <div class="page-header__content">
+                <a href="/Profile" class="text-link edit-profile-page__back">
+                    <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                    Quay lại hồ sơ
+                </a>
+                <span class="page-header__eyebrow">TÀI KHOẢN CỦA BẠN</span>
+                <h1 class="page-header__title">Chỉnh sửa hồ sơ</h1>
+                <p class="page-header__description">Cập nhật thông tin để MockviewAI cá nhân hoá trải nghiệm luyện phỏng vấn tốt hơn.</p>
             </div>
         </header>
 
-        <div class="edit-grid">
-            <aside class="profile-preview-card">
-                <div class="preview-avatar-wrap">
-                    <div class="preview-avatar">
-                        @if (!string.IsNullOrEmpty(avatarUrl))
-                        {
-                            <img src="@avatarUrl" alt="" referrerpolicy="no-referrer" />
-                        }
-                        else
-                        {
-                            @initial
-                        }
+        <div class="edit-profile-layout">
+            <aside class="edit-profile-sidebar">
+                <section class="surface-card avatar-preview-card" aria-labelledby="avatar-preview-title">
+                    <div class="avatar-preview-card__head">
+                        <div class="avatar-preview-card__image-wrap">
+                            <div class="avatar-preview-card__image" id="avatarPreview">
+                                @if (!string.IsNullOrWhiteSpace(avatarUrl))
+                                {
+                                    <img src="@avatarUrl" alt="Ảnh đại diện hiện tại" referrerpolicy="no-referrer" />
+                                }
+                                else
+                                {
+                                    @initial
+                                }
+                            </div>
+                            <span class="avatar-preview-card__online" aria-label="Tài khoản đang hoạt động"></span>
+                        </div>
+                        <div class="avatar-preview-card__identity">
+                            <span class="section-header__eyebrow">ẢNH ĐẠI DIỆN</span>
+                            <h2 id="avatar-preview-title">@userName</h2>
+                            <p>Ảnh đại diện giúp hồ sơ của bạn dễ nhận biết hơn.</p>
+                        </div>
                     </div>
-                    <span class="profile-status-dot" aria-label="Tài khoản đang hoạt động"></span>
-                </div>
-
-                <div class="preview-copy">
-                    <h2>@userName</h2>
-                    <p>Ảnh đại diện giúp hồ sơ của bạn dễ nhận biết hơn.</p>
-                </div>
-
-                <button type="button" class="change-avatar-btn" onclick="document.getElementById('avatarInput').click()" style="width: 100%; cursor: pointer;">
-                    <i class="bi bi-camera" aria-hidden="true"></i>
-                    Đổi ảnh đại diện
-                </button>
-
-                <div class="preview-divider"></div>
-
-                <div class="preview-note">
-                    <span class="preview-note-icon"><i class="bi bi-info-circle"></i></span>
-                    <div>
-                        <strong>Mẹo nhỏ</strong>
-                        <p>Thông tin càng sát với mục tiêu nghề nghiệp, nội dung luyện tập càng phù hợp.</p>
+                    <button type="button" class="button button--secondary avatar-preview-card__button"
+                            onclick="document.getElementById('avatarInput').click()">
+                        <i class="fa-solid fa-camera" aria-hidden="true"></i>
+                        Đổi ảnh đại diện
+                    </button>
+                    <div class="avatar-preview-card__divider"></div>
+                    <div class="info-card avatar-preview-card__tip">
+                        <span class="info-card__icon" aria-hidden="true"><i class="fa-solid fa-circle-info"></i></span>
+                        <span class="info-card__content">
+                            <strong class="info-card__title">Mẹo nhỏ</strong>
+                            <span class="info-card__description">Thông tin càng sát với mục tiêu nghề nghiệp, nội dung luyện tập càng phù hợp.</span>
+                        </span>
                     </div>
-                </div>
+                </section>
             </aside>
 
-            <section class="form-card">
-                <div class="form-card-header">
-                    <span class="eyebrow">THÔNG TIN HỒ SƠ</span>
-                    <h2>Thông tin cá nhân & nghề nghiệp</h2>
-                    <p>Các thay đổi sẽ được lưu vào hồ sơ hiện tại của bạn.</p>
+            <section class="surface-card edit-profile-form-card" aria-labelledby="edit-form-title">
+                <div class="section-header edit-profile-form-card__header">
+                    <div class="section-header__content">
+                        <span class="section-header__eyebrow">THÔNG TIN HỒ SƠ</span>
+                        <h2 class="section-header__title" id="edit-form-title">Thông tin cá nhân &amp; nghề nghiệp</h2>
+                        <p class="section-header__description">Các thay đổi sẽ được lưu vào hồ sơ hiện tại của bạn.</p>
+                    </div>
                 </div>
-
-                <form class="profile-form" method="post" asp-controller="Profile" asp-action="Edit" enctype="multipart/form-data">
+                <form class="form-layout" id="profile-edit-form" method="post" asp-controller="Profile" asp-action="Edit" enctype="multipart/form-data">
                     @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="form-validation" role="alert"></div>
 
-                    <input type="file" id="avatarInput" name="AvatarFile" accept="image/*" style="display: none;" onchange="previewAvatar(event)">
+                    <input type="file" id="avatarInput" name="AvatarFile" accept="image/*" class="visually-hidden" onchange="previewAvatar(event)">
 
                     <section class="form-section">
-                        <div class="form-section-title">
-                            <span class="form-section-icon"><i class="bi bi-person"></i></span>
+                        <div class="form-section__header">
+                            <span class="form-section__icon"><i class="fa-solid fa-user"></i></span>
                             <div>
                                 <h3>Thông tin cơ bản</h3>
                                 <p>Tên hiển thị trên hồ sơ MockviewAI.</p>
                             </div>
                         </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label" for="lastName">Họ</label>
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label class="form-field__label" for="lastName">Họ</label>
                                 <input type="text"
                                        id="lastName"
                                        name="LastName"
-                                       class="form-input"
+                                       class="form-control"
                                        value="@Model?.LastName"
                                        maxlength="50"
                                        placeholder="Nhập họ">
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" for="firstName">Tên</label>
+                            <div class="form-field">
+                                <label class="form-field__label" for="firstName">Tên</label>
                                 <input type="text"
                                        id="firstName"
                                        name="FirstName"
-                                       class="form-input"
+                                       class="form-control"
                                        value="@Model?.FirstName"
                                        maxlength="50"
                                        placeholder="Nhập tên"
@@ -115,39 +121,39 @@
                         </div>
                     </section>
 
-                    <div class="section-divider"></div>
+                    <div class="form-divider"></div>
 
                     <section class="form-section">
-                        <div class="form-section-title">
-                            <span class="form-section-icon"><i class="bi bi-briefcase"></i></span>
+                        <div class="form-section__header">
+                            <span class="form-section__icon"><i class="fa-solid fa-briefcase"></i></span>
                             <div>
                                 <h3>Định hướng nghề nghiệp</h3>
                                 <p>Giúp hệ thống hiểu lĩnh vực và vị trí bạn đang hướng tới.</p>
                             </div>
                         </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label" for="major">Chuyên ngành</label>
-                                <div class="input-with-icon">
-                                    <i class="bi bi-mortarboard" aria-hidden="true"></i>
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label class="form-field__label" for="major">Chuyên ngành</label>
+                                <div class="form-control-wrap">
+                                    <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
                                     <input type="text"
                                            id="major"
                                            name="Major"
-                                           class="form-input"
+                                           class="form-control"
                                            value="@Model?.Major"
                                            placeholder="VD: Software Engineering">
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label class="form-label" for="position">Vị trí muốn ứng tuyển</label>
-                                <div class="input-with-icon">
-                                    <i class="bi bi-crosshair" aria-hidden="true"></i>
+                            <div class="form-field">
+                                <label class="form-field__label" for="position">Vị trí muốn ứng tuyển</label>
+                                <div class="form-control-wrap">
+                                    <i class="fa-solid fa-bullseye" aria-hidden="true"></i>
                                     <input type="text"
                                            id="position"
                                            name="TargetPosition"
-                                           class="form-input"
+                                           class="form-control"
                                            value="@Model?.TargetPosition"
                                            placeholder="VD: Backend Developer">
                                 </div>
@@ -155,11 +161,11 @@
                         </div>
                     </section>
 
-                    <div class="section-divider"></div>
+                    <div class="form-divider"></div>
 
                     <section class="form-section">
-                        <div class="form-section-title">
-                            <span class="form-section-icon"><i class="bi bi-book"></i></span>
+                        <div class="form-section__header">
+                            <span class="form-section__icon"><i class="fa-solid fa-graduation-cap"></i></span>
                             <div>
                                 <h3>Trạng thái hiện tại</h3>
                                 <p>Chọn tình trạng học tập phù hợp nhất với bạn.</p>
@@ -171,58 +177,58 @@
                                name="GraduationStatus"
                                value="@(Model?.GraduationStatus ?? "Expecting Graduation")">
 
-                        <div class="choice-grid" id="grad-options">
+                        <div class="selection-grid" id="grad-options">
                             <button type="button"
-                                    class="choice-card @(Model?.GraduationStatus == "Current Student" ? "active" : "")"
+                                    class="selection-card @(Model?.GraduationStatus == "Current Student" ? "active" : "")"
                                     onclick="selectBtn('studentStatus', 'Current Student', 'grad-options', this)">
-                                <span class="choice-icon"><i class="bi bi-journal-bookmark"></i></span>
-                                <span class="choice-copy">
+                                <span class="selection-card__icon"><i class="fa-solid fa-book-open"></i></span>
+                                <span class="selection-card__content">
                                     <strong>Đang đi học</strong>
                                     <small>Đang theo học tại trường</small>
                                 </span>
-                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                                <span class="selection-card__check"><i class="fa-solid fa-check"></i></span>
                             </button>
 
                             <button type="button"
-                                    class="choice-card @(Model?.GraduationStatus == "Expecting Graduation" ? "active" : "")"
+                                    class="selection-card @((Model?.GraduationStatus ?? "Expecting Graduation") == "Expecting Graduation" ? "active" : "")"
                                     onclick="selectBtn('studentStatus', 'Expecting Graduation', 'grad-options', this)">
-                                <span class="choice-icon"><i class="bi bi-mortarboard"></i></span>
-                                <span class="choice-copy">
+                                <span class="selection-card__icon"><i class="fa-solid fa-graduation-cap"></i></span>
+                                <span class="selection-card__content">
                                     <strong>Sắp ra trường</strong>
                                     <small>Đang chuẩn bị tốt nghiệp</small>
                                 </span>
-                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                                <span class="selection-card__check"><i class="fa-solid fa-check"></i></span>
                             </button>
 
                             <button type="button"
-                                    class="choice-card @(Model?.GraduationStatus == "Graduated" ? "active" : "")"
+                                    class="selection-card @(Model?.GraduationStatus == "Graduated" ? "active" : "")"
                                     onclick="selectBtn('studentStatus', 'Graduated', 'grad-options', this)">
-                                <span class="choice-icon"><i class="bi bi-award"></i></span>
-                                <span class="choice-copy">
+                                <span class="selection-card__icon"><i class="fa-solid fa-award"></i></span>
+                                <span class="selection-card__content">
                                     <strong>Đã ra trường</strong>
                                     <small>Đã hoàn thành chương trình học</small>
                                 </span>
-                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                                <span class="selection-card__check"><i class="fa-solid fa-check"></i></span>
                             </button>
 
                             <button type="button"
-                                    class="choice-card @(Model?.GraduationStatus == "Other" ? "active" : "")"
+                                    class="selection-card @(Model?.GraduationStatus == "Other" ? "active" : "")"
                                     onclick="selectBtn('studentStatus', 'Other', 'grad-options', this)">
-                                <span class="choice-icon"><i class="bi bi-three-dots"></i></span>
-                                <span class="choice-copy">
+                                <span class="selection-card__icon"><i class="fa-solid fa-ellipsis"></i></span>
+                                <span class="selection-card__content">
                                     <strong>Khác</strong>
                                     <small>Trạng thái khác</small>
                                 </span>
-                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                                <span class="selection-card__check"><i class="fa-solid fa-check"></i></span>
                             </button>
                         </div>
                     </section>
 
-                    <div class="section-divider"></div>
+                    <div class="form-divider"></div>
 
                     <section class="form-section">
-                        <div class="form-section-title">
-                            <span class="form-section-icon"><i class="bi bi-bar-chart"></i></span>
+                        <div class="form-section__header">
+                            <span class="form-section__icon"><i class="fa-solid fa-chart-simple"></i></span>
                             <div>
                                 <h3>Mức kinh nghiệm</h3>
                                 <p>Chọn mức gần nhất với kinh nghiệm thực tế của bạn.</p>
@@ -234,59 +240,59 @@
                                name="ExperienceLevel"
                                value="@(Model?.ExperienceLevel ?? "Intern / Fresher")">
 
-                        <div class="choice-grid experience-grid" id="exp-options">
+                        <div class="selection-grid" id="exp-options">
                             <button type="button"
-                                    class="choice-card @(Model?.ExperienceLevel == "Intern / Fresher" ? "active" : "")"
+                                    class="selection-card @((Model?.ExperienceLevel ?? "Intern / Fresher") == "Intern / Fresher" ? "active" : "")"
                                     onclick="selectBtn('experienceLevel', 'Intern / Fresher', 'exp-options', this)">
-                                <span class="choice-icon"><i class="bi bi-search"></i></span>
-                                <span class="choice-copy">
+                                <span class="selection-card__icon"><i class="fa-solid fa-seedling"></i></span>
+                                <span class="selection-card__content">
                                     <strong>Intern / Fresher</strong>
                                     <small>Mới bắt đầu sự nghiệp</small>
                                 </span>
-                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                                <span class="selection-card__check"><i class="fa-solid fa-check"></i></span>
                             </button>
 
                             <button type="button"
-                                    class="choice-card @(Model?.ExperienceLevel == "Junior" ? "active" : "")"
+                                    class="selection-card @(Model?.ExperienceLevel == "Junior" ? "active" : "")"
                                     onclick="selectBtn('experienceLevel', 'Junior', 'exp-options', this)">
-                                <span class="choice-icon"><i class="bi bi-graph-up-arrow"></i></span>
-                                <span class="choice-copy">
+                                <span class="selection-card__icon"><i class="fa-solid fa-arrow-trend-up"></i></span>
+                                <span class="selection-card__content">
                                     <strong>Junior</strong>
                                     <small>Đã có kinh nghiệm nền tảng</small>
                                 </span>
-                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                                <span class="selection-card__check"><i class="fa-solid fa-check"></i></span>
                             </button>
 
                             <button type="button"
-                                    class="choice-card @(Model?.ExperienceLevel == "Mid-Level" ? "active" : "")"
+                                    class="selection-card @(Model?.ExperienceLevel == "Mid-Level" ? "active" : "")"
                                     onclick="selectBtn('experienceLevel', 'Mid-Level', 'exp-options', this)">
-                                <span class="choice-icon"><i class="bi bi-layers"></i></span>
-                                <span class="choice-copy">
+                                <span class="selection-card__icon"><i class="fa-solid fa-layer-group"></i></span>
+                                <span class="selection-card__content">
                                     <strong>Mid-Level</strong>
                                     <small>Có kinh nghiệm làm việc độc lập</small>
                                 </span>
-                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                                <span class="selection-card__check"><i class="fa-solid fa-check"></i></span>
                             </button>
 
                             <button type="button"
-                                    class="choice-card @(Model?.ExperienceLevel == "Senior / Lead" ? "active" : "")"
+                                    class="selection-card @(Model?.ExperienceLevel == "Senior / Lead" ? "active" : "")"
                                     onclick="selectBtn('experienceLevel', 'Senior / Lead', 'exp-options', this)">
-                                <span class="choice-icon"><i class="bi bi-stars"></i></span>
-                                <span class="choice-copy">
+                                <span class="selection-card__icon"><i class="fa-solid fa-star"></i></span>
+                                <span class="selection-card__content">
                                     <strong>Senior / Lead</strong>
                                     <small>Kinh nghiệm chuyên sâu hoặc dẫn dắt</small>
                                 </span>
-                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                                <span class="selection-card__check"><i class="fa-solid fa-check"></i></span>
                             </button>
                         </div>
                     </section>
 
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="location.href='/Profile'">
+                    <div class="form-footer">
+                        <button type="button" class="button button--secondary" onclick="location.href='/Profile'">
                             Quay về
                         </button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check2" aria-hidden="true"></i>
+                        <button type="submit" class="button button--primary">
+                            <i class="fa-solid fa-check" aria-hidden="true"></i>
                             Lưu thay đổi
                         </button>
                     </div>
@@ -296,26 +302,31 @@
     </main>
 
     <script>
-            function selectBtn(inputId, value, groupId, btnElement) {
-                document.getElementById(inputId).value = value;
-                document.querySelectorAll('#' + groupId + ' .choice-card')
-                    .forEach(b => b.classList.remove('active'));
-                btnElement.classList.add('active');
-            }
+        function selectBtn(inputId, value, groupId, btnElement) {
+            const hiddenInput = document.getElementById(inputId);
+            if (!hiddenInput) return;
+            hiddenInput.value = value;
+            document.querySelectorAll('#' + groupId + ' .selection-card').forEach(button => {
+                button.classList.remove('active');
+                button.setAttribute('aria-pressed', 'false');
+            });
+            btnElement.classList.add('active');
+            btnElement.setAttribute('aria-pressed', 'true');
+        }
 
-            function previewAvatar(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        const avatarDiv = document.querySelector('.preview-avatar');
-                        avatarDiv.innerHTML = `<img src="${e.target.result}" alt="Ảnh đại diện" style="width: 100%; height: 100%; object-fit: cover;" />`;
-                    }
-                    reader.readAsDataURL(file);
-                }
-            }
+        function previewAvatar(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file || !file.type.startsWith('image/')) return;
+            const avatarDiv = document.getElementById('avatarPreview');
+            if (!avatarDiv) return;
+            const objectUrl = URL.createObjectURL(file);
+            const img = document.createElement('img');
+            img.alt = 'Xem trước ảnh đại diện';
+            img.onload = () => URL.revokeObjectURL(objectUrl);
+            img.src = objectUrl;
+            avatarDiv.replaceChildren(img);
+        }
     </script>
-
     <partial name="Partials/_Notify" />
 </body>
 </html>

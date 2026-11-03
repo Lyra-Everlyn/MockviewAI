@@ -1,110 +1,87 @@
 ﻿@model List<MockviewAI.Models.ViewModels.RecentSessionViewModel>
 @{
     Layout = null;
-    ViewData["ActiveNav"] = "history";   // mục sáng trên thanh menu dùng chung
-    // Chữ cái đầu của tên người đang đăng nhập (hiện trên avatar góc phải)
-    var userName = User.Identity?.Name ?? "";
-    var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
-    // Ảnh Google của tài khoản (nếu có), không có thì hiện chữ cái đầu
-    var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
+    ViewData["ActiveNav"] = "history";
+    var sessions = Model ?? new List<MockviewAI.Models.ViewModels.RecentSessionViewModel>();
 }
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lịch sử luyện tập - MockviewAI</title>
-    <link rel="stylesheet" href="~/css/History.css">
-    <link rel="stylesheet" href="~/css/theme.css"> <!-- giao diện chung: nạp SAU CSS của trang -->
-    @* [UI-DARK] Đợt 5 (02/11): giao diện tối cho mọi trang. Bỏ các dòng dưới để về bản sáng. *@
-    <link rel="stylesheet" href="~/css/dark/theme.dark.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark/History.dark.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark/dark-base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/History.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/themes/theme-indigo.css" asp-append-version="true">
+    <script src="~/js/History.js" asp-append-version="true" defer></script>
 </head>
 <body>
-    <!-- THANH ĐIỀU HƯỚNG MÁY TÍNH -->
-    <partial name="Partials/_TopNav" />
+    <partial name="Partials/_AppNavigation" />
 
-    <!-- NỘI DUNG CHÍNH -->
-    <main class="history-page">
-        <div class="main-card">
-            
-            <!-- Nút Quay lại -->
-            <div class="back-link-wrapper">
-                <a href="/Profile" class="back-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                    Hồ sơ
-                </a>
+    <main class="page-shell history-page">
+        <header class="page-header">
+            <div class="page-header__content">
+                <span class="page-header__eyebrow">HÀNH TRÌNH CỦA BẠN</span>
+                <h1 class="page-header__title">Lịch sử luyện tập</h1>
+                <p class="page-header__description">
+                    Xem lại hội thoại, kết quả đánh giá và tiếp tục các buổi phỏng vấn chưa hoàn thành.
+                </p>
             </div>
+        </header>
 
-            <!-- Header (Tiêu đề + Ô tìm kiếm) -->
-            <div class="header-flex">
-                <div class="title-area">
-                    <h1>Lịch sử luyện tập</h1>
-                    <p>@Model.Count buổi &middot; bấm vào một buổi để xem lại hội thoại</p>
+        <section class="surface-card history-panel" aria-labelledby="history-list-title">
+            <div class="section-header history-panel__header">
+                <div class="section-header__content">
+                    <span class="section-header__eyebrow">DANH SÁCH BUỔI LUYỆN</span>
+                    <h2 id="history-list-title" class="section-header__title">Tất cả buổi luyện</h2>
+                    <p class="section-header__description" id="history-count" aria-live="polite">
+                        @sessions.Count buổi luyện · Chọn một buổi để xem chi tiết.
+                    </p>
                 </div>
-                <div class="search-area">
-                    <label>Tìm theo vị trí</label>
-                    <input type="text" id="history-search" placeholder="VD: Lập trình viên">
-                </div>
-            </div>
-
-            <!-- Lưới Danh sách Lịch sử -->
-            <div class="history-grid">
-                @if (!Model.Any())
-                {
-                    <p>Bạn chưa có buổi luyện nào. <a href="/Interview/Create">Bắt đầu buổi đầu tiên</a></p>
-                }
-                @foreach (var s in Model)
-                {
-                    <div class="history-card" style="cursor: pointer;" data-role="@s.RoleName"
-                         onclick="location.href='@(s.IsInProgress ? "/Interview/Room/" + s.SessionId : "/Home/InterviewDetail/" + s.SessionId)'">
-                        <div class="card-top">
-                            <span class="role">@s.RoleName</span>
-                            <span class="date">@s.DateFormatted &middot; @s.QuestionCount câu</span>
-                        </div>
-                        <div class="card-badges">
-                            <span class="badge-score">@(s.HasScore ? s.Score + " điểm" : s.StatusText)</span>
-                            @if (!string.IsNullOrEmpty(s.AnxietyText))
-                            {
-                                <span class="@(s.AnxietyImproved ? "badge-anxiety-good" : "badge-anxiety-warn")">@s.AnxietyText</span>
-                            }
-                        </div>
+                <div class="form-field history-search">
+                    <label class="form-field__label" for="history-search">Tìm theo vị trí</label>
+                    <div class="form-control-wrap">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input class="form-control" type="search" id="history-search"
+                               placeholder="VD: Lập trình viên"
+                               autocomplete="off" aria-controls="history-list" />
                     </div>
-                }
+                </div>
             </div>
-        </div>
+
+            @if (!sessions.Any())
+            {
+                <div class="empty-state">
+                    <span class="empty-state__icon" aria-hidden="true"><i class="fa-regular fa-clock"></i></span>
+                    <div class="empty-state__content">
+                        <h3 class="empty-state__title">Chưa có buổi luyện tập nào</h3>
+                        <p class="empty-state__description">Bắt đầu một buổi phỏng vấn để lịch sử luyện tập xuất hiện ở đây.</p>
+                    </div>
+                    <a class="button button--secondary" href="/Interview/Create">Bắt đầu luyện tập <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+                </div>
+            }
+            else
+            {
+                <div class="session-list history-list" id="history-list">
+                    @foreach (var session in sessions)
+                    {
+                        <div class="history-entry" data-role="@session.RoleName">
+                            <partial name="Partials/_SessionCard" model="session" />
+                        </div>
+                    }
+                </div>
+                <div class="history-no-results" id="history-no-results" hidden role="status">
+                    <span class="history-no-results__icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <h3>Không tìm thấy buổi luyện phù hợp</h3>
+                    <p>Thử từ khóa khác hoặc xóa nội dung tìm kiếm.</p>
+                    <button type="button" class="button button--secondary" id="history-clear">Xóa tìm kiếm</button>
+                </div>
+            }
+        </section>
     </main>
 
-    <!-- THANH ĐIỀU HƯỚNG DƯỚI ĐÁY CHO ĐIỆN THOẠI -->
-    <nav class="mobile-nav hide-on-desktop">
-        <a href="/Home" class="nav-item">
-            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-            <span>Trang chủ</span>
-        </a>
-        <a href="/Interview/Create" class="nav-item">
-            <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg>
-            <span>Luyện tập</span>
-        </a>
-        <a href="/Home/History" class="nav-item active">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            <span>Lịch sử</span>
-        </a>
-        <a href="/Profile" class="nav-item">
-            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <span>Hồ sơ</span>
-        </a>
-    </nav>
-    <script>
-        // Lọc thẻ theo vị trí ngay trên trình duyệt
-        document.getElementById('history-search').addEventListener('input', function () {
-            var q = this.value.trim().toLowerCase();
-            document.querySelectorAll('.history-card').forEach(function (card) {
-                card.style.display = card.dataset.role.toLowerCase().includes(q) ? '' : 'none';
-            });
-        });
-    </script>
     <partial name="Partials/_Notify" />
 </body>
 </html>
