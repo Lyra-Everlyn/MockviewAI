@@ -40,7 +40,7 @@ namespace MockviewAI.Controllers
         [Route("Auth/Login")]
         [ValidateAntiForgeryToken]
         [EnableRateLimiting("LoginRateLimit")]
-        public async Task<IActionResult> Login(string email, string password, [FromForm(Name = "cf-turnstile-response")] string turnstileToken)
+        public async Task<IActionResult> LoginApp(string email, string password, [FromForm(Name = "cf-turnstile-response")] string turnstileToken)
         {
             try
             {

@@ -41,7 +41,7 @@
                     <p class="subtitle">Luyện phỏng vấn với AI, hoàn toàn miễn phí.</p>
                 </div>
 
-                <form method="post" asp-controller="Auth" asp-action="Login" id="loginForm" data-loading-text="Đang đăng nhập...">
+                <form method="post" asp-controller="Auth" asp-action="LoginApp" id="loginForm" data-loading-text="Đang đăng nhập...">
                     @Html.AntiForgeryToken()
 
                     <a asp-controller="Auth" asp-action="LoginGoogle" class="btn-google">

@@ -556,35 +556,7 @@ textarea {
     }
 
     .feedback-intro-card {
-        position: static;
-        display: grid;
-        grid-template-columns: 46px minmax(0, 1fr);
-        align-items: center;
-        gap: 0 12px;
-        width: 100%;
-        padding: 16px;
-        border-radius: 16px;
-    }
-
-    .intro-icon {
-        grid-row: 1 / 3;
-        width: 42px;
-        height: 42px;
-        margin: 0;
-        border-radius: 12px;
-        font-size: 19px;
-    }
-
-    .feedback-intro-card .section-kicker,
-    .feedback-intro-card > p,
-    .intro-divider,
-    .intro-points {
         display: none;
-    }
-
-    .feedback-intro-card h2 {
-        margin: 0;
-        font-size: 14px;
     }
 
     .feedback-card {
@@ -630,12 +602,19 @@ textarea {
 
     .rating-card {
         display: grid;
-        gap: 10px;
-        padding: 14px;
+        place-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 14px;
+        padding: 18px 14px;
     }
 
     .stars-group {
-        justify-content: space-between;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        gap: 12px;
     }
 
     .star-btn {
@@ -645,9 +624,11 @@ textarea {
     }
 
     .rating-copy {
-        grid-template-columns: 1fr auto;
-        align-items: center;
-        text-align: left;
+        display: grid;
+        place-items: center;
+        width: 100%;
+        text-align: center;
+        gap: 3px;
     }
 
     .choice-group {
