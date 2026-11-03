@@ -1,0 +1,283 @@
+/* =========================================================
+   MockviewAI — Theme: Indigo
+   Theme = color, surface, border and shadow only.
+   ========================================================= */
+
+:root {
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --layout-max-width: 1040px;
+
+    --color-page: #f5f7fb;
+    --color-surface: #ffffff;
+    --color-surface-soft: #f8f9fc;
+    --color-surface-accent: #eef1ff;
+
+    --color-text: #172033;
+    --color-text-soft: #42506a;
+    --color-muted: #748096;
+    --color-subtle: #98a2b4;
+
+    --color-border: #e5eaf2;
+    --color-border-strong: #d6ddea;
+
+    --color-primary: #5565ed;
+    --color-primary-hover: #4555dd;
+    --color-primary-soft: #eef1ff;
+    --color-primary-text: #ffffff;
+
+    --color-success: #20845a;
+    --color-success-soft: #e9f8f0;
+
+    --color-warning: #a96d16;
+    --color-star: #f5c518;
+    --color-warning-soft: #fff7df;
+
+    --color-danger: #d34d5b;
+    --color-danger-soft: #fff0f1;
+
+    /*
+       Navigation belongs to the same light-indigo system as the page.
+       Dimensions are controlled by components.css, not by the theme.
+    */
+    --color-nav: rgba(255, 255, 255, .96);
+    --color-nav-text: #667187;
+    --color-nav-text-active: #172033;
+    --color-nav-border: #e5eaf2;
+    --color-nav-control-border: #d9def0;
+    --color-nav-mobile: rgba(255, 255, 255, .97);
+
+    --gradient-primary: linear-gradient(135deg, #5366e8 0%, #7248ef 52%, #4488df 100%);
+
+    --radius-panel: 20px;
+    --radius-card: 14px;
+    --radius-control: 10px;
+
+    --shadow-panel: 0 14px 38px rgba(40, 51, 87, .07);
+    --shadow-card: 0 8px 24px rgba(40, 51, 87, .045);
+    --shadow-card-hover: 0 12px 30px rgba(40, 51, 87, .075);
+    --shadow-control: 0 8px 18px rgba(79, 99, 232, .16);
+    --shadow-mobile-nav: 0 -7px 24px rgba(30, 42, 68, .06);
+}
+
+/* ---------- Global text ---------- */
+
+.page-header__eyebrow,
+.section-header__eyebrow,
+.panel__eyebrow,
+.action-card__eyebrow,
+.info-card__eyebrow {
+    color: var(--color-muted);
+}
+
+.page-header__title,
+.section-header__title {
+    color: var(--color-text);
+}
+
+.page-header__description,
+.section-header__description {
+    color: var(--color-muted);
+}
+
+.section-header__action {
+    color: var(--color-primary);
+}
+
+/* ---------- Navigation ---------- */
+
+.app-nav__desktop {
+    background: var(--color-nav);
+    border-bottom-color: var(--color-nav-border);
+    box-shadow: 0 1px 0 rgba(23, 32, 51, .015);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.app-brand {
+    color: var(--color-text);
+}
+
+.app-brand span {
+    color: var(--color-primary);
+}
+
+.app-nav__link {
+    color: var(--color-nav-text);
+}
+
+.app-nav__link:hover,
+.app-nav__link.is-active {
+    color: var(--color-nav-text-active);
+}
+
+.app-nav__link::after {
+    background: var(--color-primary);
+}
+
+.status-badge {
+    background: #fafaff;
+    color: var(--color-primary);
+    border-color: var(--color-nav-control-border);
+}
+
+.user-avatar {
+    background: var(--gradient-primary);
+    color: #fff;
+    border-color: #ccd3f7;
+    box-shadow: 0 0 0 2px #fff;
+}
+
+.app-nav__mobile-link {
+    color: var(--color-subtle);
+}
+
+.app-nav__mobile-link.is-active {
+    color: var(--color-primary);
+}
+
+/* ---------- Buttons ---------- */
+
+.button--primary {
+    background: var(--color-primary);
+    color: var(--color-primary-text);
+}
+
+.button--primary:hover {
+    background: var(--color-primary-hover);
+}
+
+.button--secondary {
+    background: var(--color-surface);
+    color: var(--color-primary);
+}
+
+.button--secondary:hover {
+    border-color: #c8d0ff;
+    background: var(--color-primary-soft);
+}
+
+/* ---------- Hero ---------- */
+
+.panel--primary {
+    position: relative;
+    border-color: transparent;
+    background: var(--gradient-primary);
+    color: #fff;
+    box-shadow: 0 18px 42px rgba(79, 99, 232, .19);
+}
+
+.panel--primary::after {
+    position: absolute;
+    top: -110px;
+    right: -80px;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .11);
+    content: "";
+    pointer-events: none;
+}
+
+.panel--primary .panel__eyebrow,
+.panel--primary .panel__description {
+    color: rgba(255, 255, 255, .82);
+}
+
+.panel--primary .button--primary {
+    background: #fff;
+    color: var(--color-primary);
+}
+
+.panel--primary .button--primary:hover {
+    background: #f8f9ff;
+}
+
+/* ---------- Generic cards ---------- */
+
+.action-card__icon,
+.info-card__icon,
+.empty-state__icon {
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+}
+
+.action-card__title,
+.info-card__title,
+.stat-card__value,
+.session-card__title,
+.empty-state__title {
+    color: var(--color-text);
+}
+
+.action-card__description,
+.info-card__description,
+.stat-card__description,
+.session-card__date,
+.empty-state__description {
+    color: var(--color-muted);
+}
+
+.action-card__action,
+.action-card__chevron,
+.session-card__chevron {
+    color: var(--color-primary);
+}
+
+.action-card:hover,
+.session-card:hover {
+    border-color: #cbd3ff;
+}
+
+.stat-card__label {
+    color: var(--color-muted);
+}
+
+.status-chip {
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+}
+
+/* ---------- Feedback card ---------- */
+
+.feedback-action-card {
+    border-color: #f0dfb6;
+    background: #fffaf0;
+}
+
+.feedback-action-card .action-card__icon {
+    background: #fff0c7;
+    color: var(--color-warning);
+}
+
+.feedback-action-card .action-card__eyebrow,
+.feedback-action-card .action-card__title {
+    color: #7d581c;
+}
+
+.feedback-action-card .action-card__description,
+.feedback-action-card .action-card__action {
+    color: #987744;
+}
+
+.feedback-action-card .action-card__chevron {
+    color: #a66a13;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+    }
+}
+
+/* Shared semantic status chips. */
+.status-chip--success { background: var(--color-success-soft); color: var(--color-success); }
+.status-chip--warning { background: var(--color-warning-soft); color: var(--color-warning); }
+
+/* Submission overlay theme tokens */
+:root {
+    --color-loading-backdrop: rgba(13, 20, 38, .76);
+    --shadow-loading-dialog: 0 24px 72px rgba(10, 18, 38, .26);
+}

@@ -1,241 +1,165 @@
 ﻿@{
     Layout = null;
     ViewData["ActiveNav"] = "";
-    var userName = User.Identity?.Name ?? "";
-    var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
-    var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
 }
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Góp ý - MockviewAI</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="~/css/Feedback.css">
-    <link rel="stylesheet" href="~/css/theme.css">
-    @* [UI-DARK] Đợt 5 (02/11): giao diện tối cho mọi trang. Bỏ các dòng dưới để về bản sáng. *@
-    <link rel="stylesheet" href="~/css/dark/theme.dark.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark/Feedback.dark.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark/dark-base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/Feedback.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/themes/theme-indigo.css" asp-append-version="true">
 </head>
 <body>
-    <partial name="Partials/_TopNav" />
+    <partial name="Partials/_AppNavigation" />
 
-    <main class="feedback-page">
-        <header class="page-heading">
-            <h1 class="page-title">Góp ý trải nghiệm</h1>
-            <p class="page-description">
-                Chia sẻ cảm nhận của bạn để nhóm cải thiện trải nghiệm luyện phỏng vấn ở các phiên bản tiếp theo.
-            </p>
+    <main class="page-shell feedback-page">
+        <header class="page-header feedback-page__header">
+            <div class="page-header__content">
+                <a href="/Home" class="text-link feedback-page__back">
+                    <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                    Quay lại trang chủ
+                </a>
+                <span class="page-header__eyebrow">MOCKVIEWAI BETA</span>
+                <h1 class="page-header__title">Góp ý trải nghiệm</h1>
+                <p class="page-header__description">Chia sẻ cảm nhận của bạn để nhóm cải thiện trải nghiệm luyện phỏng vấn ở các phiên bản tiếp theo.</p>
+            </div>
         </header>
 
         <div class="feedback-layout">
-            <aside class="feedback-intro-card">
-                <div class="intro-icon">
-                    <i class="bi bi-stars" aria-hidden="true"></i>
-                </div>
-
-                <span class="section-kicker">VER: 2.0.0</span>
-                <h2>Ý kiến của bạn rất quan trọng</h2>
-                <p>
-                    Phiếu góp ý này chỉ mất khoảng 2 phút. Mỗi phản hồi đều giúp MockviewAI hoàn thiện hơn.
-                </p>
-
-                <div class="intro-divider"></div>
-
-                <div class="intro-points">
-                    <div class="intro-point">
-                        <span class="intro-point-icon"><i class="bi bi-clock"></i></span>
-                        <div>
-                            <strong>Nhanh gọn</strong>
-                            <span>Chỉ vài câu hỏi ngắn.</span>
+            <aside class="feedback-sidebar" aria-label="Thông tin khảo sát">
+                <section class="surface-card feedback-intro">
+                    <div class="feedback-intro__icon" aria-hidden="true">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <span class="section-header__eyebrow">VER: 2.0.0</span>
+                    <h2 class="feedback-intro__title">Ý kiến của bạn rất quan trọng</h2>
+                    <p class="feedback-intro__description">Phiếu góp ý này chỉ mất khoảng 2 phút. Mỗi phản hồi đều giúp MockviewAI hoàn thiện hơn.</p>
+                    <div class="feedback-intro__divider"></div>
+                    <div class="feedback-intro__list">
+                        <div class="feedback-intro__item">
+                            <span class="feedback-intro__item-icon" aria-hidden="true"><i class="fa-regular fa-clock"></i></span>
+                            <span class="feedback-intro__item-copy"><strong>Nhanh gọn</strong><small>Chỉ vài câu hỏi ngắn.</small></span>
+                        </div>
+                        <div class="feedback-intro__item">
+                            <span class="feedback-intro__item-icon" aria-hidden="true"><i class="fa-regular fa-comment-dots"></i></span>
+                            <span class="feedback-intro__item-copy"><strong>Phản hồi thực tế</strong><small>Tập trung vào trải nghiệm của bạn.</small></span>
+                        </div>
+                        <div class="feedback-intro__item">
+                            <span class="feedback-intro__item-icon" aria-hidden="true"><i class="fa-solid fa-screwdriver-wrench"></i></span>
+                            <span class="feedback-intro__item-copy"><strong>Giúp sản phẩm tốt hơn</strong><small>Dùng làm cơ sở cho các cải tiến tiếp theo.</small></span>
                         </div>
                     </div>
-
-                    <div class="intro-point">
-                        <span class="intro-point-icon"><i class="bi bi-chat-square-text"></i></span>
-                        <div>
-                            <strong>Phản hồi thực tế</strong>
-                            <span>Tập trung vào trải nghiệm của bạn.</span>
-                        </div>
-                    </div>
-
-                    <div class="intro-point">
-                        <span class="intro-point-icon"><i class="bi bi-wrench-adjustable-circle"></i></span>
-                        <div>
-                            <strong>Giúp sản phẩm tốt hơn</strong>
-                            <span>Dùng làm cơ sở cho các cải tiến tiếp theo.</span>
-                        </div>
-                    </div>
-                </div>
+                </section>
             </aside>
 
-            <form class="feedback-card" method="post" asp-controller="Home" asp-action="Feedback">
-                <div class="feedback-card-header">
-                    <span class="eyebrow">ĐÁNH GIÁ NHANH</span>
-                    <h2>Bạn thấy MockviewAI thế nào?</h2>
-                    <p>Chọn mức phù hợp nhất với trải nghiệm gần đây của bạn.</p>
+            <section class="surface-card feedback-form-card" aria-labelledby="feedback-form-title">
+                <div class="section-header feedback-form-card__header">
+                    <div class="section-header__content">
+                        <span class="section-header__eyebrow">ĐÁNH GIÁ NHANH</span>
+                        <h2 id="feedback-form-title" class="section-header__title">Bạn thấy MockviewAI thế nào?</h2>
+                        <p class="section-header__description">Chọn mức phù hợp nhất với trải nghiệm gần đây của bạn.</p>
+                    </div>
                 </div>
 
-                <section class="feedback-section">
-                    <div class="question-heading">
-                        <span class="question-icon">
-                            <i class="bi bi-hand-thumbs-up"></i>
-                        </span>
-                        <div>
-                            <h3>Ứng dụng có dễ dùng không?</h3>
-                            <p>Đánh giá từ 1 đến 5 sao.</p>
+                <form class="form-layout" method="post" asp-controller="Home" asp-action="Feedback">
+                    @Html.AntiForgeryToken()
+                    <section class="form-section" aria-labelledby="question-ease">
+                        <div class="form-section__header">
+                            <span class="form-section__icon" aria-hidden="true"><i class="fa-regular fa-thumbs-up"></i></span>
+                            <div>
+                                <h3 id="question-ease">Ứng dụng có dễ dùng không?</h3>
+                                <p>Đánh giá từ 1 đến 5 sao.</p>
+                            </div>
                         </div>
-                    </div>
+                        <fieldset class="rating-control" aria-label="Mức độ dễ sử dụng">
+                            <legend class="visually-hidden">Chọn số sao</legend>
+                            @for (int rating = 1; rating <= 5; rating++)
+                            {
+                                var label = rating == 1 ? "Khó sử dụng" : rating == 2 ? "Hơi khó sử dụng" : rating == 3 ? "Tạm ổn" : rating == 4 ? "Khá dễ sử dụng" : "Rất dễ sử dụng";
+                                <label class="rating-control__star">
+                                    <input type="radio" name="easeRating" value="@rating" @(rating == 4 ? "checked" : null) aria-label="@rating sao: @label" />
+                                    <i class="fa-solid fa-star" aria-hidden="true"></i>
+                                </label>
+                            }
+                            <div class="rating-control__caption" aria-live="polite">
+                                <strong id="rating-label">Khá dễ sử dụng</strong>
+                                <span id="rating-value">4/5</span>
+                            </div>
+                        </fieldset>
+                    </section>
 
-                    <div class="rating-card">
-                        <input type="hidden" name="easeRating" id="ease-rating" value="4">
+                    <div class="form-divider"></div>
 
-                        <div class="stars-group" role="radiogroup" aria-label="Đánh giá mức độ dễ sử dụng">
-                            <button type="button" class="star-btn active" data-value="1" aria-label="1 sao">
-                                <i class="bi bi-star-fill"></i>
-                            </button>
-                            <button type="button" class="star-btn active" data-value="2" aria-label="2 sao">
-                                <i class="bi bi-star-fill"></i>
-                            </button>
-                            <button type="button" class="star-btn active" data-value="3" aria-label="3 sao">
-                                <i class="bi bi-star-fill"></i>
-                            </button>
-                            <button type="button" class="star-btn active" data-value="4" aria-label="4 sao">
-                                <i class="bi bi-star-fill"></i>
-                            </button>
-                            <button type="button" class="star-btn" data-value="5" aria-label="5 sao">
-                                <i class="bi bi-star-fill"></i>
-                            </button>
+                    <section class="form-section" aria-labelledby="question-anxiety">
+                        <div class="form-section__header">
+                            <span class="form-section__icon" aria-hidden="true"><i class="fa-solid fa-heart-pulse"></i></span>
+                            <div>
+                                <h3 id="question-anxiety">Buổi luyện có giúp bạn bớt lo lắng không?</h3>
+                                <p>Chọn câu trả lời gần nhất với cảm nhận của bạn.</p>
+                            </div>
                         </div>
+                        <div class="selection-grid feedback-selection-grid">
+                            <input class="visually-hidden" type="radio" id="opt-co" name="anxietyHelp" value="Có" checked>
+                            <label class="selection-card" for="opt-co">
+                                <span class="selection-card__icon" aria-hidden="true"><i class="fa-regular fa-face-smile"></i></span>
+                                <span class="selection-card__content"><strong>Có</strong><small>Cảm thấy tự tin hơn</small></span>
+                                <span class="selection-card__check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                            </label>
 
-                        <div class="rating-copy">
-                            <strong id="rating-label">Khá dễ sử dụng</strong>
-                            <span id="rating-value">4/5</span>
+                            <input class="visually-hidden" type="radio" id="opt-mot-chut" name="anxietyHelp" value="Một chút">
+                            <label class="selection-card" for="opt-mot-chut">
+                                <span class="selection-card__icon" aria-hidden="true"><i class="fa-regular fa-face-meh"></i></span>
+                                <span class="selection-card__content"><strong>Một chút</strong><small>Có cải thiện nhưng chưa nhiều</small></span>
+                                <span class="selection-card__check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                            </label>
+
+                            <input class="visually-hidden" type="radio" id="opt-khong" name="anxietyHelp" value="Không">
+                            <label class="selection-card" for="opt-khong">
+                                <span class="selection-card__icon" aria-hidden="true"><i class="fa-regular fa-face-frown"></i></span>
+                                <span class="selection-card__content"><strong>Không</strong><small>Chưa cảm nhận được thay đổi</small></span>
+                                <span class="selection-card__check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                            </label>
                         </div>
-                    </div>
-                </section>
+                    </section>
 
-                <div class="section-divider"></div>
+                    <div class="form-divider"></div>
 
-                <section class="feedback-section">
-                    <div class="question-heading">
-                        <span class="question-icon">
-                            <i class="bi bi-activity"></i>
-                        </span>
-                        <div>
-                            <h3>Buổi luyện có giúp bạn bớt lo lắng không?</h3>
-                            <p>Chọn câu trả lời gần nhất với cảm nhận của bạn.</p>
+                    <section class="form-section" aria-labelledby="question-comment">
+                        <div class="form-section__header">
+                            <span class="form-section__icon" aria-hidden="true"><i class="fa-regular fa-comment-dots"></i></span>
+                            <div>
+                                <h3 id="question-comment">Bạn muốn đội ngũ MockviewAI cải thiện điều gì?</h3>
+                                <p>Viết điều bạn thấy chưa ổn, khó dùng hoặc còn thiếu.</p>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="choice-group">
-                        <input type="radio" id="opt-co" name="anxietyHelp" value="Có" checked>
-                        <label for="opt-co" class="choice-option">
-                            <span class="choice-icon"><i class="bi bi-emoji-smile"></i></span>
-                            <span class="choice-copy">
-                                <strong>Có</strong>
-                                <small>Cảm thấy tự tin hơn</small>
-                            </span>
-                            <span class="choice-check"><i class="bi bi-check-lg"></i></span>
-                        </label>
-
-                        <input type="radio" id="opt-mot-chut" name="anxietyHelp" value="Một chút">
-                        <label for="opt-mot-chut" class="choice-option">
-                            <span class="choice-icon"><i class="bi bi-emoji-neutral"></i></span>
-                            <span class="choice-copy">
-                                <strong>Một chút</strong>
-                                <small>Có cải thiện nhưng chưa nhiều</small>
-                            </span>
-                            <span class="choice-check"><i class="bi bi-check-lg"></i></span>
-                        </label>
-
-                        <input type="radio" id="opt-khong" name="anxietyHelp" value="Không">
-                        <label for="opt-khong" class="choice-option">
-                            <span class="choice-icon"><i class="bi bi-emoji-frown"></i></span>
-                            <span class="choice-copy">
-                                <strong>Không</strong>
-                                <small>Chưa cảm nhận được thay đổi</small>
-                            </span>
-                            <span class="choice-check"><i class="bi bi-check-lg"></i></span>
-                        </label>
-                    </div>
-                </section>
-
-                <div class="section-divider"></div>
-
-                <section class="feedback-section">
-                    <div class="question-heading">
-                        <span class="question-icon">
-                            <i class="bi bi-chat-left-text"></i>
-                        </span>
-                        <div>
-                            <h3>Bạn muốn đội ngũ MockviewAI cải thiện điều gì?</h3>
-                            <p>Viết điều bạn thấy chưa ổn, khó dùng hoặc còn thiếu.</p>
+                        <div class="form-field">
+                            <div class="textarea-field">
+                                <textarea class="form-control form-control--textarea" id="feedback-comment" name="comment" maxlength="1000" placeholder="Ví dụ: Tôi muốn phần kết quả giải thích rõ hơn vì sao câu trả lời bị trừ điểm..."></textarea>
+                                <div class="textarea-field__footer">
+                                    <span>Phản hồi cụ thể sẽ giúp nhóm xử lý tốt hơn.</span>
+                                    <span><strong id="char-count">0</strong>/1000</span>
+                                </div>
+                            </div>
                         </div>
+                    </section>
+
+                    <div class="form-footer">
+                        <a href="/Home" class="button button--secondary">Để sau</a>
+                        <button type="submit" class="button button--primary"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Gửi góp ý</button>
                     </div>
-
-                    <div class="textarea-wrap">
-                        <textarea id="feedback-comment"
-                                  name="comment"
-                                  maxlength="1000"
-                                  placeholder="Ví dụ: Tôi muốn phần kết quả giải thích rõ hơn vì sao câu trả lời bị trừ điểm..."></textarea>
-
-                        <div class="textarea-footer">
-                            <span>Phản hồi cụ thể sẽ giúp nhóm xử lý tốt hơn.</span>
-                            <span><strong id="char-count">0</strong>/1000</span>
-                        </div>
-                    </div>
-                </section>
-
-                <div class="form-actions">
-                    <a href="/Home" class="btn btn-secondary">Để sau</a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-send" aria-hidden="true"></i>
-                        Gửi góp ý
-                    </button>
-                </div>
-            </form>
+                </form>
+            </section>
         </div>
     </main>
-
-    <script>
-            const ratingLabels = {
-                  1: 'Khó sử dụng',
-                        2: 'Hơi khó sử dụng',
-
-                3: 'Tạm ổn',
-            4: 'Khá dễ sử dụng',
-                5: 'Rất dễ sử dụng'
-                    };
-                const ratingInput = document.getElementById('ease-rating');
-                    const ratingLabel = document.getElementById('rating-label');
-                    const ratingValue = document.getElementById('rating-value');
-                    const stars = document.querySelectorAll('.star-btn');
-
-                    stars.forEach(function (star) {
-                        star.addEventListener('click', function () {
-                    const value = Number(this.dataset.value);
-                            ratingInput.value = value;
-                            ratingLabel.textContent = ratingLabels[value];
-                            ratingValue.textContent = value + '/5';
-
-                            stars.forEach(function (item) {
-                                item.classList.toggle('active', Number(item.dataset.value) <= value);
-                            });
-                        });
-                    });
-
-                    const textarea = document.getElementById('feedback-comment');
-                    const charCount = document.getElementById('char-count');
-
-                    textarea.addEventListener('input', function () {
-                        charCount.textContent = this.value.length;
-                    });
-    </script>
-
+    
+    <partial name="Partials/_AppFooter" />
     <partial name="Partials/_Notify" />
+
+    <script src="~/js/Feedback.js" asp-append-version="true"></script>
 </body>
 </html>

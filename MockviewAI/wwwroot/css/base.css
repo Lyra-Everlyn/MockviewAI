@@ -1,0 +1,227 @@
+/* =========================================================
+   MockviewAI — Base
+   Structure + typography scale. Theme colors live elsewhere.
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+html {
+    min-height: 100%;
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    background: var(--color-page);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+body,
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+    margin: 0;
+}
+
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+img,
+svg {
+    display: block;
+    max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+p {
+    margin: 0;
+}
+
+ul,
+ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+button {
+    border: 0;
+}
+
+.page-shell {
+    width: min(var(--layout-max-width), calc(100% - 48px));
+    margin-inline: auto;
+    padding-block: 40px 72px;
+}
+
+.page-header {
+    margin-bottom: 32px;
+}
+
+.page-header__content,
+.section-header__content {
+    min-width: 0;
+}
+
+.page-header__eyebrow,
+.section-header__eyebrow,
+.panel__eyebrow,
+.action-card__eyebrow,
+.info-card__eyebrow {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.page-header__title {
+    font-size: clamp(32px, 4vw, 38px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -.04em;
+}
+
+.page-header__description {
+    max-width: 700px;
+    margin-top: 9px;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.page-section {
+    margin-top: 44px;
+}
+
+.section-header {
+    margin-bottom: 20px;
+}
+
+.section-header--with-action {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.section-header__title {
+    font-size: 23px;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -.025em;
+}
+
+.section-header__description {
+    max-width: 650px;
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.section-header__action {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 2px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.stack {
+    display: grid;
+    gap: 14px;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-bottom: calc(76px + env(safe-area-inset-bottom));
+    }
+
+    .page-shell {
+        width: calc(100% - 30px);
+        padding-block: 24px 32px;
+    }
+
+    .page-header {
+        margin-bottom: 22px;
+    }
+
+    .page-header__eyebrow {
+        font-size: 10px;
+    }
+
+    .page-header__title {
+        font-size: 28px;
+    }
+
+    .page-header__description {
+        font-size: 13px;
+    }
+
+    .page-section {
+        margin-top: 32px;
+    }
+
+    .section-header--with-action {
+        align-items: flex-start;
+    }
+
+    .section-header__title {
+        font-size: 20px;
+    }
+
+    .section-header__description {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 420px) {
+    .page-shell {
+        width: calc(100% - 22px);
+    }
+
+    .section-header--with-action {
+        gap: 12px;
+    }
+
+    .section-header__action {
+        font-size: 12px;
+    }
+}

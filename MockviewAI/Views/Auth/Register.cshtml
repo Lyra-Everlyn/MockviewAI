@@ -1,113 +1,181 @@
-﻿@{
+﻿@inject IConfiguration Configuration
+@{
     Layout = null;
-    @inject IConfiguration Configuration
 }
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Tạo tài khoản - MockviewAI</title>
     <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="~/css/Register.css">
-    @* [UI-DARK] Đợt 5 (02/11): giao diện tối cho mọi trang. Bỏ các dòng dưới để về bản sáng. *@
-    <link rel="stylesheet" href="~/css/dark/Register.dark.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark/dark-base.css" asp-append-version="true" />
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    
+    <link rel="stylesheet" href="~/css/Login.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Register.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/themes/theme-indigo.css" asp-append-version="true" />
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 
-<body>
-    <div class="register-wrapper">
-        <div class="register-container">
+<body class="app-layout app-layout--auth">
+    <div class="app-layout__content">
+        <main class="auth-page register-page">
+            <div class="auth-shell register-shell">
+                <section class="auth-intro" aria-labelledby="register-intro-title">
+                    <div class="auth-intro__top">
+                        <a class="auth-brand" asp-controller="Home" asp-action="Index"
+                           aria-label="MockviewAI - Trang chủ">
+                            <span class="auth-brand__mark" aria-hidden="true">
+                                <img src="~/favicon.ico" asp-append-version="true" alt="" />
+                            </span>
+                            <span>Mockview<span>AI</span></span>
+                        </a>
+                        <span class="auth-intro__badge">BETA</span>
+                    </div>
 
-            <div class="info-panel">
-                <div class="logo">Mockview<span>AI</span></div>
-                <h1>Luyện phỏng vấn với AI trước ngày phỏng vấn thật</h1>
-                <p class="subtitle">Dành cho sinh viên sắp tốt nghiệp và người mới đi làm.</p>
-                <ul class="features">
-                    <li><span class="step">1</span> Chọn vị trí ứng tuyển và người phỏng vấn</li>
-                    <li><span class="step">2</span> Trả lời bằng giọng nói hoặc văn bản</li>
-                    <li><span class="step">3</span> Xem điểm số, nhận xét và mức độ lo lắng</li>
-                </ul>
-            </div>
+                    <div class="auth-intro__body">
+                        <span class="auth-intro__eyebrow">
+                            <i class="fa-solid fa-sparkles" aria-hidden="true"></i>
+                            BẮT ĐẦU HÀNH TRÌNH
+                        </span>
+                        <h1 id="register-intro-title">Bước đầu tiên để tự tin phỏng vấn.</h1>
+                        <p>Tạo tài khoản MockviewAI và luyện tập trong môi trường phỏng vấn mô phỏng cùng AI.</p>
+                        <ol class="auth-steps" aria-label="Ba bước luyện tập">
+                            <li>
+                                <span class="auth-steps__icon"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></span>
+                                <span><strong>Chọn vị trí ứng tuyển</strong><small>Luyện tập theo mục tiêu nghề nghiệp.</small></span>
+                            </li>
+                            <li>
+                                <span class="auth-steps__icon"><i class="fa-solid fa-microphone" aria-hidden="true"></i></span>
+                                <span><strong>Thực hành cùng AI</strong><small>Trả lời bằng giọng nói hoặc văn bản.</small></span>
+                            </li>
+                            <li>
+                                <span class="auth-steps__icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span>
+                                <span><strong>Nhận đánh giá</strong><small>Nhìn lại kết quả sau mỗi buổi luyện.</small></span>
+                            </li>
+                        </ol>
+                    </div>
+                    <p class="auth-intro__bottom">Luyện tập hôm nay, vững vàng ngày mai.</p>
+                </section>
 
-            <div class="form-panel">
-                <!-- Mobile Header -->
-                <div class="mobile-header hide-on-desktop">
-                    <div class="logo-dark">Mockview<span>AI</span></div>
-                    <span class="badge badge-beta">BETA</span>
-                </div>
-                <div class="mobile-title hide-on-desktop">
-                    <h2>Tạo tài khoản</h2>
-                    <p>Luyện phỏng vấn với AI, hoàn toàn miễn phí.</p>
-                </div>
+                <section class="auth-panel register-panel" aria-labelledby="register-title">
+                    <div class="auth-panel__mobile-brand">
+                        <span class="auth-brand__mark" aria-hidden="true">
+                            <img src="~/favicon.ico" asp-append-version="true" alt="" />
+                        </span>
+                        <strong>Mockview<span>AI</span></strong>
+                    </div>
 
-                <!-- Desktop Header -->
-                <div class="form-header hide-on-mobile">
-                    <h2>Tạo tài khoản</h2>
-                    <span class="badge badge-beta">BETA</span>
-                </div>
+                    <div class="auth-panel__header">
+                        <span class="auth-panel__eyebrow">THAM GIA MOCKVIEWAI</span>
+                        <h2 id="register-title">Tạo tài khoản</h2>
+                        <p>Điền thông tin để bắt đầu hành trình luyện phỏng vấn.</p>
+                    </div>
 
-                <form method="post" asp-controller="Auth" asp-action="Register" data-loading-text="Đang tạo tài khoản..." data-loading-overlay="Đang gửi mã xác thực đến email của bạn. Quá trình này có thể mất vài giây...">
-                    @Html.AntiForgeryToken()
+                    <form id="registerForm" class="auth-form" method="post"
+                          asp-controller="Auth" asp-action="Register"
+                          data-loading-text="Đang tạo tài khoản..."
+                          data-loading-overlay="Đang gửi mã xác thực đến email của bạn. Quá trình này có thể mất vài giây.">
+                        @Html.AntiForgeryToken()
 
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Tên</label>
-                            <input type="text" name="firstName" placeholder="Nhập tên" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Họ</label>
-                            <input type="text" name="lastName" placeholder="Nhập họ" required>
-                        </div>
-
-                        <div class="form-group full-width">
-                            <label>Email</label>
-                            <input type="email" name="email" placeholder="you@email.com" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Mật khẩu</label>
-                            <div class="input-group">
-                                <input type="password" name="password" id="reg-pass" placeholder="Tối thiểu 8 ký tự" required>
-                                <i class="far fa-eye toggle-password" onclick="togglePass('reg-pass', this)"></i>
+                        <div class="register-form-grid">
+                            <div class="form-field">
+                                <label class="form-field__label" for="reg-first-name">Tên</label>
+                                <div class="form-control-wrap">
+                                    <i class="fa-regular fa-user" aria-hidden="true"></i>
+                                    <input class="form-control" id="reg-first-name" name="firstName"
+                                           type="text" placeholder="Nhập tên" autocomplete="given-name" required />
+                                </div>
+                            </div>
+                            <div class="form-field">
+                                <label class="form-field__label" for="reg-last-name">Họ</label>
+                                <div class="form-control-wrap">
+                                    <i class="fa-regular fa-user" aria-hidden="true"></i>
+                                    <input class="form-control" id="reg-last-name" name="lastName"
+                                           type="text" placeholder="Nhập họ" autocomplete="family-name" required />
+                                </div>
+                            </div>
+                            <div class="form-field register-form-grid__full">
+                                <label class="form-field__label" for="reg-email">Địa chỉ email</label>
+                                <div class="form-control-wrap">
+                                    <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+                                    <input class="form-control" id="reg-email" name="email"
+                                           type="email" placeholder="you@email.com" autocomplete="email" required />
+                                </div>
+                            </div>
+                            <div class="form-field">
+                                <label class="form-field__label" for="reg-pass">Mật khẩu</label>
+                                <div class="form-control-wrap auth-password-field">
+                                    <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                                    <input class="form-control" id="reg-pass" name="password"
+                                           type="password" placeholder="Tối thiểu 8 ký tự"
+                                           autocomplete="new-password" required />
+                                    <button class="auth-password-toggle" type="button"
+                                            data-password-toggle="reg-pass" aria-controls="reg-pass"
+                                            aria-label="Hiển thị mật khẩu" aria-pressed="false">
+                                        <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-field">
+                                <label class="form-field__label" for="reg-confirm-pass">Xác nhận mật khẩu</label>
+                                <div class="form-control-wrap auth-password-field">
+                                    <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                                    <input class="form-control" id="reg-confirm-pass" name="confirmPassword"
+                                           type="password" placeholder="Nhập lại mật khẩu"
+                                           autocomplete="new-password" required />
+                                    <button class="auth-password-toggle" type="button"
+                                            data-password-toggle="reg-confirm-pass"
+                                            aria-controls="reg-confirm-pass"
+                                            aria-label="Hiển thị mật khẩu" aria-pressed="false">
+                                        <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label>Xác nhận mật khẩu</label>
-                            <div class="input-group">
-                                <input type="password" name="confirmPassword" id="reg-confirm-pass" placeholder="Nhập lại mật khẩu" required>
-                                <i class="far fa-eye toggle-password" onclick="togglePass('reg-confirm-pass', this)"></i>
+
+                        <div class="register-consent">
+                            <input class="register-consent__checkbox" id="terms" type="checkbox"
+                                   name="terms" value="true" required />
+                            <div class="register-consent__text">
+                                <label for="terms">Tôi đồng ý với</label>
+                                @* Replace these two URLs with your project's real policy routes. *@
+                                <a href="/Terms" target="_blank" rel="noopener noreferrer">Điều khoản dịch vụ</a>
+                                <span>và</span>
+                                <a href="/Privacy" target="_blank" rel="noopener noreferrer">Chính sách bảo mật</a>
                             </div>
                         </div>
 
-                    </div>
+                        <div class="auth-turnstile">
+                            <div class="cf-turnstile" data-theme="light" data-size="flexible"
+                                 data-sitekey="@Configuration["Turnstile:SiteKey"]"></div>
+                        </div>
 
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="terms" name="terms" value="true" required>
-                        <label for="terms">Tôi đồng ý với Điều khoản dịch vụ và Chính sách bảo mật</label>
-                    </div>
+                        <button class="button button--primary auth-submit" type="submit">
+                            <span>Tạo tài khoản</span>
+                            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                        </button>
+                    </form>
 
-                    <div class="form-group">
-                        <div class="cf-turnstile" data-theme="light" data-size="flexible" data-sitekey="@Configuration["Turnstile:SiteKey"]"></div>
-                    </div>
-
-                    <button type="submit" class="btn-submit">Tạo tài khoản</button>
-
-                    <div class="login-link">
-                        Đã có tài khoản? <a href="/Auth/Login">Đăng nhập</a>
-                    </div>
-                </form>
+                    <p class="auth-register">
+                        Đã có tài khoản?
+                        <a class="text-link" asp-controller="Auth" asp-action="Login">Đăng nhập</a>
+                    </p>
+                    <p class="auth-panel__note">
+                        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                        Xác thực an toàn để bảo vệ tài khoản của bạn.
+                    </p>
+                </section>
             </div>
-        </div>
+        </main>
     </div>
 
+    <partial name="Partials/_AppFooter" />
     <partial name="Partials/_Notify" />
-    <script src="~/js/_TogglePassword.js"></script>
-    <script src="~/js/_SubmitLoading.js"></script>
+
+    <script src="~/js/_TogglePassword.js" asp-append-version="true" defer></script>
+    <script src="~/js/_SubmitLoading.js" asp-append-version="true" defer></script>
 </body>
 </html>

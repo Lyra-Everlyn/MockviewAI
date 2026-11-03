@@ -1,155 +1,187 @@
 ﻿@model MockviewAI.Models.DTOs.OnboardingDto
 @{
     Layout = null;
+    ViewData["Title"] = "Thiết lập hồ sơ";
 }
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Setup - MockviewAI</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Thiết lập hồ sơ - MockviewAI</title>
     <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
-    <link rel="stylesheet" href="~/css/Onboarding.css">
-    @* [UI-DARK] Đợt 5 (02/11): giao diện tối cho mọi trang. Bỏ các dòng dưới để về bản sáng. *@
-    <link rel="stylesheet" href="~/css/dark/Onboarding.dark.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark/dark-base.css" asp-append-version="true" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Onboarding.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/themes/theme-indigo.css" asp-append-version="true" />
 </head>
-<body>
-    <div class="onboarding-wrapper">
-        <div class="onboarding-container">
-
-            <!-- LEFT PANEL -->
-            <div class="info-panel">
-                <div>
-                    <div class="logo">Mockview<span>AI</span></div>
-                </div>
-
-                <div class="info-content">
-                    <h1>Let's personalize your experience</h1>
-                    <p class="subtitle">Tailoring mock interview questions to fit your background and target career path.</p>
-
-                    <ul class="step-tracker">
-                        <li class="step-item active" id="trackerStep1">
-                            <span class="step-number">1</span>
-                            <div class="step-info">
-                                <span class="step-title">Study & Role</span>
-                                <span class="step-desc">Major & target role</span>
-                            </div>
-                        </li>
-                        <li class="step-item" id="trackerStep2">
-                            <span class="step-number">2</span>
-                            <div class="step-info">
-                                <span class="step-title">Graduation</span>
-                                <span class="step-desc">Academic status</span>
-                            </div>
-                        </li>
-                        <li class="step-item" id="trackerStep3">
-                            <span class="step-number">3</span>
-                            <div class="step-info">
-                                <span class="step-title">Experience</span>
-                                <span class="step-desc">Proficiency level</span>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <div></div>
-            </div>
-
-            <!-- RIGHT FORM PANEL -->
-            <div class="form-panel">
-                <div>
-                    <div class="form-header">
-                        <h2>Set up your profile</h2>
-                        <p>This information helps us personalize your AI interview questions.</p>
+<body class="app-layout app-layout--auth onboarding-page">
+    <div class="app-layout__content">
+        <main class="onboarding-wrapper">
+            <div class="onboarding-container">
+                <aside class="onboarding-aside" aria-label="Tiến trình thiết lập hồ sơ">
+                    <div class="onboarding-aside__top">
+                        <a class="onboarding-brand" asp-controller="Home" asp-action="Index" aria-label="MockviewAI - Trang chủ">
+                            <span class="onboarding-brand__icon"><img src="~/favicon.ico" asp-append-version="true" alt="" /></span>
+                            <span>Mockview<span>AI</span></span>
+                        </a>
+                        <span class="onboarding-aside__pill">THIẾT LẬP LẦN ĐẦU</span>
                     </div>
+                    <div class="onboarding-aside__content">
+                        <span class="onboarding-aside__eyebrow"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> DÀNH RIÊNG CHO BẠN</span>
+                        <h1>Cá nhân hóa hành trình luyện phỏng vấn.</h1>
+                        <p>Chỉ cần 3 bước ngắn để MockviewAI hiểu hơn về mục tiêu học tập và công việc của bạn.</p>
+                        <ol class="step-tracker" id="stepTracker">
+                            <li class="step-item active" id="trackerStep1" aria-current="step">
+                                <span class="step-number" aria-hidden="true">1</span>
+                                <span class="step-info"><strong class="step-title">Ngành học & vị trí</strong><small class="step-desc">Mục tiêu ứng tuyển</small></span>
+                            </li>
+                            <li class="step-item" id="trackerStep2">
+                                <span class="step-number" aria-hidden="true">2</span>
+                                <span class="step-info"><strong class="step-title">Tình trạng tốt nghiệp</strong><small class="step-desc">Giai đoạn học tập hiện tại</small></span>
+                            </li>
+                            <li class="step-item" id="trackerStep3">
+                                <span class="step-number" aria-hidden="true">3</span>
+                                <span class="step-info"><strong class="step-title">Kinh nghiệm</strong><small class="step-desc">Mức độ thực hành</small></span>
+                            </li>
+                        </ol>
+                    </div>
+                    <p class="onboarding-aside__foot"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Bạn có thể cập nhật thông tin sau này.</p>
+                </aside>
 
-                    <div class="progress-bar-container">
+                <section class="onboarding-main" aria-labelledby="onboarding-heading">
+                    <div class="onboarding-mobile-brand" aria-hidden="true">
+                        <span class="onboarding-brand__icon"><img src="~/favicon.ico" asp-append-version="true" alt="" /></span>
+                        <strong>Mockview<span>AI</span></strong>
+                    </div>
+                    <div class="onboarding-header">
+                        <div class="onboarding-header__top">
+                            <span class="onboarding-eyebrow">CHÀO MỪNG ĐẾN MOCKVIEWAI</span>
+                            <span class="onboarding-step-count" id="stepCounter">Bước 1 / 3</span>
+                        </div>
+                        <h2 id="onboarding-heading">Thiết lập hồ sơ của bạn</h2>
+                        <p id="stepDescription">Bắt đầu với ngành học và vị trí mà bạn muốn ứng tuyển.</p>
+                    </div>
+                    <div class="progress-bar-container" role="progressbar" aria-label="Tiến độ thiết lập hồ sơ" aria-valuemin="0" aria-valuemax="3" aria-valuenow="1" id="onboardingProgress">
                         <div class="progress-bar-fill" id="progressBarFill"></div>
                     </div>
-
-                    <form id="onboardingForm">
+                    <form id="onboardingForm" asp-controller="Onboarding" asp-action="Complete" method="post" novalidate>
                         @Html.AntiForgeryToken()
-
-                        <!-- STEP 1: Major & Target Position -->
-                        <div class="wizard-step active" id="step1">
-                            <div class="form-group">
-                                <label for="majorInput">Major / Field of Study</label>
-                                <input type="text" id="majorInput" asp-for="Major" placeholder="e.g. Software Engineering, Information Technology" required />
-                            </div>
-                            <div class="form-group">
-                                <label for="targetPositionInput">Target Position</label>
-                                <input type="text" id="targetPositionInput" asp-for="TargetPosition" placeholder="e.g. Backend Developer, Game Developer, Tester" required />
-                            </div>
-                        </div>
-
-                        <!-- STEP 2: Graduation Status -->
-                        <div class="wizard-step" id="step2">
-                            <input type="hidden" id="graduationStatusInput" asp-for="GraduationStatus" />
-                            <div class="form-group">
-                                <label>Graduation Status</label>
-                                <div class="options-grid">
-                                    <div class="option-card" data-group="graduation" data-value="Current Student">
-                                        <span class="option-title">Current Student</span>
-                                        <span class="option-desc">Currently pursuing my degree</span>
-                                    </div>
-                                    <div class="option-card" data-group="graduation" data-value="Expecting Graduation">
-                                        <span class="option-title">Expecting Graduation</span>
-                                        <span class="option-desc">Graduating soon or in final term</span>
-                                    </div>
-                                    <div class="option-card" data-group="graduation" data-value="Graduated">
-                                        <span class="option-title">Graduated</span>
-                                        <span class="option-desc">Already completed my studies</span>
-                                    </div>
-                                    <div class="option-card" data-group="graduation" data-value="Other">
-                                        <span class="option-title">Other</span>
-                                        <span class="option-desc">Self-taught or transition career</span>
+                        <div class="onboarding-steps">
+                            <section class="wizard-step active" id="step1" aria-labelledby="step1Title">
+                                <div class="wizard-step__heading">
+                                    <span class="wizard-step__icon"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></span>
+                                    <div><h3 id="step1Title">Bạn đang theo đuổi lĩnh vực nào?</h3><p>Những thông tin này giúp AI đặt câu hỏi phù hợp hơn.</p></div>
+                                </div>
+                                <div class="onboarding-field">
+                                    <label for="majorInput">Ngành học / Lĩnh vực chuyên môn <span aria-hidden="true">*</span></label>
+                                    <div class="onboarding-input-wrap">
+                                        <i class="fa-solid fa-book-open" aria-hidden="true"></i>
+                                        <input type="text" id="majorInput" asp-for="Major" placeholder="Ví dụ: Công nghệ thông tin, Kỹ thuật phần mềm" autocomplete="organization-title" required maxlength="200" />
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- STEP 3: Experience Level -->
-                        <div class="wizard-step" id="step3">
-                            <input type="hidden" id="experienceLevelInput" asp-for="ExperienceLevel" />
-                            <div class="form-group">
-                                <label>Experience Level</label>
-                                <div class="options-grid">
-                                    <div class="option-card" data-group="experience" data-value="Intern / Fresher">
-                                        <span class="option-title">Intern / Fresher</span>
-                                        <span class="option-desc">0 - 1 years of experience</span>
-                                    </div>
-                                    <div class="option-card" data-group="experience" data-value="Junior">
-                                        <span class="option-title">Junior</span>
-                                        <span class="option-desc">1 - 2 years of experience</span>
-                                    </div>
-                                    <div class="option-card" data-group="experience" data-value="Mid-Level">
-                                        <span class="option-title">Mid-Level</span>
-                                        <span class="option-desc">2 - 4 years of experience</span>
-                                    </div>
-                                    <div class="option-card" data-group="experience" data-value="Senior / Lead">
-                                        <span class="option-title">Senior / Lead</span>
-                                        <span class="option-desc">4+ years of experience</span>
+                                <div class="onboarding-field">
+                                    <label for="targetPositionInput">Vị trí muốn ứng tuyển <span aria-hidden="true">*</span></label>
+                                    <div class="onboarding-input-wrap">
+                                        <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
+                                        <input type="text" id="targetPositionInput" asp-for="TargetPosition" placeholder="Ví dụ: Backend Developer, Tester, Game Developer" required maxlength="200" />
                                     </div>
                                 </div>
-                            </div>
+                            </section>
+
+                            <section class="wizard-step" id="step2" aria-labelledby="step2Title" hidden>
+                                <input type="hidden" id="graduationStatusInput" asp-for="GraduationStatus" />
+                                <div class="wizard-step__heading">
+                                    <span class="wizard-step__icon"><i class="fa-solid fa-user-graduate" aria-hidden="true"></i></span>
+                                    <div><h3 id="step2Title">Bạn đang ở giai đoạn nào?</h3><p>Chọn tình trạng học tập hiện tại của bạn.</p></div>
+                                </div>
+                                <div class="options-grid" role="group" aria-label="Tình trạng tốt nghiệp">
+                                    <button type="button" class="option-card" data-group="graduation" data-value="Current Student" aria-pressed="false">
+                                        <span class="option-card__icon"><i class="fa-solid fa-book" aria-hidden="true"></i></span>
+                                        <span class="option-card__content"><strong class="option-title">Đang là sinh viên</strong><small class="option-desc">Hiện vẫn đang theo học</small></span>
+                                        <i class="fa-solid fa-circle-check option-card__check" aria-hidden="true"></i>
+                                    </button>
+                                    <button type="button" class="option-card" data-group="graduation" data-value="Expecting Graduation" aria-pressed="false">
+                                        <span class="option-card__icon"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></span>
+                                        <span class="option-card__content"><strong class="option-title">Sắp tốt nghiệp</strong><small class="option-desc">Đang ở kỳ học cuối hoặc gần hoàn thành</small></span>
+                                        <i class="fa-solid fa-circle-check option-card__check" aria-hidden="true"></i>
+                                    </button>
+                                    <button type="button" class="option-card" data-group="graduation" data-value="Graduated" aria-pressed="false">
+                                        <span class="option-card__icon"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
+                                        <span class="option-card__content"><strong class="option-title">Đã tốt nghiệp</strong><small class="option-desc">Đã hoàn thành chương trình học</small></span>
+                                        <i class="fa-solid fa-circle-check option-card__check" aria-hidden="true"></i>
+                                    </button>
+                                    <button type="button" class="option-card" data-group="graduation" data-value="Other" aria-pressed="false">
+                                        <span class="option-card__icon"><i class="fa-solid fa-compass" aria-hidden="true"></i></span>
+                                        <span class="option-card__content"><strong class="option-title">Khác</strong><small class="option-desc">Tự học hoặc đang chuyển hướng nghề nghiệp</small></span>
+                                        <i class="fa-solid fa-circle-check option-card__check" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </section>
+
+                            <section class="wizard-step" id="step3" aria-labelledby="step3Title" hidden>
+                                <input type="hidden" id="experienceLevelInput" asp-for="ExperienceLevel" />
+                                <div class="wizard-step__heading">
+                                    <span class="wizard-step__icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span>
+                                    <div><h3 id="step3Title">Kinh nghiệm của bạn ở mức nào?</h3><p>Lựa chọn phù hợp nhất với kinh nghiệm hiện tại.</p></div>
+                                </div>
+                                <div class="options-grid" role="group" aria-label="Mức độ kinh nghiệm">
+                                    <button type="button" class="option-card" data-group="experience" data-value="Intern / Fresher" aria-pressed="false">
+                                        <span class="option-card__icon"><i class="fa-solid fa-seedling" aria-hidden="true"></i></span>
+                                        <span class="option-card__content"><strong class="option-title">Intern / Fresher</strong><small class="option-desc">0–1 năm kinh nghiệm</small></span>
+                                        <i class="fa-solid fa-circle-check option-card__check" aria-hidden="true"></i>
+                                    </button>
+                                    <button type="button" class="option-card" data-group="experience" data-value="Junior" aria-pressed="false">
+                                        <span class="option-card__icon"><i class="fa-solid fa-code" aria-hidden="true"></i></span>
+                                        <span class="option-card__content"><strong class="option-title">Junior</strong><small class="option-desc">1–2 năm kinh nghiệm</small></span>
+                                        <i class="fa-solid fa-circle-check option-card__check" aria-hidden="true"></i>
+                                    </button>
+                                    <button type="button" class="option-card" data-group="experience" data-value="Mid-Level" aria-pressed="false">
+                                        <span class="option-card__icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
+                                        <span class="option-card__content"><strong class="option-title">Mid-Level</strong><small class="option-desc">2–4 năm kinh nghiệm</small></span>
+                                        <i class="fa-solid fa-circle-check option-card__check" aria-hidden="true"></i>
+                                    </button>
+                                    <button type="button" class="option-card" data-group="experience" data-value="Senior / Lead" aria-pressed="false">
+                                        <span class="option-card__icon"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+                                        <span class="option-card__content"><strong class="option-title">Senior / Lead</strong><small class="option-desc">Trên 4 năm kinh nghiệm</small></span>
+                                        <i class="fa-solid fa-circle-check option-card__check" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </section>
                         </div>
 
+                        <div class="onboarding-validation" id="onboardingError" role="alert" hidden></div>
+                        <div class="wizard-actions">
+                            <button type="button" class="onboarding-btn onboarding-btn--secondary" id="btnBack" disabled>
+                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i> Quay lại
+                            </button>
+                            <button type="button" class="onboarding-btn onboarding-btn--primary" id="btnNext">
+                                <span id="btnNextLabel">Tiếp tục</span>
+                                <i id="btnNextIcon" class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                            </button>
+                        </div>
                     </form>
-                </div>
-
-                <!-- CONTROLS -->
-                <div class="wizard-actions">
-                    <button type="button" class="btn-secondary" id="btnBack" disabled>Back</button>
-                    <button type="button" class="btn-primary" id="btnNext">Continue</button>
-                </div>
-
+                    <p class="onboarding-main__note"><i class="fa-solid fa-lock" aria-hidden="true"></i> Thông tin chỉ dùng để cá nhân hóa trải nghiệm.</p>
+                </section>
             </div>
-        </div>
+        </main>
     </div>
 
-    <partial name="Partials/_Notify"/>
-    <script src="~/js/Onboarding.js"></script>
+    <partial name="Partials/_AppFooter" />
+    <partial name="Partials/_Notify" />
+
+    <div id="onboardingLoading" class="onboarding-loading" hidden role="alertdialog" aria-modal="true" aria-labelledby="onboardingLoadingTitle" aria-describedby="onboardingLoadingDescription">
+        <div class="onboarding-loading__dialog" tabindex="-1">
+            <span class="onboarding-loading__spinner" aria-hidden="true"></span>
+            <h2 id="onboardingLoadingTitle">Đang hoàn tất thiết lập</h2>
+            <p id="onboardingLoadingDescription">MockviewAI đang lưu hồ sơ và chuẩn bị trải nghiệm dành riêng cho bạn.</p>
+            <small>Vui lòng không gửi yêu cầu nhiều lần.</small>
+        </div>
+    </div>
+    <script src="~/js/Onboarding.js" asp-append-version="true" defer></script>
 </body>
 </html>

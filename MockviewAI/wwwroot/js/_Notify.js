@@ -1,38 +1,33 @@
 ﻿document.addEventListener('DOMContentLoaded', () => {
-    if (window.SystemAlerts && typeof Swal !== 'undefined') {
-        const successMsg = window.SystemAlerts.success;
-        const errorMsg = window.SystemAlerts.error;
+    if (typeof Swal === 'undefined' || !window.SystemAlerts) return;
+    
+    const {success, error, info} = window.SystemAlerts;
+    const common = {confirmButtonColor: '#5565ed', customClass: {popup: 'app-alert-dialog'}};
 
-        if (successMsg) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: successMsg,
-                timer: 3000,
-                showConfirmButton: false,
-                toast: true,
-                position: 'bottom-right'
-            });
-        }
-
-        const infoMsg = window.SystemAlerts.info;
-        if (infoMsg) {
-            Swal.fire({
-                icon: 'info',
-                title: 'Notify',
-                text: infoMsg,
-                confirmButtonText: 'Ok',
-                confirmButtonColor: '#4361ee'
-            });
-        }
-
-        if (errorMsg) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: errorMsg,
-                confirmButtonColor: '#4361ee'
-            });
-        }
+    if (success) {
+        Swal.fire({...common, 
+            icon: 'success', 
+            title: 'Thành công!', 
+            text: success,
+            position: 'center', 
+            toast: false, 
+            showConfirmButton: false, 
+            timer: 3000,
+            timerProgressBar: true
+        });
+    } else if (error) {
+        Swal.fire({...common, 
+            icon: 'error', 
+            title: 'Đã xảy ra lỗi', 
+            text: error,
+            position: 'center', 
+            confirmButtonText: 'Đóng'});
+    } else if (info) {
+        Swal.fire({...common, 
+            icon: 'info', 
+            title: 'Thông báo', 
+            text: info,
+            position: 'center', 
+            confirmButtonText: 'Đã hiểu'});
     }
 });

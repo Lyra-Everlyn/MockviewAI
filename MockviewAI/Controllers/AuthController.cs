@@ -340,9 +340,11 @@ namespace MockviewAI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> VerifyResetCode(string email, string code)
         {
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(code))
+            ViewBag.Email = email;
+
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(code) || code.Length != 6 || !code.All(char.IsDigit))
             {
-                ModelState.AddModelError(string.Empty, "Yêu cầu không hợp lệ. Vui lòng điền đủ thông tin.");
+                TempData["ErrorMessage"] = "Vui lòng nhập mã xác thực gồm 6 chữ số.";
                 return View();
             }
 
@@ -350,7 +352,9 @@ namespace MockviewAI.Controllers
 
             if (await _authService.IsIpBlockedAsync(ipAddress))
             {
-                ModelState.AddModelError(string.Empty, $"IP của bạn đã bị khóa tạm thời. Vui lòng thử lại sau {_lockoutMinutes} phút.");
+                TempData["ErrorMessage"] =
+                    $"Bạn đã thử quá nhiều lần. " +
+                    $"Vui lòng thử lại sau {_lockoutMinutes} phút.";
                 return View();
             }
 
@@ -358,17 +362,21 @@ namespace MockviewAI.Controllers
             {
                 bool isValid = await _authService.VerifyResetCodeAsync(email, code, ipAddress);
 
-                if (isValid)
+                if (!isValid)
                 {
-                    TempData["SuccessMessage"] = "Xác thực mã thành công. Vui lòng nhập mật khẩu mới.";
-                    return RedirectToAction("ResetPassword", new { email = email, code = code });
+                    TempData["ErrorMessage"] = "Mã xác thực không hợp lệ hoặc đã hết hạn.";
+                    return View();
                 }
 
-                return View();
+                TempData["SuccessMessage"] = "Xác thực thành công! Hãy tạo mật khẩu mới.";
+
+                return RedirectToAction("ResetPassword", new { email, code });
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
+                TempData["ErrorMessage"] = ex.Message;
+
                 return View();
             }
         }

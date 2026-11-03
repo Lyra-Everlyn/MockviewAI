@@ -1,21 +1,10 @@
-﻿@{
-    var errorMessage = TempData["ErrorMessage"]?.ToString();
-    if (string.IsNullOrEmpty(errorMessage) && !ViewData.ModelState.IsValid)
-    {
-        errorMessage = ViewData.ModelState.Values
-            .SelectMany(v => v.Errors)
-            .Select(e => e.ErrorMessage)
-            .FirstOrDefault();
-    }
-}
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="~/js/_Notify.js"></script>
+﻿<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="~/js/_Notify.js" asp-append-version="true"></script>
 
 <script>
     window.SystemAlerts = {
-        success: @Html.Raw(Json.Serialize(TempData["SuccessMessage"])),
-        info: @Html.Raw(Json.Serialize(TempData["InfoMessage"])),
-        error: @Html.Raw(Json.Serialize(errorMessage))
+        success: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["SuccessMessage"])),
+        error: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["ErrorMessage"])),
+        info: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["InfoMessage"]))
     };
 </script>

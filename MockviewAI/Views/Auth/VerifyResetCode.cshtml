@@ -1,83 +1,130 @@
 ﻿@{
     Layout = null;
-    var email = Context.Request.Query["email"].ToString();
+    var email = ViewBag.Email as string ?? Context.Request.Query["email"].ToString();
 }
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Xác thực mã khôi phục - MockviewAI</title>
     <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="~/css/ForgotPassword.css">
-    @* [UI-DARK] Đợt 5 (02/11): giao diện tối cho mọi trang. Bỏ các dòng dưới để về bản sáng. *@
-    <link rel="stylesheet" href="~/css/dark/ForgotPassword.dark.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark/dark-base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Login.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/VerifyResetCode.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/themes/theme-indigo.css" asp-append-version="true" />
 </head>
-
-<body>
-    <div class="forgot-wrapper">
-        <div class="forgot-container">
-
-            <div class="info-panel">
-                <div class="logo">Mockview<span>AI</span></div>
-                <h1>Bảo vệ tài khoản của bạn</h1>
-                <p class="subtitle">Chúng tôi đã gửi mã xác thực an toàn đến email của bạn. Bước này giúp đảm bảo chỉ có bạn mới có quyền truy cập vào tài khoản.</p>
-                <ul class="features">
-                    <li><span class="step"><i class="fas fa-envelope"></i></span> Nhập email đã đăng ký</li>
-                    <li><span class="step active"><i class="fas fa-paper-plane"></i></span> Nhận mã khôi phục bảo mật</li>
-                    <li><span class="step"><i class="fas fa-lock"></i></span> Tạo mật khẩu mới</li>
-                </ul>
-            </div>
-
-            <div class="form-panel">
-
-                <div class="mobile-header hide-on-desktop">
-                    <div class="logo-dark">Mockview<span>AI</span></div>
-                </div>
-
-                <div class="form-header">
-                    <h2>Kiểm tra hộp thư của bạn</h2>
-                </div>
-
-                <p class="description">
-                    Chúng tôi đã gửi mã xác thực 6 số đến <strong>@email</strong>.
-                    Mã này sẽ hết hạn trong vòng 5 phút.
-                </p>
-
-                <form method="post" asp-controller="Auth" asp-action="VerifyResetCode" id="verifyForm">
-                    @Html.AntiForgeryToken()
-
-                    <input type="hidden" name="email" value="@email" />
-                    <input type="hidden" name="code" id="finalCode" />
-
-                    <div class="form-group">
-                        <label>Mã xác thực</label>
-                        <div class="otp-wrapper">
-                            <input type="text" class="otp-input" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" aria-label="Chữ số 1" required autofocus>
-                            <input type="text" class="otp-input" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Chữ số 2" required>
-                            <input type="text" class="otp-input" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Chữ số 3" required>
-                            <input type="text" class="otp-input" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Chữ số 4" required>
-                            <input type="text" class="otp-input" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Chữ số 5" required>
-                            <input type="text" class="otp-input" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Chữ số 6" required>
-                        </div>
+<body class="app-layout app-layout--auth">
+    <div class="app-layout__content">
+        <main class="auth-page reset-otp-page">
+            <div class="auth-shell reset-otp-shell">
+                <section class="auth-intro" aria-labelledby="reset-otp-intro-title">
+                    <div class="auth-intro__top">
+                        <a class="auth-brand" asp-controller="Home" asp-action="Index" aria-label="MockviewAI - Trang chủ">
+                            <span class="auth-brand__mark" aria-hidden="true">
+                                <img src="~/favicon.ico" asp-append-version="true" alt="" />
+                            </span>
+                            <span>Mockview<span>AI</span></span>
+                        </a>
+                        <span class="auth-intro__badge">BETA</span>
                     </div>
 
-                    <button type="submit" class="btn-submit">Xác thực mã</button>
+                    <div class="auth-intro__body">
+                        <span class="auth-intro__eyebrow">
+                            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                            KHÔI PHỤC TÀI KHOẢN
+                        </span>
+                        <h1 id="reset-otp-intro-title">Thêm một bước để bảo vệ tài khoản của bạn.</h1>
+                        <p>Nhập mã từ email để xác minh yêu cầu khôi phục trước khi đặt lại mật khẩu.</p>
 
-                    <div class="back-link">
-                        <a href="/Auth/ForgotPassword"><i class="fas fa-arrow-left"></i> Nhầm email? Quay lại</a>
+                        <ol class="auth-steps reset-otp-steps" aria-label="Tiến trình khôi phục mật khẩu">
+                            <li class="reset-otp-steps__done">
+                                <span class="auth-steps__icon"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                                <span><strong>Nhập email đã đăng ký</strong><small>Đã hoàn tất</small></span>
+                            </li>
+                            <li class="reset-otp-steps__current" aria-current="step">
+                                <span class="auth-steps__icon"><i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i></span>
+                                <span><strong>Nhận mã xác thực</strong><small>Đang thực hiện</small></span>
+                            </li>
+                            <li>
+                                <span class="auth-steps__icon"><i class="fa-solid fa-lock" aria-hidden="true"></i></span>
+                                <span><strong>Tạo mật khẩu mới</strong><small>Hoàn tất khôi phục tài khoản</small></span>
+                            </li>
+                        </ol>
                     </div>
-                </form>
+                    <p class="auth-intro__bottom">Xác thực an toàn · MockviewAI</p>
+                </section>
 
+                <section class="auth-panel reset-otp-panel" aria-labelledby="reset-otp-heading">
+                    <div class="auth-panel__mobile-brand">
+                        <span class="auth-brand__mark" aria-hidden="true">
+                            <img src="~/favicon.ico" asp-append-version="true" alt="" />
+                        </span>
+                        <strong>Mockview<span>AI</span></strong>
+                    </div>
+                    <div class="reset-otp-panel__symbol" aria-hidden="true">
+                        <i class="fa-regular fa-envelope-open"></i>
+                    </div>
+
+                    <div class="auth-panel__header reset-otp-panel__header">
+                        <span class="auth-panel__eyebrow">BƯỚC 2 / 3 · XÁC THỰC EMAIL</span>
+                        <h2 id="reset-otp-heading">Kiểm tra hộp thư của bạn</h2>
+                        <p>Nhập mã khôi phục gồm 6 chữ số đã được gửi đến:</p>
+                        <p class="reset-otp-panel__email">
+                            <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+                            <strong>@email</strong>
+                        </p>
+                        <p class="reset-otp-panel__expiry">
+                            <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                            Mã có hiệu lực trong 5 phút.
+                        </p>
+                    </div>
+
+                    <form id="verifyForm" class="auth-form reset-otp-form" method="post"
+                          asp-controller="Auth" asp-action="VerifyResetCode"
+                          data-loading-text="Đang xác thực..."
+                          data-loading-overlay="Hệ thống đang xác minh mã khôi phục của bạn.">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="email" value="@email" />
+                        <input type="hidden" name="code" id="finalCode" />
+
+                        <fieldset class="otp-fieldset">
+                            <legend class="form-field__label">Mã xác thực</legend>
+                            <div class="otp-control" role="group" aria-label="Mã xác thực gồm 6 chữ số">
+                                @for (int i = 0; i < 6; i++)
+                                {
+                                    <input class="otp-control__digit otp-input" type="text"
+                                           inputmode="numeric" pattern="[0-9]*"
+                                           autocomplete="@(i == 0 ? "one-time-code" : "off")"
+                                           aria-label="Chữ số @(i + 1)" required />
+                                }
+                            </div>
+                            <p class="otp-control__message" id="otp-message" role="status" aria-live="polite"></p>
+                        </fieldset>
+
+                        <button type="submit" class="button button--primary auth-submit">
+                            <span>Xác thực mã</span>
+                            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                        </button>
+                    </form>
+
+                    <p class="reset-otp-panel__help">
+                        Chưa nhận được mã? Hãy kiểm tra cả thư mục Spam hoặc Thư rác.
+                    </p>
+                    <a class="reset-otp-panel__back text-link" asp-controller="Auth" asp-action="ForgotPassword">
+                        <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                        Nhầm email? Quay lại
+                    </a>
+                </section>
             </div>
-        </div>
+        </main>
     </div>
 
+    <partial name="Partials/_AppFooter" />
     <partial name="Partials/_Notify" />
-    <script src="~/js/VerifyCode.js"></script>
+    <script src="~/js/VerifyCode.js" asp-append-version="true" defer></script>
+    <script src="~/js/_SubmitLoading.js" asp-append-version="true" defer></script>
 </body>
 </html>

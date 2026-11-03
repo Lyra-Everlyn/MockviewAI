@@ -1,0 +1,107 @@
+/* VerifyResetCode — page-specific composition only.
+   Shared Auth structure: Login.css. Generic OTP: components.css.
+   Color system: themes/theme-indigo.css. */
+
+.reset-otp-shell {
+    min-height: 565px;
+}
+
+.reset-otp-steps__done .auth-steps__icon {
+    background: rgba(255, 255, 255, .25);
+}
+
+.reset-otp-steps__current .auth-steps__icon {
+    background: rgba(255, 255, 255, .25);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, .17);
+}
+
+.reset-otp-panel {
+    align-items: stretch;
+    min-width: 0;
+}
+
+.reset-otp-panel__symbol {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 18px;
+    border-radius: 16px;
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    font-size: 25px;
+}
+
+.reset-otp-panel__header {
+    margin-bottom: 24px;
+}
+
+.reset-otp-panel__email {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    margin-top: 11px !important;
+    color: var(--color-text-soft) !important;
+    overflow-wrap: anywhere;
+}
+
+.reset-otp-panel__email i {
+    flex: 0 0 auto;
+    color: var(--color-primary);
+}
+
+.reset-otp-panel__expiry {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px !important;
+    color: var(--color-muted) !important;
+    font-size: 12px !important;
+}
+
+.otp-fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.otp-fieldset legend {
+    margin-bottom: 12px;
+}
+
+.reset-otp-panel__help {
+    margin-top: 22px;
+    color: var(--color-muted);
+    font-size: 12px;
+    line-height: 1.65;
+    text-align: center;
+}
+
+.reset-otp-panel__back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 17px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+@media (max-width: 720px) {
+    .reset-otp-shell {
+        min-height: 0;
+    }
+
+    .reset-otp-panel__symbol {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 16px;
+        font-size: 22px;
+    }
+
+    .reset-otp-panel__header {
+        margin-bottom: 20px;
+    }
+}

@@ -1,0 +1,90 @@
+﻿@{
+    var activeNav = ViewData["ActiveNav"] as string ?? "";
+    var navUserName = User.Identity?.Name ?? "";
+    var navInitial = string.IsNullOrWhiteSpace(navUserName)
+        ? "?"
+        : navUserName.Substring(0, 1).ToUpper();
+
+    var navAvatarUrl = User.FindFirst("AvatarUrl")?.Value;
+}
+
+<nav class="app-nav" aria-label="Điều hướng chính">
+    <div class="app-nav__desktop">
+        <div class="app-nav__inner">
+            <a href="/Home" class="app-brand" aria-label="MockviewAI - Trang chủ">
+                Mockview<span>AI</span>
+            </a>
+
+            <div class="app-nav__links">
+                <a href="/Home"
+                   class="app-nav__link @(activeNav == "home" ? "is-active" : null)">
+                    Trang chủ
+                </a>
+
+                <a href="/Interview/Create"
+                   class="app-nav__link @(activeNav == "practice" ? "is-active" : null)">
+                    Luyện tập
+                </a>
+
+                <a href="/Home/History"
+                   class="app-nav__link @(activeNav == "history" ? "is-active" : null)">
+                    Lịch sử
+                </a>
+            </div>
+
+            <div class="app-nav__actions">
+                <span class="status-badge">BETA</span>
+
+                <a href="/Profile"
+                   class="user-avatar"
+                   aria-label="Mở hồ sơ cá nhân"
+                   title="Hồ sơ">
+                    @if (!string.IsNullOrWhiteSpace(navAvatarUrl))
+                    {
+                        <img src="@navAvatarUrl"
+                             alt="Ảnh đại diện"
+                             referrerpolicy="no-referrer" />
+                    }
+                    else
+                    {
+                        @navInitial
+                    }
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-nav__mobile">
+        <a href="/Home"
+           class="app-nav__mobile-link @(activeNav == "home" ? "is-active" : null)">
+            <span class="app-nav__mobile-icon" aria-hidden="true">
+                <i class="fa-solid fa-house"></i>
+            </span>
+            <span>Trang chủ</span>
+        </a>
+
+        <a href="/Interview/Create"
+           class="app-nav__mobile-link @(activeNav == "practice" ? "is-active" : null)">
+            <span class="app-nav__mobile-icon" aria-hidden="true">
+                <i class="fa-solid fa-microphone"></i>
+            </span>
+            <span>Luyện tập</span>
+        </a>
+
+        <a href="/Home/History"
+           class="app-nav__mobile-link @(activeNav == "history" ? "is-active" : null)">
+            <span class="app-nav__mobile-icon" aria-hidden="true">
+                <i class="fa-regular fa-clock"></i>
+            </span>
+            <span>Lịch sử</span>
+        </a>
+
+        <a href="/Profile"
+           class="app-nav__mobile-link @(activeNav == "profile" ? "is-active" : null)">
+            <span class="app-nav__mobile-icon" aria-hidden="true">
+                <i class="fa-regular fa-user"></i>
+            </span>
+            <span>Hồ sơ</span>
+        </a>
+    </div>
+</nav>
