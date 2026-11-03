@@ -12,8 +12,8 @@ using MockviewAI.Data;
 namespace MockviewAI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261102083519_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20261103132244_RestoreSnapshot")]
+    partial class RestoreSnapshot
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -261,7 +261,6 @@ namespace MockviewAI.Migrations
                         .HasColumnType("datetime(3)");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 

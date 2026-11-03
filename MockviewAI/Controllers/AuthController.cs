@@ -38,7 +38,6 @@ namespace MockviewAI.Controllers
 
         [HttpPost]
         [Route("Auth/Login")]
-        [Route("Auth/Login")]
         [ValidateAntiForgeryToken]
         [EnableRateLimiting("LoginRateLimit")]
         public async Task<IActionResult> LoginApp(string email, string password, [FromForm(Name = "cf-turnstile-response")] string turnstileToken)
@@ -52,15 +51,6 @@ namespace MockviewAI.Controllers
                     ViewData["ErrorMessage"] = "Xác thực bảo mật thất bại (Captcha không hợp lệ).";
                     return View();
                 }
-            try
-            {
-                string ipAddressString = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-                bool isHuman = await _turnstileService.VerifyAsync(turnstileToken, ipAddressString);
-                if (!isHuman)
-                {
-                    ViewData["ErrorMessage"] = "Xác thực bảo mật thất bại (Captcha không hợp lệ).";
-                    return View();
-                }
 
                 if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
                 {
@@ -75,8 +65,6 @@ namespace MockviewAI.Controllers
 
                 var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
                 var emailThrottleKey = LoginThrottleService.BuildEmailKey(email);
-                var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
-                var emailThrottleKey = LoginThrottleService.BuildEmailKey(email);
 
                 var (isLocked, wait) = await _throttleService.IsLockedOutAsync(throttleKey, emailThrottleKey);
                 if (isLocked)
@@ -85,13 +73,7 @@ namespace MockviewAI.Controllers
                     ViewData["ErrorMessage"] = $"Đăng nhập sai quá nhiều. Vui lòng thử lại sau {minutes} phút.";
                     return View();
                 }
-                var (isLocked, wait) = await _throttleService.IsLockedOutAsync(throttleKey, emailThrottleKey);
-                if (isLocked)
-                {
-                    var minutes = (int)Math.Ceiling(wait.TotalMinutes);
-                    ViewData["ErrorMessage"] = $"Đăng nhập sai quá nhiều. Vui lòng thử lại sau {minutes} phút.";
-                    return View();
-                }
+              
 
                 var user = await _authService.AuthenticateAsync(email, password);
 

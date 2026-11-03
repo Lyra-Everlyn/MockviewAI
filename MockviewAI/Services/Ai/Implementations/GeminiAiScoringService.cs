@@ -184,7 +184,8 @@ namespace MockviewAI.Services.Ai.Implementations
             if (status == HttpStatusCode.NotFound)
                 return new AiScoringException(
                     $"AI chưa được cấu hình đúng: không tìm thấy model '{model}' (mã 404). Quản trị viên cần kiểm tra Gemini:Model (ví dụ gemini-3.8-flash).",
-                    isConfigurationError: true) { CanTryOtherModel = true };
+                    isConfigurationError: true)
+                { CanTryOtherModel = true };
             if (status is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden
                 || (status == HttpStatusCode.BadRequest && reason.Contains("API key", StringComparison.OrdinalIgnoreCase)))
                 return new AiScoringException(
@@ -193,7 +194,8 @@ namespace MockviewAI.Services.Ai.Implementations
             if (status == HttpStatusCode.BadRequest)
                 return new AiScoringException(
                     $"Model AI '{model}' không nhận yêu cầu chấm điểm (mã 400). Quản trị viên xem log để biết lý do, hoặc đổi Gemini:Model.",
-                    isConfigurationError: true) { CanTryOtherModel = true };
+                    isConfigurationError: true)
+                { CanTryOtherModel = true };
             if (status == HttpStatusCode.TooManyRequests)
                 return new AiScoringException("AI đang quá tải hoặc đã hết lượt dùng miễn phí (mã 429). Vui lòng thử lại sau ít phút.") { IsTransient = true };
             if (code >= 500)
