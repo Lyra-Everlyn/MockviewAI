@@ -12,8 +12,8 @@ using MockviewAI.Data;
 namespace MockviewAI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261031190955_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20261103132244_RestoreSnapshot")]
+    partial class RestoreSnapshot
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -107,8 +107,16 @@ namespace MockviewAI.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<string>("QuestionBankVersion")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
                     b.Property<int>("QuestionCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("ScoringMode")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
 
                     b.Property<DateTime>("StartedAt")
                         .HasPrecision(3)
@@ -154,11 +162,31 @@ namespace MockviewAI.Migrations
                     b.Property<int>("Attempts")
                         .HasColumnType("int");
 
+                    b.Property<string>("Category")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("CorePointsMet")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("CorePointsMissing")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
                     b.Property<double?>("DurationSeconds")
                         .HasColumnType("double");
 
+                    b.Property<string>("Feedback")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
                     b.Property<double?>("LongestPauseSeconds")
                         .HasColumnType("double");
+
+                    b.Property<string>("MatchedPath")
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
 
                     b.Property<int>("OrderNo")
                         .HasColumnType("int");
@@ -167,6 +195,10 @@ namespace MockviewAI.Migrations
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
+
+                    b.Property<string>("QuestionId")
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
 
                     b.Property<int>("SessionId")
                         .HasColumnType("int");

@@ -99,7 +99,7 @@ namespace MockviewAI.Controllers
                     try
                     {
                         await _interviewService.FinishAsync(CurrentEmail, new FinishSessionDto { SessionId = id, Fallback = true });
-                        TempData["InfoMessage"] = ex.Message + " Kết quả dưới đây chỉ tính phần cách nói.";
+                        TempData["InfoMessage"] = ex.Message + " Kết quả dưới đây được chấm sơ bộ, không dùng AI.";
                         return RedirectToAction("Result", new { id });
                     }
                     catch (Exception inner)

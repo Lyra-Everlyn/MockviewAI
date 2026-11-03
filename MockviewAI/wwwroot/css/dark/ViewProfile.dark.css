@@ -1,0 +1,30 @@
+/* ViewProfile.dark.css — SINH TỰ ĐỘNG từ ViewProfile.css bởi tools/dark-theme/make_dark_css.py (Đợt 5).
+   Không sửa tay: sửa CSS gốc hoặc công cụ rồi chạy lại. Nạp SAU ViewProfile.css và theme.css. */
+html body { background-color: #0f1626 !important; color: #e8ecf6 !important; }
+html .desktop-nav { background: #161f34 !important; border-bottom: 1px solid #2a3756 !important; }
+html .logo span { color: #7086ff !important; }
+html .nav-links a { color: #aeb6c1 !important; }
+html .badge-v1 { background: rgba(240, 170, 76, 0.14) !important; color: #f09b7f !important; }
+html .main-card { background: #161f34 !important; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18) !important; }
+html .page-title { color: #e8ecf6 !important; }
+html .info-box { border: 1px solid #2a3756 !important; }
+html .user-titles p { color: #b1b5be !important; }
+html .tag-pill { background: rgba(76, 148, 240, 0.14) !important; color: #819eee !important; }
+html .btn-outline { border: 1px solid rgba(76, 104, 240, 0.35) !important; color: #7086ff !important; }
+html .btn-outline:hover { background: #161f34 !important; }
+html .feedback-box { background: rgba(240, 208, 76, 0.14) !important; border: 1px solid rgba(240, 208, 76, 0.35) !important; }
+html .feedback-box h4 { color: #f3a97d !important; }
+html .feedback-box p { color: #f8af77 !important; }
+html .link-blue { color: #7086ff !important; }
+html .link-red { color: #eb8484 !important; }
+html .history-header a { color: #7086ff !important; }
+html .history-card { background: #161f34 !important; border: 1px solid #2a3756 !important; }
+html .badge-score { background: rgba(76, 148, 240, 0.14) !important; color: #819eee !important; }
+html .badge-anxiety-good { background: rgba(76, 240, 133, 0.14) !important; color: #8ae5ad !important; }
+html .badge-anxiety-warn { background: rgba(240, 170, 76, 0.14) !important; color: #f09b7f !important; }
+html .card-right span { color: #b1b5be !important; }
+@media (max-width: 768px) {
+    html .mobile-nav { background: #161f34 !important; border-top: 1px solid #2a3756 !important; }
+    html .nav-item { color: #b0b6bf !important; }
+    html .nav-item.active { color: #7086ff !important; }
+}

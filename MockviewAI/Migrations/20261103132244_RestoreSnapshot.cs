@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MockviewAI.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class RestoreSnapshot : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -114,7 +114,11 @@ namespace MockviewAI.Migrations
                     AnxietyBefore = table.Column<int>(type: "int", nullable: true),
                     AnxietyAfter = table.Column<int>(type: "int", nullable: true),
                     AnxietyIndicator = table.Column<int>(type: "int", nullable: true),
-                    EmailResult = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                    EmailResult = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    QuestionBankVersion = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ScoringMode = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
@@ -144,7 +148,19 @@ namespace MockviewAI.Migrations
                     LongestPauseSeconds = table.Column<double>(type: "double", nullable: true),
                     Skipped = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Attempts = table.Column<int>(type: "int", nullable: false),
-                    AnsweredAt = table.Column<DateTime>(type: "datetime(3)", precision: 3, nullable: true)
+                    AnsweredAt = table.Column<DateTime>(type: "datetime(3)", precision: 3, nullable: true),
+                    QuestionId = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Category = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    MatchedPath = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CorePointsMet = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CorePointsMissing = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Feedback = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {

@@ -1,0 +1,25 @@
+/* theme.dark.css — SINH TỰ ĐỘNG từ theme.css bởi tools/dark-theme/make_dark_css.py (Đợt 5).
+   Không sửa tay: sửa CSS gốc hoặc công cụ rồi chạy lại. Nạp SAU theme.css và theme.css. */
+html:root { --mv-text: #e8ecf6; --mv-muted: #acb6c3; --mv-bg: #0f1626; --mv-glass: #161f34; --mv-glass-border: #2a3756; --mv-line: rgba(232, 236, 246, 0.09); --mv-shadow: 0 1px 2px rgba(0, 0, 0, 0.18), 0 8px 24px -8px rgba(0, 0, 0, 0.29); --mv-shadow-lg: 0 2px 4px rgba(0, 0, 0, 0.18), 0 24px 48px -16px rgba(0, 0, 0, 0.45); --mv-green-soft: rgba(80, 237, 163, 0.14); --mv-amber-soft: rgba(240, 208, 76, 0.14); }
+html body { background-image: radial-gradient(900px 500px at 8% -10%, rgba(146, 91, 240, 0.22), transparent 60%),
+        radial-gradient(700px 420px at 100% 0%, rgba(81, 226, 250, 0.2), transparent 60%),
+        radial-gradient(800px 600px at 50% 110%, rgba(106, 98, 233, 0.16), transparent 60%) !important; }
+html .desktop-nav, html .desktop-header { background: #161f34 !important; }
+html .avatar, html .profile-icon { box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.45), 0 0 0 4px rgba(0, 0, 0, 0.40) !important; }
+html .badge-v1, html .badge-beta { background: #161f34 !important; border: 1px solid rgba(146, 91, 240, 0.22) !important; }
+html .mv-topnav { background: #161f34 !important; }
+html .mv-badge-beta { background: #161f34 !important; border: 1px solid rgba(146, 91, 240, 0.22) !important; }
+html .mv-avatar { box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.45), 0 0 0 4px rgba(0, 0, 0, 0.40) !important; }
+html .item-cta { box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.45) !important; }
+html .item-cta::after { background: rgba(238, 93, 165, 0.22) !important; }
+html .btn-create { box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.45) !important; }
+html .btn-create::after { background: linear-gradient(110deg, transparent 30%, rgba(146, 91, 240, 0.22) 50%, transparent 70%) !important; }
+html .item-beta { background: linear-gradient(135deg, rgba(240, 167, 76, 0.14), rgba(240, 208, 76, 0.14)) !important; border: 1px solid rgba(251, 157, 80, 0.22) !important; }
+html .tag-blue { background: rgba(106, 98, 233, 0.14) !important; }
+html .badge-reference { border: 1px solid rgba(246, 155, 85, 0.21) !important; }
+html .progress-bar { background: rgba(232, 236, 246, 0.08) !important; }
+html .anxiety-card { background: linear-gradient(135deg, rgba(80, 237, 163, 0.14) 0%, #161f34 100%) !important; border: 1px solid rgba(82, 249, 197, 0.22) !important; box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.45) !important; }
+html .badge-reduced { box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.18) !important; }
+html .btn-primary { box-shadow: 0 14px 28px -12px rgba(0, 0, 0, 0.45) !important; }
+html .btn-outline { background: #161f34 !important; border: 1px solid rgba(106, 98, 233, 0.22) !important; }
+html .mobile-nav { background: #161f34 !important; }

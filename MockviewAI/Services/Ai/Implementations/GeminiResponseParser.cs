@@ -14,6 +14,9 @@ namespace MockviewAI.Services.Ai.Implementations
 
     public class GeminiResponseParser : IAiResponseParser
     {
+        private const int MaxVerdicts = 10;   // tối đa 10 câu / buổi
+        private const int MaxIds = 10;
+
         private readonly ILogger<GeminiResponseParser> _logger;
 
         public GeminiResponseParser(ILogger<GeminiResponseParser> logger)
@@ -46,7 +49,9 @@ namespace MockviewAI.Services.Ai.Implementations
                     Clarity = Clamp25(r, "clarity"),
                     Summary = Str(r, "summary"),
                     Strengths = StrList(r, "strengths"),
-                    Improvements = StrList(r, "improvements")
+                    Improvements = StrList(r, "improvements"),
+                    // [QUESTION-BANK] Phần xếp loại từng câu: thiếu / hỏng thì để trống, KHÔNG làm mất điểm 4 tiêu chí
+                    Verdicts = Verdicts(r)
                 };
             }
             // IndexOutOfRangeException: Gemini trả "candidates": [] (bị chặn / rỗng) -> báo lỗi thân thiện thay vì lỗi 500
@@ -64,6 +69,38 @@ namespace MockviewAI.Services.Ai.Implementations
 
         private static string Str(JsonElement e, string name) =>
             e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String ? (v.GetString() ?? "") : "";
+
+        // Đọc "answers":[{questionId, category, matchedPath, metCorePoints, missingCorePoints, feedback}].
+        // Chỉ đọc thô ở đây; AnswerVerdictValidator kiểm tra lại theo bộ đề.
+        private static List<AnswerVerdict> Verdicts(JsonElement e)
+        {
+            var list = new List<AnswerVerdict>();
+            if (!e.TryGetProperty("answers", out var arr) || arr.ValueKind != JsonValueKind.Array) return list;
+            foreach (var item in arr.EnumerateArray().Take(MaxVerdicts))
+            {
+                if (item.ValueKind != JsonValueKind.Object) continue;
+                list.Add(new AnswerVerdict
+                {
+                    QuestionId = Str(item, "questionId"),
+                    Category = Str(item, "category"),
+                    MatchedPath = Str(item, "matchedPath"),
+                    MetCorePoints = Ids(item, "metCorePoints"),
+                    MissingCorePoints = Ids(item, "missingCorePoints"),
+                    Feedback = Str(item, "feedback")
+                });
+            }
+            return list;
+        }
+
+        private static List<string> Ids(JsonElement e, string name)
+        {
+            var list = new List<string>();
+            if (e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.Array)
+                foreach (var item in v.EnumerateArray().Take(MaxIds))
+                    if (item.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(item.GetString()))
+                        list.Add(item.GetString()!.Trim());
+            return list;
+        }
 
         private static List<string> StrList(JsonElement e, string name)
         {

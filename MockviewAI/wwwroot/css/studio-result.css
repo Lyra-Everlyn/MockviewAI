@@ -1,0 +1,45 @@
+/* studio-result.css — Kết quả buổi luyện (giao diện tối, Đợt 4). Biến màu ở studio.css */
+.studio .head { display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+.studio .head .acts { margin-left: auto; display: flex; gap: 10px; }
+.studio h2 { font-size: 17px; font-weight: 700; }
+
+.studio .record { margin-top: 28px; }
+.studio .record-note { font-size: 14px; color: var(--muted); margin: 4px 0 18px; max-width: 70ch; }
+.studio .tape.big .seg:hover { filter: brightness(1.1); }
+.studio .qnums { display: flex; gap: 4px; margin-top: 8px; }
+.studio .qnums span { flex: 1; text-align: center; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; }
+.studio .record .legend { margin-top: 16px; }
+
+.studio .cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 20px; align-items: start; }
+.studio .score { display: flex; align-items: baseline; gap: 6px; margin: 10px 0 18px; }
+.studio .score b { font-size: 52px; font-weight: 800; letter-spacing: -.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.studio .score span { color: var(--muted); }
+.studio .metric + .metric { margin-top: 14px; }
+.studio .metric .row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; }
+.studio .metric .row b { font-variant-numeric: tabular-nums; }
+.studio .bar { height: 6px; border-radius: 3px; background: var(--raised); }
+.studio .bar i { display: block; height: 100%; border-radius: 3px; background: var(--brand); }
+.studio .foot { font-size: 13px; color: var(--muted); margin-top: 16px; }
+.studio .foot.top { margin-top: 2px; }
+
+.studio .anx-value { margin-top: 14px; }
+.studio .anx-value b { font-size: 34px; font-weight: 800; }
+.studio .anx-value .lvl { font-weight: 600; margin-left: 8px; }
+.studio .trend { display: inline-block; margin-top: 10px; font-size: 13px; padding: 4px 10px; border-radius: 999px; }
+.studio .trend.down { color: var(--ok); background: rgba(52, 211, 153, .12); }
+.studio .trend.up { color: var(--star); background: rgba(245, 196, 81, .12); }
+.studio .feedback-btn { width: 100%; margin-top: 18px; padding: 10px 14px; font-size: 14px; }
+
+.studio .fb .summary { font-size: 14px; color: var(--text-2); margin-top: 10px; }
+.studio .fb h3 { font-size: 14px; color: var(--muted); font-weight: 600; margin: 14px 0 6px; }
+.studio .fb ul { margin: 0; padding-left: 18px; font-size: 14px; color: #d6dcea; }
+.studio .fb li + li { margin-top: 4px; }
+
+@media (max-width: 960px) { .studio .cols { grid-template-columns: 1fr; } }
+@media (max-width: 760px) {
+    .studio .head .acts { margin-left: 0; width: 100%; }
+    .studio .head .acts .btn { flex: 1; padding: 12px 10px; }
+    .studio .score b { font-size: 44px; }
+    .studio .qnums span { font-size: 11px; }
+    .studio .qnums .w { display: none; }
+}

@@ -8,6 +8,9 @@ namespace MockviewAI.Models.Ai
     // 
     public class InterviewAnswer
     {
+        // [QUESTION-BANK] Mã câu trong bộ đề (null = câu hỏi kiểu cũ, không có đáp án để so)
+        public string? QuestionId { get; set; }
+
         public string Question { get; set; } = string.Empty;
         public string Answer { get; set; } = string.Empty;
 

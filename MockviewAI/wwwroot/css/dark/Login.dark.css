@@ -1,0 +1,12 @@
+/* Login.dark.css — SINH TỰ ĐỘNG từ Login.css bởi tools/dark-theme/make_dark_css.py (Đợt 5).
+   Không sửa tay: sửa CSS gốc hoặc công cụ rồi chạy lại. Nạp SAU Login.css và theme.css. */
+html:root { --bg-color: #0f1626; --text-main: #e8ecf6; --text-muted: #93a0ba; --border-color: #2a3756; --input-bg: #161f34; }
+html .login-box { background: #161f34 !important; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18) !important; }
+html .step-num { background: #161f34 !important; }
+html .badge-beta { background-color: rgba(240, 177, 76, 0.14) !important; color: #f0b47f !important; }
+html .btn-google { background: #161f34 !important; }
+html .btn-google:hover { background: #161f34 !important; }
+html .divider { color: #93a0ba !important; }
+html .input-group input::placeholder { color: #a9b6c6 !important; }
+html .icon-left { color: #a9b6c6 !important; }
+html .toggle-password { color: #a9b6c6 !important; }

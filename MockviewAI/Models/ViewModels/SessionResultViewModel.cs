@@ -5,6 +5,8 @@ namespace MockviewAI.Models.ViewModels
     public class SessionResultViewModel
     {
         public int SessionId { get; set; }
+        // Số câu trả lời không có ý nghĩa (tính sai, 0 điểm)
+        public int InvalidAnswerCount { get; set; }
         public string Position { get; set; } = string.Empty;
         public string InterviewerName { get; set; } = string.Empty;
         public DateTime StartedAt { get; set; }
@@ -28,6 +30,18 @@ namespace MockviewAI.Models.ViewModels
         };
 
         public bool EmailRequested { get; set; }
+
+        // [QUESTION-BANK] Số câu theo 4 loại (chỉ có với buổi dùng bộ đề)
+        public int CorrectCount { get; set; }
+        public int AlternativePathCount { get; set; }
+        public int SpecialCount { get; set; }
+        public int WrongCount { get; set; }
+        public bool HasCategories => CorrectCount + AlternativePathCount + SpecialCount + WrongCount > 0;
+        // [UI-DARK] Nhãn từng câu theo thứ tự câu hỏi (null = câu bỏ qua / chưa xếp loại) -> vẽ "dải băng" ở trang Kết quả
+        public List<string?> AnswerCategories { get; set; } = new();
+
+        // [QUESTION-BANK] true = AI lỗi nên phần nội dung được chấm sơ bộ theo bộ đề (không dùng AI)
+        public bool IsPreliminaryScore { get; set; }
 
         public string AiSummary { get; set; } = string.Empty;
         public List<string> Strengths { get; set; } = new();

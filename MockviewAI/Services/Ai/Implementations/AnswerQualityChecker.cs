@@ -19,7 +19,6 @@ namespace MockviewAI.Services.Ai.Implementations
     
     public class AnswerQualityChecker : IAnswerQualityChecker
     {
-        private const int MinWords = 5;
         private const int MinWordsForRepeatCheck = 6;
         private const double MinUniqueWordRatio = 0.4;
         private const double MaxGibberishRatio = 0.4;
@@ -46,6 +45,7 @@ namespace MockviewAI.Services.Ai.Implementations
         private static readonly Regex VowelRegex = new(
             "[aeiouyàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹ]",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex RepeatedChar = new(@"(\p{L})\1{3,}", RegexOptions.Compiled);
         private static readonly Regex LongConsonantRun = new(
             "[^aeiouyàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹ\\P{L}]{5,}",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -64,8 +64,8 @@ namespace MockviewAI.Services.Ai.Implementations
             if (words.Any(w => BadWords.Contains(w)))
                 return "Vui lòng dùng ngôn ngữ lịch sự như trong một buổi phỏng vấn thật.";
 
-            if (words.Count < MinWords)
-                return "Câu trả lời quá ngắn. Hãy nói đầy đủ hơn, ít nhất một vài câu.";
+            if (words.Count == 0)
+                return "Câu trả lời chưa có nội dung.";
 
             if (words.Count >= MinWordsForRepeatCheck)
             {
@@ -76,15 +76,16 @@ namespace MockviewAI.Services.Ai.Implementations
 
             int gibberish = words.Count(IsGibberish);
             if (gibberish / (double)words.Count >= MaxGibberishRatio)
-                return "Hệ thống chưa hiểu câu trả lời của bạn. Hãy nói rõ ràng hơn hoặc gõ lại câu trả lời.";
+                return "Câu trả lời chưa có ý nghĩa (giống chuỗi ký tự gõ ngẫu nhiên).";
 
             return null;
         }
 
-        // "Từ" không có nguyên âm (và không phải viết tắt kỹ thuật), hoặc có chuỗi 5+ phụ âm liền nhau
+        // "Từ" không có nguyên âm (và không phải viết tắt kỹ thuật), có chuỗi 5+ phụ âm liền nhau, hoặc 1 chữ lặp 4+ lần
         private static bool IsGibberish(string word)
         {
             if (word.All(char.IsDigit) || TechAcronyms.Contains(word)) return false;
+            if (RepeatedChar.IsMatch(word)) return true;
             if (!VowelRegex.IsMatch(word)) return word.Length > 1;
             return LongConsonantRun.IsMatch(word);
         }

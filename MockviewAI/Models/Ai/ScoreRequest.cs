@@ -9,7 +9,9 @@ namespace MockviewAI.Models.Ai
     public class ScoreRequest
     {
         public string Position { get; set; } = string.Empty;   // e.g. "Lập trình viên"
-        public List<InterviewAnswer> Answers { get; set; } = new();
+        public List<InterviewAnswer> Answers { get; set; } = new();            // câu hợp lệ -> gửi AI chấm nội dung
+        // Câu không có ý nghĩa (tính SAI): không gửi AI, chỉ dùng để đo cách nói và hạ điểm nội dung theo tỉ lệ
+        public List<InterviewAnswer> InvalidAnswers { get; set; } = new();
 
         // Dùng để ước tính dấu hiệu lo lắng: tổng số câu của buổi và số câu bị bỏ qua
         public int QuestionCount { get; set; }

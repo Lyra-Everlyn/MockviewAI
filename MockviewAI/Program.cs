@@ -11,6 +11,8 @@ using MockviewAI.Services.Ai;
 using MockviewAI.Services.Ai.Implementations;
 using MockviewAI.Services.Ai.Interfaces;
 using MockviewAI.Services.Auth;
+using MockviewAI.Services.InterviewQuestions.Implementations;
+using MockviewAI.Services.InterviewQuestions.Interfaces;
 using MockviewAI.Services.Emails;
 using MockviewAI.Services.Feedbacks;
 using MockviewAI.Services.FileStorage.Implementations;
@@ -59,6 +61,7 @@ namespace MockviewAI
             var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection") ?? throw new InvalidOperationException("Redis connection string is missing.");
             var redisOptions = ConfigurationOptions.Parse(redisConnectionString);
 
+
             redisOptions.AbortOnConnectFail = false;
             builder.Services.AddStackExchangeRedisCache(options =>
             {
@@ -96,6 +99,13 @@ namespace MockviewAI
             builder.Services.AddSingleton<IDeliveryAnalyzer, DeliveryAnalyzer>();
             builder.Services.AddSingleton<IAnxietyEstimator, AnxietyEstimator>();
             builder.Services.AddSingleton<IAnswerQualityChecker, AnswerQualityChecker>();
+
+            // [QUESTION-BANK] Bộ đề có đáp án + xếp loại 4 nhãn. Đọc Data/InterviewQuestions/question-bank.v1.json một lần khi chạy.
+            builder.Services.AddSingleton<IQuestionBankStore>(sp => new JsonQuestionBankStore(
+                Path.Combine(sp.GetRequiredService<IWebHostEnvironment>().ContentRootPath, "Data", "InterviewQuestions")));
+            builder.Services.AddSingleton<IQuestionSelector>(sp => new RandomQuestionSelector(sp.GetRequiredService<IQuestionBankStore>()));
+            builder.Services.AddSingleton<IAnswerVerdictValidator, AnswerVerdictValidator>();
+            builder.Services.AddSingleton<IOfflineAnswerScorer, BankKeywordScorer>();   // chấm sơ bộ khi AI lỗi
 
             if (string.Equals(builder.Configuration["Ai:Provider"], "Gemini", StringComparison.OrdinalIgnoreCase))
             {
@@ -252,13 +262,16 @@ namespace MockviewAI
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 dbContext.Database.Migrate();
+                dbContext.Database.Migrate();
             }
 
             //app.UseHttpsRedirection();
             app.UseRouting();
 
+
             // --- Enable rate limitter
             app.UseRateLimiter();
+
 
             // --- Enforce security workflow: Identity check before permission check
             app.UseAuthentication();

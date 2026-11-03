@@ -13,5 +13,11 @@ namespace MockviewAI.Services.Exceptions
 
         // true = lỗi do cấu hình (sai key, sai tên model...): bấm "Chấm lại" cũng không hết, phải sửa cấu hình
         public bool IsConfigurationError { get; }
+
+        // true = lỗi tạm thời (quá tải 503, hết lượt 429, mất mạng, hết giờ chờ): thử model dự phòng / thử lại sau
+        public bool IsTransient { get; init; }
+
+        // true = model này không nhận yêu cầu (400) hoặc không tồn tại (404): thử model dự phòng khác
+        public bool CanTryOtherModel { get; init; }
     }
 }

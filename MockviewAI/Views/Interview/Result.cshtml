@@ -1,15 +1,12 @@
 @model MockviewAI.Models.ViewModels.SessionResultViewModel
+@using MockviewAI.Models.Ai
 @{
     Layout = null;
     ViewData["ActiveNav"] = "practice";   // mục sáng trên thanh menu dùng chung
-    // Chữ cái đầu của tên người đang đăng nhập (avatar góc phải)
-    var userName = User.Identity?.Name ?? "";
-    var initial = string.IsNullOrWhiteSpace(userName) ? "?" : userName.Substring(0, 1).ToUpper();
-    // Ảnh Google của tài khoản (nếu có), không có thì hiện chữ cái đầu
-    var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
     // Dấu hiệu lo lắng do hệ thống ước tính (0 = chưa đủ dữ liệu: buổi dừng sớm hoặc dữ liệu cũ)
     var hasAnxiety = Model.AnxietyIndicator > 0;
     var anxietyChange = Model.PreviousAnxietyIndicator > 0 ? Model.AnxietyIndicator - Model.PreviousAnxietyIndicator : 0;
+    var anxietyClass = Model.AnxietyIndicator <= 3 ? "c-dung" : Model.AnxietyIndicator <= 6 ? "c-dac_biet" : "c-sai";
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -17,156 +14,155 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kết quả buổi luyện - MockviewAI</title>
-    <!-- Font Inter chuẩn thiết kế -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="~/css/Result.css">
-    <link rel="stylesheet" href="~/css/theme.css"> <!-- thử giao diện mới (theme.css) -->
+    @* [UI-DARK] Đợt 4 (02/11): giao diện tối "phòng thu". Bản sáng cũ: Result.css + theme.css *@
+    <link rel="stylesheet" href="~/css/studio.css">
+    <link rel="stylesheet" href="~/css/studio-result.css">
 </head>
-<body>
-
-    <!-- Header Desktop -->
+<body class="studio">
     <partial name="Partials/_TopNav" />
 
-    <main class="main-container">
-        <!-- Phần tiêu đề trang -->
-        <div class="page-title-section">
-            <h1>Kết quả buổi luyện</h1>
-            <p class="subtitle">
-                @Model.Position &middot; @Model.StartedAt.ToString("dd/MM") &middot; @Model.QuestionCount câu
-                <span class="desktop-only">&middot; Người phỏng vấn: @Model.InterviewerName</span>
-            </p>
+    <main class="wrap">
+        <div class="head">
+            <div>
+                <h1>Kết quả buổi luyện</h1>
+                <p class="sub">@Model.Position &middot; @Model.StartedAt.ToString("dd/MM") &middot; @Model.QuestionCount câu &middot; Người phỏng vấn: @Model.InterviewerName</p>
+            </div>
+            <div class="acts">
+                <a href="/Home/InterviewDetail/@Model.SessionId" class="btn btn-main">Xem lại hội thoại</a>
+                <a href="/Interview/Create" class="btn btn-ghost">Luyện buổi mới</a>
+            </div>
         </div>
 
-        <!-- Bố cục Grid chính (Desktop 2 cột / Mobile 1 cột) -->
-        <div class="result-grid">
-            
-            <!-- Cột trái: Thẻ điểm tổng & Thanh tiến trình -->
-            <div class="card score-card">
-                <div class="card-header">
-                    <span class="card-title">Điểm tổng</span>
-                    <span class="badge-reference">Điểm tham khảo</span>
-                </div>
-
-                <!-- Hiển thị con số điểm -->
-                <div class="score-display">
-                    <span class="score-number">@(Model.HasScore ? Model.TotalScore.ToString() : "—")</span>
-                    <span class="score-total">/100</span>
-                </div>
-
-                @if (!Model.HasScore)
-                {
-                    @* [#21] Buổi dừng trước khi trả lời câu nào: không có điểm, không hiện thanh 0 *@
-                    <p class="score-footer">Buổi này dừng trước khi bạn trả lời câu nào nên chưa có điểm. Hãy luyện lại để nhận nhận xét của AI.</p>
-                }
-                else
-                {
-                @* Thanh tiến trình 1: Nội dung *@
-                <div class="metric-item">
-                    <div class="metric-info">
-                        <span class="metric-label desktop-only">Nội dung câu trả lời</span>
-                        <span class="metric-label mobile-only">Nội dung</span>
-                        <span class="metric-value">@(Model.HasContentScore ? Model.ContentScore.ToString() : "—")</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: @(Model.HasContentScore ? Model.ContentScore : 0)%;"></div>
-                    </div>
-                </div>
-
-                @* Thanh tiến trình 2: Cách nói *@
-                <div class="metric-item">
-                    <div class="metric-info">
-                        <span class="metric-label">Cách nói</span>
-                        <span class="metric-value">@Model.DeliveryScore</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: @(Model.DeliveryScore)%;"></div>
-                    </div>
-                </div>
-
-                }
-
-                @if (Model.HasScore && !Model.HasContentScore)
-                {
-                    <p class="score-footer">AI đang bận nên chưa nhận xét được nội dung. Điểm tổng lúc này chỉ tính phần cách nói.</p>
-                }
-
-                <!-- Chú thích cách tính điểm -->
-                <div class="score-footer">
-                    Điểm tổng = 60% nội dung + 40% cách nói. <a href="#" title="Chưa có trang giải thích cách tính điểm">Cách tính điểm?</a>
-                </div>
-            </div>
-
-            <!-- Cột phải: Mức lo lắng & Các nút hành động -->
-            <div class="actions-column">
-                
-                <!-- Khối màu xanh lá: Đánh giá mức lo lắng -->
-                <div class="anxiety-card">
-                    <div class="anxiety-title">Dấu hiệu lo lắng (hệ thống ước tính, 1–10)</div>
-                    <div class="anxiety-body">
-                        @if (hasAnxiety)
-                        {
-                            <div class="anxiety-values">
-                                <strong>@Model.AnxietyIndicator</strong>/10 &middot; @Model.AnxietyLevelText
-                            </div>
-                            if (Model.PreviousAnxietyIndicator > 0)
-                            {
-                                <span class="badge-reduced">@(anxietyChange < 0 ? $"Giảm {-anxietyChange} so với buổi trước" : anxietyChange > 0 ? $"Tăng {anxietyChange} so với buổi trước" : "Không đổi so với buổi trước")</span>
-                            }
-                            <div class="anxiety-note">Ước tính tự động từ cách nói của bạn (từ đệm, khoảng lặng, tốc độ). Không phải đánh giá y tế.</div>
-                        }
-                        else
-                        {
-                            <div class="anxiety-values" style="font-size: 15px;">Chưa đủ dữ liệu để ước tính. Hãy trả lời ít nhất 1 câu.</div>
-                        }
-                    </div>
-                </div>
-
-                @if (Model.EmailRequested)
-                {
-                    <div class="email-note">Kết quả này cũng được gửi về email tài khoản của bạn.</div>
-                }
-
-                <!-- Cụm nút hành động -->
-                <div class="btn-group">
-                    <a href="/Home/InterviewDetail/@Model.SessionId" class="btn btn-primary">Xem lại hội thoại buổi này</a>
-                    <a href="/Feedback" class="btn btn-feedback">Góp ý cho BETA</a>
-                    <a href="/Home" class="btn btn-outline">Về trang chủ</a>
-                </div>
-
-            </div>
-
-        </div>
-
-        @if (Model.HasScore)
+        @if (Model.HasCategories)
         {
-            <!-- Nhận xét chi tiết: AI nhận xét nội dung + gợi ý cách nói -->
-            <section class="feedback-card">
-                <h2>Nhận xét chi tiết</h2>
-                @if (!string.IsNullOrWhiteSpace(Model.AiSummary))
+            <!-- [QUESTION-BANK] Dải băng: cách tiếp cận từng câu (không phải thang điểm) -->
+            <section class="panel record" aria-label="Cách bạn tiếp cận từng câu">
+                <h2>Cách bạn tiếp cận từng câu</h2>
+                <p class="record-note">Đây là bản ghi cách trả lời, không phải thang điểm. Hơi đặc biệt và Đặc biệt vẫn là câu trả lời đúng, chỉ là bạn đi theo đường khác.</p>
+                <div class="tape big">
+                    @for (int i = 0; i < Model.AnswerCategories.Count; i++)
+                    {
+                        var c = Model.AnswerCategories[i];
+                        var name = AnswerCategory.IsValid(c) ? AnswerCategory.DisplayName(c) : "Chưa xếp loại / bỏ qua";
+                        <a class="seg @(AnswerCategory.IsValid(c) ? "is-" + c : "is-none")" href="/Home/InterviewDetail/@Model.SessionId#cau-@(i + 1)"
+                           title="Câu @(i + 1): @name" aria-label="Câu @(i + 1): @name">@(AnswerCategory.IsValid(c) ? AnswerCategory.Icon(c) : "–")</a>
+                    }
+                </div>
+                <div class="qnums" aria-hidden="true">
+                    @for (int i = 1; i <= Model.AnswerCategories.Count; i++) { <span><span class="w">Câu </span>@i</span> }
+                </div>
+                <div class="legend">
+                    <span><i class="bg-dung"></i>@Model.CorrectCount Đúng</span>
+                    <span><i class="bg-hoi_dac_biet"></i>@Model.AlternativePathCount Hơi đặc biệt</span>
+                    <span><i class="bg-dac_biet"></i>@Model.SpecialCount Đặc biệt</span>
+                    <span><i class="bg-sai"></i>@Model.WrongCount Sai</span>
+                </div>
+                @if (Model.IsPreliminaryScore)
                 {
-                    <p class="feedback-summary">@Model.AiSummary</p>
-                }
-                @if (Model.Strengths.Count > 0)
-                {
-                    <h3>Điểm mạnh</h3>
-                    <ul>@foreach (var item in Model.Strengths) { <li>@item</li> }</ul>
-                }
-                @if (Model.Improvements.Count > 0)
-                {
-                    <h3>Nên cải thiện</h3>
-                    <ul>@foreach (var item in Model.Improvements) { <li>@item</li> }</ul>
-                }
-                @if (Model.DeliveryTips.Count > 0)
-                {
-                    <h3>Gợi ý về cách nói</h3>
-                    <ul>@foreach (var item in Model.DeliveryTips) { <li>@item</li> }</ul>
+                    <p class="note warn">AI đang bận nên phần nội dung được <strong>chấm sơ bộ theo bộ đề</strong> (so các ý cốt lõi), không dùng AI. Cách chấm này chưa nhận ra câu trả lời "Đặc biệt"; hãy luyện lại khi AI hoạt động để có nhận xét chi tiết.</p>
                 }
             </section>
         }
+
+        <div class="cols">
+            <!-- Điểm -->
+            <section class="panel">
+                <h2>Điểm tham khảo</h2>
+                <div class="score"><b>@(Model.HasScore ? Model.TotalScore.ToString() : "—")</b><span>/100</span></div>
+                @if (!Model.HasScore)
+                {
+                    @* [#21] Buổi dừng trước khi trả lời câu nào: không có điểm *@
+                    <p class="note info">Buổi này dừng trước khi bạn trả lời câu nào nên chưa có điểm. Hãy luyện lại để nhận nhận xét của AI.</p>
+                }
+                else
+                {
+                    <div class="metric">
+                        <div class="row"><span>Nội dung câu trả lời</span><b>@(Model.HasContentScore ? Model.ContentScore.ToString() : "—")</b></div>
+                        <div class="bar"><i style="width: @(Model.HasContentScore ? Model.ContentScore : 0)%"></i></div>
+                    </div>
+                    <div class="metric">
+                        <div class="row"><span>Cách nói</span><b>@Model.DeliveryScore</b></div>
+                        <div class="bar"><i style="width: @(Model.DeliveryScore)%"></i></div>
+                    </div>
+                }
+                @if (Model.InvalidAnswerCount > 0)
+                {
+                    <p class="note err">@Model.InvalidAnswerCount câu trả lời chưa có ý nghĩa nên được tính sai (0 điểm). Xem lại ở "Xem lại hội thoại".</p>
+                }
+                @if (Model.IsPreliminaryScore && !Model.HasCategories)
+                {
+                    <p class="note warn">AI đang bận nên phần nội dung được chấm sơ bộ theo bộ đề, không dùng AI.</p>
+                }
+                @if (Model.HasScore && !Model.HasContentScore)
+                {
+                    <p class="note warn">AI đang bận nên chưa nhận xét được nội dung. Điểm tổng lúc này chỉ tính phần cách nói.</p>
+                }
+                <p class="foot">Điểm tổng = 60% nội dung + 40% cách nói.</p>
+            </section>
+
+            <!-- Dấu hiệu lo lắng -->
+            <section class="panel anx">
+                <h2>Dấu hiệu lo lắng</h2>
+                <p class="foot top">Hệ thống ước tính, thang 1–10</p>
+                @if (hasAnxiety)
+                {
+                    <div class="anx-value"><b>@Model.AnxietyIndicator</b><span class="muted">/10</span><span class="lvl @anxietyClass">@Model.AnxietyLevelText</span></div>
+                    if (Model.PreviousAnxietyIndicator > 0)
+                    {
+                        <span class="trend @(anxietyChange <= 0 ? "down" : "up")">@(anxietyChange < 0 ? $"Giảm {-anxietyChange} so với buổi trước" : anxietyChange > 0 ? $"Tăng {anxietyChange} so với buổi trước" : "Bằng buổi trước")</span>
+                    }
+                    <p class="foot">Ước tính từ từ đệm, khoảng lặng, tốc độ nói. Không phải đánh giá y tế.</p>
+                }
+                else
+                {
+                    <p class="note info">Chưa đủ dữ liệu để ước tính. Hãy trả lời ít nhất 1 câu.</p>
+                }
+                @if (Model.EmailRequested)
+                {
+                    <p class="note info">Kết quả này cũng được gửi về email tài khoản của bạn.</p>
+                }
+                <a href="/Feedback" class="btn btn-ghost feedback-btn">Góp ý cho bản BETA</a>
+            </section>
+
+            <!-- Nhận xét chi tiết -->
+            <section class="panel fb">
+                <h2>Nhận xét chi tiết</h2>
+                @if (!Model.HasScore)
+                {
+                    <p class="foot">Chưa có nhận xét cho buổi này.</p>
+                }
+                else
+                {
+                    if (!string.IsNullOrWhiteSpace(Model.AiSummary))
+                    {
+                        <p class="summary">@Model.AiSummary</p>
+                    }
+                    if (Model.Strengths.Count > 0)
+                    {
+                        <h3>Điểm mạnh</h3>
+                        <ul>@foreach (var item in Model.Strengths) { <li>@item</li> }</ul>
+                    }
+                    if (Model.Improvements.Count > 0)
+                    {
+                        <h3>Nên cải thiện</h3>
+                        <ul>@foreach (var item in Model.Improvements) { <li>@item</li> }</ul>
+                    }
+                    if (Model.DeliveryTips.Count > 0)
+                    {
+                        <h3>Cách nói</h3>
+                        <ul>@foreach (var item in Model.DeliveryTips) { <li>@item</li> }</ul>
+                    }
+                }
+            </section>
+        </div>
     </main>
 
+    <nav class="mobile-bottom-nav" aria-label="Điều hướng">
+        <a href="/Home">Trang chủ</a>
+        <a href="/Interview/Create" class="active">Luyện</a>
+        <a href="/Home/History">Lịch sử</a>
+        <a href="/Profile">Hồ sơ</a>
+    </nav>
     <partial name="Partials/_Notify" />
 </body>
 </html>

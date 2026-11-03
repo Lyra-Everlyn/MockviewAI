@@ -1,0 +1,50 @@
+/* studio-create.css — Tạo buổi luyện (giao diện tối, Đợt 4). Biến màu ở studio.css */
+.studio .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.studio fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+
+.studio .create-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 24px; margin-top: 28px; align-items: start; }
+
+/* Người phỏng vấn */
+.studio .people { display: grid; gap: 12px; }
+.studio .person { position: relative; display: grid; grid-template-columns: 56px 1fr; gap: 16px; padding: 18px 20px; border-radius: 16px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; transition: border-color .15s, background-color .15s; }
+.studio .person:hover { border-color: #3b4a70; }
+.studio .person input { position: absolute; opacity: 0; pointer-events: none; }
+.studio .person .face { width: 56px; height: 56px; border-radius: 16px; font-size: 22px; }
+.studio .person-body { display: flex; flex-direction: column; }
+.studio .pname { font-weight: 700; font-size: 17px; }
+.studio .prole { color: var(--muted); font-size: 14px; }
+.studio .pask { margin-top: 8px; font-size: 14px; color: var(--text-2); }
+.studio .pask em { font-style: normal; color: var(--muted); }
+.studio .picked { display: none; color: var(--brand); font-weight: 700; font-size: 13px; margin-top: 8px; }
+.studio .person:has(input:checked) { border-color: var(--brand); background: linear-gradient(180deg, rgba(143, 134, 255, .10), rgba(143, 134, 255, .03)); }
+.studio .person:has(input:checked) .picked { display: block; }
+.studio .person:has(input:focus-visible) { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+/* Lựa chọn dạng nút (vị trí, số câu) */
+.studio .choice { position: relative; cursor: pointer; }
+.studio .choice input { position: absolute; opacity: 0; pointer-events: none; }
+.studio .choice span { display: block; text-align: center; }
+.studio .pills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: var(--raised); padding: 4px; border-radius: var(--r-md); }
+.studio .pills .choice span { padding: 9px 6px; border-radius: 9px; font-size: 14px; font-weight: 600; color: var(--muted); }
+.studio .pills .choice input:checked + span { background: var(--panel); color: var(--text); box-shadow: 0 0 0 1px var(--line); }
+.studio .counts { display: flex; gap: 6px; }
+.studio .counts .choice { flex: 1; }
+.studio .counts .choice span { padding: 10px 0; border-radius: 10px; border: 1px solid var(--line); font-weight: 700; }
+.studio .counts .choice:hover span { border-color: #3b4a70; }
+.studio .counts .choice input:checked + span { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+
+.studio .field + .field { margin-top: 22px; }
+.studio .check-row { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--text-2); cursor: pointer; }
+.studio .check-row input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--brand); flex: none; }
+
+.studio .summary { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+.studio .summary .tape { margin: 8px 0 6px; }
+.studio .summary p { font-size: 14px; color: var(--muted); }
+.studio .start { width: 100%; margin-top: 16px; padding: 15px; font-size: 16px; }
+
+@media (max-width: 760px) {
+    .studio .create-grid { grid-template-columns: 1fr; gap: 16px; margin-top: 18px; }
+    .studio .person { padding: 14px; grid-template-columns: 48px 1fr; gap: 12px; }
+    .studio .person .face { width: 48px; height: 48px; font-size: 19px; }
+    .studio .pills .choice span { font-size: 13px; white-space: nowrap; padding: 9px 2px; }
+}

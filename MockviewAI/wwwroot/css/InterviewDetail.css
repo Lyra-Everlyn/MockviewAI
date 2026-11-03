@@ -378,3 +378,19 @@ body {
         display: none !important;
     }
 }
+
+/* ===== [QUESTION-BANK] Xếp loại từng câu ===== */
+.verdict-bubble { font-size: 13px; line-height: 1.5; text-align: left; border: 1px solid #e2e8f0; background: #f8fafc; color: #334155; }
+.verdict-bubble.is-dung { background: #ecfdf5; border-color: #a7f3d0; }
+.verdict-bubble.is-hoi_dac_biet { background: #eff6ff; border-color: #bfdbfe; }
+.verdict-bubble.is-dac_biet { background: #f5f3ff; border-color: #ddd6fe; }
+.verdict-bubble.is-sai { background: #fef2f2; border-color: #fecaca; }
+.verdict-head { font-weight: 700; margin-bottom: 4px; }
+.verdict-bubble.is-dung .verdict-head { color: #047857; }
+.verdict-bubble.is-hoi_dac_biet .verdict-head { color: #1d4ed8; }
+.verdict-bubble.is-dac_biet .verdict-head { color: #6d28d9; }
+.verdict-bubble.is-sai .verdict-head { color: #b91c1c; }
+.verdict-desc { font-size: 12px; opacity: .8; margin-bottom: 4px; }
+.verdict-line { margin-top: 2px; }
+.verdict-line.is-missing { color: #b45309; }
+.verdict-feedback { margin-top: 6px; font-style: italic; }

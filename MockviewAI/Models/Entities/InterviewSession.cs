@@ -58,6 +58,14 @@ namespace MockviewAI.Models.Entities
         // Người dùng đồng ý nhận kết quả qua email (tick ở trang Tạo buổi luyện)
         public bool EmailResult { get; set; }
 
+        // [QUESTION-BANK] Phiên bản bộ đề đã dùng cho buổi (null = buổi cũ / câu hỏi kiểu cũ)
+        [MaxLength(30)]
+        public string? QuestionBankVersion { get; set; }
+
+        // [QUESTION-BANK] Cách chấm buổi này: ai | bank_rules | delivery_only (null = buổi cũ, chấm bằng AI hoặc dự phòng)
+        [MaxLength(20)]
+        public string? ScoringMode { get; set; }
+
         public List<SessionAnswer> Answers { get; set; } = new();
     }
 }

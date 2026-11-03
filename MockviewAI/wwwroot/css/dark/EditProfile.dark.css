@@ -1,0 +1,10 @@
+/* EditProfile.dark.css — SINH TỰ ĐỘNG từ EditProfile.css bởi tools/dark-theme/make_dark_css.py (Đợt 5).
+   Không sửa tay: sửa CSS gốc hoặc công cụ rồi chạy lại. Nạp SAU EditProfile.css và theme.css. */
+html:root { --primary-light: rgba(76, 117, 240, 0.14); --bg-color: #0f1626; --card-bg: #161f34; --text-main: #e8ecf6; --text-muted: #b1b5be; --border-color: #2a3756; }
+html .desktop-header { background: #161f34 !important; }
+html .badge-beta { background-color: rgba(240, 177, 76, 0.14) !important; color: #f0b47f !important; }
+html .edit-profile-card { box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18) !important; }
+html .form-input, html .form-select { background-color: #161f34 !important; }
+html .status-btn { background-color: #161f34 !important; }
+html .btn-outline { background-color: #161f34 !important; }
+html .btn-outline:hover { background-color: #161f34 !important; }
