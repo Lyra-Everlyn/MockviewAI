@@ -100,33 +100,51 @@ In the root directory of the project (where `docker-compose.yml` is located), cr
 # MySQL Root Password for the container
 MYSQL_ROOT_PASSWORD=change-me
 
-# --- Internal Docker Network Connections ---
-ConnectionStrings__DefaultConnection=Server=mysql;Port=3306;Database=mockview_database;Uid=root;Pwd=change-me;
-ConnectionStrings__RedisConnection=redis:6379
+# Database
+ConnectionStrings__Default=CHANGE_ME;
+ConnectionStrings__RedisConnection=CHANGE_ME
 
-# --- Google Authentication ---
-Authentication__Google__ClientId=YOUR_GOOGLE_CLIENT_ID
-Authentication__Google__ClientSecret=YOUR_GOOGLE_CLIENT_SECRET
+# Cloudflare Turnstile
+Turnstile__SiteKey=CHANGE_ME
+Turnstile__SecretKey=CHANGE_ME
 
-# --- SMTP Configuration ---
+# Email (SMTP)
 SmtpSettings__Server=smtp.gmail.com
-SmtpSettings__Port=587
-SmtpSettings__SenderEmail=your_email@gmail.com
-SmtpSettings__Password=your_gmail_app_password
+SmtpSettings__Port=CHANGE_ME
+SmtpSettings__Username=CHANGE_ME
+SmtpSettings__SenderName=CHANGE_ME
+SmtpSettings__SenderEmail=CHANGE_ME
+SmtpSettings__Password=CHANGE_ME
 
-# --- Cloudinary ---
-CloudinarySettings__CloudName=YOUR_CLOUD_NAME
-CloudinarySettings__ApiKey=YOUR_API_KEY
-CloudinarySettings__ApiSecret=YOUR_API_SECRET
+# Google Authentication
+Authentication__Google__ClientId=CHANGE_ME
+Authentication__Google__ClientSecret=CHANGE_ME
 
-# --- AI Scoring (Gemini) ---
+# Cloudinary
+CloudinarySettings__CloudName=CHANGE_ME
+CloudinarySettings__ApiSecret=CHANGE_ME
+CloudinarySettings__ApiKey=CHANGE_ME
+
+# AI Configuration
 Ai__Provider=Gemini
-Gemini__ApiKey=YOUR_GEMINI_API_KEY
-Gemini__Model=gemini-2.5-flash
+Gemini__Model=gemini-3.6-flash
+Gemini__ApiKey=CHANGE_ME
 
-# --- Cloudflare Turnstile ---
-Turnstile__SiteKey=YOUR_TURNSTILE_SITE_KEY
-Turnstile__SecretKey=YOUR_TURNSTILE_SECRET_KEY
+# Gemini API Keys Array
+Gemini__ApiKeys__0=CHANGE_ME
+Gemini__ApiKeys__1=CHANGE_ME
+Gemini__ApiKeys__2=CHANGE_ME
+Gemini__ApiKeys__3=CHANGE_ME
+Gemini__ApiKeys__4=CHANGE_ME
+Gemini__ApiKeys__5=CHANGE_ME
+
+# Groq API Keys Array
+Groq__ApiKeys__0=CHANGE_ME
+Groq__ApiKeys__1=CHANGE_ME
+Groq__ApiKeys__2=CHANGE_ME
+Groq__ApiKeys__3=CHANGE_ME
+Groq__ApiKeys__4=CHANGE_ME
+Groq__ApiKeys__5=CHANGE_ME
 ```
 
 **2. Launch the application**
