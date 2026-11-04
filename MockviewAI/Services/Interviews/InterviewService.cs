@@ -175,6 +175,11 @@ namespace MockviewAI.Services.Interviews
                 current.Answer = answer;
                 current.DurationSeconds = dto.DurationSeconds is > 0 and < 600 ? dto.DurationSeconds : null;
                 current.LongestPauseSeconds = current.DurationSeconds == null ? null : LongestPause(dto.PausesSeconds);
+                // [VOICE] Chỉ lưu số đo giọng khi trả lời bằng giọng nói; giá trị lạ thì bỏ
+                bool spoken = current.DurationSeconds != null;
+                current.VoiceLevelDb = spoken ? VoiceMetrics.CleanLevel(dto.VoiceLevelDb) : null;
+                current.QuietRatio = spoken ? VoiceMetrics.CleanRatio(dto.QuietRatio) : null;
+                current.PitchVariation = spoken ? VoiceMetrics.CleanPitch(dto.PitchVariation) : null;
                 if (problem != null)
                     notice = live
                         ? $"{problem} Chế độ Thực chiến không cho trả lời lại nên câu này được tính là sai. Chuyển sang câu tiếp theo."
@@ -277,7 +282,10 @@ namespace MockviewAI.Services.Interviews
             Answer = a.Answer!,
             DurationSeconds = a.DurationSeconds,
             // Có đo khoảng lặng thì đưa vào chấm điểm; gõ tay thì để trống (không bị trừ điểm)
-            PausesSeconds = a.LongestPauseSeconds is double pause ? new List<double> { pause } : new List<double>()
+            PausesSeconds = a.LongestPauseSeconds is double pause ? new List<double> { pause } : new List<double>(),
+            VoiceLevelDb = a.VoiceLevelDb,
+            QuietRatio = a.QuietRatio,
+            PitchVariation = a.PitchVariation
         };
 
         // Gửi email ở nền: lỗi SMTP chỉ ghi log, không làm hỏng việc xem kết quả của người dùng
@@ -333,9 +341,18 @@ namespace MockviewAI.Services.Interviews
                 orderBy: q => q.OrderByDescending(s => s.StartedAt),
                 take: 1);
 
+            // [VOICE] Giọng nói cả buổi: trung bình các câu có số đo (cùng cách tính với DeliveryAnalyzer)
+            var voiced = session.Answers.Where(a => a.QuietRatio != null).ToList();
+            var levels = voiced.Where(a => a.VoiceLevelDb != null).Select(a => a.VoiceLevelDb!.Value).ToList();
+            var tones = session.Answers.Where(a => a.PitchVariation != null).Select(a => a.PitchVariation!.Value).ToList();
+
             return new SessionResultViewModel
             {
                 SessionId = session.Id,
+                HasVoice = voiced.Count > 0,
+                VoiceLevelLabel = VoiceMetrics.LevelLabel(levels.Count > 0 ? levels.Average() : null),
+                QuietPercent = voiced.Count > 0 ? (int)Math.Round(voiced.Average(a => a.QuietRatio!.Value) * 100) : null,
+                ToneLabel = VoiceMetrics.ToneLabel(tones.Count > 0 ? tones.Average() : null),
                 Position = session.Position,
                 InterviewerName = QuestionBank.Interviewers[session.Interviewer].Name,
                 StartedAt = session.StartedAt.ToLocalTime(),

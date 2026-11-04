@@ -43,3 +43,8 @@
     .studio .qnums span { font-size: 11px; }
     .studio .qnums .w { display: none; }
 }
+
+/* [VOICE] Đợt 7: giọng nói trong thẻ Điểm */
+.studio .voice-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--line); }
+.studio .voice-stats dt { font-size: 12px; color: var(--muted); }
+.studio .voice-stats dd { margin: 2px 0 0; font-weight: 700; font-size: 14px; }

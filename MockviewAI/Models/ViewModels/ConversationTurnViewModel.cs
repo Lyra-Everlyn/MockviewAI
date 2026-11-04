@@ -19,5 +19,7 @@
         public List<string> MetPoints { get; set; } = new();       // nội dung các ý đã đạt
         public List<string> MissingPoints { get; set; } = new();   // nội dung các ý còn thiếu
         public string? Feedback { get; set; }
+        // [VOICE] Đợt 7: "Âm lượng: Vừa · nói nhỏ 10% thời gian · ngữ điệu: Tự nhiên" (null = gõ chữ / không đo)
+        public string? VoiceText { get; set; }
     }
 }

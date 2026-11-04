@@ -65,3 +65,6 @@
     .studio .q { font-size: 18px; }
     .studio .turn { scroll-margin-top: 110px; }
 }
+
+/* [VOICE] Đợt 7: số đo giọng nói của từng câu */
+.studio .voice-line { font-size: 12.5px; color: var(--muted); margin-top: 6px; }

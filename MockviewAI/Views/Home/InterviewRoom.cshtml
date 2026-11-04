@@ -75,6 +75,7 @@
             <div class="ans-head">
                 <span class="rec">Đang ghi âm</span>
                 <span class="ans-label">Câu trả lời của bạn</span>
+                <span class="voice-level" id="voice-level" hidden></span>   @* [VOICE] Đợt 7: mức âm lượng khi đang nói *@
             </div>
             <div class="transcript-text" id="transcript-text">Câu trả lời của bạn sẽ hiện ở đây.</div>
             <div class="transcript-meta" id="transcript-meta" hidden></div>
@@ -82,6 +83,7 @@
                       placeholder="Gõ câu trả lời của bạn..."></textarea>
             <!-- Sóng âm đo trực tiếp từ micro: sóng động = hệ thống đang nghe thấy bạn -->
             <div class="wave wave-room" id="room-wave" aria-hidden="true" hidden></div>
+            <p class="volume-hint" id="volume-hint" role="status" hidden>Bạn đang nói hơi nhỏ. Hãy nói to và rõ hơn để người phỏng vấn nghe được.</p>
             <!-- 28/10: nói sai thì xoá bản ghi để nói lại (chỉ hiện khi đã có chữ) -->
             <button class="btn-clear-answer" id="btn-clear-answer" type="button" hidden>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg>
@@ -142,6 +144,7 @@
             <div class="wave" id="mic-wave" aria-hidden="true"></div>
             <div class="mic-test-box" id="mic-test-text">Chữ bạn nói sẽ hiện ở đây.</div>
             <p class="mic-test-status" id="mic-test-status"></p>
+            <p class="mic-level" id="mic-level" hidden></p>   @* [VOICE] âm lượng giọng khi nói thử *@
             <button class="btn btn-ghost" id="btn-mic-test" type="button">Bấm để nói thử</button>
             <div class="modal-actions">
                 <button class="btn btn-ghost" id="btn-mic-skip" type="button" hidden="@Model.IsLive">Bỏ qua, tôi sẽ gõ chữ</button>
@@ -150,6 +153,7 @@
         </div>
     </div>
 
+    <script src="~/js/VoiceAnalysis.js"></script>   @* [VOICE] Đợt 7: đo âm lượng + giọng điệu (phải nạp trước InterviewRoom.js) *@
     <script src="~/js/InterviewRoom.js"></script>
 </body>
 </html>

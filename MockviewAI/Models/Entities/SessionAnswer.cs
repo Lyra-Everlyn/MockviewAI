@@ -30,6 +30,11 @@ namespace MockviewAI.Models.Entities
         // Khoảng lặng dài nhất khi nói (giây). Null nếu gõ tay. Dùng để chấm điểm "khoảng lặng".
         public double? LongestPauseSeconds { get; set; }
 
+        // [VOICE] Đợt 7: âm lượng + giọng điệu đo trên trình duyệt (null = gõ chữ / bỏ qua / buổi cũ)
+        public double? VoiceLevelDb { get; set; }
+        public double? QuietRatio { get; set; }
+        public double? PitchVariation { get; set; }
+
         public bool Skipped { get; set; }
 
         // Số lần câu trả lời bị từ chối vì quá ngắn / lạc đề / vô nghĩa (tối đa 2 lần, lần 3 tính là bỏ qua)

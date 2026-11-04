@@ -65,6 +65,10 @@
                         <div class="asker"><span class="face sm @faceClass">@faceLetter</span><span class="qno">Câu @t.Number · @m.InterviewerName hỏi</span></div>
                         <p class="q">@t.Question</p>
                         <p class="mine @(t.Skipped ? "skipped" : "")">@(t.Skipped ? "(Đã bỏ qua câu này)" : t.Answer)</p>
+                        @if (!string.IsNullOrEmpty(t.VoiceText))
+                        {
+                            <p class="voice-line">@t.VoiceText</p>   @* [VOICE] Đợt 7 *@
+                        }
 
                         @if (t.InvalidReason != null)
                         {

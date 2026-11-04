@@ -46,6 +46,12 @@ namespace MockviewAI.Models.ViewModels
         // [LIVE-MODE] Buổi chạy ở chế độ Thực chiến
         public bool IsLive { get; set; }
 
+        // [VOICE] Đợt 7: giọng nói cả buổi (trung bình các câu nói bằng micro)
+        public bool HasVoice { get; set; }
+        public string VoiceLevelLabel { get; set; } = "—";
+        public int? QuietPercent { get; set; }
+        public string ToneLabel { get; set; } = "—";
+
         public string AiSummary { get; set; } = string.Empty;
         public List<string> Strengths { get; set; } = new();
         public List<string> Improvements { get; set; } = new();

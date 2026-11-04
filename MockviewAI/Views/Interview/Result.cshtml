@@ -85,6 +85,15 @@
                         <div class="row"><span>Cách nói</span><b>@Model.DeliveryScore</b></div>
                         <div class="bar"><i style="width: @(Model.DeliveryScore)%"></i></div>
                     </div>
+                    @if (Model.HasVoice)
+                    {
+                        <!-- [VOICE] Đợt 7: giọng nói (đo bằng micro trên trình duyệt) -->
+                        <dl class="voice-stats">
+                            <div><dt>Âm lượng</dt><dd class="@(Model.VoiceLevelLabel == "Vừa" ? "c-dung" : "c-dac_biet")">@Model.VoiceLevelLabel</dd></div>
+                            <div><dt>Thời gian nói nhỏ</dt><dd class="@(Model.QuietPercent > 30 ? "c-dac_biet" : "c-dung")">@Model.QuietPercent%</dd></div>
+                            <div><dt>Ngữ điệu</dt><dd class="@(Model.ToneLabel == "Đều đều" ? "c-dac_biet" : "c-dung")">@Model.ToneLabel</dd></div>
+                        </dl>
+                    }
                 }
                 @if (Model.InvalidAnswerCount > 0)
                 {

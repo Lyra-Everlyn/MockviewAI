@@ -83,7 +83,8 @@ namespace MockviewAI.Services.SessionHistory
                 CategoryName = AnswerCategory.DisplayName(a.Category),
                 CategoryIcon = AnswerCategory.Icon(a.Category),
                 CategoryDescription = AnswerCategory.Description(a.Category),
-                Feedback = a.Feedback
+                Feedback = a.Feedback,
+                VoiceText = VoiceMetrics.Describe(a.VoiceLevelDb, a.QuietRatio, a.PitchVariation)   // [VOICE]
             };
 
             var question = _bank.Find(a.QuestionId);

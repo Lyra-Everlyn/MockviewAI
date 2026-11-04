@@ -111,3 +111,12 @@
     .studio .live-timer { margin: -8px 0 14px; }
     .studio .live-clock { font-size: 28px; }
 }
+
+/* [VOICE] Đợt 7: âm lượng + nhắc nói nhỏ */
+.studio .voice-level { margin-left: auto; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; }
+.studio .voice-level[data-level="ok"] { color: var(--ok); background: rgba(52, 211, 153, .12); }
+.studio .voice-level[data-level="warn"] { color: var(--star); background: rgba(245, 196, 81, .12); }
+.studio .volume-hint { margin-top: 12px; padding: 10px 14px; border-radius: var(--r-md); background: rgba(245, 196, 81, .12); color: #f3d68a; font-size: 14px; font-weight: 600; }
+.studio .mic-level { margin: -4px 0 12px; font-size: 13px; font-weight: 600; }
+.studio .mic-level[data-level="ok"] { color: var(--ok); }
+.studio .mic-level[data-level="warn"] { color: var(--star); }
