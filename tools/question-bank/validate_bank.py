@@ -1,6 +1,8 @@
-# Kiểm tra bộ đề: cấu trúc, mã duy nhất, câu mẫu đủ 4 loại và trỏ đúng con đường, thẻ kỹ năng có trong từ điển.
+# Kiểm tra bộ đề: cấu trúc, câu hỏi nối tiếp (Đợt 8), mã duy nhất, câu mẫu đủ 4 loại và trỏ đúng con đường, thẻ kỹ năng có trong từ điển.
 # Chạy: python validate_bank.py <question-bank.v1.json> <skill-dictionary.v1.json>   (cần Python 3)
-import json, sys, collections
+import json, sys, collections, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from offline_scorer import normalize, hit   # cùng cách chuẩn hoá với BankKeywordScorer (C#)
 bank = json.load(open(sys.argv[1], encoding="utf-8"))
 dic = json.load(open(sys.argv[2], encoding="utf-8")) if len(sys.argv) > 2 else {"skills": []}   # từ điển kỹ năng: không bắt buộc (CV đã gỡ)
 errs, warns = [], []
@@ -34,6 +36,14 @@ for q in bank["questions"]:
         if not ok: errs.append(f"{qid}: câu mẫu {c} trỏ sai đường '{e}'")
         if len(s["answer"]) < 20: warns.append(f"{qid}: câu mẫu {c} quá ngắn")
         if not s.get("style"): errs.append(f"{qid}: câu mẫu {c} thiếu phong cách (style)")
+    # [FOLLOW-UP] Đợt 8: mỗi ý cốt lõi có câu hỏi nối tiếp; câu hỏi không được chứa từ khoá chấm của chính ý đó
+    # (nếu chứa, người dùng chỉ cần nhắc lại câu hỏi là được tính đạt ý)
+    for c in q["corePoints"]:
+        fu = (c.get("followUp") or "").strip()
+        if not fu: errs.append(f"{qid}/{c['id']}: thiếu câu hỏi nối tiếp (followUp)"); continue
+        toks = normalize(fu)
+        leaked = [k for k in set(c["keywords"]) if hit(toks, k)]
+        if len(leaked) >= max(1, c.get("minHits", 1)): errs.append(f"{qid}/{c['id']}: câu hỏi nối tiếp lộ từ khoá {leaked}")
     if q.get("interviewer") not in ("linh", "nam", "an"): errs.append(f"{qid}: interviewer phải là linh | nam | an")
     for t in q["skills"]:
         if check_tags and t not in tags: errs.append(f"{qid}: thẻ '{t}' không có trong từ điển")

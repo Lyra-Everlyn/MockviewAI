@@ -21,5 +21,13 @@ namespace MockviewAI.Models.Ai
         public double? VoiceLevelDb { get; set; }     // mức to nhỏ trung vị khi đang nói (dBFS, âm)
         public double? QuietRatio { get; set; }       // 0-1: phần thời gian nói nhỏ hơn mức dễ nghe
         public double? PitchVariation { get; set; }   // độ lên xuống giọng (nửa cung); < 1.5 = đều đều
+
+        // [FOLLOW-UP] Đợt 8: người phỏng vấn hỏi thêm và câu trả lời thêm (null = không hỏi thêm / bỏ qua).
+        // Nội dung câu được chấm trên CẢ câu trả lời đầu lẫn câu trả lời thêm.
+        public string? FollowUpQuestion { get; set; }
+        public string? FollowUpAnswer { get; set; }
+
+        // Văn bản dùng để chấm nội dung (câu trả lời đầu + câu trả lời thêm, KHÔNG gồm câu hỏi thêm)
+        public string ContentText => string.IsNullOrWhiteSpace(FollowUpAnswer) ? Answer : Answer + "\n" + FollowUpAnswer;
     }
 }

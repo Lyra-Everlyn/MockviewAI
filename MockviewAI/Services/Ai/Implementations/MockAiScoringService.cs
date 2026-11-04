@@ -47,7 +47,7 @@ namespace MockviewAI.Services.Ai.Implementations
         {
             var question = _bank.Find(answer.QuestionId);
             if (question == null) return null;
-            var verdict = _offline.Score(question, answer.Answer);
+            var verdict = _offline.Score(question, answer.ContentText);   // [FOLLOW-UP] gồm cả câu trả lời thêm
             verdict.Feedback = "[MOCK] " + verdict.Feedback;
             return verdict;
         }

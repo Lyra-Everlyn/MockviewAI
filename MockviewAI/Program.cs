@@ -101,6 +101,7 @@ namespace MockviewAI
             builder.Services.AddSingleton<IQuestionSelector>(sp => new RandomQuestionSelector(sp.GetRequiredService<IQuestionBankStore>()));
             builder.Services.AddSingleton<IAnswerVerdictValidator, AnswerVerdictValidator>();
             builder.Services.AddSingleton<IOfflineAnswerScorer, BankKeywordScorer>();   // chấm sơ bộ khi AI lỗi
+            builder.Services.AddSingleton<IFollowUpPlanner, FollowUpPlanner>();         // [FOLLOW-UP] Đợt 8: hỏi thêm khi thiếu ý
 
             if (string.Equals(builder.Configuration["Ai:Provider"], "Gemini", StringComparison.OrdinalIgnoreCase))
             {

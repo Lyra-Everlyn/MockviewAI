@@ -563,6 +563,9 @@
 
     btnClear.addEventListener('click', clearRecording);
 
+    // [FOLLOW-UP] câu đang hỏi là câu hỏi thêm? (mở lại trang giữa chừng: đọc từ dòng ghi chú do máy chủ vẽ)
+    let currentIsFollowUp = !!(document.getElementById('followup-note') && !document.getElementById('followup-note').hidden);
+
     async function submit(skipped) {
         if (busy) return;
         if (isListening) stopListening();
@@ -594,6 +597,7 @@
             // Xác nhận để người dùng biết hệ thống đã nhận
             lastAnswer.textContent = result.notice
                 ? result.notice
+                : skipped && currentIsFollowUp ? 'Đã bỏ qua câu hỏi thêm (không bị tính Sai).'
                 : skipped ? (isLive ? 'Đã bỏ qua câu này. Thực chiến: câu bỏ qua được tính là Sai.' : 'Đã bỏ qua câu này.')
                 : '✓ Đã ghi nhận câu trả lời của bạn: "' + shorten(answer, 140) + '"';
             lastAnswer.hidden = false;
@@ -603,7 +607,7 @@
             if (result.done) {
                 await finishSession(false);   // hết câu hỏi: chấm điểm luôn
             } else {
-                showNextQuestion(result.nextNumber, result.nextQuestion);
+                showNextQuestion(result.nextNumber, result.nextQuestion, result.nextIsFollowUp);
                 setBusy(false);
             }
         } catch (error) {
@@ -625,8 +629,14 @@
     });
 
     // Đổi sang câu hỏi tiếp theo, xóa câu trả lời cũ
-    function showNextQuestion(number, text) {
+    function showNextQuestion(number, text, isFollowUp) {
         questionText.textContent = text;
+        // [FOLLOW-UP] Đợt 8: câu hỏi thêm giữ nguyên số câu, hiện dòng "... hỏi thêm về câu trả lời vừa rồi"
+        const followUpNote = document.getElementById('followup-note');
+        if (followUpNote) followUpNote.hidden = !isFollowUp;
+        currentIsFollowUp = !!isFollowUp;
+        // Bỏ qua câu hỏi thêm không bị tính Sai (kể cả Thực chiến) -> đổi nhãn nút cho rõ
+        btnSkip.textContent = currentIsFollowUp ? 'Bỏ qua câu hỏi thêm' : isLive ? 'Bỏ qua (tính Sai)' : 'Bỏ qua câu này';
         document.querySelectorAll('.badge-step, .mobile-step').forEach(el => {
             el.textContent = 'Câu ' + number + ' / ' + totalQuestions;
         });
@@ -643,7 +653,7 @@
 
         events.length = 0;   // mỗi câu một dòng thời gian mới
         questionShownAt = Date.now();
-        logEvent('question_shown', number);
+        logEvent(isFollowUp ? 'followup_shown' : 'question_shown', number);
         if (isLive) liveBeginQuestion();   // [LIVE-MODE] đọc -> suy nghĩ -> trả lời
         else speakQuestion();              // [#17] tự đọc câu hỏi mới
         // Nếu không có giọng đọc, đưa nhãn trạng thái về "Chờ bạn trả lời" sau khi hiện xác nhận

@@ -120,3 +120,9 @@
 .studio .mic-level { margin: -4px 0 12px; font-size: 13px; font-weight: 600; }
 .studio .mic-level[data-level="ok"] { color: var(--ok); }
 .studio .mic-level[data-level="warn"] { color: var(--star); }
+
+/* [FOLLOW-UP] Đợt 8: dòng "… hỏi thêm về câu trả lời vừa rồi" phía trên câu hỏi */
+.studio .followup-note { display: inline-flex; align-items: center; gap: 8px; margin: 22px 0 -24px; font-size: 13px; font-weight: 600; color: var(--brand); }
+.studio .followup-note::before { content: "↳"; font-size: 16px; }
+.studio .followup-note[hidden] { display: none; }
+@media (max-width: 760px) { .studio .followup-note { margin: 16px 0 -14px; } }

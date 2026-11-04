@@ -48,6 +48,12 @@ namespace MockviewAI.Services.Ai.Implementations
                 }
                 sb.AppendLine($"[Câu {i}] Hỏi: {Clean(a.Question, MaxCharsPerText)}");
                 sb.AppendLine($"[Câu {i}] Trả lời: {Clean(a.Answer, MaxCharsPerText)}");
+                // [FOLLOW-UP] Đợt 8: người phỏng vấn hỏi thêm vì câu trả lời còn thiếu ý
+                if (!string.IsNullOrWhiteSpace(a.FollowUpQuestion) && !string.IsNullOrWhiteSpace(a.FollowUpAnswer))
+                {
+                    sb.AppendLine($"[Câu {i}] Hỏi thêm: {Clean(a.FollowUpQuestion, MaxCharsPerText)}");
+                    sb.AppendLine($"[Câu {i}] Trả lời thêm: {Clean(a.FollowUpAnswer, MaxCharsPerText)}");
+                }
                 i++;
             }
             sb.AppendLine("</interview>");
@@ -97,6 +103,7 @@ namespace MockviewAI.Services.Ai.Implementations
                 "- sai: không đúng bản chất, lạc đề, khớp một lỗi hay gặp (matchedPath = mã lỗi) hoặc thiếu ý cốt lõi.\n" +
                 "Làm theo thứ tự: so với các con đường trong bộ đáp án TRƯỚC, rồi đến lỗi hay gặp, cuối cùng mới tự đánh giá.\n" +
                 "Chấm theo Ý, không theo câu chữ. Bỏ qua lỗi chính tả do chuyển giọng nói thành chữ. Từ gợi ý chỉ để tham khảo.\n" +
+                "Câu có \"Hỏi thêm\" là câu hỏi nối tiếp của người phỏng vấn: xếp loại câu đó dựa trên CẢ câu trả lời đầu lẫn câu trả lời thêm.\n" +
                 "metCorePoints / missingCorePoints dùng mã c1, c2...; feedback tiếng Việt, khích lệ, nêu rõ đạt gì, thiếu hoặc sai ở đâu; " +
                 "với hoi_dac_biet và dac_biet hãy ghi nhận điểm sáng tạo trong cách trả lời.\n");
         }

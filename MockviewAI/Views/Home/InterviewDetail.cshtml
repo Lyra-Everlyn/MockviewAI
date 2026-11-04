@@ -50,7 +50,7 @@
                 @foreach (var t in m.Turns)
                 {
                     var dot = t.InvalidReason != null ? "bg-sai" : t.Category != null ? "bg-" + t.Category : "dot-none";
-                    <a href="#cau-@t.Number"><span class="dot @dot"></span><span class="idx-text">Câu @t.Number<span class="idx-q"> · @t.Question</span></span></a>
+                    <a href="#cau-@t.Number"><span class="dot @dot"></span><span class="idx-text">Câu @t.Number@(t.FollowUp != null ? " +" : "")<span class="idx-q"> · @t.Question</span></span></a>
                 }
             </nav>
 
@@ -68,6 +68,28 @@
                         @if (!string.IsNullOrEmpty(t.VoiceText))
                         {
                             <p class="voice-line">@t.VoiceText</p>   @* [VOICE] Đợt 7 *@
+                        }
+
+                        @if (t.FollowUp != null)
+                        {
+                            <!-- [FOLLOW-UP] Đợt 8: người phỏng vấn hỏi thêm vì câu trả lời còn thiếu ý -->
+                            <div class="followup">
+                                <div class="asker"><span class="face sm @faceClass">@faceLetter</span><span class="qno">@m.InterviewerName hỏi thêm</span></div>
+                                @if (!string.IsNullOrEmpty(t.FollowUpPointText))
+                                {
+                                    <p class="followup-why">Vì câu trả lời đầu chưa thấy ý: @t.FollowUpPointText</p>
+                                }
+                                <p class="q q-sm">@t.FollowUp.Question</p>
+                                <p class="mine @(t.FollowUp.Skipped ? "skipped" : "")">@(t.FollowUp.Skipped ? "(Đã bỏ qua câu hỏi thêm)" : t.FollowUp.Answer)</p>
+                                @if (!string.IsNullOrEmpty(t.FollowUp.VoiceText))
+                                {
+                                    <p class="voice-line">@t.FollowUp.VoiceText</p>
+                                }
+                                @if (t.FollowUp.InvalidReason != null)
+                                {
+                                    <p class="why">Câu trả lời thêm chưa có ý nghĩa nên không được tính vào câu này.</p>
+                                }
+                            </div>
                         }
 
                         @if (t.InvalidReason != null)

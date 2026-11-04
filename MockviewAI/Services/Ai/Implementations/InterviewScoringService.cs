@@ -115,7 +115,7 @@ namespace MockviewAI.Services.Ai.Implementations
             {
                 var question = _bank.Find(answer.QuestionId);
                 if (question == null) continue;
-                var verdict = _offline.Score(question, answer.Answer);
+                var verdict = _offline.Score(question, answer.ContentText);   // [FOLLOW-UP] gồm cả câu trả lời thêm
                 verdicts.Add(verdict);
                 coverages.Add(question.CorePoints.Count == 0 ? 0 : verdict.MetCorePoints.Count / (double)question.CorePoints.Count);
             }
@@ -161,9 +161,9 @@ namespace MockviewAI.Services.Ai.Implementations
             return result;
         }
 
-        // Cách nói đo trên mọi câu đã nói (kể cả câu không có ý nghĩa)
+        // Cách nói đo trên mọi câu đã nói (kể cả câu không có ý nghĩa và câu trả lời cho câu hỏi thêm)
         private static List<InterviewAnswer> AllAnswers(ScoreRequest request) =>
-            request.Answers.Concat(request.InvalidAnswers).ToList();
+            request.Answers.Concat(request.InvalidAnswers).Concat(request.FollowUpAnswers).ToList();
 
         private InterviewScoreResult Build(ScoreRequest request, ContentScoreResult content, DeliveryScoreResult delivery, int total, bool contentAvailable)
         {

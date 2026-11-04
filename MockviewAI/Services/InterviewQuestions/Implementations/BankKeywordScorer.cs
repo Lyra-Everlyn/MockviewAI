@@ -41,10 +41,7 @@ namespace MockviewAI.Services.InterviewQuestions.Implementations
             }
 
             // 2. Ý cốt lõi đã đạt
-            var met = question.CorePoints
-                .Where(c => c.Keywords.Distinct().Count(k => Contains(tokens, k, checkNegation: false)) >= Math.Max(1, c.MinHits))
-                .Select(c => c.Id)
-                .ToList();
+            var met = MetCorePoints(question, tokens);
 
             // 4 (tính trước). Con đường: ưu tiên đường vòng nếu có dấu hiệu, không thì đường có nhiều dấu hiệu nhất
             AnswerPath? path = null;
@@ -75,6 +72,16 @@ namespace MockviewAI.Services.InterviewQuestions.Implementations
                 Feedback = FeedbackPrefix + feedback
             };
         }
+
+        public IReadOnlyList<string> FindMetCorePoints(BankQuestion question, string answer) =>
+            MetCorePoints(question, VietnameseTextNormalizer.Tokenize(answer));
+
+        // Ý đạt khi gặp >= MinHits từ khoá khác nhau của ý đó
+        private static List<string> MetCorePoints(BankQuestion question, string[] tokens) =>
+            question.CorePoints
+                .Where(c => c.Keywords.Distinct().Count(k => Contains(tokens, k, checkNegation: false)) >= Math.Max(1, c.MinHits))
+                .Select(c => c.Id)
+                .ToList();
 
         // Cụm từ (đã chuẩn hoá) có xuất hiện liền nhau trong câu trả lời không; có thể bỏ qua lần xuất hiện bị phủ định
         private static bool Contains(string[] tokens, string phrase, bool checkNegation)

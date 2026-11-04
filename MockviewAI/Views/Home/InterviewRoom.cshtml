@@ -57,6 +57,8 @@
         </div>
 
         <!-- Câu hỏi -->
+        @* [FOLLOW-UP] Đợt 8: câu hỏi thêm vì câu trả lời vừa rồi còn thiếu ý (JS bật / tắt khi sang câu mới) *@
+        <p class="followup-note" id="followup-note" hidden="@(!Model.IsFollowUp)">@Model.InterviewerName hỏi thêm về câu trả lời vừa rồi</p>
         <h1 class="question" id="question-text">@Model.QuestionText</h1>
         <p class="voice-note" id="voice-note" hidden>Máy chưa có giọng đọc tiếng Việt. Bạn vẫn đọc câu hỏi ở trên và trả lời bình thường.</p>
 
@@ -101,7 +103,7 @@
                 Bấm để nói
             </button>
             <button class="btn btn-ghost" id="btn-type" type="button" hidden="@Model.IsLive">Gõ câu trả lời</button>
-            <button class="btn btn-ghost" id="btn-skip" type="button">@(Model.IsLive ? "Bỏ qua (tính Sai)" : "Bỏ qua câu này")</button>
+            <button class="btn btn-ghost" id="btn-skip" type="button">@(Model.IsFollowUp ? "Bỏ qua câu hỏi thêm" : Model.IsLive ? "Bỏ qua (tính Sai)" : "Bỏ qua câu này")</button>
             <button class="btn btn-main" id="btn-send" type="button" hidden>Gửi câu trả lời</button>
         </div>
 

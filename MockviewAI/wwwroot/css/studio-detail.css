@@ -68,3 +68,9 @@
 
 /* [VOICE] Đợt 7: số đo giọng nói của từng câu */
 .studio .voice-line { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+
+/* [FOLLOW-UP] Đợt 8: câu hỏi thêm nằm thụt vào dưới câu chính */
+.studio .followup { margin: 16px 0 0 18px; padding-left: 16px; border-left: 2px dashed var(--line); }
+.studio .followup-why { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.studio .q.q-sm { font-size: 17px; margin: 6px 0 10px; }
+@media (max-width: 760px) { .studio .followup { margin-left: 6px; padding-left: 12px; } .studio .q.q-sm { font-size: 16px; } }

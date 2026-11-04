@@ -34,6 +34,7 @@ namespace MockviewAI.Services.Interviews
         private readonly ILogger<InterviewService> _logger;
         private readonly IQuestionBankStore _bank;
         private readonly IQuestionSelector _selector;
+        private readonly IFollowUpPlanner _followUps;   // [FOLLOW-UP] Đợt 8
 
         public InterviewService(
             IRepository<InterviewSession> sessionRepository,
@@ -43,7 +44,8 @@ namespace MockviewAI.Services.Interviews
             IEmailService email,
             ILogger<InterviewService> logger,
             IQuestionBankStore bank,
-            IQuestionSelector selector)
+            IQuestionSelector selector,
+            IFollowUpPlanner followUps)
         {
             _sessionRepository = sessionRepository;
             _userRepository = userRepository;
@@ -53,6 +55,7 @@ namespace MockviewAI.Services.Interviews
             _logger = logger;
             _bank = bank;
             _selector = selector;
+            _followUps = followUps;
         }
 
         #region Start
@@ -116,7 +119,7 @@ namespace MockviewAI.Services.Interviews
             var session = await FindSessionAsync(user, sessionId);
             if (session == null || session.Status != SessionStatus.InProgress) return null;
 
-            var current = session.Answers.OrderBy(a => a.OrderNo).FirstOrDefault(a => a.AnsweredAt == null);
+            var current = FollowUps.Next(session.Answers);   // [FOLLOW-UP] câu hỏi thêm đứng ngay sau câu chính
             if (current == null) return null;
 
             var interviewer = QuestionBank.Interviewers[session.Interviewer];
@@ -130,6 +133,7 @@ namespace MockviewAI.Services.Interviews
                 TotalQuestions = session.QuestionCount,
                 QuestionText = current.Question,
                 AnsweredCount = CountAnswered(session),
+                IsFollowUp = current.IsFollowUp,
                 Mode = InterviewModes.Normalize(session.Mode)
             };
         }
@@ -141,11 +145,12 @@ namespace MockviewAI.Services.Interviews
             if (session == null || session.Status != SessionStatus.InProgress)
                 throw new InterviewException("Không tìm thấy buổi luyện đang diễn ra.");
 
-            var current = session.Answers.OrderBy(a => a.OrderNo).FirstOrDefault(a => a.AnsweredAt == null);
+            var current = FollowUps.Next(session.Answers);
             if (current == null)
                 throw new InterviewException("Bạn đã trả lời hết các câu hỏi.");
 
             string? notice = null;
+            bool meaningful = false;   // [FOLLOW-UP] chỉ câu trả lời có ý nghĩa mới được xét hỏi thêm
 
             if (dto.Skipped)
             {
@@ -180,6 +185,7 @@ namespace MockviewAI.Services.Interviews
                 current.VoiceLevelDb = spoken ? VoiceMetrics.CleanLevel(dto.VoiceLevelDb) : null;
                 current.QuietRatio = spoken ? VoiceMetrics.CleanRatio(dto.QuietRatio) : null;
                 current.PitchVariation = spoken ? VoiceMetrics.CleanPitch(dto.PitchVariation) : null;
+                meaningful = problem == null;
                 if (problem != null)
                     notice = live
                         ? $"{problem} Chế độ Thực chiến không cho trả lời lại nên câu này được tính là sai. Chuyển sang câu tiếp theo."
@@ -187,15 +193,30 @@ namespace MockviewAI.Services.Interviews
             }
             current.AnsweredAt = DateTime.UtcNow;
 
+            // [FOLLOW-UP] Đợt 8: câu trả lời chưa tới điểm B (chấm sơ bộ theo bộ đề, không gọi AI) -> hỏi thêm ý còn thiếu
+            if (meaningful && FollowUps.CanAskAfter(current, session.Answers)
+                && _bank.Find(current.QuestionId) is { } bankQuestion
+                && _followUps.Plan(bankQuestion, current.Answer!) is { } plan)
+            {
+                session.Answers.Add(new SessionAnswer
+                {
+                    OrderNo = current.OrderNo,
+                    Question = plan.Question.Length > 500 ? plan.Question[..500] : plan.Question,
+                    FollowUpOf = current.QuestionId,
+                    FollowUpPointId = plan.PointId
+                });
+            }
+
             await _sessionRepository.UpdateAsync(session);
 
-            var next = session.Answers.OrderBy(a => a.OrderNo).FirstOrDefault(a => a.AnsweredAt == null);
+            var next = FollowUps.Next(session.Answers);
             return new SubmitAnswerResultDto
             {
                 Done = next == null,
                 AnsweredCount = CountAnswered(session),
                 NextNumber = next?.OrderNo,
                 NextQuestion = next?.Question,
+                NextIsFollowUp = next?.IsFollowUp ?? false,
                 Notice = notice
             };
         }
@@ -211,9 +232,14 @@ namespace MockviewAI.Services.Interviews
 
             session.FinishedAt = DateTime.UtcNow;
 
-            var answered = session.Answers
+            // [FOLLOW-UP] Chỉ câu CHÍNH được chấm như một câu; câu trả lời thêm gộp vào câu chính của nó
+            var mainAnswers = FollowUps.Main(session.Answers).ToList();
+            var answered = mainAnswers
                 .Where(a => a.AnsweredAt != null && !a.Skipped && !string.IsNullOrEmpty(a.Answer))
                 .OrderBy(a => a.OrderNo)
+                .ToList();
+            var followUpAnswers = session.Answers
+                .Where(a => a.IsFollowUp && a.AnsweredAt != null && !a.Skipped && !string.IsNullOrEmpty(a.Answer))
                 .ToList();
 
             if (answered.Count == 0)
@@ -227,17 +253,31 @@ namespace MockviewAI.Services.Interviews
             var invalid = answered.Where(a => _quality.FindProblem(a.Answer!) != null).ToList();
             var valid = answered.Except(invalid).ToList();
 
+            // Câu trả lời thêm có ý nghĩa -> gộp vào câu chính khi chấm nội dung
+            InterviewAnswer WithFollowUp(SessionAnswer main)
+            {
+                var item = ToInterviewAnswer(main);
+                var extra = followUpAnswers.FirstOrDefault(f => f.FollowUpOf == main.QuestionId);
+                if (extra != null && _quality.FindProblem(extra.Answer!) == null)
+                {
+                    item.FollowUpQuestion = extra.Question;
+                    item.FollowUpAnswer = extra.Answer;
+                }
+                return item;
+            }
+
             var request = new ScoreRequest
             {
                 Position = session.Position,
                 QuestionCount = session.QuestionCount,
-                SkippedCount = session.Answers.Count(a => a.AnsweredAt != null && a.Skipped),
+                SkippedCount = mainAnswers.Count(a => a.AnsweredAt != null && a.Skipped),
                 // [LIVE-MODE] Thực chiến: câu bỏ qua tính là SAI (Luyện tập: không trừ như trước)
                 SkippedAsWrong = InterviewModes.IsLive(session.Mode)
-                    ? session.Answers.Where(a => a.AnsweredAt != null && a.Skipped).OrderBy(a => a.OrderNo).Select(a => a.QuestionId).ToList()
+                    ? mainAnswers.Where(a => a.AnsweredAt != null && a.Skipped).OrderBy(a => a.OrderNo).Select(a => a.QuestionId).ToList()
                     : new List<string?>(),
-                Answers = valid.Select(ToInterviewAnswer).ToList(),
-                InvalidAnswers = invalid.Select(ToInterviewAnswer).ToList()
+                Answers = valid.Select(WithFollowUp).ToList(),
+                InvalidAnswers = invalid.Select(ToInterviewAnswer).ToList(),
+                FollowUpAnswers = followUpAnswers.Select(ToInterviewAnswer).ToList()   // chỉ để đo cách nói
             };
 
             // AI lỗi (AiScoringException) thì để lỗi nổi lên: buổi vẫn còn InProgress để người dùng bấm "Chấm lại".
@@ -260,7 +300,7 @@ namespace MockviewAI.Services.Interviews
             // [QUESTION-BANK] Lưu xếp loại từng câu (câu thuộc bộ đề; AI chấm hoặc chấm sơ bộ theo bộ đề)
             foreach (var verdict in result.Content.Verdicts)
             {
-                var answer = session.Answers.FirstOrDefault(a => a.QuestionId == verdict.QuestionId);
+                var answer = mainAnswers.FirstOrDefault(a => a.QuestionId == verdict.QuestionId);
                 if (answer == null) continue;
                 answer.Category = verdict.Category;
                 answer.MatchedPath = verdict.MatchedPath;
@@ -365,7 +405,7 @@ namespace MockviewAI.Services.Interviews
                 AnxietyIndicator = session.AnxietyIndicator ?? 0,
                 PreviousAnxietyIndicator = previous.FirstOrDefault()?.AnxietyIndicator ?? 0,
                 EmailRequested = session.EmailResult && session.TotalScore != null,
-                InvalidAnswerCount = session.Answers.Count(a => a.AnsweredAt != null && !a.Skipped
+                InvalidAnswerCount = FollowUps.Main(session.Answers).Count(a => a.AnsweredAt != null && !a.Skipped
                                                                 && !string.IsNullOrEmpty(a.Answer) && _quality.FindProblem(a.Answer!) != null),
                 CorrectCount = session.Answers.Count(a => a.Category == AnswerCategory.Correct),
                 AlternativePathCount = session.Answers.Count(a => a.Category == AnswerCategory.AlternativePath),
@@ -373,7 +413,8 @@ namespace MockviewAI.Services.Interviews
                 WrongCount = session.Answers.Count(a => a.Category == AnswerCategory.Wrong),
                 IsPreliminaryScore = session.ScoringMode == ScoringModes.BankRules,
                 IsLive = InterviewModes.IsLive(session.Mode),
-                AnswerCategories = session.Answers.OrderBy(a => a.OrderNo).Select(a => a.Category).ToList(),
+                AnswerCategories = FollowUps.Main(session.Answers).OrderBy(a => a.OrderNo).Select(a => a.Category).ToList(),
+                FollowUpCount = session.Answers.Count(a => a.IsFollowUp && a.AnsweredAt != null && !a.Skipped),
                 AiSummary = session.AiSummary ?? "",
                 Strengths = SplitLines(session.Strengths),
                 Improvements = SplitLines(session.Improvements),
@@ -397,8 +438,9 @@ namespace MockviewAI.Services.Interviews
             );
         }
 
+        // Số câu CHÍNH đã trả lời (câu hỏi thêm không tính vào "x / tổng số câu")
         private static int CountAnswered(InterviewSession session) =>
-            session.Answers.Count(a => a.AnsweredAt != null && !a.Skipped);
+            FollowUps.Main(session.Answers).Count(a => a.AnsweredAt != null && !a.Skipped);
 
         // Lấy khoảng lặng dài nhất; bỏ số vô lý (<= 0 hoặc >= 120 giây) vì dữ liệu đến từ trình duyệt
         private static double LongestPause(List<double>? pauses)

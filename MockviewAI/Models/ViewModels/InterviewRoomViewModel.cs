@@ -13,6 +13,7 @@ namespace MockviewAI.Models.ViewModels
         public int TotalQuestions { get; set; }
         public string QuestionText { get; set; } = string.Empty;
         public int AnsweredCount { get; set; }                           // số câu đã trả lời (không tính câu bỏ qua)
+        public bool IsFollowUp { get; set; }                             // [FOLLOW-UP] câu đang hỏi là câu hỏi thêm
 
         public int ProgressPercent => TotalQuestions == 0 ? 0 : (QuestionNumber - 1) * 100 / TotalQuestions;
 

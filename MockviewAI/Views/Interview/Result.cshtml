@@ -40,6 +40,11 @@
             <section class="panel record" aria-label="Cách bạn tiếp cận từng câu">
                 <h2>Cách bạn tiếp cận từng câu</h2>
                 <p class="record-note">Đây là bản ghi cách trả lời, không phải thang điểm. Hơi đặc biệt và Đặc biệt vẫn là câu trả lời đúng, chỉ là bạn đi theo đường khác.</p>
+                @if (Model.FollowUpCount > 0)
+                {
+                    @* [FOLLOW-UP] Đợt 8 *@
+                    <p class="record-note">Người phỏng vấn đã hỏi thêm @Model.FollowUpCount lần vì câu trả lời đầu còn thiếu ý. Phần trả lời thêm được tính gộp vào câu đó; xem chi tiết ở "Xem lại hội thoại".</p>
+                }
                 <div class="tape big">
                     @for (int i = 0; i < Model.AnswerCategories.Count; i++)
                     {

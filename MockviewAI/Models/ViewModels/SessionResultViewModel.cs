@@ -39,6 +39,7 @@ namespace MockviewAI.Models.ViewModels
         public bool HasCategories => CorrectCount + AlternativePathCount + SpecialCount + WrongCount > 0;
         // [UI-DARK] Nhãn từng câu theo thứ tự câu hỏi (null = câu bỏ qua / chưa xếp loại) -> vẽ "dải băng" ở trang Kết quả
         public List<string?> AnswerCategories { get; set; } = new();
+        public int FollowUpCount { get; set; }   // [FOLLOW-UP] số câu hỏi thêm đã trả lời trong buổi
 
         // [QUESTION-BANK] true = AI lỗi nên phần nội dung được chấm sơ bộ theo bộ đề (không dùng AI)
         public bool IsPreliminaryScore { get; set; }

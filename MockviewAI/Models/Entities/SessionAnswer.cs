@@ -2,6 +2,7 @@
 // Câu hỏi được tạo sẵn lúc bắt đầu buổi (Answer còn trống, AnsweredAt = null).
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace MockviewAI.Models.Entities
@@ -62,5 +63,17 @@ namespace MockviewAI.Models.Entities
 
         [MaxLength(1000)]
         public string? Feedback { get; set; }            // nhận xét ngắn cho câu này
+
+        // [FOLLOW-UP] Đợt 8: câu hỏi NỐI TIẾP (người phỏng vấn hỏi thêm vì câu trả lời còn thiếu ý).
+        // FollowUpOf = mã câu bộ đề được hỏi thêm (null = câu chính); FollowUpPointId = ý cốt lõi được hỏi thêm (c2...).
+        // Câu hỏi thêm có cùng OrderNo với câu chính và đứng ngay sau nó; không tính vào số câu của buổi.
+        [MaxLength(40)]
+        public string? FollowUpOf { get; set; }
+
+        [MaxLength(10)]
+        public string? FollowUpPointId { get; set; }
+
+        [NotMapped]
+        public bool IsFollowUp => FollowUpOf != null;
     }
 }
