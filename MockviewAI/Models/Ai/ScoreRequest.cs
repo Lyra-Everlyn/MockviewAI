@@ -13,5 +13,7 @@ namespace MockviewAI.Models.Ai
         // Dùng để ước tính dấu hiệu lo lắng: tổng số câu của buổi và số câu bị bỏ qua
         public int QuestionCount { get; set; }
         public int SkippedCount { get; set; }
+        // [LIVE-MODE] Câu BỎ QUA ở chế độ Thực chiến: tính là SAI (mã câu bộ đề; null = câu kiểu cũ). Luyện tập: để trống.
+        public List<string?> SkippedAsWrong { get; set; } = new();
     }
 }

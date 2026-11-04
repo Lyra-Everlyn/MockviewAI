@@ -1,3 +1,4 @@
+using MockviewAI.Models;
 using MockviewAI.Models.Entities;
 using MockviewAI.Models.ViewModels;
 using MockviewAI.Repositories.Interfaces;
@@ -50,6 +51,7 @@ namespace MockviewAI.Services.SessionHistory
                 InterviewerName = InterviewerName(session.Interviewer),
                 StartedAt = session.StartedAt.ToLocalTime(),
                 QuestionCount = session.QuestionCount,
+                IsLive = InterviewModes.IsLive(session.Mode),
                 HasScore = session.TotalScore != null,
                 HasContentScore = session.ContentScore != null,
                 TotalScore = session.TotalScore ?? 0,
@@ -144,7 +146,8 @@ namespace MockviewAI.Services.SessionHistory
                 AnxietyImproved = hasAnxiety && s.AnxietyIndicator <= 3,   // badge xanh khi thấp
                 HasScore = s.TotalScore != null,
                 IsInProgress = s.Status == SessionStatus.InProgress,
-                StatusText = s.Status == SessionStatus.InProgress ? "Chưa xong" : s.TotalScore == null ? "Đã dừng" : string.Empty
+                StatusText = s.Status == SessionStatus.InProgress ? "Chưa xong" : s.TotalScore == null ? "Đã dừng" : string.Empty,
+                IsLive = InterviewModes.IsLive(s.Mode)
             };
         }
 

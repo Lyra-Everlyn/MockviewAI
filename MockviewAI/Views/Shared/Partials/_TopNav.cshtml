@@ -1,6 +1,6 @@
 ﻿@* Thanh điều hướng máy tính DÙNG CHUNG cho mọi trang (22/10).
    Trước đây mỗi trang tự chép một bản thanh menu -> lệch vị trí, khác font, khác thẻ BETA.
-   Trang chọn mục đang mở bằng: ViewData["ActiveNav"] = "home" | "practice" | "history" (bỏ trống = không mục nào).
+   Trang chọn mục đang mở bằng: ViewData["ActiveNav"] = "home" | "practice" | "live" | "history" (bỏ trống = không mục nào).
    Kiểu dáng nằm trong wwwroot/css/theme.css (mục 3b). *@
 @{
     var navUserName = User.Identity?.Name ?? "";
@@ -15,6 +15,8 @@
             <ul class="mv-topnav-links">
                 <li><a href="/Home" class="@(activeNav == "home" ? "active" : null)">Trang chủ</a></li>
                 <li><a href="/Interview/Create" class="@(activeNav == "practice" ? "active" : null)">Luyện tập</a></li>
+                @* [LIVE-MODE] Đợt 6: mở trang Tạo buổi với chế độ Thực chiến chọn sẵn *@
+                <li><a href="/Interview/Create?mode=live" class="nav-live @(activeNav == "live" ? "active" : null)">Thực chiến</a></li>
                 <li><a href="/Home/History" class="@(activeNav == "history" ? "active" : null)">Lịch sử</a></li>
             </ul>
         </div>

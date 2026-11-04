@@ -1,3 +1,4 @@
+using MockviewAI.Models;
 using MockviewAI.Models.Ai;
 using MockviewAI.Models.DTOs;
 using MockviewAI.Models.Entities;
@@ -55,7 +56,7 @@ namespace MockviewAI.Services.Interviews
         }
 
         #region Start
-        public async Task<int> StartAsync(string email, string positionKey, string interviewerKey, int questionCount, bool emailResult)
+        public async Task<int> StartAsync(string email, string positionKey, string interviewerKey, int questionCount, bool emailResult, string? mode = null)
         {
             var user = await GetUserAsync(email);
 
@@ -78,7 +79,8 @@ namespace MockviewAI.Services.Interviews
                 Position = positionName,
                 Interviewer = interviewerKey!,
                 QuestionCount = questionCount,
-                EmailResult = emailResult
+                EmailResult = emailResult,
+                Mode = InterviewModes.Normalize(mode)   // [LIVE-MODE] mã lạ -> Luyện tập
             };
 
             // [QUESTION-BANK] Người phỏng vấn + vị trí đã có trong bộ đề -> dùng bộ đề có đáp án (xếp loại 4 nhãn);
@@ -127,7 +129,8 @@ namespace MockviewAI.Services.Interviews
                 QuestionNumber = current.OrderNo,
                 TotalQuestions = session.QuestionCount,
                 QuestionText = current.Question,
-                AnsweredCount = CountAnswered(session)
+                AnsweredCount = CountAnswered(session),
+                Mode = InterviewModes.Normalize(session.Mode)
             };
         }
 
@@ -156,9 +159,11 @@ namespace MockviewAI.Services.Interviews
                 if (answer.Length > MaxAnswerLength)
                     throw new InterviewException($"Câu trả lời tối đa {MaxAnswerLength} ký tự.");
 
-                // Câu trả lời không có ý nghĩa: nhắc 1 lần (Attempts = số lần đã nhắc)
+                // Câu trả lời không có ý nghĩa: nhắc 1 lần (Attempts = số lần đã nhắc).
+                // [LIVE-MODE] Thực chiến: nói ra rồi là xong, không cho trả lời lại -> tính sai luôn.
+                bool live = InterviewModes.IsLive(session.Mode);
                 string? problem = _quality.FindProblem(answer);
-                if (problem != null && current.Attempts < MaxReminders)
+                if (problem != null && !live && current.Attempts < MaxReminders)
                 {
                     current.Attempts++;
                     await _sessionRepository.UpdateAsync(session);
@@ -171,7 +176,9 @@ namespace MockviewAI.Services.Interviews
                 current.DurationSeconds = dto.DurationSeconds is > 0 and < 600 ? dto.DurationSeconds : null;
                 current.LongestPauseSeconds = current.DurationSeconds == null ? null : LongestPause(dto.PausesSeconds);
                 if (problem != null)
-                    notice = "Câu trả lời vẫn chưa có ý nghĩa nên câu này được tính là sai (0 điểm). Chuyển sang câu tiếp theo.";
+                    notice = live
+                        ? $"{problem} Chế độ Thực chiến không cho trả lời lại nên câu này được tính là sai. Chuyển sang câu tiếp theo."
+                        : "Câu trả lời vẫn chưa có ý nghĩa nên câu này được tính là sai (0 điểm). Chuyển sang câu tiếp theo.";
             }
             current.AnsweredAt = DateTime.UtcNow;
 
@@ -220,6 +227,10 @@ namespace MockviewAI.Services.Interviews
                 Position = session.Position,
                 QuestionCount = session.QuestionCount,
                 SkippedCount = session.Answers.Count(a => a.AnsweredAt != null && a.Skipped),
+                // [LIVE-MODE] Thực chiến: câu bỏ qua tính là SAI (Luyện tập: không trừ như trước)
+                SkippedAsWrong = InterviewModes.IsLive(session.Mode)
+                    ? session.Answers.Where(a => a.AnsweredAt != null && a.Skipped).OrderBy(a => a.OrderNo).Select(a => a.QuestionId).ToList()
+                    : new List<string?>(),
                 Answers = valid.Select(ToInterviewAnswer).ToList(),
                 InvalidAnswers = invalid.Select(ToInterviewAnswer).ToList()
             };
@@ -344,6 +355,7 @@ namespace MockviewAI.Services.Interviews
                 SpecialCount = session.Answers.Count(a => a.Category == AnswerCategory.Special),
                 WrongCount = session.Answers.Count(a => a.Category == AnswerCategory.Wrong),
                 IsPreliminaryScore = session.ScoringMode == ScoringModes.BankRules,
+                IsLive = InterviewModes.IsLive(session.Mode),
                 AnswerCategories = session.Answers.OrderBy(a => a.OrderNo).Select(a => a.Category).ToList(),
                 AiSummary = session.AiSummary ?? "",
                 Strengths = SplitLines(session.Strengths),

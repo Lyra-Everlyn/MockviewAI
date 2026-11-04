@@ -23,7 +23,8 @@
     <main class="wrap">
         <a href="/Home/History" class="back-link">&lsaquo; Lịch sử</a>
         <h1>Xem lại hội thoại</h1>
-        <p class="sub">@m.Position &middot; @m.InterviewerName &middot; @m.StartedAt.ToString("dd/MM") &middot; @m.QuestionCount câu &middot; toàn bộ hội thoại được lưu lại</p>
+        <p class="sub">@m.Position &middot; @m.InterviewerName &middot; @m.StartedAt.ToString("dd/MM") &middot; @m.QuestionCount câu &middot; toàn bộ hội thoại được lưu lại
+            @if (m.IsLive) { <span class="mode-tag">Thực chiến</span> }</p>
 
         <!-- Tóm tắt điểm + hành động -->
         <section class="panel summary-strip" aria-label="Tóm tắt buổi luyện">
@@ -116,6 +117,7 @@
     <nav class="mobile-bottom-nav" aria-label="Điều hướng">
         <a href="/Home">Trang chủ</a>
         <a href="/Interview/Create">Luyện</a>
+        <a href="/Interview/Create?mode=live">Thực chiến</a>
         <a href="/Home/History" class="active">Lịch sử</a>
         <a href="/Profile">Hồ sơ</a>
     </nav>

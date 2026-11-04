@@ -93,3 +93,21 @@
     .studio .modal-box { padding: 22px; }
     .studio .modal-actions { flex-direction: column; }
 }
+
+/* [LIVE-MODE] Đợt 6: chế độ Thực chiến */
+.studio .live-timer { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 6px 16px; margin: -14px 0 18px; }
+.studio .live-phase { font-size: 14px; color: var(--muted); font-weight: 600; }
+.studio .live-clock { font-size: 34px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.studio .live-bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: var(--raised); overflow: hidden; }
+.studio .live-bar i { display: block; height: 100%; width: 100%; border-radius: 3px; background: var(--brand); transition: width 1s linear; }
+/* Đang trả lời: đồng hồ + thanh màu "đèn thu"; còn ≤ 20 giây: nhấp nháy nhẹ để nhắc */
+.studio .live-timer[data-phase="answer"] .live-bar i { background: var(--tally); }
+.studio .live-timer[data-phase="answer"] .live-clock { color: var(--tally); }
+.studio .live-timer[data-phase="ready"] .live-clock { color: var(--muted); }
+.studio .live-timer[data-low="1"] .live-clock { animation: tally-blink 1s ease-in-out infinite; }
+/* Thực chiến: không có bước "Gửi" riêng -> nút micro rộng hơn */
+.studio .is-live .btn-mic { padding: 14px 26px; }
+@media (max-width: 760px) {
+    .studio .live-timer { margin: -8px 0 14px; }
+    .studio .live-clock { font-size: 28px; }
+}

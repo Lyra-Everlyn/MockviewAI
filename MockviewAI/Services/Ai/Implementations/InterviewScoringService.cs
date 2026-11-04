@@ -36,7 +36,7 @@ namespace MockviewAI.Services.Ai.Implementations
         public async Task<InterviewScoreResult> ScoreAsync(ScoreRequest request, CancellationToken ct = default)
         {
             var delivery = _delivery.Analyze(AllAnswers(request));
-            int answeredCount = request.Answers.Count + request.InvalidAnswers.Count;
+            int answeredCount = request.Answers.Count + request.InvalidAnswers.Count + request.SkippedAsWrong.Count;
 
             // Mọi câu đều không có ý nghĩa: không cần gọi AI, phần nội dung = 0
             var content = request.Answers.Count == 0
@@ -59,8 +59,9 @@ namespace MockviewAI.Services.Ai.Implementations
                     Feedback = "Câu trả lời chưa có ý nghĩa nên được tính sai."
                 });
             }
+            AddSkippedAsWrong(request, content.Verdicts, inBankOnly: false);
 
-            // Câu không có ý nghĩa tính SAI: điểm nội dung chỉ tính trên phần câu hợp lệ
+            // Câu không có ý nghĩa (và câu bỏ qua ở Thực chiến) tính SAI: điểm nội dung chỉ tính trên phần câu hợp lệ
             content.ValidAnswerRatio = answeredCount == 0 ? 1.0 : request.Answers.Count / (double)answeredCount;
             if (request.InvalidAnswers.Count > 0 && request.Answers.Count > 0)
                 content.Improvements.Insert(0,
@@ -72,10 +73,28 @@ namespace MockviewAI.Services.Ai.Implementations
             return Build(request, content, delivery, total, contentAvailable: true);
         }
 
+        // [LIVE-MODE] Câu bỏ qua ở Thực chiến -> nhãn SAI (chỉ câu thuộc bộ đề mới có nhãn; câu kiểu cũ chỉ tính vào tỉ lệ)
+        private void AddSkippedAsWrong(ScoreRequest request, List<AnswerVerdict> verdicts, bool inBankOnly)
+        {
+            foreach (var id in request.SkippedAsWrong)
+            {
+                if (id == null || (inBankOnly && _bank.Find(id) == null)) continue;
+                if (verdicts.Any(v => v.QuestionId == id)) continue;
+                verdicts.Add(new AnswerVerdict
+                {
+                    QuestionId = id,
+                    Category = AnswerCategory.Wrong,
+                    MatchedPath = AnswerCategory.OutOfBank,
+                    Feedback = "Bạn bỏ qua câu này ở chế độ Thực chiến nên được tính là sai."
+                });
+            }
+        }
+
         public InterviewScoreResult ScoreWithoutAi(ScoreRequest request)
         {
             var delivery = _delivery.Analyze(AllAnswers(request));
-            bool hasBankQuestions = request.Answers.Concat(request.InvalidAnswers).Any(a => _bank.Find(a.QuestionId) != null);
+            bool hasBankQuestions = request.Answers.Concat(request.InvalidAnswers).Any(a => _bank.Find(a.QuestionId) != null)
+                                    || request.SkippedAsWrong.Any(id => _bank.Find(id) != null);
 
             if (!hasBankQuestions)
             {
@@ -110,10 +129,11 @@ namespace MockviewAI.Services.Ai.Implementations
                     Feedback = "Câu trả lời chưa có ý nghĩa nên được tính sai."
                 });
             }
+            AddSkippedAsWrong(request, verdicts, inBankOnly: true);
 
             // 4 tiêu chí cùng lấy theo độ phủ ý cốt lõi (code không đo được bố cục / diễn đạt như AI)
             int criterion = (int)Math.Round((coverages.Count == 0 ? 0 : coverages.Average()) * 25);
-            int answeredCount = request.Answers.Count + request.InvalidAnswers.Count;
+            int answeredCount = request.Answers.Count + request.InvalidAnswers.Count + request.SkippedAsWrong.Count;
             int goodCount = verdicts.Count(v => v.Category != AnswerCategory.Wrong);
 
             var missing = verdicts

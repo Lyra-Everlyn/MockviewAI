@@ -22,7 +22,8 @@
     <header class="roombar">
         <div class="logo">Mockview<span>AI</span></div>
         <div class="tapewrap">
-            <div class="step"><b class="badge-step">Câu @Model.QuestionNumber / @Model.TotalQuestions</b> &middot; @Model.Position</div>
+            <div class="step"><b class="badge-step">Câu @Model.QuestionNumber / @Model.TotalQuestions</b> &middot; @Model.Position
+                @if (Model.IsLive) { <span class="mode-tag">Thực chiến</span> }</div>
             <div class="tape tape-room" aria-hidden="true">
                 @for (int i = 1; i <= Model.TotalQuestions; i++)
                 {
@@ -35,7 +36,9 @@
         <button class="btn btn-stop" id="btn-stop-session" type="button">Dừng buổi luyện</button>
     </header>
 
-    <main class="stage" id="interview-room" data-session-id="@Model.SessionId" data-total="@Model.TotalQuestions">
+    @* [LIVE-MODE] data-mode / data-think / data-max-answer / data-max-replays: InterviewRoom.js đọc để chạy luật Thực chiến *@
+    <main class="stage @(Model.IsLive ? "is-live" : "")" id="interview-room" data-session-id="@Model.SessionId" data-total="@Model.TotalQuestions"
+          data-mode="@Model.Mode" data-think="@Model.ThinkSeconds" data-max-answer="@Model.MaxAnswerSeconds" data-max-replays="@Model.MaxReplays">
         @Html.AntiForgeryToken()
 
         <!-- Người phỏng vấn + trạng thái -->
@@ -56,6 +59,16 @@
         <!-- Câu hỏi -->
         <h1 class="question" id="question-text">@Model.QuestionText</h1>
         <p class="voice-note" id="voice-note" hidden>Máy chưa có giọng đọc tiếng Việt. Bạn vẫn đọc câu hỏi ở trên và trả lời bình thường.</p>
+
+        @if (Model.IsLive)
+        {
+            <!-- [LIVE-MODE] Đồng hồ: suy nghĩ -> trả lời (JS điều khiển) -->
+            <div class="live-timer" id="live-timer" aria-live="polite" hidden>
+                <span class="live-phase" id="live-phase">Chuẩn bị</span>
+                <b class="live-clock" id="live-clock">0:@Model.ThinkSeconds.ToString("00")</b>
+                <div class="live-bar"><i id="live-bar-fill"></i></div>
+            </div>
+        }
 
         <!-- Câu trả lời: viền cam + "Đang ghi âm" khi micro đang nghe (CSS :has(.status-tag.is-listening)) -->
         <section class="answer transcript-box" aria-label="Câu trả lời của bạn">
@@ -85,8 +98,8 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
                 Bấm để nói
             </button>
-            <button class="btn btn-ghost" id="btn-type" type="button">Gõ câu trả lời</button>
-            <button class="btn btn-ghost" id="btn-skip" type="button">Bỏ qua câu này</button>
+            <button class="btn btn-ghost" id="btn-type" type="button" hidden="@Model.IsLive">Gõ câu trả lời</button>
+            <button class="btn btn-ghost" id="btn-skip" type="button">@(Model.IsLive ? "Bỏ qua (tính Sai)" : "Bỏ qua câu này")</button>
             <button class="btn btn-main" id="btn-send" type="button" hidden>Gửi câu trả lời</button>
         </div>
 
@@ -98,7 +111,14 @@
             <button class="btn btn-ghost" id="btn-fallback-score" type="button" hidden>Xem kết quả ngay (chấm sơ bộ, không cần AI)</button>
         </div>
 
-        <p class="tips">Mẹo: nói chậm, rõ; trả lời trong khoảng 1–2 phút.</p>
+        @if (Model.IsLive)
+        {
+            <p class="tips">Thực chiến: hết @Model.ThinkSeconds giây suy nghĩ micro tự bật, nói một lần, tối đa @(Model.MaxAnswerSeconds / 60) phút; hết giờ tự gửi. Không xoá, không sửa, nghe lại câu hỏi @Model.MaxReplays lần.</p>
+        }
+        else
+        {
+            <p class="tips">Mẹo: nói chậm, rõ; trả lời trong khoảng 1–2 phút.</p>
+        }
     </main>
 
     <!-- HỘP THOẠI: Dừng buổi luyện -->
@@ -124,7 +144,7 @@
             <p class="mic-test-status" id="mic-test-status"></p>
             <button class="btn btn-ghost" id="btn-mic-test" type="button">Bấm để nói thử</button>
             <div class="modal-actions">
-                <button class="btn btn-ghost" id="btn-mic-skip" type="button">Bỏ qua, tôi sẽ gõ chữ</button>
+                <button class="btn btn-ghost" id="btn-mic-skip" type="button" hidden="@Model.IsLive">Bỏ qua, tôi sẽ gõ chữ</button>
                 <button class="btn btn-main" id="btn-mic-ok" type="button">Vào phỏng vấn</button>
             </div>
         </div>

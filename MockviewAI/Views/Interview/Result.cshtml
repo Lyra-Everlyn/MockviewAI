@@ -25,7 +25,8 @@
         <div class="head">
             <div>
                 <h1>Kết quả buổi luyện</h1>
-                <p class="sub">@Model.Position &middot; @Model.StartedAt.ToString("dd/MM") &middot; @Model.QuestionCount câu &middot; Người phỏng vấn: @Model.InterviewerName</p>
+                <p class="sub">@Model.Position &middot; @Model.StartedAt.ToString("dd/MM") &middot; @Model.QuestionCount câu &middot; Người phỏng vấn: @Model.InterviewerName
+                    @if (Model.IsLive) { <span class="mode-tag">Thực chiến</span> }</p>
             </div>
             <div class="acts">
                 <a href="/Home/InterviewDetail/@Model.SessionId" class="btn btn-main">Xem lại hội thoại</a>
@@ -159,7 +160,8 @@
 
     <nav class="mobile-bottom-nav" aria-label="Điều hướng">
         <a href="/Home">Trang chủ</a>
-        <a href="/Interview/Create" class="active">Luyện</a>
+        <a href="/Interview/Create" class="@(Model.IsLive ? null : "active")">Luyện</a>
+        <a href="/Interview/Create?mode=live" class="@(Model.IsLive ? "active" : null)">Thực chiến</a>
         <a href="/Home/History">Lịch sử</a>
         <a href="/Profile">Hồ sơ</a>
     </nav>

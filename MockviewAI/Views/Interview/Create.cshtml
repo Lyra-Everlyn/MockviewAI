@@ -1,6 +1,8 @@
 @{
     Layout = null;
-    ViewData["ActiveNav"] = "practice";   // mục sáng trên thanh menu dùng chung
+    // [LIVE-MODE] Vào từ menu "Thực chiến" (/Interview/Create?mode=live) -> chọn sẵn chế độ Thực chiến
+    var startLive = Context.Request.Query["mode"] == MockviewAI.Models.InterviewModes.Live;
+    ViewData["ActiveNav"] = startLive ? "live" : "practice";   // mục sáng trên thanh menu dùng chung
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -61,6 +63,27 @@
 
             <!-- Thông tin buổi luyện -->
             <section class="panel setup" aria-label="Thông tin buổi luyện">
+                @* [LIVE-MODE] Đợt 6: chọn chế độ. Luật Thực chiến lấy từ MockviewAI.Models.InterviewModes *@
+                <fieldset class="field">
+                    <legend class="label">Chế độ</legend>
+                    <div class="modes">
+                        <label class="mode-card">
+                            <input type="radio" name="mode" value="practice" checked="@(!startLive)">
+                            <span class="mode-body">
+                                <span class="mode-name">Luyện tập</span>
+                                <span class="mode-desc">Được nói lại, gõ chữ, nghe lại câu hỏi. Hợp để làm quen.</span>
+                            </span>
+                        </label>
+                        <label class="mode-card mode-live">
+                            <input type="radio" name="mode" value="live" checked="@startLive">
+                            <span class="mode-body">
+                                <span class="mode-name">Thực chiến</span>
+                                <span class="mode-desc">Nói một lần như phỏng vấn thật: @MockviewAI.Models.InterviewModes.LiveThinkSeconds giây suy nghĩ, tối đa @(MockviewAI.Models.InterviewModes.LiveMaxAnswerSeconds / 60) phút mỗi câu, không xoá, không sửa.</span>
+                            </span>
+                        </label>
+                    </div>
+                </fieldset>
+
                 <fieldset class="field">
                     <legend class="label">Vị trí ứng tuyển</legend>
                     <div class="pills">
@@ -100,7 +123,8 @@
     <!-- Menu dưới đáy (điện thoại) -->
     <nav class="mobile-bottom-nav" aria-label="Điều hướng">
         <a href="/Home">Trang chủ</a>
-        <a href="/Interview/Create" class="active">Luyện</a>
+        <a href="/Interview/Create" class="@(startLive ? null : "active")">Luyện</a>
+        <a href="/Interview/Create?mode=live" class="@(startLive ? "active" : null)">Thực chiến</a>
         <a href="/Home/History">Lịch sử</a>
         <a href="/Profile">Hồ sơ</a>
     </nav>
@@ -114,13 +138,15 @@
             function update() {
                 var n = parseInt(form.querySelector('input[name="questionCount"]:checked').value, 10);
                 var who = form.querySelector('input[name="interviewer"]:checked').dataset.name;
+                var live = form.querySelector('input[name="mode"]:checked').value === 'live';
                 tape.innerHTML = '';
                 for (var i = 0; i < n; i++) {
                     var seg = document.createElement('span');
                     seg.className = 'seg' + (i === 0 ? ' now' : '');
                     tape.appendChild(seg);
                 }
-                text.textContent = n + ' câu với ' + who + ' · khoảng ' + (n * 2) + '–' + (n * 3) + ' phút · câu đầu luôn là giới thiệu bản thân';
+                text.textContent = n + ' câu với ' + who + ' · ' + (live ? 'Thực chiến' : 'Luyện tập') + ' · khoảng ' + (n * 2) + '–' + (n * 3) + ' phút · câu đầu luôn là giới thiệu bản thân';
+                document.getElementById('createSessionForm').classList.toggle('is-live', live);
             }
             form.addEventListener('change', update);
             update();
