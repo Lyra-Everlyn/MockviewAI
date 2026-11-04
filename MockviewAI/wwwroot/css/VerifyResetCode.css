@@ -46,10 +46,10 @@
     overflow-wrap: anywhere;
 }
 
-.reset-otp-panel__email i {
-    flex: 0 0 auto;
-    color: var(--color-primary);
-}
+    .reset-otp-panel__email i {
+        flex: 0 0 auto;
+        color: var(--color-primary);
+    }
 
 .reset-otp-panel__expiry {
     display: flex;
@@ -67,9 +67,9 @@
     border: 0;
 }
 
-.otp-fieldset legend {
-    margin-bottom: 12px;
-}
+    .otp-fieldset legend {
+        margin-bottom: 12px;
+    }
 
 .reset-otp-panel__help {
     margin-top: 22px;

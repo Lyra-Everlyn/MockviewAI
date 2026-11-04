@@ -33,7 +33,7 @@ namespace MockviewAI
     {
         public static void Main(string[] args)
         {
-            DotNetEnv.Env.Load();
+            DotNetEnv.Env.TraversePath().Load();
 
             var builder = WebApplication.CreateBuilder(args);
             builder.Configuration.AddEnvironmentVariables();

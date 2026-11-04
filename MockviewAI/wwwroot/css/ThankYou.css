@@ -82,7 +82,7 @@
         flex-direction: column;
     }
 
-    .thankyou-panel__actions .button {
-        width: 100%;
-    }
+        .thankyou-panel__actions .button {
+            width: 100%;
+        }
 }

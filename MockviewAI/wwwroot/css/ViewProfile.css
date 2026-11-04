@@ -54,11 +54,11 @@
     box-shadow: var(--shadow-control);
 }
 
-.profile-summary-card__avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+    .profile-summary-card__avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 
 .profile-summary-card__status {
     position: absolute;
@@ -275,9 +275,9 @@
         margin-bottom: 17px;
     }
 
-    .profile-history-card__header .section-header__action {
-        margin-top: 20px;
-    }
+        .profile-history-card__header .section-header__action {
+            margin-top: 20px;
+        }
 
     .profile-session-item--extra {
         display: none;
