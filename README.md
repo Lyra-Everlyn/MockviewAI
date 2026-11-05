@@ -101,7 +101,7 @@ In the root directory of the project (where `docker-compose.yml` is located), cr
 MYSQL_ROOT_PASSWORD=change-me
 
 # Database
-ConnectionStrings__Default=CHANGE_ME;
+ConnectionStrings__DefaultConnection=CHANGE_ME;
 ConnectionStrings__RedisConnection=CHANGE_ME
 
 # Cloudflare Turnstile
