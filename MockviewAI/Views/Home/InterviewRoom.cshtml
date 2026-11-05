@@ -1,9 +1,12 @@
 @model MockviewAI.Models.ViewModels.InterviewRoomViewModel
 @{
     Layout = null;
-    // [UI-DARK] Màu ô người phỏng vấn theo tên (Linh / Nam / An)
+    ViewData["ActiveNav"] = "practice";
+
     var faceClass = Model.InterviewerName switch { "Nam" => "f-nam", "An" => "f-an", _ => "" };
     var faceLetter = string.IsNullOrEmpty(Model.InterviewerName) ? "?" : Model.InterviewerName.Substring(0, 1).ToUpper();
+    var progressStyle = $"width: {System.Convert.ToString(Model.ProgressPercent, System.Globalization.CultureInfo.InvariantCulture)}%;";
+    var micCheckStyle = Model.AnsweredCount == 0 ? "display: flex;" : "display: none;";
 }
 
 <!DOCTYPE html>
@@ -12,150 +15,169 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phòng phỏng vấn - MockviewAI</title>
-    @* [UI-DARK] Đợt 4 (02/11): giao diện tối "phòng thu". Bản sáng cũ: InterviewRoom.css.
-       GIỮ NGUYÊN mọi id / class mà InterviewRoom.js dùng (badge-step, progress-fill, status-tag, btn-*, room-wave...). *@
-    <link rel="stylesheet" href="~/css/studio.css">
-    <link rel="stylesheet" href="~/css/studio-room.css">
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/InterviewRoom.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/themes/theme-indigo.css" asp-append-version="true" />
 </head>
-<body class="studio">
-    <!-- Thanh trên: tiến độ dạng dải băng + nút dừng -->
-    <header class="roombar">
-        <div class="logo">Mockview<span>AI</span></div>
-        <div class="tapewrap">
-            <div class="step"><b class="badge-step">Câu @Model.QuestionNumber / @Model.TotalQuestions</b> &middot; @Model.Position
-                @if (Model.IsLive) { <span class="mode-tag">Thực chiến</span> }</div>
-            <div class="tape tape-room" aria-hidden="true">
-                @for (int i = 1; i <= Model.TotalQuestions; i++)
+<body class="app-layout interview-room-page">
+    <div class="app-layout__content">
+        <div class="interview-room-shell">
+            <header class="interview-room-header">
+                <div class="interview-room-header__heading">
+                    <span class="interview-room-header__eyebrow">PHỎNG VẤN ĐANG DIỄN RA</span>
+                    <h1 class="interview-room-header__title">Phòng phỏng vấn</h1>
+                    <p class="interview-room-header__description">Tập trung vào từng câu hỏi, trả lời bằng giọng nói hoặc văn bản.</p>
+                </div>
+                <div class="interview-room-header__actions">
+                    <span class="interview-room-header__mode @(Model.IsLive ? "is-live" : "is-practice")">
+                        <i class="fa-solid @(Model.IsLive ? "fa-stopwatch" : "fa-book-open")" aria-hidden="true"></i>
+                        @(Model.IsLive ? "Thực chiến" : "Luyện tập")
+                    </span>
+                    <button class="room-btn room-btn--stop" id="btn-stop-session" type="button">
+                        <i class="fa-solid fa-circle-stop" aria-hidden="true"></i> Dừng buổi phỏng vấn
+                    </button>
+                </div>
+            </header>
+            <section class="interview-room-progress" aria-label="Tiến độ phỏng vấn">
+                <div class="interview-room-progress__head">
+                    <strong class="badge-step">Câu @Model.QuestionNumber / @Model.TotalQuestions</strong>
+                    <span>@Model.Position</span>
+                </div>
+                <div class="tape tape-room" aria-hidden="true">
+                    @for (int i = 1; i <= Model.TotalQuestions; i++)
+                    {
+                        <span class="seg @(i < Model.QuestionNumber ? "done" : i == Model.QuestionNumber ? "now" : "")"></span>
+                    }
+                </div>
+                @* JS đồng bộ cả thanh tiến độ truyền thống và dải phân đoạn. *@
+                <div class="progress-track" hidden><div class="progress-fill" style="@progressStyle"></div></div>
+            </section>
+            @* [LIVE-MODE] data-mode / data-think / data-max-answer / data-max-replays: InterviewRoom.js đọc để chạy luật Thực chiến *@
+            <main class="interview-room-stage stage @(Model.IsLive ? "is-live" : "")" id="interview-room" data-session-id="@Model.SessionId" data-total="@Model.TotalQuestions"
+                  data-mode="@Model.Mode" data-think="@Model.ThinkSeconds" data-max-answer="@Model.MaxAnswerSeconds" data-max-replays="@Model.MaxReplays">
+                @Html.AntiForgeryToken()
+
+                <!-- Người phỏng vấn + trạng thái -->
+                <div class="asker">
+                    <div class="face @faceClass">@faceLetter</div>
+                    <div class="asker-text">
+                        <div class="who">@Model.InterviewerName</div>
+                        <div class="role">@Model.InterviewerRole</div>
+                    </div>
+                    <div class="status-tag" id="status-tag">Đang hỏi...</div>
+                    <!-- [#17] Đọc lại câu hỏi bằng giọng nói -->
+                    <button class="replay" id="btn-replay" type="button" title="Nghe lại câu hỏi">
+                        <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                        Nghe lại
+                    </button>
+                </div>
+
+                <!-- Câu hỏi -->
+                @* [FOLLOW-UP] Đợt 8: câu hỏi thêm vì câu trả lời vừa rồi còn thiếu ý (JS bật / tắt khi sang câu mới) *@
+                <p class="followup-note" id="followup-note" hidden="@(!Model.IsFollowUp)">@Model.InterviewerName hỏi thêm về câu trả lời vừa rồi</p>
+                <h1 class="question" id="question-text">@Model.QuestionText</h1>
+                <p class="voice-note" id="voice-note" hidden>Máy chưa có giọng đọc tiếng Việt. Bạn vẫn đọc câu hỏi ở trên và trả lời bình thường.</p>
+
+                @if (Model.IsLive)
                 {
-                    <span class="seg @(i < Model.QuestionNumber ? "done" : i == Model.QuestionNumber ? "now" : "")"></span>
+                    <!-- [LIVE-MODE] Đồng hồ: suy nghĩ -> trả lời (JS điều khiển) -->
+                    <div class="live-timer" id="live-timer" aria-live="polite" hidden>
+                        <span class="live-phase" id="live-phase">Chuẩn bị</span>
+                        <b class="live-clock" id="live-clock">0:@Model.ThinkSeconds.ToString("00")</b>
+                        <div class="live-bar"><i id="live-bar-fill"></i></div>
+                    </div>
                 }
+
+                <!-- Câu trả lời: viền cam + "Đang ghi âm" khi micro đang nghe (CSS :has(.status-tag.is-listening)) -->
+                <section class="answer transcript-box" aria-label="Câu trả lời của bạn">
+                    <div class="ans-head">
+                        <span class="rec">Đang ghi âm</span>
+                        <span class="ans-label">Câu trả lời của bạn</span>
+                        <span class="voice-level" id="voice-level" hidden></span>   @* [VOICE] Đợt 7: mức âm lượng khi đang nói *@
+                    </div>
+                    <div class="transcript-text" id="transcript-text">Câu trả lời của bạn sẽ hiện ở đây.</div>
+                    <div class="transcript-meta" id="transcript-meta" hidden></div>
+                    <textarea class="answer-input" id="answer-input" rows="5" maxlength="2000" hidden
+                              placeholder="Gõ câu trả lời của bạn..."></textarea>
+                    <!-- Sóng âm đo trực tiếp từ micro: sóng động = hệ thống đang nghe thấy bạn -->
+                    <div class="wave wave-room" id="room-wave" aria-hidden="true" hidden></div>
+                    <p class="volume-hint" id="volume-hint" role="status" hidden>Bạn đang nói hơi nhỏ. Hãy nói to và rõ hơn để người phỏng vấn nghe được.</p>
+                    <!-- 28/10: nói sai thì xoá bản ghi để nói lại (chỉ hiện khi đã có chữ) -->
+                    <button class="btn-clear-answer" id="btn-clear-answer" type="button" hidden>
+                        <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                        Xoá ghi âm, nói lại
+                    </button>
+                </section>
+
+                <!-- Xác nhận câu trả lời vừa gửi -->
+                <div class="last-answer" id="last-answer" hidden></div>
+
+                <!-- Cụm điều khiển -->
+                <div class="dock">
+                    <button class="room-btn room-btn--mic" id="btn-speak" type="button">
+                        <i class="fa-solid fa-microphone" aria-hidden="true"></i>
+                        Bấm để nói
+                    </button>
+                    <button class="room-btn room-btn--ghost" id="btn-type" type="button" hidden="@Model.IsLive">Gõ câu trả lời</button>
+                    <button class="room-btn room-btn--ghost" id="btn-skip" type="button">@(Model.IsFollowUp ? "Bỏ qua câu hỏi thêm" : Model.IsLive ? "Bỏ qua (tính Sai)" : "Bỏ qua câu này")</button>
+                    <button class="room-btn room-btn--primary" id="btn-send" type="button" hidden>Gửi câu trả lời</button>
+                </div>
+
+                <p class="helper-text" id="room-message" hidden></p>
+
+                <!-- Hiện khi AI chấm lỗi -->
+                <div class="score-retry">
+                    <button class="room-btn room-btn--primary" id="btn-retry-score" type="button" hidden>Chấm lại</button>
+                    <button class="room-btn room-btn--ghost" id="btn-fallback-score" type="button" hidden>Xem kết quả ngay (chấm sơ bộ, không cần AI)</button>
+                </div>
+
+                @if (Model.IsLive)
+                {
+                    <p class="tips">Thực chiến: hết @Model.ThinkSeconds giây suy nghĩ micro tự bật, nói một lần, tối đa @(Model.MaxAnswerSeconds / 60) phút; hết giờ tự gửi. Không xoá, không sửa, nghe lại câu hỏi @Model.MaxReplays lần.</p>
+                }
+                else
+                {
+                    <p class="tips">Mẹo: nói chậm, rõ; trả lời trong khoảng 1–2 phút.</p>
+                }
+            </main>
+
+            <!-- Xác nhận dừng phiên -->
+            <div class="modal-overlay" id="stop-modal" role="dialog" aria-modal="true" aria-labelledby="stop-modal-title">
+                <div class="modal-box">
+                    <h2 class="modal-title" id="stop-modal-title">Dừng buổi phỏng vấn?</h2>
+                    <p class="modal-desc">Bạn đã trả lời <span id="answered-count">@Model.AnsweredCount</span> / @Model.TotalQuestions câu. Các câu đã trả lời vẫn được chấm điểm và lưu vào lịch sử.</p>
+                    <div class="modal-actions">
+                        <button class="room-btn room-btn--ghost" id="btn-resume">Tiếp tục phỏng vấn</button>
+                        <button class="room-btn room-btn--danger" id="btn-finish" type="button">Dừng và xem kết quả</button>
+                    </div>
+                </div>
             </div>
-            @* Thanh tiến trình cũ: JS vẫn cập nhật nên giữ lại (ẩn) *@
-            <div class="progress-track" hidden><div class="progress-fill" style="width: @(Model.ProgressPercent)%;"></div></div>
-        </div>
-        <button class="btn btn-stop" id="btn-stop-session" type="button">Dừng buổi luyện</button>
-    </header>
 
-    @* [LIVE-MODE] data-mode / data-think / data-max-answer / data-max-replays: InterviewRoom.js đọc để chạy luật Thực chiến *@
-    <main class="stage @(Model.IsLive ? "is-live" : "")" id="interview-room" data-session-id="@Model.SessionId" data-total="@Model.TotalQuestions"
-          data-mode="@Model.Mode" data-think="@Model.ThinkSeconds" data-max-answer="@Model.MaxAnswerSeconds" data-max-replays="@Model.MaxReplays">
-        @Html.AntiForgeryToken()
-
-        <!-- Người phỏng vấn + trạng thái -->
-        <div class="asker">
-            <div class="face @faceClass">@faceLetter</div>
-            <div class="asker-text">
-                <div class="who">@Model.InterviewerName</div>
-                <div class="role">@Model.InterviewerRole</div>
+            <!-- Kiểm tra micro trước câu trả lời đầu tiên -->
+            <div class="modal-overlay" id="mic-check" role="dialog" aria-modal="true" aria-labelledby="mic-check-title" style="@micCheckStyle">
+                <div class="modal-box">
+                    <h2 class="modal-title" id="mic-check-title">Kiểm tra micro</h2>
+                    <p class="modal-desc">Bấm nút bên dưới rồi nói thử: <strong>"Xin chào, tôi sẵn sàng phỏng vấn"</strong>.</p>
+                    <p class="browser-warning" id="browser-warning" hidden></p>
+                    <div class="wave" id="mic-wave" aria-hidden="true"></div>
+                    <div class="mic-test-box" id="mic-test-text">Chữ bạn nói sẽ hiện ở đây.</div>
+                    <p class="mic-test-status" id="mic-test-status"></p>
+                    <p class="mic-level" id="mic-level" hidden></p>
+                    <button class="room-btn room-btn--ghost" id="btn-mic-test" type="button">Bấm để nói thử</button>
+                    <div class="modal-actions">
+                        <button class="room-btn room-btn--ghost" id="btn-mic-skip" type="button" hidden="@Model.IsLive">Bỏ qua, tôi sẽ gõ chữ</button>
+                        <button class="room-btn room-btn--primary" id="btn-mic-ok" type="button">Vào phỏng vấn</button>
+                    </div>
+                </div>
             </div>
-            <div class="status-tag" id="status-tag">Đang hỏi...</div>
-            <!-- [#17] Đọc lại câu hỏi bằng giọng nói -->
-            <button class="replay" id="btn-replay" type="button" title="Nghe lại câu hỏi">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-                Nghe lại
-            </button>
-        </div>
 
-        <!-- Câu hỏi -->
-        @* [FOLLOW-UP] Đợt 8: câu hỏi thêm vì câu trả lời vừa rồi còn thiếu ý (JS bật / tắt khi sang câu mới) *@
-        <p class="followup-note" id="followup-note" hidden="@(!Model.IsFollowUp)">@Model.InterviewerName hỏi thêm về câu trả lời vừa rồi</p>
-        <h1 class="question" id="question-text">@Model.QuestionText</h1>
-        <p class="voice-note" id="voice-note" hidden>Máy chưa có giọng đọc tiếng Việt. Bạn vẫn đọc câu hỏi ở trên và trả lời bình thường.</p>
-
-        @if (Model.IsLive)
-        {
-            <!-- [LIVE-MODE] Đồng hồ: suy nghĩ -> trả lời (JS điều khiển) -->
-            <div class="live-timer" id="live-timer" aria-live="polite" hidden>
-                <span class="live-phase" id="live-phase">Chuẩn bị</span>
-                <b class="live-clock" id="live-clock">0:@Model.ThinkSeconds.ToString("00")</b>
-                <div class="live-bar"><i id="live-bar-fill"></i></div>
-            </div>
-        }
-
-        <!-- Câu trả lời: viền cam + "Đang ghi âm" khi micro đang nghe (CSS :has(.status-tag.is-listening)) -->
-        <section class="answer transcript-box" aria-label="Câu trả lời của bạn">
-            <div class="ans-head">
-                <span class="rec">Đang ghi âm</span>
-                <span class="ans-label">Câu trả lời của bạn</span>
-                <span class="voice-level" id="voice-level" hidden></span>   @* [VOICE] Đợt 7: mức âm lượng khi đang nói *@
-            </div>
-            <div class="transcript-text" id="transcript-text">Câu trả lời của bạn sẽ hiện ở đây.</div>
-            <div class="transcript-meta" id="transcript-meta" hidden></div>
-            <textarea class="answer-input" id="answer-input" rows="5" maxlength="2000" hidden
-                      placeholder="Gõ câu trả lời của bạn..."></textarea>
-            <!-- Sóng âm đo trực tiếp từ micro: sóng động = hệ thống đang nghe thấy bạn -->
-            <div class="wave wave-room" id="room-wave" aria-hidden="true" hidden></div>
-            <p class="volume-hint" id="volume-hint" role="status" hidden>Bạn đang nói hơi nhỏ. Hãy nói to và rõ hơn để người phỏng vấn nghe được.</p>
-            <!-- 28/10: nói sai thì xoá bản ghi để nói lại (chỉ hiện khi đã có chữ) -->
-            <button class="btn-clear-answer" id="btn-clear-answer" type="button" hidden>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg>
-                Xoá ghi âm, nói lại
-            </button>
-        </section>
-
-        <!-- Xác nhận câu trả lời vừa gửi -->
-        <div class="last-answer" id="last-answer" hidden></div>
-
-        <!-- Cụm điều khiển -->
-        <div class="dock">
-            <button class="btn btn-mic" id="btn-speak" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
-                Bấm để nói
-            </button>
-            <button class="btn btn-ghost" id="btn-type" type="button" hidden="@Model.IsLive">Gõ câu trả lời</button>
-            <button class="btn btn-ghost" id="btn-skip" type="button">@(Model.IsFollowUp ? "Bỏ qua câu hỏi thêm" : Model.IsLive ? "Bỏ qua (tính Sai)" : "Bỏ qua câu này")</button>
-            <button class="btn btn-main" id="btn-send" type="button" hidden>Gửi câu trả lời</button>
-        </div>
-
-        <p class="helper-text" id="room-message" hidden></p>
-
-        <!-- Hiện khi AI chấm lỗi -->
-        <div class="score-retry">
-            <button class="btn btn-main" id="btn-retry-score" type="button" hidden>Chấm lại</button>
-            <button class="btn btn-ghost" id="btn-fallback-score" type="button" hidden>Xem kết quả ngay (chấm sơ bộ, không cần AI)</button>
-        </div>
-
-        @if (Model.IsLive)
-        {
-            <p class="tips">Thực chiến: hết @Model.ThinkSeconds giây suy nghĩ micro tự bật, nói một lần, tối đa @(Model.MaxAnswerSeconds / 60) phút; hết giờ tự gửi. Không xoá, không sửa, nghe lại câu hỏi @Model.MaxReplays lần.</p>
-        }
-        else
-        {
-            <p class="tips">Mẹo: nói chậm, rõ; trả lời trong khoảng 1–2 phút.</p>
-        }
-    </main>
-
-    <!-- HỘP THOẠI: Dừng buổi luyện -->
-    <div class="modal-overlay" id="stop-modal">
-        <div class="modal-box">
-            <h2 class="modal-title">Dừng buổi luyện?</h2>
-            <p class="modal-desc">Bạn đã trả lời <span id="answered-count">@Model.AnsweredCount</span> / @Model.TotalQuestions câu. Các câu đã trả lời vẫn được chấm điểm và lưu vào lịch sử.</p>
-            <div class="modal-actions">
-                <button class="btn btn-ghost" id="btn-resume">Tiếp tục phỏng vấn</button>
-                <button class="btn btn-stop-fill" id="btn-finish" type="button">Dừng và xem kết quả</button>
-            </div>
         </div>
     </div>
-
-    <!-- [#18] HỘP THOẠI: Kiểm tra micro trước khi bắt đầu (chỉ hiện khi chưa trả lời câu nào) -->
-    <div class="modal-overlay" id="mic-check" style="display: @(Model.AnsweredCount == 0 ? "flex" : "none");">
-        <div class="modal-box">
-            <h2 class="modal-title">Kiểm tra micro</h2>
-            <p class="modal-desc">Bấm nút bên dưới rồi nói thử: <strong>"Xin chào, tôi sẵn sàng phỏng vấn"</strong>.</p>
-            <p class="browser-warning" id="browser-warning" hidden></p>
-            <div class="wave" id="mic-wave" aria-hidden="true"></div>
-            <div class="mic-test-box" id="mic-test-text">Chữ bạn nói sẽ hiện ở đây.</div>
-            <p class="mic-test-status" id="mic-test-status"></p>
-            <p class="mic-level" id="mic-level" hidden></p>   @* [VOICE] âm lượng giọng khi nói thử *@
-            <button class="btn btn-ghost" id="btn-mic-test" type="button">Bấm để nói thử</button>
-            <div class="modal-actions">
-                <button class="btn btn-ghost" id="btn-mic-skip" type="button" hidden="@Model.IsLive">Bỏ qua, tôi sẽ gõ chữ</button>
-                <button class="btn btn-main" id="btn-mic-ok" type="button">Vào phỏng vấn</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="~/js/VoiceAnalysis.js"></script>   @* [VOICE] Đợt 7: đo âm lượng + giọng điệu (phải nạp trước InterviewRoom.js) *@
-    <script src="~/js/InterviewRoom.js"></script>
+    <partial name="Partials/_Notify" />
+    <script src="~/js/VoiceAnalysis.js" asp-append-version="true"></script>
+    <script src="~/js/InterviewRoom.js" asp-append-version="true"></script>
 </body>
 </html>

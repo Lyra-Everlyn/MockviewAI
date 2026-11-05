@@ -1,10 +1,5 @@
-// [AI-INTERVIEW] Phòng phỏng vấn: nói hoặc gõ câu trả lời -> gửi lên server -> sang câu tiếp -> chấm điểm.
-// Giọng nói dùng SpeechRecognition của trình duyệt (Chrome/Edge). Trình duyệt không hỗ trợ thì dùng nút "Gõ câu trả lời".
-// 21/10 (sáng): [#17] đọc câu hỏi + "Nghe lại"; [#18] kiểm tra micro; [#3] đo khoảng lặng khi nói.
-// 28/10: nút "Xoá ghi âm, nói lại" dưới bản ghi chữ (huỷ nghe nếu đang nói, xoá chữ đã ghi).
-// 21/10 (chiều): sóng âm đo từ micro (thấy sóng = hệ thống nghe thấy bạn); chữ hiện trực tiếp khi nói;
-//                báo lỗi rõ ràng (vd Opera không nhận giọng nói); xác nhận "Đã ghi nhận câu trả lời";
-//                câu trả lời bị từ chối thì nói lại; AI chấm lỗi thì "Chấm lại" / kết quả dự phòng.
+// MockviewAI | Interview Room
+// Điều khiển câu hỏi, nhận dạng giọng nói, chấm điểm và chế độ Thực chiến.
 
 (function () {
     const room = document.getElementById('interview-room');
@@ -13,7 +8,7 @@
     const totalQuestions = parseInt(room.dataset.total, 10);
     const token = room.querySelector('input[name="__RequestVerificationToken"]').value;
 
-    // Các phần tử trên trang
+    // Tham chiếu DOM
     const questionText = document.getElementById('question-text');
     const transcriptText = document.getElementById('transcript-text');
     const transcriptMeta = document.getElementById('transcript-meta');
@@ -38,60 +33,65 @@
     const answeredCount = document.getElementById('answered-count');
 
     const PLACEHOLDER = 'Câu trả lời của bạn sẽ hiện ở đây.';
-    const MIN_PAUSE_SECONDS = 1;       // im lặng ngắn hơn 1 giây là ngắt hơi bình thường, không tính
-    const NO_SOUND_HINT_MS = 6000;     // sau chừng này mà micro chưa nghe thấy gì -> nhắc kiểm tra micro
-    const NO_TEXT_HINT_MS = 6000;      // nghe thấy tiếng nhưng chừng này vẫn chưa ra chữ -> báo trình duyệt không nhận giọng nói
-    const SOUND_LEVEL = 0.06;          // ngưỡng mức âm thanh coi là "có tiếng"
+    const MIN_PAUSE_SECONDS = 1;
+    const NO_SOUND_HINT_MS = 6000;
+    const NO_TEXT_HINT_MS = 6000;
+    const SOUND_LEVEL = 0.06;
 
-    // ---------- [LIVE-MODE] Đợt 6: chế độ Thực chiến (nói 1 lần từ đầu đến cuối như phỏng vấn thật) ----------
-    // Vòng mỗi câu: đọc câu hỏi -> đếm ngược suy nghĩ -> micro tự bật -> đếm ngược trả lời -> tự gửi.
-    // Không xoá ghi âm, không gõ chữ (trừ khi trình duyệt không nhận được giọng nói), nghe lại câu hỏi có giới hạn.
+    // ============================================================================
+    // CHẾ ĐỘ THỰC CHIẾN
+    // ============================================================================
+    // Đọc câu hỏi → suy nghĩ → tự bật micro → trả lời → tự gửi khi hết giờ.
+    // Thực chiến giới hạn nghe lại và không cho sửa câu trả lời, trừ khi cần gõ thay thế.
     const isLive = room.dataset.mode === 'live';
     const THINK_SECONDS = parseInt(room.dataset.think || '15', 10);
     const MAX_ANSWER_SECONDS = parseInt(room.dataset.maxAnswer || '120', 10);
     const MAX_REPLAYS = parseInt(room.dataset.maxReplays || '1', 10);
-    const TTS_SAFETY_MS = 25000;       // giọng đọc không báo "đọc xong" -> vẫn bắt đầu đếm suy nghĩ
+    const TTS_SAFETY_MS = 25000;
     const liveTimer = document.getElementById('live-timer');
     const livePhaseLabel = document.getElementById('live-phase');
     const liveClock = document.getElementById('live-clock');
     const liveBarFill = document.getElementById('live-bar-fill');
-    let livePhase = 'idle';            // idle | ready | reading | think | answer | sending
+    let livePhase = 'idle';
     let liveRemaining = 0;
     let liveTotal = 1;
     let liveInterval = null;
     let replaysUsed = 0;
-    let liveQuestionToken = 0;         // mỗi câu một mã: hẹn giờ của câu trước không ảnh hưởng câu sau
+    let liveQuestionToken = 0;
 
-    // ---------- [VOICE] Đợt 7: âm lượng + giọng điệu (VoiceAnalysis.js, Web Audio, không AI) ----------
-    const VA = window.VoiceAnalysis || null;   // thiếu file -> bỏ qua phần đo, mọi thứ khác chạy bình thường
-    const FRAME_SECONDS = 0.1;                 // mỗi 0.1 giây lấy 1 mẫu {db, pitch}
+    // ============================================================================
+    // PHÂN TÍCH GIỌNG NÓI
+    // ============================================================================
+    const VA = window.VoiceAnalysis || null;
+    const FRAME_SECONDS = 0.1;
     const volumeHint = document.getElementById('volume-hint');
     const voiceLevel = document.getElementById('voice-level');
-    let voiceFrames = [];                      // mẫu của lần nói hiện tại
-    let lastVoice = null;                      // tóm tắt gửi kèm câu trả lời
+    let voiceFrames = [];
+    let lastVoice = null;
 
-    let committedText = '';            // chữ đã chốt từ các lần nhận dạng trước (khi trình duyệt tự ngắt rồi nối tiếp)
-    let spokenText = '';               // toàn bộ chữ nhận từ giọng nói của câu hiện tại
-    let isTyping = false;              // đang gõ tay hay không
-    let speakStartedAt = null;         // thời điểm bắt đầu nói
-    let speakSeconds = null;           // tổng thời gian nói (giây)
+    let committedText = '';
+    let spokenText = '';
+    let isTyping = false;
+    let speakStartedAt = null;
+    let speakSeconds = null;
     let recognition = null;
     let isListening = false;
-    let busy = false;                  // đang chờ server trả lời
-    let scoreFailures = 0;             // số lần AI chấm lỗi liên tiếp
+    let busy = false;
+    let scoreFailures = 0;
     let hintTimer = null;
 
-    // Opera/Opera GX có webkitSpeechRecognition nhưng thường không kết nối được dịch vụ nhận giọng nói
     const isOpera = /OPR\/|Opera/i.test(navigator.userAgent);
     const OPERA_WARNING = 'Bạn đang dùng Opera: trình duyệt này thường KHÔNG chuyển giọng nói thành chữ được. ' +
         'Để nói trực tiếp, hãy mở trang bằng Chrome hoặc Edge. Hoặc bấm "Bỏ qua, tôi sẽ gõ chữ" để gõ câu trả lời.';
 
-    // ---------- [#3] Ghi sự kiện theo thời gian ----------
-    // Chỉ giữ trên trình duyệt (không gửi lên server). Server chỉ nhận danh sách khoảng lặng.
-    // Xem nhanh khi chạy thử: mở F12 > Console, gõ  mockviewEvents
+    // ============================================================================
+    // THEO DÕI SỰ KIỆN
+    // ============================================================================
+    // Sự kiện chỉ lưu tại trình duyệt; server nhận danh sách khoảng lặng.
+
     let questionShownAt = Date.now();
-    let lastSpeechAt = null;      // lần cuối nhận được chữ từ giọng nói
-    let pauses = [];              // các khoảng lặng (giây) của câu đang trả lời
+    let lastSpeechAt = null;
+    let pauses = [];
     const events = [];
     window.mockviewEvents = events;
 
@@ -99,7 +99,9 @@
         events.push({ type: type, atSeconds: Math.round((Date.now() - questionShownAt) / 100) / 10, detail: detail || null });
     }
 
-    // ---------- Hàm gọi server ----------
+    // ============================================================================
+    // GIAO TIẾP VỚI SERVER
+    // ============================================================================
     async function postJson(url, data) {
         const response = await fetch(url, {
             method: 'POST',
@@ -110,13 +112,12 @@
         const body = await response.json().catch(() => ({}));
         if (!response.ok) {
             const error = new Error(body.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
-            error.body = body;   // retry = true: câu trả lời bị từ chối, cho nói lại
+            error.body = body;
             throw error;
         }
         return body;
     }
 
-    // kind: 'success' | 'error' | undefined
     function showMessage(text, kind) {
         message.textContent = text;
         message.hidden = !text;
@@ -129,16 +130,17 @@
         [btnSpeak, btnType, btnSkip, btnSend, btnStop, btnFinish, btnReplay, btnClear].forEach(b => b.disabled = value);
     }
 
-    // Nhãn dưới avatar: "Đang hỏi..." / "Đang lắng nghe..." / "Chờ bạn trả lời"
     function setStatus(text, cssClass) {
         statusTag.textContent = text;
         statusTag.classList.remove('is-listening', 'is-waiting');
         if (cssClass) statusTag.classList.add(cssClass);
     }
 
-    // ---------- Sóng âm đo trực tiếp từ micro ----------
-    // Dùng Web Audio (getUserMedia): chạy được cả khi trình duyệt không nhận dạng được giọng nói.
-    // Sóng động = micro đang thu được tiếng của bạn.
+    // ============================================================================
+    // ĐO ÂM THANH TỪ MICRO
+    // ============================================================================
+    // Web Audio đo tín hiệu micro độc lập với SpeechRecognition.
+
     const WAVE_BARS = 24;
     let audioStream = null;
     let audioContext = null;
@@ -148,7 +150,7 @@
     let meterContainer = null;
     let onSoundCallback = null;
     let heardSound = false;
-    let timeAnalyser = null;           // [VOICE] dạng sóng để đo dB + cao độ
+    let timeAnalyser = null;
     let timeBuffer = null;
     let onFrameCallback = null;
     let lastFrameAt = 0;
@@ -163,7 +165,7 @@
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             throw new Error('unsupported');
         }
-        // [VOICE] Tắt "tự tăng âm": nếu để bật, trình duyệt khuếch đại giọng nhỏ thành to -> không đo được nói nhỏ
+        // Tắt tự động khuếch đại để chỉ số âm lượng phản ánh giọng nói thực tế.
         audioStream = await navigator.mediaDevices.getUserMedia({
             audio: { autoGainControl: false, noiseSuppression: false, echoCancellation: true }
         });
@@ -192,7 +194,7 @@
         container.hidden = false;
 
         const data = new Uint8Array(analyser.frequencyBinCount);
-        const step = 2;   // mỗi cột gộp 2 dải tần, lấy từ dải thứ 1 trở đi (giọng nói nằm ở tần số thấp-vừa)
+        const step = 2;
 
         function draw() {
             analyser.getByteFrequencyData(data);
@@ -205,7 +207,7 @@
             }
             const level = sum / meterBars.length;
             const hearing = level > SOUND_LEVEL;
-            // [VOICE] Mỗi 0.1 giây: độ to (dB) + cao độ (Hz) của giọng
+
             const now = performance.now();
             if (onFrameCallback && timeAnalyser && now - lastFrameAt >= FRAME_SECONDS * 1000) {
                 lastFrameAt = now;
@@ -253,7 +255,9 @@
         return 'Không bật được micro trên trình duyệt này.';
     }
 
-    // ---------- [#17] Đọc câu hỏi (text to speech) ----------
+    // ============================================================================
+    // ĐỌC CÂU HỎI (TEXT-TO-SPEECH)
+    // ============================================================================
     const synth = window.speechSynthesis;
     let vietnameseVoice = null;
 
@@ -265,7 +269,6 @@
         updateReplayButton();
     }
 
-    // [LIVE-MODE] Nghe lại câu hỏi có giới hạn số lần
     function updateReplayButton() {
         if (!isLive) return;
         const left = MAX_REPLAYS - replaysUsed;
@@ -273,15 +276,14 @@
         btnReplay.lastChild.textContent = ' Nghe lại (còn ' + Math.max(left, 0) + ')';
     }
 
-    // onDone (tuỳ chọn): gọi khi đọc xong / không đọc được -> Thực chiến bắt đầu đếm thời gian suy nghĩ
     function speakQuestion(onDone) {
         const done = typeof onDone === 'function' ? onDone : null;
         if (!synth || !vietnameseVoice || isListening) { if (done) done(); return; }
-        synth.cancel();   // dừng câu đang đọc dở (nếu có)
+        synth.cancel();
         const utterance = new SpeechSynthesisUtterance(questionText.textContent.trim());
         utterance.voice = vietnameseVoice;
         utterance.lang = vietnameseVoice.lang;
-        utterance.rate = 0.95;   // chậm hơn một chút cho dễ nghe
+        utterance.rate = 0.95;
         utterance.onstart = function () { setStatus('Đang hỏi...'); logEvent('tts_start'); };
         utterance.onend = function () { setStatus('Chờ bạn trả lời', 'is-waiting'); logEvent('tts_end'); if (done) done(); };
         utterance.onerror = function () { setStatus('Chờ bạn trả lời', 'is-waiting'); if (done) done(); };
@@ -294,7 +296,7 @@
 
     if (synth) {
         findVietnameseVoice();
-        // Danh sách giọng thường tải chậm, trình duyệt báo lại khi có
+
         synth.addEventListener('voiceschanged', findVietnameseVoice);
     } else {
         voiceNote.hidden = false;
@@ -304,7 +306,7 @@
 
     btnReplay.addEventListener('click', function () {
         if (isLive) {
-            // Đang trả lời thì không đọc (micro sẽ thu lại giọng đọc); hết lượt thì thôi
+
             if (livePhase === 'answer' || livePhase === 'sending' || replaysUsed >= MAX_REPLAYS) return;
             replaysUsed++;
             updateReplayButton();
@@ -313,11 +315,13 @@
         speakQuestion();
     });
 
-    // ---------- Chữ hiện trực tiếp ----------
-    // finalPart: phần đã chắc chắn (đậm). interimPart: phần trình duyệt đang nhận dạng (nhạt).
+    // ============================================================================
+    // HIỂN THỊ BẢN CHÉP GIỌNG NÓI
+    // ============================================================================
+
     function renderTranscript(finalPart, interimPart) {
         transcriptText.textContent = '';
-        btnClear.hidden = isLive || isTyping || (!finalPart && !interimPart);   // có chữ mới cho xoá; Thực chiến: không bao giờ
+        btnClear.hidden = isLive || isTyping || (!finalPart && !interimPart);
         if (!finalPart && !interimPart) {
             transcriptText.textContent = PLACEHOLDER;
             transcriptMeta.hidden = true;
@@ -337,7 +341,9 @@
         transcriptMeta.hidden = false;
     }
 
-    // ---------- Nói (speech to text) ----------
+    // ============================================================================
+    // NHẬN DẠNG GIỌNG NÓI
+    // ============================================================================
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     function describeSpeechError(code) {
@@ -372,7 +378,6 @@
             clearHintTimer();
             showMessage('');
 
-            // [#3] Khoảng cách giữa 2 lần nhận được chữ = một khoảng lặng
             const now = Date.now();
             if (lastSpeechAt !== null) {
                 const gap = (now - lastSpeechAt) / 1000;
@@ -400,15 +405,15 @@
 
         recognition.onerror = function (event) {
             logEvent('mic_error', event.error);
-            if (event.error === 'no-speech' || event.error === 'aborted') return;   // im lặng: không phải lỗi, vẫn nghe tiếp
-            // Lỗi thật: dừng nghe và chuyển sang gõ chữ để người dùng không bị kẹt
+            if (event.error === 'no-speech' || event.error === 'aborted') return;
+
             stopListening();
             showMessage(describeSpeechError(event.error), 'error');
             if (event.error === 'network' || event.error === 'language-not-supported') toggleTyping(true);
         };
 
         recognition.onend = function () {
-            // Trình duyệt tự ngắt khi im lặng lâu: nếu người dùng chưa bấm dừng thì nối tiếp, giữ lại chữ đã có
+            // Khi nhận dạng tự ngắt, nối phiên nghe và giữ lại phần văn bản đã nhận.
             if (isListening) {
                 committedText = spokenText;
                 try { recognition.start(); return; } catch (e) { }
@@ -427,7 +432,7 @@
         else showMessage('');
 
         if (!recognition) setupRecognition();
-        stopSpeaking();   // không để micro thu lại giọng đọc câu hỏi
+        stopSpeaking();
         committedText = '';
         spokenText = '';
         speakSeconds = null;
@@ -444,11 +449,10 @@
         try {
             recognition.start();
         } catch (e) {
-            // start() báo lỗi khi đang chạy dở: bỏ qua, lần bấm sau sẽ chạy lại
+
             logEvent('mic_error', 'start_failed');
         }
 
-        // Sóng âm: cho người dùng thấy micro có thu được tiếng không (độc lập với việc ra chữ)
         buildWave(roomWave);
         voiceFrames = [];
         lastVoice = null;
@@ -468,7 +472,7 @@
         hintTimer = setTimeout(function () {
             if (!isListening || lastSpeechAt !== null) return;
             if (heardSound) {
-                // Có tiếng nhưng chưa ra chữ: lỗi nằm ở nhận dạng giọng nói của trình duyệt, không phải micro
+
                 showMessage('Micro nghe thấy tiếng của bạn nhưng trình duyệt chưa chuyển được thành chữ. ' +
                     'Hãy thử Chrome/Edge hoặc bấm "Gõ câu trả lời".', 'error');
             } else {
@@ -488,10 +492,10 @@
         try { recognition.stop(); } catch (e) { }
         stopMeter();
         roomWave.hidden = true;
-        if (VA && voiceFrames.length) lastVoice = VA.summarize(voiceFrames, FRAME_SECONDS);   // [VOICE]
+        if (VA && voiceFrames.length) lastVoice = VA.summarize(voiceFrames, FRAME_SECONDS);
         showVolumeHint(false);
-        btnSend.hidden = isLive || spokenText === '';   // Thực chiến: tự gửi, không có bước bấm Gửi riêng
-        if (spokenText !== '') renderTranscript(spokenText, '');   // chốt chữ, bỏ phần "nhạt"
+        btnSend.hidden = isLive || spokenText === '';
+        if (spokenText !== '') renderTranscript(spokenText, '');
     }
 
     btnSpeak.addEventListener('click', function () {
@@ -500,7 +504,9 @@
         isListening ? stopListening() : startListening();
     });
 
-    // ---------- Gõ tay ----------
+    // ============================================================================
+    // TRẢ LỜI BẰNG VĂN BẢN
+    // ============================================================================
     function toggleTyping(on) {
         isTyping = on;
         answerInput.hidden = !on;
@@ -516,7 +522,9 @@
         toggleTyping(!isTyping);
     });
 
-    // ---------- Gửi, bỏ qua ----------
+    // ============================================================================
+    // GỬI VÀ BỎ QUA CÂU TRẢ LỜI
+    // ============================================================================
     function currentAnswer() {
         return isTyping ? answerInput.value.trim() : spokenText;
     }
@@ -525,7 +533,6 @@
         return text.length <= max ? text : text.substring(0, max).trim() + '...';
     }
 
-    // Xoá câu trả lời đang có để người dùng nói/gõ lại
     function resetAnswer() {
         committedText = '';
         spokenText = '';
@@ -541,9 +548,8 @@
         if (voiceLevel) voiceLevel.hidden = true;
     }
 
-    // 28/10: người dùng thấy nói sai -> xoá bản ghi để nói lại.
-    // Đang nghe thì dùng abort() (không phải stop()): abort bỏ luôn phần trình duyệt đang nhận dạng dở,
-    // nên chữ cũ không bị "hiện lại" sau khi đã xoá.
+    // Dùng abort() để hủy kết quả đang nhận dạng, tránh văn bản cũ xuất hiện lại.
+
     function clearRecording() {
         if (busy) return;
         if (isListening) {
@@ -563,7 +569,6 @@
 
     btnClear.addEventListener('click', clearRecording);
 
-    // [FOLLOW-UP] câu đang hỏi là câu hỏi thêm? (mở lại trang giữa chừng: đọc từ dòng ghi chú do máy chủ vẽ)
     let currentIsFollowUp = !!(document.getElementById('followup-note') && !document.getElementById('followup-note').hidden);
 
     async function submit(skipped) {
@@ -586,7 +591,7 @@
                 answer: skipped ? null : answer,
                 durationSeconds: isTyping ? null : speakSeconds,
                 pausesSeconds: isTyping || skipped ? null : pauses,
-                // [VOICE] chỉ gửi khi trả lời bằng giọng nói và đo được
+
                 voiceLevelDb: !skipped && !isTyping && lastVoice ? lastVoice.levelDb : null,
                 quietRatio: !skipped && !isTyping && lastVoice ? lastVoice.quietRatio : null,
                 pitchVariation: !skipped && !isTyping && lastVoice ? lastVoice.pitchVariation : null,
@@ -594,18 +599,17 @@
             });
             answeredCount.textContent = result.answeredCount;
 
-            // Xác nhận để người dùng biết hệ thống đã nhận
             lastAnswer.textContent = result.notice
                 ? result.notice
                 : skipped && currentIsFollowUp ? 'Đã bỏ qua câu hỏi thêm (không bị tính Sai).'
-                : skipped ? (isLive ? 'Đã bỏ qua câu này. Thực chiến: câu bỏ qua được tính là Sai.' : 'Đã bỏ qua câu này.')
-                : '✓ Đã ghi nhận câu trả lời của bạn: "' + shorten(answer, 140) + '"';
+                    : skipped ? (isLive ? 'Đã bỏ qua câu này. Thực chiến: câu bỏ qua được tính là Sai.' : 'Đã bỏ qua câu này.')
+                        : '✓ Đã ghi nhận câu trả lời của bạn: "' + shorten(answer, 140) + '"';
             lastAnswer.hidden = false;
             showMessage('');
             setStatus('Đã nhận câu trả lời ✓', 'is-waiting');
 
             if (result.done) {
-                await finishSession(false);   // hết câu hỏi: chấm điểm luôn
+                await finishSession(false);
             } else {
                 showNextQuestion(result.nextNumber, result.nextQuestion, result.nextIsFollowUp);
                 setBusy(false);
@@ -613,8 +617,8 @@
         } catch (error) {
             showMessage(error.message, 'error');
             setBusy(false);
-            if (error.body && error.body.retry) resetAnswer();   // bị từ chối: xoá để nói lại
-            if (isLive && livePhase === 'sending') livePhase = 'answer';   // gửi lỗi: cho bấm "Xong, gửi" lại
+            if (error.body && error.body.retry) resetAnswer();
+            if (isLive && livePhase === 'sending') livePhase = 'answer';
         }
     }
 
@@ -628,20 +632,19 @@
         submit(true);
     });
 
-    // Đổi sang câu hỏi tiếp theo, xóa câu trả lời cũ
     function showNextQuestion(number, text, isFollowUp) {
         questionText.textContent = text;
-        // [FOLLOW-UP] Đợt 8: câu hỏi thêm giữ nguyên số câu, hiện dòng "... hỏi thêm về câu trả lời vừa rồi"
+
         const followUpNote = document.getElementById('followup-note');
         if (followUpNote) followUpNote.hidden = !isFollowUp;
         currentIsFollowUp = !!isFollowUp;
-        // Bỏ qua câu hỏi thêm không bị tính Sai (kể cả Thực chiến) -> đổi nhãn nút cho rõ
+
         btnSkip.textContent = currentIsFollowUp ? 'Bỏ qua câu hỏi thêm' : isLive ? 'Bỏ qua (tính Sai)' : 'Bỏ qua câu này';
         document.querySelectorAll('.badge-step, .mobile-step').forEach(el => {
             el.textContent = 'Câu ' + number + ' / ' + totalQuestions;
         });
         document.querySelector('.progress-fill').style.width = ((number - 1) * 100 / totalQuestions) + '%';
-        // [UI-DARK] Dải băng: các câu trước = done, câu đang hỏi = now
+
         document.querySelectorAll('.tape-room .seg').forEach(function (seg, i) {
             seg.classList.toggle('done', i < number - 1);
             seg.classList.toggle('now', i === number - 1);
@@ -651,18 +654,20 @@
         toggleTyping(false);
         btnSend.hidden = true;
 
-        events.length = 0;   // mỗi câu một dòng thời gian mới
+        events.length = 0;
         questionShownAt = Date.now();
         logEvent(isFollowUp ? 'followup_shown' : 'question_shown', number);
-        if (isLive) liveBeginQuestion();   // [LIVE-MODE] đọc -> suy nghĩ -> trả lời
-        else speakQuestion();              // [#17] tự đọc câu hỏi mới
-        // Nếu không có giọng đọc, đưa nhãn trạng thái về "Chờ bạn trả lời" sau khi hiện xác nhận
+        if (isLive) liveBeginQuestion();
+        else speakQuestion();
+
         setTimeout(function () { if (!isListening) setStatus('Chờ bạn trả lời', 'is-waiting'); }, 1500);
     }
 
-    // ---------- Kết thúc và chấm điểm ----------
-    // AI chấm lỗi: giữ buổi luyện, hiện NGAY 2 lựa chọn: "Chấm lại" bằng AI, hoặc "Xem kết quả ngay" (chấm sơ bộ theo bộ đề,
-    // không cần AI) -> người dùng không bị kẹt khi AI miễn phí quá tải. Lỗi cấu hình (sai key/model) thì ẩn "Chấm lại".
+    // ============================================================================
+    // KẾT THÚC VÀ CHẤM ĐIỂM
+    // ============================================================================
+    // Nếu chấm AI lỗi, cho phép thử lại hoặc dùng kết quả sơ bộ không cần AI.
+    // Lỗi cấu hình không thể giải quyết bằng thử lại nên chỉ cho xem kết quả sơ bộ.
     async function finishSession(fallback) {
         if (isLive) { liveStopClock(); livePhase = 'idle'; if (liveTimer) liveTimer.hidden = true; }
         if (isListening) stopListening();
@@ -679,7 +684,7 @@
         } catch (error) {
             scoreFailures++;
             let text = error.message;
-            // Lỗi cấu hình (sai model/key): chấm lại cũng không được -> chỉ cho xem kết quả ngay
+            // Lỗi cấu hình không thể giải quyết bằng thử lại nên chỉ cho xem kết quả sơ bộ.
             const configError = !!(error.body && error.body.configError);
             btnRetryScore.hidden = configError;
             btnFallbackScore.hidden = false;
@@ -694,7 +699,7 @@
     btnFallbackScore.addEventListener('click', () => finishSession(true));
 
     btnStop.addEventListener('click', function () {
-        if (isLive) liveStopClock();   // tạm dừng đồng hồ khi đang hỏi có muốn dừng không
+        if (isLive) liveStopClock();
         if (isListening) stopListening();
         stopSpeaking();
         modal.style.display = 'flex';
@@ -705,7 +710,9 @@
     });
     btnFinish.addEventListener('click', () => finishSession(false));
 
-    // ---------- [#18] Kiểm tra micro trước khi vào ----------
+    // ============================================================================
+    // KIỂM TRA MICRO TRƯỚC BUỔI PHỎNG VẤN
+    // ============================================================================
     const micCheck = document.getElementById('mic-check');
     const micTestText = document.getElementById('mic-test-text');
     const micTestStatus = document.getElementById('mic-test-status');
@@ -723,8 +730,7 @@
     const micLevel = document.getElementById('mic-level');
     let micFrames = [];
 
-    // [VOICE] Kiểm tra micro: cho người dùng biết giọng mình to hay nhỏ trước khi vào phỏng vấn
-    const MIC_MIN_VOICED = 0.6;   // nói thử chỉ 1 câu ngắn (~2 giây) -> đủ 0.6 giây có tiếng là báo được mức to/nhỏ
+    const MIC_MIN_VOICED = 0.6;
 
     function onMicVoiceFrame(frame) {
         micFrames.push(frame);
@@ -740,7 +746,7 @@
         micLevel.dataset.level = label === 'Vừa' ? 'ok' : 'warn';
         micLevel.textContent = label === 'Vừa' ? 'Âm lượng giọng: Vừa, người phỏng vấn nghe rõ.'
             : label === 'Nhỏ' ? 'Âm lượng giọng: Nhỏ. Hãy nói to hơn hoặc ngồi gần micro.'
-            : 'Âm lượng giọng: Quá to, dễ rè. Hãy ngồi xa micro một chút.';
+                : 'Âm lượng giọng: Quá to, dễ rè. Hãy ngồi xa micro một chút.';
     }
 
     function micStatus(text, ok) {
@@ -753,7 +759,7 @@
     }
 
     function endMicTest() {
-        if (micTesting) updateMicLevel();   // [VOICE] chốt mức âm lượng bằng toàn bộ lượt nói thử
+        if (micTesting) updateMicLevel();
         micTesting = false;
         if (micHintTimer) clearTimeout(micHintTimer);
         micHintTimer = null;
@@ -769,7 +775,7 @@
         micCheck.style.display = 'none';
         logEvent('mic_check_' + how);
         if (how === 'skip') toggleTyping(true);
-        // bấm nút = có thao tác của người dùng, trình duyệt mới cho phép đọc / bật micro
+
         if (isLive) liveBeginQuestion();
         else speakQuestion();
     }
@@ -783,7 +789,6 @@
         btnMicTest.disabled = true;
         btnMicTest.textContent = 'Đang nghe...';
 
-        // 1. Sóng âm: chứng minh micro có thu được tiếng không (+ [VOICE] mức âm lượng giọng)
         micFrames = [];
         if (micLevel) micLevel.hidden = true;
         startMeter(micWave, function () {
@@ -795,7 +800,6 @@
             endMicTest();
         });
 
-        // 2. Chuyển giọng nói thành chữ (nếu trình duyệt hỗ trợ)
         if (!SpeechRecognition) {
             micStatus('Trình duyệt này chưa chuyển được giọng nói thành chữ. Hãy dùng Chrome/Edge, hoặc bấm "Bỏ qua, tôi sẽ gõ chữ".', false);
             return;
@@ -818,9 +822,9 @@
             }
         };
         micTester.onend = function () {
-            // Lượt thử đã đóng trước đó (bấm "Vào phỏng vấn" / "Nói thử lại"): bỏ qua, nếu không sẽ tắt nhầm micro của câu trả lời
+            // Bỏ qua sự kiện của lần thử micro đã kết thúc để tránh ảnh hưởng phiên chính.
             if (!micTesting) return;
-            // Kết thúc lượt thử: nếu có tiếng mà không có chữ thì nói rõ nguyên nhân
+
             if (micTesting && !micGotText && heardSound) {
                 micStatus('Micro nghe thấy tiếng của bạn nhưng trình duyệt không chuyển được thành chữ. ' +
                     'Hãy dùng Chrome/Edge, hoặc bấm "Bỏ qua, tôi sẽ gõ chữ".', false);
@@ -849,14 +853,16 @@
         btnMicSkip.addEventListener('click', () => closeMicCheck('skip'));
     }
 
-    // ---------- [VOICE] Nhắc ngay khi đang nói nhỏ + hiện mức âm lượng ----------
+    // ============================================================================
+    // PHẢN HỒI ÂM LƯỢNG GIỌNG NÓI
+    // ============================================================================
     function showVolumeHint(on) {
         if (volumeHint) volumeHint.hidden = !on;
     }
 
     function onRoomVoiceFrame(frame) {
         voiceFrames.push(frame);
-        if (voiceFrames.length % 5 !== 0) return;    // cập nhật 2 lần mỗi giây là đủ
+        if (voiceFrames.length % 5 !== 0) return;
         showVolumeHint(VA.isQuietNow(voiceFrames, FRAME_SECONDS));
         const recent = VA.summarize(voiceFrames.slice(-30), FRAME_SECONDS);
         if (voiceLevel && recent) {
@@ -867,7 +873,9 @@
         }
     }
 
-    // ---------- [LIVE-MODE] Các bước của một câu ở chế độ Thực chiến ----------
+    // ============================================================================
+    // VÒNG ĐỜI CÂU HỎI THỰC CHIẾN
+    // ============================================================================
     function formatClock(seconds) {
         const s = Math.max(0, seconds);
         return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
@@ -885,13 +893,12 @@
     function liveShow(phase, label, seconds, total) {
         liveTimer.hidden = false;
         liveTimer.dataset.phase = phase;
-        liveTimer.dataset.low = phase === 'answer' && seconds <= 20 ? '1' : '0';   // còn ít giờ: nhấp nháy nhắc
+        liveTimer.dataset.low = phase === 'answer' && seconds <= 20 ? '1' : '0';
         livePhaseLabel.textContent = label;
         liveClock.textContent = formatClock(seconds);
         liveBarFill.style.width = (total > 0 ? Math.max(0, seconds) * 100 / total : 0) + '%';
     }
 
-    // Đếm ngược từng giây; hết giờ gọi onDone
     function liveRunClock(phase, seconds, total, label, onDone) {
         liveStopClock();
         livePhase = phase;
@@ -905,7 +912,7 @@
         }, 1000);
     }
 
-    // Câu mới hiện ra: đọc câu hỏi, đọc xong (hoặc máy không có giọng đọc) thì bắt đầu đếm suy nghĩ
+    // Mỗi câu Thực chiến bắt đầu bằng đọc câu hỏi rồi đếm thời gian suy nghĩ.
     function liveBeginQuestion() {
         replaysUsed = 0;
         updateReplayButton();
@@ -915,7 +922,7 @@
         const token = ++liveQuestionToken;
         const startIfSameQuestion = function () { if (token === liveQuestionToken) liveStartThinking(); };
         speakQuestion(startIfSameQuestion);
-        setTimeout(startIfSameQuestion, TTS_SAFETY_MS);   // phòng khi giọng đọc không báo "xong"
+        setTimeout(startIfSameQuestion, TTS_SAFETY_MS);
         logEvent('live_question_begin');
     }
 
@@ -926,18 +933,16 @@
         logEvent('live_think_start');
     }
 
-    // Hết giờ suy nghĩ (hoặc bấm "Trả lời ngay"): micro tự bật, bắt đầu đếm thời gian trả lời
     function liveStartAnswer() {
         if (busy || (livePhase !== 'think' && livePhase !== 'reading')) return;
         liveStopClock();
         stopSpeaking();
-        startListening();   // trình duyệt không nhận giọng nói -> tự chuyển sang gõ chữ (trường hợp duy nhất được gõ)
+        startListening();
         setSpeakLabel('Xong, gửi câu trả lời');
         liveRunClock('answer', MAX_ANSWER_SECONDS, MAX_ANSWER_SECONDS, 'Thời gian trả lời', liveFinishAnswer);
         logEvent('live_answer_start');
     }
 
-    // Bấm "Xong, gửi" hoặc hết giờ: dừng micro và gửi luôn (không có bước sửa)
     function liveFinishAnswer() {
         if (livePhase !== 'answer') return;
         liveStopClock();
@@ -959,8 +964,8 @@
         else if (livePhase === 'answer') liveFinishAnswer();
     }
 
-    // Đóng hộp thoại "Dừng buổi luyện?" mà chọn tiếp tục: đang suy nghĩ thì đếm tiếp phần còn lại;
-    // đang trả lời thì gửi phần đã nói (Thực chiến không cho nói lại từ đầu)
+    // Khi tiếp tục Thực chiến, bảo toàn thời gian suy nghĩ còn lại; câu đang trả lời sẽ được gửi.
+
     function liveResume() {
         if (livePhase === 'reading' || livePhase === 'think') {
             livePhase = 'think';
@@ -970,7 +975,7 @@
         }
     }
 
-    // Mở lại trang giữa buổi (không có hộp kiểm tra micro): cần 1 lần bấm để trình duyệt cho đọc / bật micro
+    // Khi quay lại giữa buổi, cần thao tác người dùng trước khi bật micro/giọng đọc.
     function liveReady() {
         livePhase = 'ready';
         liveShow('ready', 'Sẵn sàng?', THINK_SECONDS, THINK_SECONDS);

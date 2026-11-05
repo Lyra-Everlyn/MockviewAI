@@ -1,0 +1,143 @@
+﻿/* MockviewAI Interview/Create — isolated page styles; theme variables from theme-indigo.css. */
+.interview-create-hero { display:flex; align-items:center; justify-content:space-between; gap:22px; margin-bottom:32px; }
+.interview-create-hero__mark { display:grid; place-items:center; flex:0 0 64px; width:64px; height:64px; border:1px solid var(--color-border); border-radius:18px; background:var(--color-primary-soft); color:var(--color-primary); font-size:26px; }
+.interview-create-form fieldset { border:0; margin:0; padding:0; min-width:0; }
+.interview-create-sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+.interview-create-grid { display:grid; grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr); gap:20px; align-items:start; }
+.interview-create-section { min-width:0; padding:24px; border:1px solid var(--color-border); border-radius:18px; background:var(--color-surface); box-shadow:0 8px 28px rgba(30,48,90,.035); }
+.interview-create-section__head { display:flex; align-items:flex-start; gap:12px; margin-bottom:22px; }
+.interview-create-section__index { flex:0 0 30px; display:grid; place-items:center; width:30px; height:30px; border-radius:9px; background:var(--color-primary-soft); color:var(--color-primary); font-size:12px; font-weight:800; }
+.interview-create-section__head h2 { color:var(--color-text); font-size:19px; font-weight:800; letter-spacing:-.025em; line-height:1.35; }
+.interview-create-section__head p { margin-top:5px; color:var(--color-muted); font-size:12px; line-height:1.55; }
+.interview-create-interviewers { display:grid; gap:12px; }
+.interview-create-person { position:relative; display:flex; align-items:flex-start; gap:13px; padding:17px 15px; border:1px solid var(--color-border); border-radius:14px; cursor:pointer; background:var(--color-surface); transition:border-color .18s, background .18s, box-shadow .18s; }
+.interview-create-person:hover { border-color:var(--color-border-strong); background:var(--color-surface-soft); }
+.interview-create-person input, .interview-create-mode input, .interview-create-choice input { position:absolute; width:1px; height:1px; opacity:0; }
+.interview-create-person:has(input:checked) { border-color:var(--color-primary); background:var(--color-primary-soft); box-shadow:inset 0 0 0 1px var(--color-primary); }
+.interview-create-person:has(input:focus-visible), .interview-create-mode:has(input:focus-visible), .interview-create-choice:has(input:focus-visible) { outline:3px solid var(--color-primary); outline-offset:3px; }
+.interview-create-person__avatar { flex:0 0 48px; display:grid; place-items:center; width:48px; height:48px; border-radius:14px; background:#eceeff; color:#5c65c8; font-size:19px; font-weight:800; }
+.interview-create-person__avatar--nam { background:#e9f5f1; color:#21866f; }
+.interview-create-person__avatar--an { background:#f2ebfc; color:#8555bb; }
+.interview-create-person__body { display:grid; gap:3px; min-width:0; flex:1; padding-right:4px; }
+.interview-create-person__name { font-size:16px; font-weight:800; color:var(--color-text); }
+.interview-create-person__role { font-size:12px; font-weight:650; color:var(--color-text-soft); }
+.interview-create-person__detail { margin-top:5px; font-size:12px; line-height:1.6; color:var(--color-muted); }
+.interview-create-person__check { display:grid; place-items:center; width:22px; height:22px; border-radius:50%; border:1px solid var(--color-border-strong); color:transparent; background:var(--color-surface); font-size:10px; }
+.interview-create-person:has(input:checked) .interview-create-person__check { color:white; background:var(--color-primary); border-color:var(--color-primary); }
+.interview-create-hint { display:flex; gap:9px; align-items:start; margin-top:18px; padding:12px 14px; border-radius:10px; color:var(--color-muted); background:var(--color-surface-soft); font-size:12px; line-height:1.6; }
+.interview-create-hint i { color:var(--color-primary); margin-top:2px; }
+.interview-create-field + .interview-create-field { margin-top:21px; }
+.interview-create-label { display:block; margin-bottom:11px; color:var(--color-text); font-size:13px; font-weight:750; }
+.interview-create-modes { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.interview-create-mode { position:relative; display:flex; flex-direction:column; gap:5px; padding:13px 12px; border:1px solid var(--color-border); border-radius:12px; cursor:pointer; transition:border-color .18s, background .18s; }
+.interview-create-mode:hover { border-color:var(--color-border-strong); }
+.interview-create-mode:has(input:checked) { border-color:var(--color-primary); background:var(--color-primary-soft); box-shadow:inset 0 0 0 1px var(--color-primary); }
+.interview-create-mode__icon { display:grid; place-items:center; width:28px; height:28px; border-radius:8px; background:var(--color-surface-soft); color:var(--color-primary); font-size:13px; }
+.interview-create-mode__name { font-size:13px; font-weight:800; }
+.interview-create-mode__desc { font-size:11px; line-height:1.55; color:var(--color-muted); }
+.interview-create-positions, .interview-create-counts { display:grid; gap:7px; }
+.interview-create-positions { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.interview-create-counts { grid-template-columns:repeat(6,minmax(0,1fr)); }
+.interview-create-choice { position:relative; cursor:pointer; min-width:0; }
+.interview-create-choice span { display:grid; place-items:center; min-height:41px; padding:7px 5px; border:1px solid var(--color-border); border-radius:9px; text-align:center; font-size:12px; font-weight:700; line-height:1.3; color:var(--color-text-soft); transition:border-color .18s, background .18s; }
+.interview-create-choice:hover span { border-color:var(--color-primary); }
+.interview-create-choice:has(input:checked) span { border-color:var(--color-primary); background:var(--color-primary-soft); color:var(--color-primary); box-shadow:inset 0 0 0 1px var(--color-primary); }
+.interview-create-field__help { margin-top:8px; color:var(--color-muted); font-size:11px; }
+.interview-create-email { display:flex; gap:11px; margin-top:22px; padding:13px; border:1px solid var(--color-border); border-radius:11px; cursor:pointer; }
+.interview-create-email input { flex:0 0 17px; width:17px; height:17px; margin-top:3px; accent-color:var(--color-primary); }
+.interview-create-email span { display:grid; gap:4px; }
+.interview-create-email strong { font-size:12px; font-weight:750; }
+.interview-create-email small { color:var(--color-muted); font-size:11px; line-height:1.5; }
+.interview-create-summary { margin-top:22px; padding:17px; border-radius:12px; background:var(--color-surface-soft); border:1px solid var(--color-border); }
+.interview-create-summary__top { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.interview-create-summary h3 { font-size:13px; font-weight:800; }
+.interview-create-summary__mode { padding:4px 9px; border-radius:999px; background:var(--color-primary-soft); color:var(--color-primary); font-size:10px; font-weight:800; }
+.interview-create-summary__mode.is-live { background:var(--color-warning-soft); color:var(--color-warning); }
+.interview-create-tape { display:flex; gap:4px; margin-top:15px; }
+.interview-create-tape__segment { flex:1; min-width:0; height:8px; border-radius:5px; background:var(--color-border-strong); }
+.interview-create-tape__segment:first-child { background:var(--color-primary); }
+.interview-create-summary p { margin-top:11px; color:var(--color-text-soft); font-size:11px; line-height:1.6; }
+.interview-create-start { width:100%; margin-top:16px; min-height:49px; font-size:14px; }
+.interview-create-start:disabled { opacity:.6; cursor:wait; }
+@media (max-width: 880px) { .interview-create-grid { grid-template-columns:minmax(0,1fr); } }
+@media (max-width: 768px) { .interview-create-hero { margin-bottom:22px; } .interview-create-hero__mark { display:none; } .interview-create-grid { gap:13px; } .interview-create-section { padding:18px 15px; border-radius:14px; } }
+@media (max-width: 420px) { .interview-create-modes { grid-template-columns:1fr; } .interview-create-positions { grid-template-columns:1fr 1fr 1fr; } .interview-create-section__head h2 { font-size:17px; } .interview-create-person { gap:10px; padding:13px 10px; } .interview-create-person__avatar { flex-basis:42px; width:42px; height:42px; } }
+@media (prefers-reduced-motion: reduce) { .interview-create-page *, .interview-create-page *::before, .interview-create-page *::after { transition:none !important; } }
+
+
+/* =========================================================
+   INTERVIEW MODES — distinct selection colors
+   Practice = indigo/purple, Live = orange. Scoped to Create.
+   ========================================================= */
+.interview-create-page {
+    --ic-practice: #6554e8;
+    --ic-practice-soft: #f2efff;
+    --ic-practice-border: #aa9bfa;
+    --ic-live: #c65317;
+    --ic-live-soft: #fff2e8;
+    --ic-live-border: #f4a574;
+}
+
+/* Neutral by default: no selected-mode styling until checked. */
+.interview-create-mode {
+    background: var(--color-surface);
+    box-shadow: none;
+    transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease;
+}
+.interview-create-mode__name {
+    color: var(--color-text);
+    transition: color .18s ease;
+}
+.interview-create-mode:has(input[value="practice"]:checked) {
+    border-color: var(--ic-practice-border);
+    background: var(--ic-practice-soft);
+    box-shadow: inset 0 0 0 1px var(--ic-practice);
+}
+.interview-create-mode:has(input[value="practice"]:checked) .interview-create-mode__icon {
+    background: #e4deff;
+    color: var(--ic-practice);
+}
+.interview-create-mode:has(input[value="practice"]:checked) .interview-create-mode__name {
+    color: var(--ic-practice);
+}
+.interview-create-mode:has(input[value="live"]:checked) {
+    border-color: var(--ic-live-border);
+    background: var(--ic-live-soft);
+    box-shadow: inset 0 0 0 1px var(--ic-live);
+}
+.interview-create-mode:has(input[value="live"]:checked) .interview-create-mode__icon {
+    background: #ffdfca;
+    color: var(--ic-live);
+}
+.interview-create-mode:has(input[value="live"]:checked) .interview-create-mode__name {
+    color: var(--ic-live);
+}
+.interview-create-mode:has(input[value="practice"]:focus-visible) {
+    outline-color: var(--ic-practice);
+}
+.interview-create-mode:has(input[value="live"]:focus-visible) {
+    outline-color: var(--ic-live);
+}
+
+.interview-create-summary__mode {
+    background: var(--ic-practice-soft);
+    color: var(--ic-practice);
+}
+.interview-create-summary__mode.is-live {
+    background: var(--ic-live-soft);
+    color: var(--ic-live);
+}
+.interview-create-tape__segment:first-child {
+    background: var(--ic-practice);
+}
+.interview-create-form:has(input[name="mode"][value="live"]:checked)
+.interview-create-tape__segment:first-child {
+    background: var(--ic-live);
+}
+.interview-create-mode:hover:not(:has(input:checked)) {
+    background: var(--color-surface-soft);
+}
+@media (prefers-reduced-motion: reduce) {
+    .interview-create-mode,
+    .interview-create-mode__name { transition: none; }
+}

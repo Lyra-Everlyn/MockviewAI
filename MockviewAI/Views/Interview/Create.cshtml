@@ -6,156 +6,171 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tạo buổi luyện - MockviewAI</title>
-    
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tạo buổi phỏng vấn - MockviewAI</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Interview-Create.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/themes/theme-indigo.css" asp-append-version="true" />
-
-    @* [UI-DARK] Đợt 4 (02/11): giao diện tối "phòng thu". Bản sáng cũ: CreateSession.css + theme.css *@
-    <link rel="stylesheet" href="~/css/studio.css">
-    <link rel="stylesheet" href="~/css/studio-create.css">
+    <script src="~/js/Interview-Create.js" asp-append-version="true" defer></script>
 </head>
-<body class="studio">
+<body class="app-layout interview-create-body">
     <partial name="Partials/_AppNavigation" />
-
-    <main class="wrap">
-        <h1>Tạo buổi luyện</h1>
-        <p class="sub">Chọn người phỏng vấn trước, mỗi người hỏi một kiểu khác nhau.</p>
-
-        <form method="post" asp-controller="Interview" asp-action="Start" id="createSessionForm" class="create-grid">
-
-            <!-- Người phỏng vấn -->
-            <fieldset class="people">
-                <legend class="sr-only">Người phỏng vấn</legend>
-
-                <label class="person">
-                    <input type="radio" name="interviewer" value="linh" data-name="Linh" checked>
-                    <span class="face">L</span>
-                    <span class="person-body">
-                        <span class="pname">Linh</span>
-                        <span class="prole">Chuyên viên tuyển dụng (HR)</span>
-                        <span class="pask"><em>Hỏi về:</em> bản thân, động lực, làm việc nhóm, vì sao chọn công ty</span>
-                        <span class="picked">Đã chọn</span>
-                    </span>
-                </label>
-
-                <label class="person">
-                    <input type="radio" name="interviewer" value="nam" data-name="Nam">
-                    <span class="face f-nam">N</span>
-                    <span class="person-body">
-                        <span class="pname">Nam</span>
-                        <span class="prole">Trưởng nhóm kỹ thuật (Tech Lead)</span>
-                        <span class="pask"><em>Hỏi về:</em> kiến thức chuyên môn theo vị trí: code, kiểm thử, phân tích yêu cầu</span>
-                        <span class="picked">Đã chọn</span>
-                    </span>
-                </label>
-
-                <label class="person">
-                    <input type="radio" name="interviewer" value="an" data-name="An">
-                    <span class="face f-an">A</span>
-                    <span class="person-body">
-                        <span class="pname">An</span>
-                        <span class="prole">Quản lý dự án (Project Manager)</span>
-                        <span class="pask"><em>Hỏi về:</em> deadline, ưu tiên công việc, xử lý tình huống trong dự án</span>
-                        <span class="picked">Đã chọn</span>
-                    </span>
-                </label>
-            </fieldset>
-
-            <!-- Thông tin buổi luyện -->
-            <section class="panel setup" aria-label="Thông tin buổi luyện">
-                
-                <fieldset class="field">
-                    <legend class="label">Chế độ</legend>
-                    <div class="modes">
-                        <label class="mode-card">
-                            <input type="radio" name="mode" value="practice" checked="@(!startLive)">
-                            <span class="mode-body">
-                                <span class="mode-name">Luyện tập</span>
-                                <span class="mode-desc">Được nói lại, gõ chữ, nghe lại câu hỏi. Hợp để làm quen.</span>
-                            </span>
-                        </label>
-                        <label class="mode-card mode-live">
-                            <input type="radio" name="mode" value="live" checked="@startLive">
-                            <span class="mode-body">
-                                <span class="mode-name">Thực chiến</span>
-                                <span class="mode-desc">Nói một lần như phỏng vấn thật: @MockviewAI.Models.InterviewModes.LiveThinkSeconds giây suy nghĩ, tối đa @(MockviewAI.Models.InterviewModes.LiveMaxAnswerSeconds / 60) phút mỗi câu, không xoá, không sửa.</span>
-                            </span>
-                        </label>
-                    </div>
-                </fieldset>
-
-                <fieldset class="field">
-                    <legend class="label">Vị trí ứng tuyển</legend>
-                    <div class="pills">
-                        <label class="choice"><input type="radio" name="position" value="developer" checked><span>Lập trình viên</span></label>
-                        <label class="choice"><input type="radio" name="position" value="tester"><span>Tester</span></label>
-                        <label class="choice"><input type="radio" name="position" value="ba"><span>BA</span></label>
-                    </div>
-                </fieldset>
-
-                <fieldset class="field">
-                    <legend class="label">Số câu hỏi</legend>
-                    <div class="counts">
-                        @* [QUESTION-BANK] Chọn từ 5 đến 10 câu (server kiểm tra lại khoảng này) *@
-                        @for (int n = 5; n <= 10; n++)
-                        {
-                            <label class="choice"><input type="radio" name="questionCount" value="@n" @(n == 5 ? "checked" : null)><span>@n</span></label>
-                        }
-                    </div>
-                </fieldset>
-
-                <!-- Email kết quả: CHỈ gửi khi người dùng tick đồng ý -->
-                <label class="check-row field">
-                    <input type="checkbox" name="emailResult" value="true">
-                    <span>Gửi kết quả về email tài khoản của tôi sau buổi luyện</span>
-                </label>
-
-                <div class="summary">
-                    <span class="label">Buổi của bạn</span>
-                    <div class="tape" id="preview-tape" aria-hidden="true"></div>
-                    <p id="preview-text">5 câu với Linh · khoảng 10–15 phút · câu đầu luôn là giới thiệu bản thân</p>
-                    <button type="submit" class="btn btn-main start">Bắt đầu phỏng vấn</button>
+    <div class="app-layout__content">
+        <main class="page-shell interview-create-page">
+            <header class="page-header interview-create-hero">
+                <div class="page-header__content">
+                    <span class="page-header__eyebrow">CHUẨN BỊ CHO BUỔI PHỎNG VẤN</span>
+                    <h1 class="page-header__title">Thiết lập buổi phỏng vấn</h1>
+                    <p class="page-header__description">
+                        Lựa chọn người phỏng vấn và cấu hình buổi luyện tập theo mục tiêu của bạn.
+                    </p>
                 </div>
-            </section>
-        </form>
-    </main>
+                <div class="interview-create-hero__mark" aria-hidden="true">
+                    <i class="fa-solid fa-comments"></i>
+                </div>
+            </header>
 
-    <!-- Menu dưới đáy (điện thoại) -->
-    <nav class="mobile-bottom-nav" aria-label="Điều hướng">
-        <a href="/Home">Trang chủ</a>
-        <a href="/Interview/Create" class="@(startLive ? null : "active")">Luyện</a>
-        <a href="/Interview/Create?mode=live" class="@(startLive ? "active" : null)">Thực chiến</a>
-        <a href="/Home/History">Lịch sử</a>
-        <a href="/Profile">Hồ sơ</a>
-    </nav>
+            <form asp-controller="Interview" asp-action="Start" method="post"
+                  id="createSessionForm" class="interview-create-form"
+                  data-loading-text="Đang tạo buổi phỏng vấn..."
+                  data-loading-overlay="Hệ thống đang chuẩn bị buổi phỏng vấn của bạn. Vui lòng không gửi yêu cầu nhiều lần."
+                  data-live-think-seconds="@MockviewAI.Models.InterviewModes.LiveThinkSeconds"
+                  data-live-answer-seconds="@MockviewAI.Models.InterviewModes.LiveMaxAnswerSeconds">
+                @Html.AntiForgeryToken()
 
-    <script>
-        // Xem trước buổi luyện: dải băng theo số câu + người phỏng vấn + thời gian ước tính (~2–3 phút/câu)
-        (function () {
-            var form = document.getElementById('createSessionForm');
-            var tape = document.getElementById('preview-tape');
-            var text = document.getElementById('preview-text');
-            function update() {
-                var n = parseInt(form.querySelector('input[name="questionCount"]:checked').value, 10);
-                var who = form.querySelector('input[name="interviewer"]:checked').dataset.name;
-                var live = form.querySelector('input[name="mode"]:checked').value === 'live';
-                tape.innerHTML = '';
-                for (var i = 0; i < n; i++) {
-                    var seg = document.createElement('span');
-                    seg.className = 'seg' + (i === 0 ? ' now' : '');
-                    tape.appendChild(seg);
-                }
-                text.textContent = n + ' câu với ' + who + ' · ' + (live ? 'Thực chiến' : 'Luyện tập') + ' · khoảng ' + (n * 2) + '–' + (n * 3) + ' phút · câu đầu luôn là giới thiệu bản thân';
-                document.getElementById('createSessionForm').classList.toggle('is-live', live);
-            }
-            form.addEventListener('change', update);
-            update();
-        })();
-    </script>
+                <div class="interview-create-grid">
+                    <section class="interview-create-section" aria-labelledby="interviewers-heading">
+                        <div class="interview-create-section__head">
+                            <span class="interview-create-section__index">01</span>
+                            <div>
+                                <h2 id="interviewers-heading">Chọn người phỏng vấn</h2>
+                                <p>Mỗi người có một phong cách đặt câu hỏi khác nhau.</p>
+                            </div>
+                        </div>
+                        <fieldset class="interview-create-interviewers">
+                            <legend class="interview-create-sr-only">Người phỏng vấn</legend>
+                            <label class="interview-create-person">
+                                <input type="radio" name="interviewer" value="linh" data-name="Linh" checked />
+                                <span class="interview-create-person__avatar" aria-hidden="true">L</span>
+                                <span class="interview-create-person__body">
+                                    <span class="interview-create-person__name">Linh</span>
+                                    <span class="interview-create-person__role">Chuyên viên tuyển dụng (HR)</span>
+                                    <span class="interview-create-person__detail">Tập trung vào giới thiệu bản thân, động lực và làm việc nhóm.</span>
+                                </span>
+                                <span class="interview-create-person__check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                            </label>
+                            <label class="interview-create-person">
+                                <input type="radio" name="interviewer" value="nam" data-name="Nam" />
+                                <span class="interview-create-person__avatar interview-create-person__avatar--nam" aria-hidden="true">N</span>
+                                <span class="interview-create-person__body">
+                                    <span class="interview-create-person__name">Nam</span>
+                                    <span class="interview-create-person__role">Trưởng nhóm kỹ thuật (Tech Lead)</span>
+                                    <span class="interview-create-person__detail">Tập trung vào chuyên môn, lập trình, kiểm thử và phân tích yêu cầu.</span>
+                                </span>
+                                <span class="interview-create-person__check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                            </label>
+                            <label class="interview-create-person">
+                                <input type="radio" name="interviewer" value="an" data-name="An" />
+                                <span class="interview-create-person__avatar interview-create-person__avatar--an" aria-hidden="true">A</span>
+                                <span class="interview-create-person__body">
+                                    <span class="interview-create-person__name">An</span>
+                                    <span class="interview-create-person__role">Quản lý dự án (Project Manager)</span>
+                                    <span class="interview-create-person__detail">Tập trung vào deadline, ưu tiên và xử lý tình huống dự án.</span>
+                                </span>
+                                <span class="interview-create-person__check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                            </label>
+                        </fieldset>
+                        <div class="interview-create-hint">
+                            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                            Bạn có thể thay đổi người phỏng vấn trước khi bắt đầu.
+                        </div>
+                    </section>
+
+                    <section class="interview-create-section interview-create-config" aria-labelledby="config-heading">
+                        <div class="interview-create-section__head">
+                            <span class="interview-create-section__index">02</span>
+                            <div>
+                                <h2 id="config-heading">Cấu hình buổi phỏng vấn</h2>
+                                <p>Chọn cách luyện tập và phạm vi câu hỏi.</p>
+                            </div>
+                        </div>
+
+                        <fieldset class="interview-create-field">
+                            <legend class="interview-create-label">Chế độ phỏng vấn</legend>
+                            <div class="interview-create-modes">
+                                <label class="interview-create-mode">
+                                    <input type="radio" name="mode" value="practice" checked="@(!startLive)" />
+                                    <span class="interview-create-mode__icon" aria-hidden="true"><i class="fa-solid fa-book-open"></i></span>
+                                    <span class="interview-create-mode__name">Luyện tập</span>
+                                    <span class="interview-create-mode__desc">Được nói lại, gõ chữ và nghe lại câu hỏi.</span>
+                                </label>
+                                <label class="interview-create-mode">
+                                    <input type="radio" name="mode" value="live" checked="@startLive" />
+                                    <span class="interview-create-mode__icon" aria-hidden="true"><i class="fa-solid fa-stopwatch"></i></span>
+                                    <span class="interview-create-mode__name">Thực chiến</span>
+                                    <span class="interview-create-mode__desc">
+                                        @MockviewAI.Models.InterviewModes.LiveThinkSeconds giây suy nghĩ, tối đa
+                                        @(MockviewAI.Models.InterviewModes.LiveMaxAnswerSeconds / 60) phút trả lời mỗi câu, không sửa lại.
+                                    </span>
+                                </label>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="interview-create-field">
+                            <legend class="interview-create-label">Vị trí ứng tuyển</legend>
+                            <div class="interview-create-positions">
+                                <label class="interview-create-choice"><input type="radio" name="position" value="developer" checked /><span>Lập trình viên</span></label>
+                                <label class="interview-create-choice"><input type="radio" name="position" value="tester" /><span>Tester</span></label>
+                                <label class="interview-create-choice"><input type="radio" name="position" value="ba" /><span>BA</span></label>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="interview-create-field">
+                            <legend class="interview-create-label">Số câu hỏi</legend>
+                            <div class="interview-create-counts">
+                                @for (int n = 5; n <= 10; n++)
+                                {
+                                    <label class="interview-create-choice">
+                                        <input type="radio" name="questionCount" value="@n" checked="@(n == 5)" />
+                                        <span>@n</span>
+                                    </label>
+                                }
+                            </div>
+                            <p class="interview-create-field__help">Thời lượng ước tính: 2–3 phút mỗi câu.</p>
+                        </fieldset>
+
+                        <label class="interview-create-email">
+                            <input type="checkbox" name="emailResult" value="true" />
+                            <span>
+                                <strong>Nhận kết quả qua email</strong>
+                                <small>Gửi bản tổng kết đến địa chỉ email tài khoản sau buổi phỏng vấn.</small>
+                            </span>
+                        </label>
+
+                        <div class="interview-create-summary" aria-labelledby="preview-heading">
+                            <div class="interview-create-summary__top">
+                                <h3 id="preview-heading">Tổng quan buổi phỏng vấn</h3>
+                                <span class="interview-create-summary__mode" id="preview-mode">Luyện tập</span>
+                            </div>
+                            <div class="interview-create-tape" id="preview-tape" aria-hidden="true"></div>
+                            <p id="preview-text" aria-live="polite">5 câu với Linh · Luyện tập · khoảng 10–15 phút</p>
+                        </div>
+
+                        <button type="submit" class="button button--primary interview-create-start" id="startInterviewButton">
+                            <span>Bắt đầu phỏng vấn</span>
+                            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                        </button>
+                    </section>
+                </div>
+            </form>
+        </main>
+    </div>
+
     <partial name="Partials/_Notify" />
+    <script src="~/js/_SubmitLoading.js" asp-append-version="true" defer></script>
 </body>
 </html>

@@ -1,157 +1,242 @@
 @model MockviewAI.Models.ViewModels.InterviewDetailViewModel
 @{
     Layout = null;
-    ViewData["ActiveNav"] = "history";   // mục sáng trên thanh menu dùng chung
+    ViewData["Title"] = "Xem lại hội thoại";
+    ViewData["ActiveNav"] = "history";
     var m = Model;
-    // [UI-DARK] Màu ô người phỏng vấn theo tên (Linh / Nam / An)
     var faceClass = m.InterviewerName switch { "Nam" => "f-nam", "An" => "f-an", _ => "" };
     var faceLetter = string.IsNullOrEmpty(m.InterviewerName) ? "?" : m.InterviewerName.Substring(0, 1).ToUpper();
 }
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Xem lại hội thoại - MockviewAI</title>
-
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/InterviewDetail.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/themes/theme-indigo.css" asp-append-version="true" />
-
-    @* [UI-DARK] Đợt 4 (02/11): giao diện tối "phòng thu". Bản sáng cũ: InterviewDetail.css + theme.css *@
-    <link rel="stylesheet" href="~/css/studio.css">
-    <link rel="stylesheet" href="~/css/studio-detail.css">
 </head>
-<body class="studio">
+<body class="app-layout interview-detail-body">
     <partial name="Partials/_AppNavigation" />
+    <div class="app-layout__content">
+        <main class="page-shell interview-detail-page">
+            <a href="/Home/History" class="interview-detail-back">
+                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i> Trở về lịch sử
+            </a>
 
-    <main class="wrap">
-        <a href="/Home/History" class="back-link">&lsaquo; Lịch sử</a>
-        <h1>Xem lại hội thoại</h1>
-        <p class="sub">@m.Position &middot; @m.InterviewerName &middot; @m.StartedAt.ToString("dd/MM") &middot; @m.QuestionCount câu &middot; toàn bộ hội thoại được lưu lại
-            @if (m.IsLive) { <span class="mode-tag">Thực chiến</span> }</p>
-
-        <!-- Tóm tắt điểm + hành động -->
-        <section class="panel summary-strip" aria-label="Tóm tắt buổi luyện">
-            <div class="stat"><span class="label">Điểm tham khảo</span><b>@(m.HasScore ? m.TotalScore.ToString() : "—")</b></div>
-            <div class="stat"><span class="label">Nội dung</span><b>@(m.HasScore && m.HasContentScore ? m.ContentScore.ToString() : "—")</b></div>
-            <div class="stat"><span class="label">Cách nói</span><b>@(m.HasScore ? m.DeliveryScore.ToString() : "—")</b></div>
-            @if (m.AnxietyIndicator > 0)
-            {
-                <div class="stat"><span class="label">Dấu hiệu lo lắng</span><b>@m.AnxietyIndicator<small>/10</small></b></div>
-            }
-            <div class="strip-acts">
-                <a href="/Interview/Create" class="btn btn-ghost">Luyện lại vị trí này</a>
-                <form method="post" asp-controller="Home" asp-action="DeleteSession" asp-route-id="@m.SessionId"
-                      onsubmit="return confirm('Xoá buổi luyện này? Không thể khôi phục.');">
-                    <button type="submit" class="btn btn-stop">Xoá buổi này</button>
-                </form>
-            </div>
-        </section>
-
-        <div class="layout">
-            <!-- Danh sách câu (chấm màu theo nhãn) -->
-            <nav class="index" aria-label="Danh sách câu">
-                @foreach (var t in m.Turns)
-                {
-                    var dot = t.InvalidReason != null ? "bg-sai" : t.Category != null ? "bg-" + t.Category : "dot-none";
-                    <a href="#cau-@t.Number"><span class="dot @dot"></span><span class="idx-text">Câu @t.Number@(t.FollowUp != null ? " +" : "")<span class="idx-q"> · @t.Question</span></span></a>
-                }
-            </nav>
-
-            <div class="turns">
-                @if (!m.Turns.Any())
-                {
-                    <p class="note info">Bạn đã dừng buổi này trước khi trả lời câu nào.</p>
-                }
-                @foreach (var t in m.Turns)
-                {
-                    <article class="turn" id="cau-@t.Number">
-                        <div class="asker"><span class="face sm @faceClass">@faceLetter</span><span class="qno">Câu @t.Number · @m.InterviewerName hỏi</span></div>
-                        <p class="q">@t.Question</p>
-                        <p class="mine @(t.Skipped ? "skipped" : "")">@(t.Skipped ? "(Đã bỏ qua câu này)" : t.Answer)</p>
-                        @if (!string.IsNullOrEmpty(t.VoiceText))
+            <header class="page-header interview-detail-heading">
+                <div class="page-header__content">
+                    <span class="page-header__eyebrow">HÀNH TRÌNH PHỎNG VẤN</span>
+                    <h1 class="page-header__title">Xem lại hội thoại</h1>
+                    <p class="page-header__description">Xem lại các câu hỏi, câu trả lời và đánh giá để cải thiện ở buổi phỏng vấn tiếp theo.</p>
+                    <div class="interview-detail-meta">
+                        <span><i class="fa-solid fa-briefcase" aria-hidden="true"></i> @m.Position</span>
+                        <span><i class="fa-regular fa-user" aria-hidden="true"></i> @m.InterviewerName</span>
+                        <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> @m.StartedAt.ToString("dd/MM")</span>
+                        <span><i class="fa-regular fa-comments" aria-hidden="true"></i> @m.QuestionCount câu hỏi</span>
+                        @if (m.IsLive)
                         {
-                            <p class="voice-line">@t.VoiceText</p>   @* [VOICE] Đợt 7 *@
+                            <span class="interview-detail-mode"><i class="fa-solid fa-stopwatch" aria-hidden="true"></i> Thực chiến</span>
                         }
+                    </div>
+                </div>
+            </header>
 
-                        @if (t.FollowUp != null)
-                        {
-                            <!-- [FOLLOW-UP] Đợt 8: người phỏng vấn hỏi thêm vì câu trả lời còn thiếu ý -->
-                            <div class="followup">
-                                <div class="asker"><span class="face sm @faceClass">@faceLetter</span><span class="qno">@m.InterviewerName hỏi thêm</span></div>
-                                @if (!string.IsNullOrEmpty(t.FollowUpPointText))
+            <section class="interview-detail-summary" aria-label="Tóm tắt buổi phỏng vấn">
+                <div class="interview-detail-stats">
+                    <div class="interview-detail-stat">
+                        <span class="interview-detail-stat__label">Điểm tham khảo</span>
+                        <strong>@(m.HasScore ? m.TotalScore.ToString() : "—")</strong>
+                    </div>
+                    <div class="interview-detail-stat">
+                        <span class="interview-detail-stat__label">Nội dung</span>
+                        <strong>@(m.HasScore && m.HasContentScore ? m.ContentScore.ToString() : "—")</strong>
+                    </div>
+                    <div class="interview-detail-stat">
+                        <span class="interview-detail-stat__label">Cách nói</span>
+                        <strong>@(m.HasScore ? m.DeliveryScore.ToString() : "—")</strong>
+                    </div>
+                    @if (m.AnxietyIndicator > 0)
+                    {
+                        <div class="interview-detail-stat">
+                            <span class="interview-detail-stat__label">Dấu hiệu lo lắng</span>
+                            <strong>@m.AnxietyIndicator <small>/10</small></strong>
+                        </div>
+                    }
+                </div>
+                <div class="interview-detail-actions">
+                    <a href="/Interview/Create" class="button button--secondary interview-detail-action">
+                        <i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Luyện lại vị trí này
+                    </a>
+                    <form method="post" asp-controller="Home" asp-action="DeleteSession" asp-route-id="@m.SessionId"
+                          onsubmit="return confirm('Xóa buổi luyện này? Hành động không thể hoàn tác.');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="interview-detail-delete">
+                            <i class="fa-regular fa-trash-can" aria-hidden="true"></i> Xóa buổi này
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <div class="interview-detail-layout">
+                <aside class="interview-detail-side" aria-label="Danh sách câu hỏi">
+                    <div class="interview-detail-side__head">
+                        <h2>Danh sách câu hỏi</h2>
+                        <span>@m.QuestionCount câu</span>
+                    </div>
+                    @if (!m.Turns.Any())
+                    {
+                        <p class="interview-detail-side__empty">Chưa có câu trả lời được lưu.</p>
+                    }
+                    else
+                    {
+                        <nav class="interview-detail-index" aria-label="Chuyển đến câu hỏi">
+                            @foreach (var t in m.Turns)
+                            {
+                                var category = t.InvalidReason != null ? "sai" : t.Category?.ToString() ?? "none";
+                                <a class="interview-detail-index__link" href="#cau-@t.Number">
+                                    <span class="interview-detail-dot is-@category" aria-hidden="true"></span>
+                                    <span class="interview-detail-index__text">
+                                        <strong>Câu @t.Number@(t.FollowUp != null ? " +" : "")</strong>
+                                        <small>@t.Question</small>
+                                    </span>
+                                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                                </a>
+                            }
+                        </nav>
+                    }
+                </aside>
+
+                <div class="interview-detail-turns">
+                    <div class="interview-detail-section-header">
+                        <div>
+                            <span class="section-header__eyebrow">CHI TIẾT BUỔI PHỎNG VẤN</span>
+                            <h2 class="section-header__title">Hội thoại và đánh giá</h2>
+                        </div>
+                    </div>
+                    @if (!m.Turns.Any())
+                    {
+                        <div class="interview-detail-empty">
+                            <i class="fa-regular fa-comment-dots" aria-hidden="true"></i>
+                            <h3>Chưa có hội thoại</h3>
+                            <p>Bạn đã dừng buổi phỏng vấn trước khi trả lời câu nào.</p>
+                        </div>
+                    }
+                    @foreach (var t in m.Turns)
+                    {
+                        var category = t.InvalidReason != null ? "sai" : t.Category?.ToString() ?? "none";
+                        <article class="interview-detail-turn" id="cau-@t.Number">
+                            <div class="interview-detail-turn__head">
+                                <span class="interview-detail-turn__number">Câu @t.Number</span>
+                                <span class="interview-detail-turn__marker is-@category"><span class="interview-detail-dot is-@category"></span> Đánh giá câu hỏi</span>
+                            </div>
+                            <div class="interview-detail-speaker">
+                                <span class="interview-detail-face @faceClass" aria-hidden="true">@faceLetter</span>
+                                <div><span class="interview-detail-speaker__name">@m.InterviewerName</span><span class="interview-detail-speaker__role">Người phỏng vấn</span></div>
+                            </div>
+                            <p class="interview-detail-question">@t.Question</p>
+                            <div class="interview-detail-answer">
+                                <div class="interview-detail-answer__label"><i class="fa-solid fa-user" aria-hidden="true"></i> Câu trả lời của bạn</div>
+                                <p class="@(t.Skipped ? "interview-detail-skipped" : "")">@(t.Skipped ? "(Đã bỏ qua câu này)" : t.Answer)</p>
+                                @if (!string.IsNullOrEmpty(t.VoiceText))
                                 {
-                                    <p class="followup-why">Vì câu trả lời đầu chưa thấy ý: @t.FollowUpPointText</p>
-                                }
-                                <p class="q q-sm">@t.FollowUp.Question</p>
-                                <p class="mine @(t.FollowUp.Skipped ? "skipped" : "")">@(t.FollowUp.Skipped ? "(Đã bỏ qua câu hỏi thêm)" : t.FollowUp.Answer)</p>
-                                @if (!string.IsNullOrEmpty(t.FollowUp.VoiceText))
-                                {
-                                    <p class="voice-line">@t.FollowUp.VoiceText</p>
-                                }
-                                @if (t.FollowUp.InvalidReason != null)
-                                {
-                                    <p class="why">Câu trả lời thêm chưa có ý nghĩa nên không được tính vào câu này.</p>
+                                    <p class="interview-detail-voice"><i class="fa-solid fa-microphone-lines" aria-hidden="true"></i> @t.VoiceText</p>
                                 }
                             </div>
-                        }
 
-                        @if (t.InvalidReason != null)
-                        {
-                            <div class="verdict is-sai">
-                                <span class="tag is-sai">✗ Tính sai (0 điểm)</span>
-                                <p class="why">@t.InvalidReason</p>
-                            </div>
-                        }
-                        else if (t.Category != null)
-                        {
-                            <!-- [QUESTION-BANK] Xếp loại câu này theo bộ đề -->
-                            <div class="verdict is-@t.Category">
-                                <div class="verdict-head">
-                                    <span class="tag is-@t.Category">@t.CategoryIcon @t.CategoryName</span>
-                                    @if (!string.IsNullOrEmpty(t.MatchedPathText))
+                            @if (t.FollowUp != null)
+                            {
+                                <div class="interview-detail-followup">
+                                    <span class="interview-detail-followup__eyebrow"><i class="fa-solid fa-reply" aria-hidden="true"></i> Câu hỏi bổ sung từ @m.InterviewerName</span>
+                                    @if (!string.IsNullOrEmpty(t.FollowUpPointText))
                                     {
-                                        <span class="path">@t.MatchedPathText</span>
+                                        <p class="interview-detail-followup__why">Vì câu trả lời đầu chưa thấy ý: @t.FollowUpPointText</p>
+                                    }
+                                    <p class="interview-detail-question">@t.FollowUp.Question</p>
+                                    <div class="interview-detail-answer">
+                                        <div class="interview-detail-answer__label"><i class="fa-solid fa-user" aria-hidden="true"></i> Trả lời câu hỏi bổ sung</div>
+                                        <p class="@(t.FollowUp.Skipped ? "interview-detail-skipped" : "")">@(t.FollowUp.Skipped ? "(Đã bỏ qua câu hỏi thêm)" : t.FollowUp.Answer)</p>
+                                        @if (!string.IsNullOrEmpty(t.FollowUp.VoiceText))
+                                        {
+                                            <p class="interview-detail-voice"><i class="fa-solid fa-microphone-lines" aria-hidden="true"></i> @t.FollowUp.VoiceText</p>
+                                        }
+                                    </div>
+                                    @if (t.FollowUp.InvalidReason != null)
+                                    {
+                                        <p class="interview-detail-followup__why">Câu trả lời thêm chưa có ý nghĩa nên không được tính vào câu này.</p>
                                     }
                                 </div>
-                                <p class="desc">@t.CategoryDescription</p>
-                                @if (!string.IsNullOrEmpty(t.Feedback))
-                                {
-                                    <p class="why">@t.Feedback</p>
-                                }
-                                @if (t.MetPoints.Any() || t.MissingPoints.Any())
-                                {
-                                    <ul class="points">
-                                        @foreach (var point in t.MetPoints) { <li class="met">✓ @point</li> }
-                                        @foreach (var point in t.MissingPoints) { <li class="miss">✗ @point</li> }
-                                    </ul>
-                                }
-                            </div>
-                        }
-                    </article>
-                }
+                            }
 
-                <!-- Nhận xét chung của AI -->
-                <section class="panel ai-feedback">
-                    <h2>Nhận xét chung</h2>
-                    <p>@(m.HasScore ? m.AiSummary : "Buổi này chưa được chấm điểm vì bạn dừng trước khi trả lời. Hãy luyện lại để nhận nhận xét của AI.")</p>
-                    @if (m.Improvements.Any())
-                    {
-                        <ul>@foreach (var tip in m.Improvements) { <li>@tip</li> }</ul>
+                            @if (t.InvalidReason != null)
+                            {
+                                <div class="interview-detail-verdict is-sai">
+                                    <strong class="interview-detail-verdict__title"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Tính sai (0 điểm)</strong>
+                                    <p>@t.InvalidReason</p>
+                                </div>
+                            }
+                            else if (t.Category != null)
+                            {
+                                <div class="interview-detail-verdict is-@t.Category">
+                                    <div class="interview-detail-verdict__header">
+                                        <strong class="interview-detail-verdict__title">@t.CategoryIcon @t.CategoryName</strong>
+                                        @if (!string.IsNullOrEmpty(t.MatchedPathText))
+                                        {
+                                            <span class="interview-detail-verdict__path">@t.MatchedPathText</span>
+                                        }
+                                    </div>
+                                    <p>@t.CategoryDescription</p>
+                                    @if (!string.IsNullOrEmpty(t.Feedback))
+                                    {
+                                        <p class="interview-detail-verdict__feedback">@t.Feedback</p>
+                                    }
+                                    @if (t.MetPoints.Any() || t.MissingPoints.Any())
+                                    {
+                                        <ul class="interview-detail-points">
+                                            @foreach (var point in t.MetPoints)
+                                            {
+                                                <li class="interview-detail-points__met"><i class="fa-solid fa-check" aria-hidden="true"></i> @point</li>
+                                            }
+                                            @foreach (var point in t.MissingPoints)
+                                            {
+                                                <li class="interview-detail-points__missing"><i class="fa-solid fa-minus" aria-hidden="true"></i> @point</li>
+                                            }
+                                        </ul>
+                                    }
+                                </div>
+                            }
+                        </article>
                     }
-                </section>
-            </div>
-        </div>
-    </main>
 
-    <nav class="mobile-bottom-nav" aria-label="Điều hướng">
-        <a href="/Home">Trang chủ</a>
-        <a href="/Interview/Create">Luyện</a>
-        <a href="/Interview/Create?mode=live">Thực chiến</a>
-        <a href="/Home/History" class="active">Lịch sử</a>
-        <a href="/Profile">Hồ sơ</a>
-    </nav>
+                    <section class="interview-detail-ai" aria-labelledby="interview-ai-title">
+                        <div class="interview-detail-ai__heading">
+                            <span class="interview-detail-ai__icon" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                            <div>
+                                <span class="section-header__eyebrow">PHẢN HỒI CỦA AI</span>
+                                <h2 id="interview-ai-title">Nhận xét chung</h2>
+                            </div>
+                        </div>
+                        <p>@(m.HasScore ? m.AiSummary : "Buổi này chưa được chấm điểm vì bạn dừng trước khi trả lời. Hãy luyện lại để nhận nhận xét của AI.")</p>
+                        @if (m.Improvements.Any())
+                        {
+                            <h3>Đề xuất cải thiện</h3>
+                            <ul class="interview-detail-improvements">
+                                @foreach (var tip in m.Improvements)
+                                {
+                                    <li><i class="fa-solid fa-check" aria-hidden="true"></i> @tip</li>
+                                }
+                            </ul>
+                        }
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
     <partial name="Partials/_Notify" />
 </body>
 </html>
