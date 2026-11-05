@@ -1,0 +1,634 @@
+﻿/* MockviewAI — CV upload/review page. No new shared component stylesheet. */
+.cv-page__main {
+    width: min(var(--layout-max-width),calc(100% - 48px));
+    margin: 0 auto;
+    padding: 42px 0 82px
+}
+
+.cv-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 27px
+}
+
+.cv-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--color-primary);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .1em
+}
+
+.cv-heading h1 {
+    margin: 9px 0 9px;
+    color: var(--color-text);
+    font-size: clamp(27px,3.5vw,35px);
+    line-height: 1.2;
+    letter-spacing: -.045em
+}
+
+.cv-heading p {
+    max-width: 630px;
+    color: var(--color-muted);
+    font-size: 14px;
+    line-height: 1.7
+}
+
+.cv-phase {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    margin-top: 8px;
+    padding: 9px 13px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-text-soft);
+    font-size: 12px;
+    font-weight: 700
+}
+
+    .cv-phase i {
+        color: var(--color-primary)
+    }
+
+.cv-steps {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 27px;
+    padding: 16px 22px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-surface)
+}
+
+.cv-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    opacity: .52
+}
+
+    .cv-step.is-current, .cv-step.is-done {
+        opacity: 1
+    }
+
+.cv-step__num {
+    display: grid;
+    place-items: center;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 50%;
+    background: var(--color-surface-soft);
+    color: var(--color-muted);
+    font-size: 13px;
+    font-weight: 800
+}
+
+.cv-step.is-current .cv-step__num {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: #fff
+}
+
+.cv-step.is-done .cv-step__num {
+    border-color: var(--color-success);
+    background: var(--color-success-soft);
+    color: var(--color-success)
+}
+
+.cv-step strong, .cv-step small {
+    display: block;
+    white-space: nowrap
+}
+
+.cv-step strong {
+    color: var(--color-text);
+    font-size: 12px;
+    font-weight: 800
+}
+
+.cv-step small {
+    margin-top: 2px;
+    color: var(--color-muted);
+    font-size: 11px
+}
+
+.cv-steps__line {
+    height: 1px;
+    flex: 1 1 55px;
+    max-width: 90px;
+    background: var(--color-border-strong)
+}
+
+.cv-layout {
+    display: grid;
+    grid-template-columns: minmax(0,1.6fr) minmax(260px,.9fr);
+    align-items: start;
+    gap: 20px
+}
+
+.cv-layout--review {
+    grid-template-columns: minmax(0,1.75fr) minmax(240px,.8fr)
+}
+
+.cv-card {
+    min-width: 0;
+    padding: 28px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-panel);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card)
+}
+
+.cv-card__heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 23px
+}
+
+.cv-card__icon {
+    display: grid;
+    flex: 0 0 43px;
+    width: 43px;
+    height: 43px;
+    place-items: center;
+    border-radius: 13px;
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    font-size: 18px
+}
+
+.cv-card__icon--muted {
+    margin-bottom: 15px
+}
+
+.cv-card__heading h2, .cv-guide h2 {
+    color: var(--color-text);
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.4
+}
+
+.cv-card__heading p {
+    margin-top: 3px;
+    color: var(--color-muted);
+    font-size: 12px;
+    line-height: 1.6
+}
+
+.cv-dropzone {
+    position: relative;
+    display: flex;
+    min-height: 268px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 27px 18px;
+    border: 2px dashed var(--color-border-strong);
+    border-radius: 15px;
+    background: var(--color-surface-soft);
+    text-align: center;
+    transition: border-color .18s,background .18s
+}
+
+    .cv-dropzone:focus-within, .cv-dropzone.is-dragging {
+        border-color: var(--color-primary);
+        background: var(--color-primary-soft)
+    }
+
+.cv-dropzone__illustration {
+    display: grid;
+    width: 56px;
+    height: 56px;
+    place-items: center;
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    background: var(--color-surface);
+    color: var(--color-primary);
+    font-size: 26px
+}
+
+.cv-dropzone > strong {
+    font-size: 15px;
+    color: var(--color-text)
+}
+
+.cv-dropzone > p {
+    color: var(--color-muted);
+    font-size: 13px
+}
+
+.cv-dropzone__help {
+    margin-top: 1px;
+    color: var(--color-muted);
+    font-size: 11px
+}
+
+.cv-file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+    clip-path: inset(50%)
+}
+
+.cv-pick-button {
+    display: inline-flex;
+    min-height: 39px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 2px;
+    padding: 0 16px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-control);
+    background: var(--color-surface);
+    color: var(--color-primary);
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer
+}
+
+    .cv-pick-button:hover {
+        background: var(--color-primary-soft)
+    }
+
+.cv-file-input:focus-visible + .cv-dropzone__help {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px
+}
+
+.cv-file-error {
+    margin: 12px 0 0;
+    color: var(--color-danger);
+    font-size: 12px
+}
+
+.cv-selected {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-top: 14px;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-surface-soft)
+}
+
+    .cv-selected[hidden], .cv-file-error[hidden] {
+        display: none !important
+    }
+
+.cv-selected__icon {
+    display: grid;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border-radius: 9px;
+    background: var(--color-primary-soft);
+    color: var(--color-primary)
+}
+
+.cv-selected__details {
+    display: grid;
+    min-width: 0;
+    flex: 1;
+    gap: 3px
+}
+
+    .cv-selected__details strong {
+        overflow: hidden;
+        color: var(--color-text);
+        font-size: 12px;
+        text-overflow: ellipsis;
+        white-space: nowrap
+    }
+
+    .cv-selected__details small {
+        color: var(--color-muted);
+        font-size: 11px
+    }
+
+.cv-selected__remove {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--color-muted);
+    cursor: pointer
+}
+
+    .cv-selected__remove:hover {
+        background: var(--color-danger-soft);
+        color: var(--color-danger)
+    }
+
+.cv-submit {
+    width: 100%;
+    margin-top: 17px
+}
+
+.cv-side {
+    display: grid;
+    gap: 15px;
+    min-width: 0
+}
+
+.cv-guide__list {
+    display: grid;
+    gap: 18px;
+    margin-top: 20px;
+    padding: 0;
+    list-style: none
+}
+
+    .cv-guide__list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px
+    }
+
+        .cv-guide__list li > span {
+            display: grid;
+            flex: 0 0 30px;
+            width: 30px;
+            height: 30px;
+            place-items: center;
+            border-radius: 9px;
+            background: var(--color-primary-soft);
+            color: var(--color-primary);
+            font-size: 11px;
+            font-weight: 800
+        }
+
+    .cv-guide__list strong, .cv-guide__list small {
+        display: block
+    }
+
+    .cv-guide__list strong {
+        font-size: 12px;
+        color: var(--color-text)
+    }
+
+    .cv-guide__list small {
+        margin-top: 4px;
+        font-size: 11px;
+        color: var(--color-muted);
+        line-height: 1.55
+    }
+
+.cv-hint {
+    display: flex;
+    gap: 10px;
+    padding: 17px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-surface-soft);
+    color: var(--color-muted)
+}
+
+    .cv-hint i {
+        margin-top: 3px;
+        color: var(--color-primary)
+    }
+
+    .cv-hint p {
+        font-size: 11px;
+        line-height: 1.75
+    }
+
+.cv-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding: 13px 16px;
+    border-radius: var(--radius-card);
+    font-size: 13px;
+    line-height: 1.6
+}
+
+.cv-notice--error {
+    border: 1px solid #f5cbd1;
+    background: var(--color-danger-soft);
+    color: var(--color-danger)
+}
+
+.cv-notice--success {
+    border: 1px solid #c3e7d0;
+    background: var(--color-success-soft);
+    color: var(--color-success)
+}
+
+.cv-notice i {
+    margin-top: 3px
+}
+
+.cv-validation {
+    color: var(--color-danger);
+    font-size: 12px
+}
+
+    .cv-validation:empty {
+        display: none
+    }
+
+.cv-review .cv-section-label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 6px 0 17px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+    font-size: 13px;
+    font-weight: 800
+}
+
+.cv-section-label i {
+    color: var(--color-primary)
+}
+
+.cv-fields {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 17px;
+    margin-bottom: 29px
+}
+
+.cv-fields__full {
+    grid-column: 1/-1
+}
+
+.cv-textarea {
+    min-height: 122px;
+    padding: 13px 14px;
+    resize: vertical;
+    line-height: 1.6
+}
+
+.cv-field-help {
+    color: var(--color-muted);
+    font-size: 11px
+}
+
+.cv-review__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 11px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-border)
+}
+
+.cv-button-secondary {
+    background: var(--color-surface)
+}
+
+.cv-guide__copy {
+    margin-top: 10px;
+    color: var(--color-muted);
+    font-size: 12px;
+    line-height: 1.7
+}
+
+.cv-review__tips {
+    display: grid;
+    gap: 13px;
+    margin-top: 19px;
+    padding: 0;
+    list-style: none
+}
+
+    .cv-review__tips li {
+        display: flex;
+        gap: 9px;
+        color: var(--color-text-soft);
+        font-size: 12px;
+        line-height: 1.65
+    }
+
+    .cv-review__tips i {
+        margin-top: 4px;
+        color: var(--color-success)
+    }
+
+@media(max-width:850px) {
+    .cv-layout, .cv-layout--review {
+        grid-template-columns: minmax(0,1fr)
+    }
+
+    .cv-side {
+        grid-template-columns: repeat(2,minmax(0,1fr))
+    }
+
+    .cv-layout--review .cv-side {
+        grid-template-columns: 1fr
+    }
+
+    .cv-guide__list {
+        gap: 12px
+    }
+}
+
+@media(max-width:600px) {
+    .cv-page__main {
+        width: calc(100% - 28px);
+        padding: 26px 0 36px
+    }
+
+    .cv-heading {
+        display: block;
+        margin-bottom: 18px
+    }
+
+        .cv-heading p {
+            font-size: 13px
+        }
+
+    .cv-phase {
+        margin-top: 16px
+    }
+
+    .cv-steps {
+        gap: 9px;
+        padding: 13px 12px;
+        margin-bottom: 18px
+    }
+
+    .cv-step {
+        gap: 7px
+    }
+
+    .cv-step__num {
+        flex-basis: 28px;
+        width: 28px;
+        height: 28px
+    }
+
+    .cv-step strong {
+        font-size: 11px
+    }
+
+    .cv-step small {
+        font-size: 10px;
+        white-space: normal
+    }
+
+    .cv-steps__line {
+        min-width: 9px;
+        flex: 1 1 10px
+    }
+
+    .cv-card {
+        padding: 20px 16px
+    }
+
+    .cv-side {
+        grid-template-columns: 1fr
+    }
+
+    .cv-card__heading {
+        gap: 10px
+    }
+
+    .cv-dropzone {
+        min-height: 235px
+    }
+
+    .cv-fields {
+        grid-template-columns: 1fr;
+        gap: 15px
+    }
+
+    .cv-fields__full {
+        grid-column: auto
+    }
+
+    .cv-review__actions {
+        flex-direction: column-reverse;
+        align-items: stretch
+    }
+
+        .cv-review__actions .button {
+            width: 100%
+        }
+}

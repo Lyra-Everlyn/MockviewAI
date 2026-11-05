@@ -1,0 +1,184 @@
+﻿@model MockviewAI.Models.ViewModels.CvUploadViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Tải lên CV";
+    ViewData["ActiveNav"] = "";
+    var isReview = Model?.IsParsed == true && Model.ParsedData != null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tải lên CV - MockviewAI</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/UploadCV.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/themes/theme-indigo.css" asp-append-version="true" />
+</head>
+<body class="app-layout cv-page">
+    <partial name="Partials/_AppNavigation" />
+    <div class="app-layout__content">
+        <main class="cv-page__main">
+            <header class="cv-heading">
+                <div>
+                    <span class="cv-eyebrow"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> HỒ SƠ ỨNG TUYỂN</span>
+                    <h1>Tải lên CV của bạn</h1>
+                    <p>AI giúp trích xuất thông tin từ CV để bạn kiểm tra và sử dụng trong các buổi luyện phỏng vấn.</p>
+                </div>
+                <span class="cv-phase" aria-label="Trạng thái quy trình">
+                    <i class="fa-regular @(isReview ? "fa-circle-check" : "fa-file-lines")" aria-hidden="true"></i>
+                    @(isReview ? "Bước 2/2 · Kiểm tra dữ liệu" : "Bước 1/2 · Tải CV")
+                </span>
+            </header>
+
+            <div class="cv-steps" aria-label="Tiến trình xử lý CV">
+                <div class="cv-step @(isReview ? "is-done" : "is-current")">
+                    <span class="cv-step__num">@(isReview ? "✓" : "1")</span>
+                    <span><strong>Tải CV</strong><small>Chọn tài liệu của bạn</small></span>
+                </div>
+                <span class="cv-steps__line" aria-hidden="true"></span>
+                <div class="cv-step @(isReview ? "is-current" : "")">
+                    <span class="cv-step__num">2</span>
+                    <span><strong>Kiểm tra & lưu</strong><small>Xác nhận dữ liệu AI</small></span>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model?.ErrorMessage))
+            {
+                <div class="cv-notice cv-notice--error" role="alert">
+                    <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                    <span>@Model.ErrorMessage</span>
+                </div>
+            }
+            <div asp-validation-summary="ModelOnly" class="cv-validation" role="alert"></div>
+
+            @if (!isReview)
+            {
+                <div class="cv-layout">
+                    <section class="cv-card cv-card--upload" aria-labelledby="cv-upload-title">
+                        <div class="cv-card__heading">
+                            <span class="cv-card__icon"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i></span>
+                            <div>
+                                <h2 id="cv-upload-title">Chọn tài liệu CV</h2>
+                                <p>Hỗ trợ PDF hoặc ảnh CV rõ nét (JPG, PNG).</p>
+                            </div>
+                        </div>
+                        <form id="cvUploadForm" asp-controller="CV" asp-action="UploadCv"
+                              enctype="multipart/form-data" method="post"
+                              data-loading-text="Đang phân tích..."
+                              data-loading-overlay="Đang đọc và trích xuất nội dung CV. Quá trình này có thể mất một lúc.">
+                            @Html.AntiForgeryToken()
+                            <div class="cv-dropzone" id="cvDropzone">
+                                <span class="cv-dropzone__illustration" aria-hidden="true"><i class="fa-regular fa-file-pdf"></i></span>
+                                <strong>Kéo thả CV vào đây</strong>
+                                <p>hoặc chọn tệp từ thiết bị</p>
+                                <label class="cv-pick-button" for="CvFile"><i class="fa-solid fa-folder-open" aria-hidden="true"></i> Chọn tệp CV</label>
+                                <input id="CvFile" asp-for="CvFile" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" required class="cv-file-input" aria-describedby="cvFileHelp cvFileError" />
+                                <span id="cvFileHelp" class="cv-dropzone__help">PDF · JPG · JPEG · PNG · Tối đa 10 MB</span>
+                            </div>
+                            <span asp-validation-for="CvFile" class="cv-validation"></span>
+                            <p id="cvFileError" class="cv-file-error" role="alert" aria-live="polite" hidden></p>
+                            <div class="cv-selected" id="cvSelected" hidden>
+                                <span class="cv-selected__icon"><i class="fa-regular fa-file-lines" aria-hidden="true"></i></span>
+                                <span class="cv-selected__details"><strong id="cvSelectedName"></strong><small id="cvSelectedSize"></small></span>
+                                <button type="button" id="cvRemoveFile" class="cv-selected__remove" aria-label="Bỏ tệp đã chọn" title="Bỏ tệp"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                            </div>
+                            <button class="button button--primary cv-submit" type="submit">
+                                <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+                                <span>Phân tích CV</span>
+                                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </section>
+                    <aside class="cv-side" aria-label="Hướng dẫn tải CV">
+                        <div class="cv-card cv-guide">
+                            <span class="cv-card__icon cv-card__icon--muted"><i class="fa-solid fa-list-check" aria-hidden="true"></i></span>
+                            <h2>Điều gì sẽ diễn ra?</h2>
+                            <ol class="cv-guide__list">
+                                <li><span>01</span><p><strong>Tải lên</strong><small>Chọn tệp CV từ thiết bị.</small></p></li>
+                                <li><span>02</span><p><strong>AI trích xuất</strong><small>Phân tích thông tin có trong tài liệu.</small></p></li>
+                                <li><span>03</span><p><strong>Bạn xác nhận</strong><small>Kiểm tra, chỉnh sửa rồi mới lưu.</small></p></li>
+                            </ol>
+                        </div>
+                        <div class="cv-hint"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><p>CV có thể chứa thông tin cá nhân. Chỉ tải lên tài liệu bạn có quyền sử dụng; hãy kiểm tra nội dung trước khi lưu.</p></div>
+                    </aside>
+                </div>
+            }
+            else
+            {
+                <div class="cv-notice cv-notice--success" role="status">
+                    <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                    <span>Đã trích xuất CV. Hãy kiểm tra thông tin AI nhận diện trước khi lưu vào hệ thống.</span>
+                </div>
+                <div class="cv-layout cv-layout--review">
+                    <section class="cv-card cv-review" aria-labelledby="cv-review-heading">
+                        <div class="cv-card__heading">
+                            <span class="cv-card__icon"><i class="fa-solid fa-file-circle-check" aria-hidden="true"></i></span>
+                            <div><h2 id="cv-review-heading">Kiểm tra thông tin CV</h2><p>Bạn có thể sửa nội dung chưa chính xác trước khi xác nhận.</p></div>
+                        </div>
+                        <form asp-controller="CV" asp-action="SaveCv" method="post"
+                              data-loading-text="Đang lưu CV..."
+                              data-loading-overlay="Đang lưu thông tin CV của bạn vào hệ thống.">
+                            @Html.AntiForgeryToken()
+                            <div class="cv-section-label"><i class="fa-regular fa-address-card" aria-hidden="true"></i> Thông tin cá nhân & vị trí</div>
+                            <div class="cv-fields">
+                                <div class="form-field">
+                                    <label class="form-field__label" asp-for="ParsedData.FullName">Họ và tên</label>
+                                    <input class="form-control" asp-for="ParsedData.FullName" placeholder="Họ và tên trong CV" />
+                                    <span asp-validation-for="ParsedData.FullName" class="cv-validation"></span>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-field__label" asp-for="ParsedData.TargetJobTitle">Vị trí ứng tuyển</label>
+                                    <input class="form-control" asp-for="ParsedData.TargetJobTitle" placeholder="Ví dụ: .NET Developer" />
+                                    <span asp-validation-for="ParsedData.TargetJobTitle" class="cv-validation"></span>
+                                </div>
+                                <div class="form-field cv-fields__full">
+                                    <label class="form-field__label" asp-for="ParsedData.CareerObjective">Mục tiêu nghề nghiệp</label>
+                                    <textarea class="form-control cv-textarea" asp-for="ParsedData.CareerObjective" rows="5" placeholder="Mục tiêu nghề nghiệp của bạn..."></textarea>
+                                    <span asp-validation-for="ParsedData.CareerObjective" class="cv-validation"></span>
+                                </div>
+                            </div>
+                            <div class="cv-section-label"><i class="fa-solid fa-code" aria-hidden="true"></i> Kỹ năng</div>
+                            <div class="form-field">
+                                <label class="form-field__label" for="HardSkillsString">Kỹ năng chuyên môn</label>
+                                <input class="form-control" id="HardSkillsString" type="text"
+                                       name="HardSkillsString"
+                                       value="@(Model!.ParsedData!.HardSkills != null ? string.Join(", ", Model.ParsedData.HardSkills) : "")"
+                                       placeholder="C#, ASP.NET Core, SQL Server..." />
+                                <small class="cv-field-help">Ngăn cách từng kỹ năng bằng dấu phẩy.</small>
+                            </div>
+                            <div class="cv-review__actions">
+                                <a class="button button--secondary cv-button-secondary" asp-controller="CV" asp-action="UploadCv">
+                                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Tải CV khác
+                                </a>
+                                <button class="button button--primary" type="submit">
+                                    <i class="fa-solid fa-check" aria-hidden="true"></i> Xác nhận & lưu CV
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+                    <aside class="cv-side" aria-label="Lưu ý khi kiểm tra CV">
+                        <div class="cv-card cv-guide">
+                            <span class="cv-card__icon cv-card__icon--muted"><i class="fa-regular fa-lightbulb" aria-hidden="true"></i></span>
+                            <h2>Trước khi lưu</h2>
+                            <p class="cv-guide__copy">AI có thể nhận diện sai từ ảnh mờ, tài liệu nhiều cột hoặc các thuật ngữ chuyên ngành.</p>
+                            <ul class="cv-review__tips">
+                                <li><i class="fa-solid fa-check" aria-hidden="true"></i> Kiểm tra lại họ tên và vị trí mong muốn.</li>
+                                <li><i class="fa-solid fa-check" aria-hidden="true"></i> Điều chỉnh mục tiêu nghề nghiệp cho đúng ý bạn.</li>
+                                <li><i class="fa-solid fa-check" aria-hidden="true"></i> Chỉ giữ lại các kỹ năng có trong kinh nghiệm thực tế.</li>
+                            </ul>
+                        </div>
+                    </aside>
+                </div>
+            }
+        </main>
+    </div>
+    <partial name="Partials/_AppFooter" />
+    <partial name="Partials/_Notify" />
+    <script src="~/js/UploadCV.js" asp-append-version="true" defer></script>
+    <script src="~/js/_SubmitLoading.js" asp-append-version="true" defer></script>
+</body>
+</html>
