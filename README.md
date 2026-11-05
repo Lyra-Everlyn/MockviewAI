@@ -50,8 +50,8 @@ Whether you run locally or via Docker, create an `.env` file in the root directo
 # Note: NEVER commit this file to Git. Ensure it is in .gitignore.
 
 # Database & Redis
-ConnectionStrings__DefaultConnection=Server=localhost;Port=3306;Database=mockview_database;Uid=root;Pwd=change-me;
-ConnectionStrings__RedisConnection=localhost:6379
+ConnectionStrings__DefaultConnection=change-me;
+ConnectionStrings__RedisConnection=change-me
 
 # Cloudflare Turnstile
 Turnstile__SiteKey=YOUR_TURNSTILE_SITE_KEY
