@@ -17,15 +17,18 @@ MockviewAI is an AI-powered mock interview platform designed specifically for up
 *   **Framework:** ASP.NET Core MVC (C#)
 *   **Database:** MySQL (via Entity Framework Core)
 *   **Caching & Rate Limiting:** Redis
-*   **AI Engine:** Google Gemini (gemini-3.8-flash / gemini-2.5-flash)
+*   **AI Engine:** Google Gemini & Groq APIs (with Multi-key rotation)
 *   **Media Storage:** Cloudinary
 *   **Security:** Cloudflare Turnstile, BCrypt
+*   **Configuration:** DotNetEnv
 
 ---
 
 ## 🚀 Getting Started
 
-You can run this project locally using Visual Studio / .NET CLI or fully containerized via Docker Compose.
+You can run this project locally using Visual Studio / .NET CLI or fully containerized via Docker Compose. 
+
+**Important:** This project uses `DotNetEnv` for configuration management. We do not use `.NET User Secrets` (`secrets.json`). All environment variables are managed via a single `.env` file.
 
 ### Prerequisites
 *   [.NET 8.0 SDK](https://dotnet.microsoft.com/download) (or higher)
@@ -34,134 +37,53 @@ You can run this project locally using Visual Studio / .NET CLI or fully contain
 
 ---
 
-### Option A: Local Development (Visual Studio / .NET CLI)
+### 1. Environment Configuration (.env)
 
-If you are running the project directly via Visual Studio (F5) or the .NET CLI, you must set up **User Secrets** so your sensitive credentials are not committed to source control.
+Whether you run locally or via Docker, create an `.env` file in the root directory of the project. 
 
-**1. Open your terminal in the project directory**
-```bash
-cd MockviewAI/MockviewAI
-```
-
-**2. Set up User Secrets**
-Run the following commands one by one, replacing the `YOUR_...` placeholders with your actual API keys and credentials:
-
-```bash
-# Database and Redis (Local)
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost;Port=3306;Database=mockview_database;Uid=root;Pwd=change-me;"
-dotnet user-secrets set "ConnectionStrings:RedisConnection" "localhost:6379"
-
-# Google Authentication
-dotnet user-secrets set "Authentication:Google:ClientId" "YOUR_GOOGLE_CLIENT_ID"
-dotnet user-secrets set "Authentication:Google:ClientSecret" "YOUR_GOOGLE_CLIENT_SECRET"
-
-# Email Configuration (SMTP)
-dotnet user-secrets set "SmtpSettings:Server" "smtp.gmail.com"
-dotnet user-secrets set "SmtpSettings:Port" "587"
-dotnet user-secrets set "SmtpSettings:SenderName" "MockviewAI"
-dotnet user-secrets set "SmtpSettings:SenderEmail" "your_email@gmail.com"
-dotnet user-secrets set "SmtpSettings:Username" "your_email@gmail.com"
-dotnet user-secrets set "SmtpSettings:Password" "your_gmail_app_password"
-
-# Cloudinary (Media Storage)
-dotnet user-secrets set "CloudinarySettings:CloudName" "YOUR_CLOUD_NAME"
-dotnet user-secrets set "CloudinarySettings:ApiKey" "YOUR_API_KEY"
-dotnet user-secrets set "CloudinarySettings:ApiSecret" "YOUR_API_SECRET"
-
-# AI Scoring (Gemini)
-dotnet user-secrets set "Ai:Provider" "Gemini"
-dotnet user-secrets set "Gemini:ApiKey" "YOUR_GEMINI_API_KEY"
-dotnet user-secrets set "Gemini:Model" "gemini-3.8-flash"
-
-# Cloudflare Turnstile (Captcha)
-dotnet user-secrets set "Turnstile:SiteKey" "YOUR_TURNSTILE_SITE_KEY"
-dotnet user-secrets set "Turnstile:SecretKey" "YOUR_TURNSTILE_SECRET_KEY"
-```
-
-Once configured, simply press **F5** in Visual Studio or run `dotnet run`.
-
----
-
-### Option B: Docker Compose
-
-If you prefer to run the entire stack (App, MySQL, Redis) via Docker, the system will read configurations from an `.env` file.
-
-*Note: When converting ASP.NET Core `appsettings.json` hierarchy to Docker environment variables, the colon (`:`) is replaced by a double underscore (`__`).*
-
-**1. Create the `.env` file**
-In the root directory of the project (where `docker-compose.yml` is located), create a file named `.env` and add the following content (replace placeholders with real values):
+*Note: The project uses double underscores (`__`) to map ASP.NET Core's hierarchical configuration data.*
 
 ```env
 # ==========================================
-# DOCKER COMPOSE & ENVIRONMENT VARIABLES
+# ENVIRONMENT VARIABLES (.env)
 # ==========================================
-# Note: NEVER commit the actual .env file to Git.
+# Note: NEVER commit this file to Git. Ensure it is in .gitignore.
 
-# MySQL Root Password for the container
-MYSQL_ROOT_PASSWORD=change-me
-
-# Database
-ConnectionStrings__DefaultConnection=CHANGE_ME;
-ConnectionStrings__RedisConnection=CHANGE_ME
+# Database & Redis
+ConnectionStrings__DefaultConnection=Server=localhost;Port=3306;Database=mockview_database;Uid=root;Pwd=change-me;
+ConnectionStrings__RedisConnection=localhost:6379
 
 # Cloudflare Turnstile
-Turnstile__SiteKey=CHANGE_ME
-Turnstile__SecretKey=CHANGE_ME
+Turnstile__SiteKey=YOUR_TURNSTILE_SITE_KEY
+Turnstile__SecretKey=YOUR_TURNSTILE_SECRET_KEY
 
 # Email (SMTP)
 SmtpSettings__Server=smtp.gmail.com
-SmtpSettings__Port=CHANGE_ME
-SmtpSettings__Username=CHANGE_ME
-SmtpSettings__SenderName=CHANGE_ME
-SmtpSettings__SenderEmail=CHANGE_ME
-SmtpSettings__Password=CHANGE_ME
+SmtpSettings__Port=587
+SmtpSettings__Username=your_email@gmail.com
+SmtpSettings__SenderName=MockviewAI
+SmtpSettings__SenderEmail=your_email@gmail.com
+SmtpSettings__Password=your_gmail_app_password
 
 # Google Authentication
-Authentication__Google__ClientId=CHANGE_ME
-Authentication__Google__ClientSecret=CHANGE_ME
+Authentication__Google__ClientId=YOUR_GOOGLE_CLIENT_ID
+Authentication__Google__ClientSecret=YOUR_GOOGLE_CLIENT_SECRET
 
 # Cloudinary
-CloudinarySettings__CloudName=CHANGE_ME
-CloudinarySettings__ApiSecret=CHANGE_ME
-CloudinarySettings__ApiKey=CHANGE_ME
+CloudinarySettings__CloudName=YOUR_CLOUD_NAME
+CloudinarySettings__ApiSecret=YOUR_API_SECRET
+CloudinarySettings__ApiKey=YOUR_API_KEY
 
-# AI Configuration
+# AI Configuration (Gemini Provider)
 Ai__Provider=Gemini
-Gemini__Model=gemini-3.6-flash
-Gemini__ApiKey=CHANGE_ME
+Gemini__Model=gemini-3.8-flash
+Gemini__ApiKey=YOUR_MAIN_GEMINI_KEY
 
-# Gemini API Keys Array
-Gemini__ApiKeys__0=CHANGE_ME
-Gemini__ApiKeys__1=CHANGE_ME
-Gemini__ApiKeys__2=CHANGE_ME
-Gemini__ApiKeys__3=CHANGE_ME
-Gemini__ApiKeys__4=CHANGE_ME
-Gemini__ApiKeys__5=CHANGE_ME
+# Gemini API Keys Array (For multi-key rotation)
+Gemini__ApiKeys__0=KEY_1
+Gemini__ApiKeys__1=KEY_2
+Gemini__ApiKeys__2=KEY_3
 
-# Groq API Keys Array
-Groq__ApiKeys__0=CHANGE_ME
-Groq__ApiKeys__1=CHANGE_ME
-Groq__ApiKeys__2=CHANGE_ME
-Groq__ApiKeys__3=CHANGE_ME
-Groq__ApiKeys__4=CHANGE_ME
-Groq__ApiKeys__5=CHANGE_ME
-```
-
-**2. Launch the application**
-Open your terminal in the directory containing `docker-compose.yml` and run:
-```bash
-docker-compose up -d --build
-```
-Docker will automatically provision the database, start Redis, and launch the web application.
-
----
-
-## 📂 Project Structure
-
-*   `Controllers/`: ASP.NET Core MVC Controllers handling HTTP requests.
-*   `Services/`: Core business logic (Auth, AI, Interviews, Evaluation).
-*   `Models/`: Data entities, DTOs, and ViewModels.
-*   `Views/`: UI templates using Razor syntax (Vietnamese UI).
-
-## 📄 License
-This project is created for academic research purposes.
+# Groq API Keys Array (For fallback/multi-key rotation)
+Groq__ApiKeys__0=KEY_1
+Groq__ApiKeys__1=KEY_2
