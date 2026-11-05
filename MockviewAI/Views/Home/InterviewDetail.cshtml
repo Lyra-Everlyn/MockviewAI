@@ -28,7 +28,8 @@
     <main class="wrap">
         <a href="/Home/History" class="back-link">&lsaquo; Lịch sử</a>
         <h1>Xem lại hội thoại</h1>
-        <p class="sub">@m.Position &middot; @m.InterviewerName &middot; @m.StartedAt.ToString("dd/MM") &middot; @m.QuestionCount câu &middot; toàn bộ hội thoại được lưu lại</p>
+        <p class="sub">@m.Position &middot; @m.InterviewerName &middot; @m.StartedAt.ToString("dd/MM") &middot; @m.QuestionCount câu &middot; toàn bộ hội thoại được lưu lại
+            @if (m.IsLive) { <span class="mode-tag">Thực chiến</span> }</p>
 
         <!-- Tóm tắt điểm + hành động -->
         <section class="panel summary-strip" aria-label="Tóm tắt buổi luyện">
@@ -54,7 +55,7 @@
                 @foreach (var t in m.Turns)
                 {
                     var dot = t.InvalidReason != null ? "bg-sai" : t.Category != null ? "bg-" + t.Category : "dot-none";
-                    <a href="#cau-@t.Number"><span class="dot @dot"></span><span class="idx-text">Câu @t.Number<span class="idx-q"> · @t.Question</span></span></a>
+                    <a href="#cau-@t.Number"><span class="dot @dot"></span><span class="idx-text">Câu @t.Number@(t.FollowUp != null ? " +" : "")<span class="idx-q"> · @t.Question</span></span></a>
                 }
             </nav>
 
@@ -69,6 +70,32 @@
                         <div class="asker"><span class="face sm @faceClass">@faceLetter</span><span class="qno">Câu @t.Number · @m.InterviewerName hỏi</span></div>
                         <p class="q">@t.Question</p>
                         <p class="mine @(t.Skipped ? "skipped" : "")">@(t.Skipped ? "(Đã bỏ qua câu này)" : t.Answer)</p>
+                        @if (!string.IsNullOrEmpty(t.VoiceText))
+                        {
+                            <p class="voice-line">@t.VoiceText</p>   @* [VOICE] Đợt 7 *@
+                        }
+
+                        @if (t.FollowUp != null)
+                        {
+                            <!-- [FOLLOW-UP] Đợt 8: người phỏng vấn hỏi thêm vì câu trả lời còn thiếu ý -->
+                            <div class="followup">
+                                <div class="asker"><span class="face sm @faceClass">@faceLetter</span><span class="qno">@m.InterviewerName hỏi thêm</span></div>
+                                @if (!string.IsNullOrEmpty(t.FollowUpPointText))
+                                {
+                                    <p class="followup-why">Vì câu trả lời đầu chưa thấy ý: @t.FollowUpPointText</p>
+                                }
+                                <p class="q q-sm">@t.FollowUp.Question</p>
+                                <p class="mine @(t.FollowUp.Skipped ? "skipped" : "")">@(t.FollowUp.Skipped ? "(Đã bỏ qua câu hỏi thêm)" : t.FollowUp.Answer)</p>
+                                @if (!string.IsNullOrEmpty(t.FollowUp.VoiceText))
+                                {
+                                    <p class="voice-line">@t.FollowUp.VoiceText</p>
+                                }
+                                @if (t.FollowUp.InvalidReason != null)
+                                {
+                                    <p class="why">Câu trả lời thêm chưa có ý nghĩa nên không được tính vào câu này.</p>
+                                }
+                            </div>
+                        }
 
                         @if (t.InvalidReason != null)
                         {
@@ -121,6 +148,7 @@
     <nav class="mobile-bottom-nav" aria-label="Điều hướng">
         <a href="/Home">Trang chủ</a>
         <a href="/Interview/Create">Luyện</a>
+        <a href="/Interview/Create?mode=live">Thực chiến</a>
         <a href="/Home/History" class="active">Lịch sử</a>
         <a href="/Profile">Hồ sơ</a>
     </nav>

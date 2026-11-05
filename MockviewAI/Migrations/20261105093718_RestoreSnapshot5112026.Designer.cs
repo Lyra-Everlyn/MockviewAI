@@ -12,8 +12,8 @@ using MockviewAI.Data;
 namespace MockviewAI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261103132244_RestoreSnapshot")]
-    partial class RestoreSnapshot
+    [Migration("20261105093718_RestoreSnapshot5112026")]
+    partial class RestoreSnapshot5112026
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -102,6 +102,10 @@ namespace MockviewAI.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
+                    b.Property<string>("Mode")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
                     b.Property<string>("Position")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -181,6 +185,14 @@ namespace MockviewAI.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("varchar(1000)");
 
+                    b.Property<string>("FollowUpOf")
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<string>("FollowUpPointId")
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)");
+
                     b.Property<double?>("LongestPauseSeconds")
                         .HasColumnType("double");
 
@@ -191,6 +203,9 @@ namespace MockviewAI.Migrations
                     b.Property<int>("OrderNo")
                         .HasColumnType("int");
 
+                    b.Property<double?>("PitchVariation")
+                        .HasColumnType("double");
+
                     b.Property<string>("Question")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -200,11 +215,17 @@ namespace MockviewAI.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("varchar(40)");
 
+                    b.Property<double?>("QuietRatio")
+                        .HasColumnType("double");
+
                     b.Property<int>("SessionId")
                         .HasColumnType("int");
 
                     b.Property<bool>("Skipped")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<double?>("VoiceLevelDb")
+                        .HasColumnType("double");
 
                     b.HasKey("Id");
 

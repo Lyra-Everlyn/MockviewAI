@@ -18,6 +18,13 @@ namespace MockviewAI.Models.Ai
         public int FillerScore { get; set; }
         public int LengthScore { get; set; }
         public int PauseScore { get; set; }
+        // [VOICE] Đợt 7: chỉ có khi trình duyệt đo được giọng nói (nói bằng micro)
+        public bool HasVoiceData { get; set; }
+        public double? VoiceLevelDb { get; set; }
+        public double? QuietRatio { get; set; }
+        public double? PitchVariation { get; set; }
+        public int? VolumeScore { get; set; }
+        public int? ToneScore { get; set; }
         public int Total { get; set; }                  // 0-100
         public List<string> Tips { get; set; } = new();
     }

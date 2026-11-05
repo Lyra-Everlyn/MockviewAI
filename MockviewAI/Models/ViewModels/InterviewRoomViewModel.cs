@@ -13,7 +13,16 @@ namespace MockviewAI.Models.ViewModels
         public int TotalQuestions { get; set; }
         public string QuestionText { get; set; } = string.Empty;
         public int AnsweredCount { get; set; }                           // số câu đã trả lời (không tính câu bỏ qua)
+        public bool IsFollowUp { get; set; }                             // [FOLLOW-UP] câu đang hỏi là câu hỏi thêm
 
         public int ProgressPercent => TotalQuestions == 0 ? 0 : (QuestionNumber - 1) * 100 / TotalQuestions;
+
+        // [LIVE-MODE] Chế độ buổi luyện + luật Thực chiến (JS đọc qua data-*)
+        public string Mode { get; set; } = InterviewModes.Practice;
+        public bool IsLive => InterviewModes.IsLive(Mode);
+        public string ModeName => InterviewModes.DisplayName(Mode);
+        public int ThinkSeconds => InterviewModes.LiveThinkSeconds;
+        public int MaxAnswerSeconds => InterviewModes.LiveMaxAnswerSeconds;
+        public int MaxReplays => InterviewModes.LiveMaxReplays;
     }
 }

@@ -66,6 +66,10 @@ namespace MockviewAI.Models.Entities
         [MaxLength(20)]
         public string? ScoringMode { get; set; }
 
+        // [LIVE-MODE] Chế độ: practice (Luyện tập) | live (Thực chiến). null = buổi cũ = Luyện tập
+        [MaxLength(20)]
+        public string? Mode { get; set; }
+
         public List<SessionAnswer> Answers { get; set; } = new();
     }
 }

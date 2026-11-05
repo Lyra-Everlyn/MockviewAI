@@ -1,5 +1,5 @@
 {
-  "version": "2026-11-02.v3",
+  "version": "2026-11-03.v4",
   "categories": [
     {
       "id": "dung",
@@ -50,7 +50,8 @@
             "chuyên ngành",
             "ngành"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Trước khi nói tiếp, bạn cho mình biết thêm một chút về quá trình học tập hiện tại của bạn nhé?"
         },
         {
           "id": "c2",
@@ -76,7 +77,8 @@
             "fastapi",
             "lập trình"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn đang dùng thành thạo những công cụ kỹ thuật nào nhất cho công việc này?"
         },
         {
           "id": "c3",
@@ -93,7 +95,8 @@
             "cuộc thi",
             "người dùng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn có thể kể một thứ bạn đã tự tay làm ra để chứng minh những kỹ năng đó không?"
         }
       ],
       "paths": [
@@ -225,7 +228,8 @@
             "lỗi bất ngờ",
             "dự đoán trước"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Cụ thể thì bạn xử lý chúng ở tầng nào, và bạn gom mọi loại chung một chỗ hay tách riêng từng loại?"
         },
         {
           "id": "c2",
@@ -242,7 +246,8 @@
             "throw",
             "result"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Sau khi bắt được lỗi rồi, làm sao để đội mình biết sau này là đã có chuyện gì xảy ra?"
         },
         {
           "id": "c3",
@@ -256,7 +261,8 @@
             "đóng file",
             "được đóng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nếu đang mở kết nối cơ sở dữ liệu hay một tệp mà sự cố xảy ra giữa chừng, bạn làm sao để nó không bị bỏ ngỏ?"
         }
       ],
       "paths": [
@@ -394,7 +400,8 @@
             "field",
             "có sẵn code"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nói ngắn gọn thì một interface chứa gì và không chứa gì so với một class?"
         },
         {
           "id": "c2",
@@ -408,7 +415,8 @@
             "đa kế thừa",
             "một class"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Về chuyện thừa hưởng từ lớp cha, mỗi lớp có thể có mấy lớp cha, và điều đó khác gì với interface?"
         },
         {
           "id": "c3",
@@ -424,7 +432,8 @@
             "không sửa code",
             "đổi từ"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Trong một dự án thật, việc dùng interface giúp gì khi bạn muốn đổi cách làm hoặc viết kiểm thử?"
         }
       ],
       "paths": [
@@ -561,7 +570,8 @@
             "trong lúc chờ",
             "đi làm việc khác"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Trong một ứng dụng web, khi chờ gọi một dịch vụ bên ngoài thì async/await giúp được gì cho các yêu cầu khác?"
         },
         {
           "id": "c2",
@@ -570,7 +580,8 @@
             "task",
             "await"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Một hàm bất đồng bộ thường trả về kiểu gì, và khi gọi nó thì luồng đang chạy có bị giữ lại không?"
         },
         {
           "id": "c3",
@@ -581,7 +592,8 @@
             "deadlock",
             "async void"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn đã bao giờ thấy ứng dụng bị treo vì dùng async sai cách chưa? Thường là do viết code kiểu gì?"
         }
       ],
       "paths": [
@@ -716,7 +728,8 @@
             "polymorphism",
             "abstraction"
           ],
-          "minHits": 3
+          "minHits": 3,
+          "followUp": "Bạn liệt kê lại giúp mình đầy đủ các tính chất đó nhé, mình nghe chưa đủ."
         },
         {
           "id": "c2",
@@ -736,7 +749,8 @@
             "chữ l",
             "chữ d"
           ],
-          "minHits": 2
+          "minHits": 2,
+          "followUp": "Chọn một tính chất bạn vừa nói, bạn giải thích kỹ hơn nó giải quyết vấn đề gì?"
         },
         {
           "id": "c3",
@@ -751,7 +765,8 @@
             "draw",
             "dự án"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn minh hoạ giúp mình bằng một trường hợp cụ thể trong code hoặc đời thường cho một trong các tính chất đó?"
         }
       ],
       "paths": [
@@ -882,7 +897,8 @@
             "tiêm",
             "container"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Vậy các đối tượng mà một class cần dùng thì do ai tạo ra trong cách làm này?"
         },
         {
           "id": "c2",
@@ -898,7 +914,8 @@
             "cấp cao",
             "đảo ngược"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nếu sau này muốn thay một thành phần bằng phiên bản khác, cách làm này giúp gì?"
         },
         {
           "id": "c3",
@@ -909,7 +926,8 @@
             "bản giả",
             "kiểm thử"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi muốn kiểm tra riêng từng lớp như vậy bằng code, bạn thấy cách làm này có lợi gì?"
         }
       ],
       "paths": [
@@ -1040,7 +1058,8 @@
             "giao nhau",
             "cả hai bảng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Với kiểu nối thứ nhất, những dòng nào sẽ có trong kết quả?"
         },
         {
           "id": "c2",
@@ -1053,7 +1072,8 @@
             "vẫn hiện",
             "left join"
           ],
-          "minHits": 2
+          "minHits": 2,
+          "followUp": "Còn kiểu nối thứ hai thì sao, nếu bên kia không có dòng tương ứng thì kết quả hiển thị thế nào?"
         },
         {
           "id": "c3",
@@ -1066,7 +1086,8 @@
             "đơn hàng",
             "khách"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn thử minh hoạ bằng hai bảng cụ thể mà bạn tự chọn, và nói kết quả của mỗi kiểu nối?"
         }
       ],
       "paths": [
@@ -1198,7 +1219,8 @@
             "tra cứu nhanh",
             "b tree"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn có thể ví von giúp mình nó hoạt động như thế nào cho người không chuyên dễ hiểu?"
         },
         {
           "id": "c2",
@@ -1212,7 +1234,8 @@
             "cột hay dùng",
             "cột hay lọc"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Trong một bảng có nhiều cột, bạn chọn cột nào để đặt nó?"
         },
         {
           "id": "c3",
@@ -1227,7 +1250,8 @@
             "dung lượng",
             "không cần index"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Có cái giá nào phải trả khi tạo quá nhiều không?"
         }
       ],
       "paths": [
@@ -1358,7 +1382,8 @@
             "patch",
             "delete"
           ],
-          "minHits": 3
+          "minHits": 3,
+          "followUp": "Với các thao tác thêm, xem, sửa và xoá dữ liệu, bạn chọn phương thức nào cho từng thao tác?"
         },
         {
           "id": "c2",
@@ -1377,7 +1402,8 @@
             "mã lỗi",
             "problem details"
           ],
-          "minHits": 2
+          "minHits": 2,
+          "followUp": "Khi người gọi gửi sai dữ liệu so với khi máy chủ gặp sự cố, bạn trả về mã khác nhau thế nào?"
         },
         {
           "id": "c3",
@@ -1390,7 +1416,8 @@
             "api users",
             "orders"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn đặt đường dẫn như thế nào, chẳng hạn khi muốn lấy thông tin của một người cụ thể?"
         }
       ],
       "paths": [
@@ -1522,7 +1549,8 @@
             "branch",
             "commit"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi bắt đầu một tính năng mới, bạn tổ chức công việc của mình trên kho mã như thế nào?"
         },
         {
           "id": "c2",
@@ -1540,7 +1568,8 @@
             "test lại",
             "từng đoạn"
           ],
-          "minHits": 2
+          "minHits": 2,
+          "followUp": "Khi hai người cùng sửa một đoạn và bị xung đột, bạn xử lý từng bước ra sao?"
         },
         {
           "id": "c3",
@@ -1552,7 +1581,8 @@
             "duyệt",
             "merge request"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Trước khi code của bạn được gộp vào bản chung, có bước kiểm tra nào không?"
         }
       ],
       "paths": [
@@ -1686,7 +1716,8 @@
             "trước khi khai báo",
             "undefined"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nếu khai báo bên trong câu lệnh if, ba cách đó có dùng được biến ở bên ngoài câu lệnh if không?"
         },
         {
           "id": "c2",
@@ -1697,7 +1728,8 @@
             "đổi giá trị",
             "không gán"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Sau khi khai báo, cách nào cho phép đặt giá trị mới cho biến và cách nào thì báo lỗi?"
         },
         {
           "id": "c3",
@@ -1710,7 +1742,8 @@
             "vẫn sửa",
             "không gán lại"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nếu khai báo một danh sách theo cách cố định nhất, mình có thêm phần tử vào nó được không?"
         }
       ],
       "paths": [
@@ -1841,7 +1874,8 @@
             "quá khớp",
             "rò rỉ dữ liệu"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nói đơn giản thì khi bị hiện tượng này, mô hình thể hiện ra sao với dữ liệu nó chưa từng thấy?"
         },
         {
           "id": "c2",
@@ -1855,7 +1889,8 @@
             "loss",
             "99"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn so sánh những con số nào để nhận ra mô hình đang gặp vấn đề này?"
         },
         {
           "id": "c3",
@@ -1872,7 +1907,8 @@
             "tăng cường dữ liệu",
             "kiểm tra xem dữ liệu"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi đã phát hiện ra, bạn sẽ thử những cách nào để khắc phục?"
         }
       ],
       "paths": [
@@ -2006,7 +2042,8 @@
             "chèn lệnh",
             "nguồn"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nếu người dùng cố tình gõ câu kiểu 'bỏ qua mọi hướng dẫn trước đó', hệ thống của bạn chống lại thế nào?"
         },
         {
           "id": "c2",
@@ -2023,7 +2060,8 @@
             "chưa chắc chắn",
             "trích dẫn"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi mô hình trả về kết quả sai định dạng hoặc không trả lời được, ứng dụng của bạn xử lý sao?"
         },
         {
           "id": "c3",
@@ -2038,7 +2076,8 @@
             "rate limit",
             "biến môi trường"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Còn chuyện bảo mật và tiền gọi dịch vụ thì bạn quản lý thế nào?"
         }
       ],
       "paths": [
@@ -2173,7 +2212,8 @@
             "thêm sửa xóa",
             "thêm bớt"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Sau khi tạo xong, hai kiểu này kiểu nào còn đổi được phần tử bên trong?"
         },
         {
           "id": "c2",
@@ -2187,7 +2227,8 @@
             "trả về",
             "frozen"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Có tình huống nào mà kiểu thứ hai làm được còn kiểu thứ nhất thì không?"
         },
         {
           "id": "c3",
@@ -2199,7 +2240,8 @@
             "namedtuple",
             "dataclass"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn kể một trường hợp thực tế bạn đã dùng mỗi kiểu nhé?"
         }
       ],
       "paths": [
@@ -2333,7 +2375,8 @@
             "chuyên ngành",
             "ngành"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn cho mình biết thêm về quá trình học tập của bạn đến giờ nhé?"
         },
         {
           "id": "c2",
@@ -2350,7 +2393,8 @@
             "tìm lỗi",
             "phân tích chức năng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn đã quen dùng những công cụ hay kỹ thuật nào trong công việc kiểm tra phần mềm?"
         },
         {
           "id": "c3",
@@ -2367,7 +2411,8 @@
             "cuộc thi",
             "người dùng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn kể một lần bạn đã trực tiếp tìm lỗi cho một phần mềm cụ thể được không?"
         }
       ],
       "paths": [
@@ -2495,7 +2540,8 @@
             "phòng ngừa",
             "chỗ mơ hồ"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi nhận một chức năng mới, người giỏi nghĩ ra các tình huống kiểm tra như thế nào?"
         },
         {
           "id": "c2",
@@ -2508,7 +2554,8 @@
             "phối hợp",
             "bước tái hiện"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi làm việc với lập trình viên, người làm nghề này cần cư xử ra sao để mọi việc suôn sẻ?"
         },
         {
           "id": "c3",
@@ -2520,7 +2567,8 @@
             "khách hàng",
             "yêu cầu"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Ngoài kỹ thuật, họ cần hiểu thêm điều gì về sản phẩm và người sẽ dùng nó?"
         }
       ],
       "paths": [
@@ -2645,7 +2693,8 @@
             "thành công",
             "đúng email"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn bắt đầu từ tình huống cơ bản nhất, khi người dùng nhập mọi thứ chuẩn, thì kiểm tra gì?"
         },
         {
           "id": "c2",
@@ -2659,7 +2708,8 @@
             "sai email",
             "trống"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Còn khi người dùng nhập sai hoặc bỏ sót thông tin thì bạn kiểm tra những gì?"
         },
         {
           "id": "c3",
@@ -2675,7 +2725,8 @@
             "bộ gõ",
             "nhấn enter"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Có tình huống nào liên quan đến an toàn tài khoản hoặc dữ liệu nhập bất thường mà bạn muốn thử?"
         },
         {
           "id": "c4",
@@ -2688,7 +2739,8 @@
             "ghi bước",
             "dữ liệu"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Mỗi tình huống đó bạn sẽ ghi lại những thông tin gì để người khác chạy lại được?"
         }
       ],
       "paths": [
@@ -2816,7 +2868,8 @@
             "ảnh hưởng",
             "kỹ thuật"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khái niệm thứ nhất trả lời câu hỏi gì về một lỗi?"
         },
         {
           "id": "c2",
@@ -2829,7 +2882,8 @@
             "kế hoạch",
             "để sau"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Còn khái niệm thứ hai thì ai thường quyết định và dựa vào điều gì?"
         },
         {
           "id": "c3",
@@ -2844,7 +2898,8 @@
             "lệch nhau",
             "nhóm em"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Có khi nào một lỗi được xếp cao ở mặt này nhưng lại thấp ở mặt kia không? Bạn minh hoạ giúp mình."
         }
       ],
       "paths": [
@@ -2968,7 +3023,8 @@
             "tiêu đề",
             "title"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Phần tên gọi của báo cáo nên viết thế nào để người đọc hiểu ngay?"
         },
         {
           "id": "c2",
@@ -2979,7 +3035,8 @@
             "steps",
             "tái hiện"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Làm sao để lập trình viên làm lại đúng được lỗi bạn gặp?"
         },
         {
           "id": "c3",
@@ -2990,7 +3047,8 @@
             "expected",
             "actual"
           ],
-          "minHits": 2
+          "minHits": 2,
+          "followUp": "Bạn mô tả sự khác nhau giữa điều phải xảy ra và điều đã xảy ra như thế nào?"
         },
         {
           "id": "c4",
@@ -3005,7 +3063,8 @@
             "mức độ",
             "chrome"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Ngoài phần chữ, bạn đính kèm thêm thông tin gì để hỗ trợ việc sửa lỗi?"
         }
       ],
       "paths": [
@@ -3138,7 +3197,8 @@
             "đại diện",
             "phân vùng không hợp lệ"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Với kỹ thuật thứ nhất, bạn chia dữ liệu đầu vào ra như thế nào và chọn bao nhiêu giá trị để thử?"
         },
         {
           "id": "c2",
@@ -3152,7 +3212,8 @@
             "100",
             "99"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Với kỹ thuật thứ hai, bạn chọn những giá trị nào để thử và vì sao lại chọn ở đó?"
         },
         {
           "id": "c3",
@@ -3166,7 +3227,8 @@
             "giỏ hàng",
             "khoảng số"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn thử áp dụng cả hai kỹ thuật vào một ô nhập liệu có giới hạn mà bạn tự chọn, bạn sẽ thử những giá trị nào?"
         }
       ],
       "paths": [
@@ -3299,7 +3361,8 @@
             "mỗi tuần",
             "luồng chính"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Loại kiểm tra nào bạn thấy đáng để viết script nhất?"
         },
         {
           "id": "c2",
@@ -3314,7 +3377,8 @@
             "dễ vỡ",
             "chậm"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Có trường hợp nào bạn nghĩ làm bằng tay vẫn tốt hơn không?"
         },
         {
           "id": "c3",
@@ -3326,7 +3390,8 @@
             "công sức",
             "giờ"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi quyết định, bạn cân nhắc giữa những gì phải bỏ ra và những gì nhận lại như thế nào?"
         }
       ],
       "paths": [
@@ -3456,7 +3521,8 @@
             "sẵn sàng",
             "thay sleep"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi script phải đợi trang tải hoặc nút xuất hiện, bạn cho nó đợi bằng cách nào?"
         },
         {
           "id": "c2",
@@ -3467,7 +3533,8 @@
             "selector",
             "xpath"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn tìm phần tử trên trang bằng cách nào để giao diện đổi một chút cũng không bị hỏng?"
         },
         {
           "id": "c3",
@@ -3483,7 +3550,8 @@
             "log",
             "giả lập api"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Về dữ liệu dùng để chạy, bạn sắp xếp thế nào để các bài kiểm tra không ảnh hưởng lẫn nhau?"
         }
       ],
       "paths": [
@@ -3616,7 +3684,8 @@
             "404",
             "403"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Đầu tiên khi nhận phản hồi, bạn nhìn vào con số nào?"
         },
         {
           "id": "c2",
@@ -3629,7 +3698,8 @@
             "các trường",
             "trong body"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Phần thân phản hồi thì bạn đối chiếu những gì?"
         },
         {
           "id": "c3",
@@ -3642,7 +3712,8 @@
             "phân quyền",
             "người b"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn thử gửi yêu cầu sai hoặc thiếu quyền truy cập như thế nào?"
         },
         {
           "id": "c4",
@@ -3655,7 +3726,8 @@
             "nguy hiểm",
             "newman"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Ngoài đúng sai, bạn còn để ý đến tốc độ hoặc an toàn của nó không?"
         }
       ],
       "paths": [
@@ -3786,7 +3858,8 @@
             "trùng email",
             "lỗi kiểm tra"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Sau khi bấm lưu trên giao diện, bạn xác nhận dữ liệu thật sự đã vào hệ thống bằng cách nào?"
         },
         {
           "id": "c2",
@@ -3799,7 +3872,8 @@
             "môi trường test",
             "tự tính"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Trước và sau khi chạy kiểm tra, bạn chuẩn bị môi trường như thế nào?"
         },
         {
           "id": "c3",
@@ -3812,7 +3886,8 @@
             "count",
             "tổng doanh thu"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn đọc thử giúp mình một câu lệnh bạn hay dùng?"
         }
       ],
       "paths": [
@@ -3943,7 +4018,8 @@
             "given when then",
             "kịch bản"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Ngay từ đầu sprint, khi đội đang bàn về các yêu cầu, bạn đóng góp gì?"
         },
         {
           "id": "c2",
@@ -3956,7 +4032,8 @@
             "hằng ngày",
             "daily"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Trong lúc dev đang làm, bạn bắt đầu kiểm tra từ khi nào?"
         },
         {
           "id": "c3",
@@ -3968,7 +4045,8 @@
             "demo",
             "review"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Trước khi một việc được coi là xong, bạn kiểm tra thêm những gì?"
         }
       ],
       "paths": [
@@ -4102,7 +4180,8 @@
             "chuyên ngành",
             "ngành"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn cho mình biết thêm về quá trình học tập của bạn nhé?"
         },
         {
           "id": "c2",
@@ -4119,7 +4198,8 @@
             "khảo sát",
             "cầu nối"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn tự tin nhất ở những việc nào trong nghề này?"
         },
         {
           "id": "c3",
@@ -4133,7 +4213,8 @@
             "hệ thống",
             "53"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn đã từng làm việc này ở đâu chưa, ở trường hay ở công ty? Kể ngắn giúp mình."
         }
       ],
       "paths": [
@@ -4261,7 +4342,8 @@
             "mơ hồ",
             "hỏi lại"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nếu chỉ được chọn một, bạn chọn kỹ năng nào?"
         },
         {
           "id": "c2",
@@ -4274,7 +4356,8 @@
             "giúp",
             "mâu thuẫn"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Điều gì khiến kỹ năng ấy quan trọng hơn các kỹ năng khác trong công việc này?"
         },
         {
           "id": "c3",
@@ -4286,7 +4369,8 @@
             "giả định",
             "kiểm chứng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn đã thể hiện kỹ năng đó trong tình huống nào chưa?"
         }
       ],
       "paths": [
@@ -4414,7 +4498,8 @@
             "ai liên quan",
             "nhân viên"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Trước khi hỏi, bạn xác định cần nói chuyện với những ai?"
         },
         {
           "id": "c2",
@@ -4430,7 +4515,8 @@
             "mockup",
             "bấm thử"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn dùng những cách nào để lấy được thông tin từ họ?"
         },
         {
           "id": "c3",
@@ -4443,7 +4529,8 @@
             "chốt",
             "văn bản"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Sau khi có thông tin rồi, bạn làm gì tiếp để chắc chắn mình hiểu đúng?"
         }
       ],
       "paths": [
@@ -4575,7 +4662,8 @@
             "i want",
             "so that"
           ],
-          "minHits": 2
+          "minHits": 2,
+          "followUp": "Bạn đọc to giúp mình câu mô tả nhu cầu đó theo mẫu chuẩn được không?"
         },
         {
           "id": "c2",
@@ -4589,7 +4677,8 @@
             "1 phút",
             "10 phút"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Làm sao đội phát triển biết chức năng này đã làm đúng? Bạn viết điều kiện như thế nào?"
         },
         {
           "id": "c3",
@@ -4601,7 +4690,8 @@
             "không tồn tại",
             "khóa"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Còn khi người dùng nhập sai hoặc quá thời hạn thì sao?"
         }
       ],
       "paths": [
@@ -4732,7 +4822,8 @@
             "đặt được hàng",
             "đăng nhập"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Loại thứ nhất mô tả điều gì về hệ thống?"
         },
         {
           "id": "c2",
@@ -4745,7 +4836,8 @@
             "non functional",
             "làm tốt"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Loại thứ hai thì quan tâm đến khía cạnh nào?"
         },
         {
           "id": "c3",
@@ -4757,7 +4849,8 @@
             "1000",
             "ví dụ"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn minh hoạ một yêu cầu loại thứ hai và cách bạn kiểm tra nó đã đạt?"
         }
       ],
       "paths": [
@@ -4886,7 +4979,8 @@
             "backlog",
             "viết thành story"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi nhận đề nghị thay đổi, việc đầu tiên bạn làm là gì?"
         },
         {
           "id": "c2",
@@ -4899,7 +4993,8 @@
             "phạm vi",
             "đánh đổi"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn đánh giá thay đổi ấy làm dự án khác đi như thế nào?"
         },
         {
           "id": "c3",
@@ -4914,7 +5009,8 @@
             "phương án",
             "tự chọn"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Sau khi đánh giá, ai là người chốt và đội được biết bằng cách nào?"
         }
       ],
       "paths": [
@@ -5043,7 +5139,8 @@
             "người dùng",
             "phạm vi"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Sơ đồ này giúp người đọc hiểu được điều gì về hệ thống?"
         },
         {
           "id": "c2",
@@ -5058,7 +5155,8 @@
             "đặc tả",
             "specification"
           ],
-          "minHits": 2
+          "minHits": 2,
+          "followUp": "Trên sơ đồ có những ký hiệu nào?"
         },
         {
           "id": "c3",
@@ -5068,7 +5166,8 @@
             "extend",
             "generalization"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Giữa các chức năng với nhau có những kiểu liên kết nào?"
         }
       ],
       "paths": [
@@ -5196,7 +5295,8 @@
             "rẽ nhánh",
             "workflow"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi cần vẽ một chuỗi công việc nhiều bước, có chỗ chia nhánh, bạn chọn loại nào?"
         },
         {
           "id": "c2",
@@ -5209,7 +5309,8 @@
             "message",
             "hệ thống nào gọi"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Còn khi muốn thể hiện các thành phần trao đổi với nhau theo trình tự thì sao?"
         },
         {
           "id": "c3",
@@ -5221,7 +5322,8 @@
             "đăng nhập",
             "khách hàng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn minh hoạ một tình huống thực tế cho mỗi loại?"
         }
       ],
       "paths": [
@@ -5346,7 +5448,8 @@
             "mục tiêu",
             "vấn đề"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Trước khi mở dữ liệu ra, bạn xác định điều gì trước tiên?"
         },
         {
           "id": "c2",
@@ -5361,7 +5464,8 @@
             "dashboard",
             "số liệu"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn xử lý dữ liệu thô như thế nào để ra được con số cần thiết?"
         },
         {
           "id": "c3",
@@ -5374,7 +5478,8 @@
             "hành động",
             "vì sao"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Có con số rồi, bạn biến nó thành điều gì có ích cho người ra quyết định?"
         }
       ],
       "paths": [
@@ -5502,7 +5607,8 @@
             "chia nhỏ",
             "ưu tiên"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Với danh sách công việc của đội, bạn trực tiếp làm gì?"
         },
         {
           "id": "c2",
@@ -5515,7 +5621,8 @@
             "đội phát triển",
             "câu hỏi của dev"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Giữa người đặt hàng và đội kỹ thuật, bạn đứng ở vị trí nào?"
         },
         {
           "id": "c3",
@@ -5527,7 +5634,8 @@
             "cập nhật",
             "phản hồi"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Trong suốt các vòng lặp, bạn tham gia những buổi họp nào?"
         }
       ],
       "paths": [
@@ -5663,7 +5771,8 @@
             "chuyên ngành",
             "ngành"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn cho chị biết thêm bạn đang học gì và đang ở giai đoạn nào nhé?"
         },
         {
           "id": "c2",
@@ -5681,7 +5790,8 @@
             "đã làm",
             "trưởng nhóm"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Có trải nghiệm hay thành tích nào bạn muốn kể cụ thể hơn không?"
         },
         {
           "id": "c3",
@@ -5696,7 +5806,8 @@
             "muốn trở thành",
             "định hướng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Những điều đó liên quan thế nào đến công việc bạn đang nộp hồ sơ hôm nay?"
         }
       ],
       "paths": [
@@ -5831,7 +5942,8 @@
             "tỉ mỉ",
             "logic"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Điều gì ở chính bạn khiến bạn thấy hợp với công việc này?"
         },
         {
           "id": "c2",
@@ -5850,7 +5962,8 @@
             "chất lượng",
             "mô tả công việc"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Theo bạn hiểu, hằng ngày người ở vị trí này sẽ làm những việc gì?"
         },
         {
           "id": "c3",
@@ -5865,7 +5978,8 @@
             "trở thành",
             "tương lai"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nếu được nhận, bạn mong mình sẽ tiến lên thế nào và mang lại điều gì?"
         }
       ],
       "paths": [
@@ -6006,7 +6120,8 @@
             "biết hỏi",
             "thói quen"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nếu chỉ chọn một điều, đó là điều gì?"
         },
         {
           "id": "c2",
@@ -6024,7 +6139,8 @@
             "khi thực tập",
             "nhờ vậy"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn kể chị nghe một chuyện điều đó thể hiện rõ nhất?"
         },
         {
           "id": "c3",
@@ -6041,7 +6157,8 @@
             "đi làm",
             "công ty"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Điều đó sẽ có ích ra sao khi bạn làm ở đây?"
         }
       ],
       "paths": [
@@ -6181,7 +6298,8 @@
             "ôm việc",
             "trễ hạn"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn có thể nói cụ thể hơn đó là điều gì không?"
         },
         {
           "id": "c2",
@@ -6203,7 +6321,8 @@
             "thực hành",
             "ghi lại"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn đang làm gì để khắc phục nó?"
         },
         {
           "id": "c3",
@@ -6222,7 +6341,8 @@
             "chưa trễ",
             "sớm hơn"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Đến giờ bạn thấy mình đã thay đổi được những gì?"
         }
       ],
       "paths": [
@@ -6359,7 +6479,8 @@
             "kỳ trước",
             "hackathon"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Đó là nhóm nào, các bạn cùng làm việc gì?"
         },
         {
           "id": "c2",
@@ -6388,7 +6509,8 @@
             "phụ trách",
             "nhiệm vụ của em"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Riêng bạn đã đảm nhận những việc gì trong nhóm?"
         },
         {
           "id": "c3",
@@ -6411,7 +6533,8 @@
             "bây giờ em",
             "kịp"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Rốt cuộc nhóm đạt được gì, và bạn mang theo điều gì cho lần sau?"
         }
       ],
       "paths": [
@@ -6543,7 +6666,8 @@
             "bình tĩnh",
             "bạn thấy gì"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi đó bạn có hỏi xem người kia nghĩ gì và vì sao họ nghĩ vậy không?"
         },
         {
           "id": "c2",
@@ -6562,7 +6686,8 @@
             "họp",
             "viết lý do"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Hai bên đã bàn bạc thế nào để đi đến quyết định?"
         },
         {
           "id": "c3",
@@ -6591,7 +6716,8 @@
             "chốt",
             "thống nhất"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Sau chuyện đó, hai người còn làm cùng nhau thế nào?"
         }
       ],
       "paths": [
@@ -6732,7 +6858,8 @@
             "thua",
             "bị trừ"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn có thể kể cụ thể một lần không? Chuyện xảy ra khi nào, ở đâu?"
         },
         {
           "id": "c2",
@@ -6748,7 +6875,8 @@
             "trách nhiệm",
             "chủ quan"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nhìn lại, bạn thấy phần nào là do mình?"
         },
         {
           "id": "c3",
@@ -6766,7 +6894,8 @@
             "thay đổi",
             "lần thứ"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Sau lần đó bạn đã làm khác đi như thế nào?"
         }
       ],
       "paths": [
@@ -6907,7 +7036,8 @@
             "hướng dẫn",
             "công thức"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi bắt đầu, bạn chuẩn bị gì và học từ những nguồn nào?"
         },
         {
           "id": "c2",
@@ -6923,7 +7053,8 @@
             "làm lại",
             "làm một"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Ngoài đọc và xem, bạn có luyện tập bằng cách nào khác không?"
         },
         {
           "id": "c3",
@@ -6940,7 +7071,8 @@
             "hoàn thành",
             "đã"
           ],
-          "minHits": 2
+          "minHits": 2,
+          "followUp": "Bạn kể một kỹ năng cụ thể bạn học theo cách đó, giờ bạn làm được gì với nó?"
         }
       ],
       "paths": [
@@ -7081,7 +7213,8 @@
             "quy trình",
             "blog"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn đã biết những gì về chúng tôi rồi?"
         },
         {
           "id": "c2",
@@ -7098,7 +7231,8 @@
             "em cần",
             "em muốn làm ở"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Điều đó liên quan gì đến bạn?"
         },
         {
           "id": "c3",
@@ -7112,7 +7246,8 @@
             "cống hiến",
             "cùng công ty"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nếu vào làm, bạn hình dung mình sẽ mang lại gì và ở lại bao lâu?"
         }
       ],
       "paths": [
@@ -7248,7 +7383,8 @@
             "việc nào cũng",
             "code cũ"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn nghĩ sao về chuyện những việc như vậy xảy ra trong nghề?"
         },
         {
           "id": "c2",
@@ -7267,7 +7403,8 @@
             "tiến bộ",
             "đo"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Cụ thể bạn làm gì để không bị chán?"
         },
         {
           "id": "c3",
@@ -7281,7 +7418,8 @@
             "kỳ thực tập",
             "cuối kỳ"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn gặp tình huống đó bao giờ chưa? Kể chị nghe nhé."
         }
       ],
       "paths": [
@@ -7413,7 +7551,8 @@
             "bình tĩnh",
             "xem lại"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Ngay lúc bị phản đối, bạn làm gì trước tiên?"
         },
         {
           "id": "c2",
@@ -7430,7 +7569,8 @@
             "hỏi dev",
             "vì sao"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn dựa vào đâu để nói chuyện lại với bạn dev?"
         },
         {
           "id": "c3",
@@ -7447,7 +7587,8 @@
             "mục tiêu chung",
             "chốt"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nếu hai bên vẫn không thống nhất được thì sao?"
         }
       ],
       "paths": [
@@ -7585,7 +7726,8 @@
             "trưởng nhóm",
             "chủ nhiệm"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Đó là ai và họ đang nghĩ gì?"
         },
         {
           "id": "c2",
@@ -7605,7 +7747,8 @@
             "câu hỏi",
             "kinh nghiệm"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn đã nói gì, làm gì để họ đổi ý?"
         },
         {
           "id": "c3",
@@ -7631,7 +7774,8 @@
             "đổi ý",
             "chấp nhận"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Rốt cuộc mọi chuyện kết thúc thế nào?"
         }
       ],
       "paths": [
@@ -7767,7 +7911,8 @@
             "chuyên ngành",
             "ngành"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn cho anh biết thêm bạn đang học gì, đang ở giai đoạn nào nhé?"
         },
         {
           "id": "c2",
@@ -7784,7 +7929,8 @@
             "phụ trách",
             "trễ hạn"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi cùng người khác làm một việc chung, bạn thường đảm nhận ra sao? Có trải nghiệm nào kể anh nghe không?"
         },
         {
           "id": "c3",
@@ -7800,7 +7946,8 @@
             "năm tới",
             "cột mốc"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Sắp tới bạn muốn đi theo hướng nào trong nghề?"
         }
       ],
       "paths": [
@@ -7934,7 +8081,8 @@
             "tiến độ",
             "nói rõ"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi nhận ra mình không kịp, bạn có cho ai biết không? Vào lúc nào?"
         },
         {
           "id": "c2",
@@ -7953,7 +8101,8 @@
             "giao trước",
             "nút thắt"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Với thời gian còn lại, bạn chọn làm phần nào trước, hay có đề xuất gì?"
         },
         {
           "id": "c3",
@@ -7969,7 +8118,8 @@
             "mốc",
             "nguyên nhân"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Sau lần đó, bạn làm gì để không lặp lại?"
         }
       ],
       "paths": [
@@ -8109,7 +8259,8 @@
             "đang chờ",
             "thời gian"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn dựa vào điều gì để quyết định việc nào làm trước?"
         },
         {
           "id": "c2",
@@ -8124,7 +8275,8 @@
             "thống nhất",
             "báo"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nếu hai người cùng giao việc gấp cho bạn một lúc thì bạn làm sao?"
         },
         {
           "id": "c3",
@@ -8144,7 +8296,8 @@
             "trong đồ án",
             "buổi sáng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn có dùng cách gì để theo dõi các việc đó không? Kể anh một trường hợp."
         }
       ],
       "paths": [
@@ -8278,7 +8431,8 @@
             "nhắn riêng",
             "xem lại"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Trước tiên bạn có nói chuyện với bạn ấy không? Nói như thế nào?"
         },
         {
           "id": "c2",
@@ -8296,7 +8450,8 @@
             "viết lại yêu cầu",
             "bảng việc"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Sau khi hiểu chuyện, hai bạn đã bàn lại với nhau điều gì?"
         },
         {
           "id": "c3",
@@ -8311,7 +8466,8 @@
             "tiến độ",
             "nhạc trưởng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nếu tình hình vẫn không khá hơn và cả nhóm bị chậm thì sao?"
         }
       ],
       "paths": [
@@ -8449,7 +8605,8 @@
             "tách cảm xúc",
             "kiểm chứng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Lúc nghe góp ý, phản ứng đầu tiên của bạn thường là gì?"
         },
         {
           "id": "c2",
@@ -8467,7 +8624,8 @@
             "bổ sung",
             "tập"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Sau đó bạn làm gì cụ thể với góp ý đó?"
         },
         {
           "id": "c3",
@@ -8484,7 +8642,8 @@
             "được khen",
             "nhận xét"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn kể một lần như vậy, rồi mọi việc ra sao?"
         }
       ],
       "paths": [
@@ -8618,7 +8777,8 @@
             "hiểu sai",
             "tìm hiểu thêm"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Trước khi phản đối, bạn có tìm hiểu vì sao quản lý quyết định như vậy không?"
         },
         {
           "id": "c2",
@@ -8635,7 +8795,8 @@
             "phương án",
             "email"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn nói ra suy nghĩ của mình vào lúc nào và bằng cách nào?"
         },
         {
           "id": "c3",
@@ -8652,7 +8813,8 @@
             "giữ quyết định",
             "vẫn chốt"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nếu quyết định vẫn giữ nguyên thì bạn làm gì tiếp?"
         }
       ],
       "paths": [
@@ -8790,7 +8952,8 @@
             "bằng giấy",
             "em thấy"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Lúc đó bạn đã nhận ra điều gì chưa ổn?"
         },
         {
           "id": "c2",
@@ -8807,7 +8970,8 @@
             "gợi ý",
             "nhận làm"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn đã nghĩ ra gì và đưa nó ra như thế nào?"
         },
         {
           "id": "c3",
@@ -8837,7 +9001,8 @@
             "đánh giá cao",
             "rút còn"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Sau khi làm, mọi thứ thay đổi ra sao? Có con số nào không?"
         }
       ],
       "paths": [
@@ -8975,7 +9140,8 @@
             "sắp xếp lại",
             "chuẩn bị trước"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi việc dồn nhiều, bạn làm gì để đầu óc không rối?"
         },
         {
           "id": "c2",
@@ -8990,7 +9156,8 @@
             "hỏi",
             "người đi cùng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Lúc đó bạn có chia sẻ với ai trong đội không?"
         },
         {
           "id": "c3",
@@ -9006,7 +9173,8 @@
             "kịp",
             "hồi"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn kể anh một lần cụ thể nhé?"
         }
       ],
       "paths": [
@@ -9145,7 +9313,8 @@
             "chức danh",
             "phụ trách"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Cụ thể đó là vai trò gì, làm ở mảng nào?"
         },
         {
           "id": "c2",
@@ -9164,7 +9333,8 @@
             "bậc",
             "bắt đầu bằng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Từ giờ đến đó, bạn định làm những gì?"
         },
         {
           "id": "c3",
@@ -9179,7 +9349,8 @@
             "người mới",
             "gắn bó"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Mục tiêu đó liên quan thế nào đến công việc ở đây?"
         }
       ],
       "paths": [
@@ -9314,7 +9485,8 @@
             "cộng thêm",
             "đọc code"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi nhận một việc lớn, bạn tính thời gian bằng cách nào?"
         },
         {
           "id": "c2",
@@ -9329,7 +9501,8 @@
             "nói rõ",
             "họp"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Khi làm được nửa chừng mà thấy không kịp, bạn làm gì?"
         },
         {
           "id": "c3",
@@ -9345,7 +9518,8 @@
             "xem lại",
             "lệch ít hơn"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Xong việc rồi, bạn có đối chiếu với con số ban đầu không?"
         }
       ],
       "paths": [
@@ -9478,7 +9652,8 @@
             "chặn",
             "người dùng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Với các lỗi còn lại, bạn xem xét chúng như thế nào trước khi đề xuất?"
         },
         {
           "id": "c2",
@@ -9496,7 +9671,8 @@
             "theo dõi",
             "phát hành phần còn lại"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn đưa cho quản lý những lựa chọn gì?"
         },
         {
           "id": "c3",
@@ -9512,7 +9688,8 @@
             "người quyết",
             "cơ trưởng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Cuối cùng ai là người chốt, và bạn chuẩn bị gì cho họ?"
         }
       ],
       "paths": [
@@ -9646,7 +9823,8 @@
             "đằng sau",
             "thật sự cần"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Theo bạn, mỗi bên thật sự mong đạt được điều gì khi đưa ra yêu cầu ấy?"
         },
         {
           "id": "c2",
@@ -9663,7 +9841,8 @@
             "số liệu",
             "phần chung"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Bạn đưa ra hướng giải quyết nào để hai bên cùng chấp nhận được?"
         },
         {
           "id": "c3",
@@ -9680,7 +9859,8 @@
             "tài liệu",
             "tổ trưởng"
           ],
-          "minHits": 1
+          "minHits": 1,
+          "followUp": "Nếu vẫn không thống nhất thì ai chốt, và bạn lưu lại kết quả ra sao?"
         }
       ],
       "paths": [

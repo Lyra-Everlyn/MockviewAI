@@ -100,6 +100,9 @@ body.studio {
 .studio .bg-dung { background: var(--ok); } .studio .bg-hoi_dac_biet { background: var(--alt); }
 .studio .bg-dac_biet { background: var(--star); } .studio .bg-sai { background: var(--bad); }
 
+/* [LIVE-MODE] Nhãn "Thực chiến" (phòng phỏng vấn, kết quả, xem lại) */
+.studio .mode-tag { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; color: var(--tally); background: rgba(255, 122, 89, .12); vertical-align: 1px; }
+
 /* Ô người phỏng vấn (chữ cái đầu) */
 .studio .face { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-weight: 800; flex: none; background: #23325a; color: #a9b8ff; }
 .studio .face.f-nam { background: #1d3a3a; color: #7fe0c4; }
@@ -129,3 +132,8 @@ body.studio {
 @media (prefers-reduced-motion: reduce) {
     .studio *, .studio *::before, .studio *::after { animation: none !important; transition: none !important; }
 }
+
+/* [LIVE-MODE] Mục "Thực chiến" trên thanh menu: màu "đèn thu" khi đang mở */
+.studio .mv-topnav-links a.nav-live.active { color: var(--tally); }
+.studio .mv-topnav-links a.nav-live.active::after { background: var(--tally); }
+.studio .mobile-bottom-nav a.active[href*="mode=live"] { color: var(--tally); }

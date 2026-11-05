@@ -9,6 +9,12 @@
         <h3 class="session-card__title">@Model.RoleName</h3>
         <div class="session-card__meta">
             <span class="status-chip">@(Model.HasScore ? Model.Score + " điểm" : Model.StatusText)</span>
+            @if (Model.IsLive)
+            {
+                <span class="status-chip session-card__live">
+                    <i class="fa-solid fa-bolt" aria-hidden="true"></i> Thực chiến
+                </span>
+            }
             @if (!string.IsNullOrWhiteSpace(Model.AnxietyText))
             {
                 <span class="status-chip @(Model.AnxietyImproved ? "status-chip--success" : "status-chip--warning")">@Model.AnxietyText</span>

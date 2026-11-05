@@ -62,6 +62,16 @@
     margin-top: 5px;
 }
 
+/* LIVE-MODE status in reused session card (History page only). */
+.history-page .session-card__live {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid var(--color-border);
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+}
+
 @media (max-width: 768px) {
     .history-panel {
         padding: 20px 16px;
