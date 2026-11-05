@@ -8,6 +8,7 @@ namespace MockviewAI.Models.ViewModels
         public string InterviewerName { get; set; } = string.Empty;
         public DateTime StartedAt { get; set; }
         public int QuestionCount { get; set; }
+        public bool IsLive { get; set; }            // [LIVE-MODE] buổi Thực chiến
 
         public bool HasScore { get; set; }          // false: buổi dừng trước khi có điểm
         public bool HasContentScore { get; set; }   // false: kết quả dự phòng (AI lỗi)

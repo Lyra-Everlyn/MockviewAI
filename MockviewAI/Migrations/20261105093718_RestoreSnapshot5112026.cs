@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MockviewAI.Migrations
 {
     /// <inheritdoc />
-    public partial class RestoreSnapshot : Migration
+    public partial class RestoreSnapshot5112026 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -118,6 +118,8 @@ namespace MockviewAI.Migrations
                     QuestionBankVersion = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ScoringMode = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Mode = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -146,6 +148,9 @@ namespace MockviewAI.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     DurationSeconds = table.Column<double>(type: "double", nullable: true),
                     LongestPauseSeconds = table.Column<double>(type: "double", nullable: true),
+                    VoiceLevelDb = table.Column<double>(type: "double", nullable: true),
+                    QuietRatio = table.Column<double>(type: "double", nullable: true),
+                    PitchVariation = table.Column<double>(type: "double", nullable: true),
                     Skipped = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Attempts = table.Column<int>(type: "int", nullable: false),
                     AnsweredAt = table.Column<DateTime>(type: "datetime(3)", precision: 3, nullable: true),
@@ -160,6 +165,10 @@ namespace MockviewAI.Migrations
                     CorePointsMissing = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Feedback = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    FollowUpOf = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    FollowUpPointId = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>

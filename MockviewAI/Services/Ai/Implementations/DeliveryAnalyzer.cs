@@ -1,4 +1,9 @@
+// [AI-MODULE] DeliveryAnalyzer
+// Chấm CÁCH NÓI bằng code thuần (không dùng AI): tốc độ, từ đệm, độ dài, khoảng lặng.
+// Trọng số: tốc độ 30, từ đệm 30, độ dài 25, khoảng lặng 15. Muốn chỉnh ngưỡng thì sửa các số trong hàm Analyze.
+
 using System.Text.RegularExpressions;
+using MockviewAI.Models;
 using MockviewAI.Models.Ai;
 using MockviewAI.Services.Ai.Interfaces;
 
@@ -10,6 +15,10 @@ namespace MockviewAI.Services.Ai.Implementations
     /// -- Chấm CÁCH NÓI bằng code thuần (không dùng AI): tốc độ, từ đệm, độ dài, khoảng lặng.
     /// -- Trọng số: tốc độ 30, từ đệm 30, độ dài 25, khoảng lặng 15. Muốn chỉnh ngưỡng thì sửa các số trong hàm Analyze.
     /// -- Scores HOW the candidate speaks, using plain code (fast, free, explainable).
+    /// 
+    /// [VOICE] Đợt 7: có số đo giọng nói (nói bằng micro) -> thêm ÂM LƯỢNG + NGỮ ĐIỆU:
+    ///   tốc độ 25, từ đệm 25, độ dài 20, khoảng lặng 10, âm lượng 12, ngữ điệu 8 (không đo được ngữ điệu: âm lượng 20).
+    ///   Không có số đo (gõ chữ, buổi cũ) -> chấm y như trước, không bị trừ.
     /// </summary>
     
     public class DeliveryAnalyzer : IDeliveryAnalyzer
@@ -76,10 +85,38 @@ namespace MockviewAI.Services.Ai.Implementations
             // Longest silence: <=2s fine, >=8s poor. Unknown pauses -> no penalty.
             result.PauseScore = Linear(result.LongestPauseSeconds, good: 2, bad: 8);
 
-            // Weights: pace 30, fillers 30, length 25, pauses 15
-            result.Total = (int)Math.Round(
-                result.PaceScore * 0.30 + result.FillerScore * 0.30 +
-                result.LengthScore * 0.25 + result.PauseScore * 0.15);
+            // [VOICE] Âm lượng: nói nhỏ <= 15% thời gian là ổn, >= 60% là kém; to quá (dễ rè) tối đa 60.
+            // Ngữ điệu: độ lên xuống giọng >= 2 nửa cung là tự nhiên, <= 0.5 là đều đều.
+            var withVoice = answers.Where(a => a.QuietRatio != null).ToList();
+            if (withVoice.Count > 0)
+            {
+                result.HasVoiceData = true;
+                result.QuietRatio = Math.Round(withVoice.Average(a => a.QuietRatio!.Value), 3);
+                var levels = withVoice.Where(a => a.VoiceLevelDb != null).ToList();
+                result.VoiceLevelDb = levels.Count > 0 ? Math.Round(levels.Average(a => a.VoiceLevelDb!.Value), 1) : null;
+                var tones = answers.Where(a => a.PitchVariation != null).ToList();
+                result.PitchVariation = tones.Count > 0 ? Math.Round(tones.Average(a => a.PitchVariation!.Value), 1) : null;
+
+                int volume = Linear(result.QuietRatio.Value, good: 0.15, bad: 0.6);
+                if (result.VoiceLevelDb > VoiceMetrics.LoudDb) volume = Math.Min(volume, 60);
+                result.VolumeScore = volume;
+                if (result.PitchVariation != null) result.ToneScore = Rising(result.PitchVariation.Value, bad: 0.5, good: 2.0);
+            }
+
+            if (!result.HasVoiceData)
+            {
+                // Weights: pace 30, fillers 30, length 25, pauses 15
+                result.Total = (int)Math.Round(
+                    result.PaceScore * 0.30 + result.FillerScore * 0.30 +
+                    result.LengthScore * 0.25 + result.PauseScore * 0.15);
+            }
+            else
+            {
+                double core = result.PaceScore * 0.25 + result.FillerScore * 0.25 + result.LengthScore * 0.20 + result.PauseScore * 0.10;
+                result.Total = (int)Math.Round(result.ToneScore is int tone
+                    ? core + result.VolumeScore!.Value * 0.12 + tone * 0.08
+                    : core + result.VolumeScore!.Value * 0.20);
+            }
 
             AddTips(result, hasPace);
             return result;
@@ -99,6 +136,13 @@ namespace MockviewAI.Services.Ai.Implementations
                 r.Tips.Add("Câu trả lời hơi dài. Tóm gọn ý chính trong khoảng 1-2 phút.");
             if (r.LongestPauseSeconds > 5)
                 r.Tips.Add($"Có khoảng lặng dài (~{r.LongestPauseSeconds:0} giây). Có thể nói 'cho em suy nghĩ một chút' thay vì im lặng.");
+            // [VOICE]
+            if (r.QuietRatio > 0.3)
+                r.Tips.Add($"Bạn nói nhỏ ở khoảng {r.QuietRatio * 100:0}% thời gian trả lời, người phỏng vấn có thể không nghe rõ. Hãy nói to, rõ hơn và ngồi gần micro.");
+            if (r.VoiceLevelDb > VoiceMetrics.LoudDb)
+                r.Tips.Add("Âm thanh hơi to nên dễ bị rè. Hãy ngồi xa micro một chút hoặc giảm âm lượng micro.");
+            if (r.PitchVariation < VoiceMetrics.MonotoneSt)
+                r.Tips.Add("Giọng khá đều đều. Hãy nhấn giọng ở ý chính và ví dụ để người nghe dễ theo dõi.");
         }
 
         private static int CountWords(string? text) =>
@@ -110,6 +154,14 @@ namespace MockviewAI.Services.Ai.Implementations
             if (value >= low && value <= high) return 100;
             double distance = value < low ? low - value : value - high;
             return (int)Math.Round(Math.Clamp(100 - distance / slack * 100, 0, 100));
+        }
+
+        // 0 at <= bad, 100 at >= good (giá trị càng lớn càng tốt)
+        private static int Rising(double value, double bad, double good)
+        {
+            if (value >= good) return 100;
+            if (value <= bad) return 0;
+            return (int)Math.Round(100 * (value - bad) / (good - bad));
         }
 
         // 100 at <= good, 0 at >= bad, straight line in between

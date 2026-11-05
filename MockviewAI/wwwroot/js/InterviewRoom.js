@@ -43,6 +43,33 @@
     const NO_TEXT_HINT_MS = 6000;      // nghe thấy tiếng nhưng chừng này vẫn chưa ra chữ -> báo trình duyệt không nhận giọng nói
     const SOUND_LEVEL = 0.06;          // ngưỡng mức âm thanh coi là "có tiếng"
 
+    // ---------- [LIVE-MODE] Đợt 6: chế độ Thực chiến (nói 1 lần từ đầu đến cuối như phỏng vấn thật) ----------
+    // Vòng mỗi câu: đọc câu hỏi -> đếm ngược suy nghĩ -> micro tự bật -> đếm ngược trả lời -> tự gửi.
+    // Không xoá ghi âm, không gõ chữ (trừ khi trình duyệt không nhận được giọng nói), nghe lại câu hỏi có giới hạn.
+    const isLive = room.dataset.mode === 'live';
+    const THINK_SECONDS = parseInt(room.dataset.think || '15', 10);
+    const MAX_ANSWER_SECONDS = parseInt(room.dataset.maxAnswer || '120', 10);
+    const MAX_REPLAYS = parseInt(room.dataset.maxReplays || '1', 10);
+    const TTS_SAFETY_MS = 25000;       // giọng đọc không báo "đọc xong" -> vẫn bắt đầu đếm suy nghĩ
+    const liveTimer = document.getElementById('live-timer');
+    const livePhaseLabel = document.getElementById('live-phase');
+    const liveClock = document.getElementById('live-clock');
+    const liveBarFill = document.getElementById('live-bar-fill');
+    let livePhase = 'idle';            // idle | ready | reading | think | answer | sending
+    let liveRemaining = 0;
+    let liveTotal = 1;
+    let liveInterval = null;
+    let replaysUsed = 0;
+    let liveQuestionToken = 0;         // mỗi câu một mã: hẹn giờ của câu trước không ảnh hưởng câu sau
+
+    // ---------- [VOICE] Đợt 7: âm lượng + giọng điệu (VoiceAnalysis.js, Web Audio, không AI) ----------
+    const VA = window.VoiceAnalysis || null;   // thiếu file -> bỏ qua phần đo, mọi thứ khác chạy bình thường
+    const FRAME_SECONDS = 0.1;                 // mỗi 0.1 giây lấy 1 mẫu {db, pitch}
+    const volumeHint = document.getElementById('volume-hint');
+    const voiceLevel = document.getElementById('voice-level');
+    let voiceFrames = [];                      // mẫu của lần nói hiện tại
+    let lastVoice = null;                      // tóm tắt gửi kèm câu trả lời
+
     let committedText = '';            // chữ đã chốt từ các lần nhận dạng trước (khi trình duyệt tự ngắt rồi nối tiếp)
     let spokenText = '';               // toàn bộ chữ nhận từ giọng nói của câu hiện tại
     let isTyping = false;              // đang gõ tay hay không
@@ -121,18 +148,25 @@
     let meterContainer = null;
     let onSoundCallback = null;
     let heardSound = false;
+    let timeAnalyser = null;           // [VOICE] dạng sóng để đo dB + cao độ
+    let timeBuffer = null;
+    let onFrameCallback = null;
+    let lastFrameAt = 0;
 
     function buildWave(container) {
         container.innerHTML = '';
         for (let i = 0; i < WAVE_BARS; i++) container.appendChild(document.createElement('span'));
     }
 
-    async function startMeter(container, onSound) {
+    async function startMeter(container, onSound, onFrame) {
         stopMeter();
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             throw new Error('unsupported');
         }
-        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // [VOICE] Tắt "tự tăng âm": nếu để bật, trình duyệt khuếch đại giọng nhỏ thành to -> không đo được nói nhỏ
+        audioStream = await navigator.mediaDevices.getUserMedia({
+            audio: { autoGainControl: false, noiseSuppression: false, echoCancellation: true }
+        });
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         audioContext = new AudioCtx();
         if (audioContext.state === 'suspended') await audioContext.resume();
@@ -142,6 +176,14 @@
         analyser.fftSize = 256;
         analyser.smoothingTimeConstant = 0.6;
         source.connect(analyser);
+        if (VA && onFrame) {
+            timeAnalyser = audioContext.createAnalyser();
+            timeAnalyser.fftSize = 2048;
+            timeBuffer = new Float32Array(timeAnalyser.fftSize);
+            source.connect(timeAnalyser);
+            onFrameCallback = onFrame;
+            lastFrameAt = 0;
+        }
 
         meterContainer = container;
         meterBars = Array.prototype.slice.call(container.children);
@@ -163,6 +205,14 @@
             }
             const level = sum / meterBars.length;
             const hearing = level > SOUND_LEVEL;
+            // [VOICE] Mỗi 0.1 giây: độ to (dB) + cao độ (Hz) của giọng
+            const now = performance.now();
+            if (onFrameCallback && timeAnalyser && now - lastFrameAt >= FRAME_SECONDS * 1000) {
+                lastFrameAt = now;
+                timeAnalyser.getFloatTimeDomainData(timeBuffer);
+                const db = VA.rmsDb(timeBuffer);
+                onFrameCallback({ db: db, pitch: db > -60 ? VA.estimatePitch(timeBuffer, audioContext.sampleRate) : null });
+            }
             meterContainer.classList.toggle('is-hearing', hearing);
             if (hearing && !heardSound) {
                 heardSound = true;
@@ -188,6 +238,8 @@
         meterContainer = null;
         meterBars = [];
         onSoundCallback = null;
+        onFrameCallback = null;
+        timeAnalyser = null;
     }
 
     function describeMeterError(error) {
@@ -210,18 +262,29 @@
         vietnameseVoice = synth.getVoices().find(v => v.lang && v.lang.toLowerCase().startsWith('vi')) || null;
         voiceNote.hidden = !!vietnameseVoice;
         btnReplay.hidden = !vietnameseVoice;
+        updateReplayButton();
     }
 
-    function speakQuestion() {
-        if (!synth || !vietnameseVoice || isListening) return;
+    // [LIVE-MODE] Nghe lại câu hỏi có giới hạn số lần
+    function updateReplayButton() {
+        if (!isLive) return;
+        const left = MAX_REPLAYS - replaysUsed;
+        btnReplay.hidden = !vietnameseVoice || left <= 0;
+        btnReplay.lastChild.textContent = ' Nghe lại (còn ' + Math.max(left, 0) + ')';
+    }
+
+    // onDone (tuỳ chọn): gọi khi đọc xong / không đọc được -> Thực chiến bắt đầu đếm thời gian suy nghĩ
+    function speakQuestion(onDone) {
+        const done = typeof onDone === 'function' ? onDone : null;
+        if (!synth || !vietnameseVoice || isListening) { if (done) done(); return; }
         synth.cancel();   // dừng câu đang đọc dở (nếu có)
         const utterance = new SpeechSynthesisUtterance(questionText.textContent.trim());
         utterance.voice = vietnameseVoice;
         utterance.lang = vietnameseVoice.lang;
         utterance.rate = 0.95;   // chậm hơn một chút cho dễ nghe
         utterance.onstart = function () { setStatus('Đang hỏi...'); logEvent('tts_start'); };
-        utterance.onend = function () { setStatus('Chờ bạn trả lời', 'is-waiting'); logEvent('tts_end'); };
-        utterance.onerror = function () { setStatus('Chờ bạn trả lời', 'is-waiting'); };
+        utterance.onend = function () { setStatus('Chờ bạn trả lời', 'is-waiting'); logEvent('tts_end'); if (done) done(); };
+        utterance.onerror = function () { setStatus('Chờ bạn trả lời', 'is-waiting'); if (done) done(); };
         synth.speak(utterance);
     }
 
@@ -240,6 +303,12 @@
     setStatus('Chờ bạn trả lời', 'is-waiting');
 
     btnReplay.addEventListener('click', function () {
+        if (isLive) {
+            // Đang trả lời thì không đọc (micro sẽ thu lại giọng đọc); hết lượt thì thôi
+            if (livePhase === 'answer' || livePhase === 'sending' || replaysUsed >= MAX_REPLAYS) return;
+            replaysUsed++;
+            updateReplayButton();
+        }
         logEvent('replay_clicked');
         speakQuestion();
     });
@@ -248,7 +317,7 @@
     // finalPart: phần đã chắc chắn (đậm). interimPart: phần trình duyệt đang nhận dạng (nhạt).
     function renderTranscript(finalPart, interimPart) {
         transcriptText.textContent = '';
-        btnClear.hidden = isTyping || (!finalPart && !interimPart);   // có chữ mới cho xoá
+        btnClear.hidden = isLive || isTyping || (!finalPart && !interimPart);   // có chữ mới cho xoá; Thực chiến: không bao giờ
         if (!finalPart && !interimPart) {
             transcriptText.textContent = PLACEHOLDER;
             transcriptMeta.hidden = true;
@@ -262,7 +331,9 @@
             transcriptText.appendChild(span);
         }
         const words = ((finalPart + ' ' + interimPart).trim().match(/\S+/g) || []).length;
-        transcriptMeta.textContent = 'Đã ghi nhận ' + words + ' từ. Bấm "Dừng nói" rồi "Gửi câu trả lời" khi bạn nói xong.';
+        transcriptMeta.textContent = isLive
+            ? 'Đã ghi nhận ' + words + ' từ. Nói xong thì bấm "Xong, gửi câu trả lời" (hết giờ sẽ tự gửi).'
+            : 'Đã ghi nhận ' + words + ' từ. Bấm "Dừng nói" rồi "Gửi câu trả lời" khi bạn nói xong.';
         transcriptMeta.hidden = false;
     }
 
@@ -379,10 +450,12 @@
 
         // Sóng âm: cho người dùng thấy micro có thu được tiếng không (độc lập với việc ra chữ)
         buildWave(roomWave);
+        voiceFrames = [];
+        lastVoice = null;
         startMeter(roomWave, function () {
             setStatus('Đang nghe bạn nói...', 'is-listening');
             logEvent('sound_detected');
-        }).catch(function (error) {
+        }, onRoomVoiceFrame).catch(function (error) {
             roomWave.hidden = true;
             logEvent('meter_error', error && error.name);
             if (error && error.name !== 'unsupported') {
@@ -415,11 +488,14 @@
         try { recognition.stop(); } catch (e) { }
         stopMeter();
         roomWave.hidden = true;
-        btnSend.hidden = spokenText === '';
+        if (VA && voiceFrames.length) lastVoice = VA.summarize(voiceFrames, FRAME_SECONDS);   // [VOICE]
+        showVolumeHint(false);
+        btnSend.hidden = isLive || spokenText === '';   // Thực chiến: tự gửi, không có bước bấm Gửi riêng
         if (spokenText !== '') renderTranscript(spokenText, '');   // chốt chữ, bỏ phần "nhạt"
     }
 
     btnSpeak.addEventListener('click', function () {
+        if (isLive) { liveSpeakClick(); return; }
         if (isTyping) toggleTyping(false);
         isListening ? stopListening() : startListening();
     });
@@ -431,7 +507,7 @@
         transcriptText.hidden = on;
         transcriptMeta.hidden = on || transcriptMeta.hidden;
         btnSend.hidden = !on;
-        btnClear.hidden = on || spokenText === '';
+        btnClear.hidden = isLive || on || spokenText === '';
         if (on) answerInput.focus();
     }
 
@@ -459,6 +535,10 @@
         answerInput.value = '';
         renderTranscript('', '');
         btnSend.hidden = !isTyping;
+        voiceFrames = [];
+        lastVoice = null;
+        showVolumeHint(false);
+        if (voiceLevel) voiceLevel.hidden = true;
     }
 
     // 28/10: người dùng thấy nói sai -> xoá bản ghi để nói lại.
@@ -483,6 +563,9 @@
 
     btnClear.addEventListener('click', clearRecording);
 
+    // [FOLLOW-UP] câu đang hỏi là câu hỏi thêm? (mở lại trang giữa chừng: đọc từ dòng ghi chú do máy chủ vẽ)
+    let currentIsFollowUp = !!(document.getElementById('followup-note') && !document.getElementById('followup-note').hidden);
+
     async function submit(skipped) {
         if (busy) return;
         if (isListening) stopListening();
@@ -503,6 +586,10 @@
                 answer: skipped ? null : answer,
                 durationSeconds: isTyping ? null : speakSeconds,
                 pausesSeconds: isTyping || skipped ? null : pauses,
+                // [VOICE] chỉ gửi khi trả lời bằng giọng nói và đo được
+                voiceLevelDb: !skipped && !isTyping && lastVoice ? lastVoice.levelDb : null,
+                quietRatio: !skipped && !isTyping && lastVoice ? lastVoice.quietRatio : null,
+                pitchVariation: !skipped && !isTyping && lastVoice ? lastVoice.pitchVariation : null,
                 skipped: skipped
             });
             answeredCount.textContent = result.answeredCount;
@@ -510,7 +597,9 @@
             // Xác nhận để người dùng biết hệ thống đã nhận
             lastAnswer.textContent = result.notice
                 ? result.notice
-                : skipped ? 'Đã bỏ qua câu này.' : '✓ Đã ghi nhận câu trả lời của bạn: "' + shorten(answer, 140) + '"';
+                : skipped && currentIsFollowUp ? 'Đã bỏ qua câu hỏi thêm (không bị tính Sai).'
+                : skipped ? (isLive ? 'Đã bỏ qua câu này. Thực chiến: câu bỏ qua được tính là Sai.' : 'Đã bỏ qua câu này.')
+                : '✓ Đã ghi nhận câu trả lời của bạn: "' + shorten(answer, 140) + '"';
             lastAnswer.hidden = false;
             showMessage('');
             setStatus('Đã nhận câu trả lời ✓', 'is-waiting');
@@ -518,22 +607,36 @@
             if (result.done) {
                 await finishSession(false);   // hết câu hỏi: chấm điểm luôn
             } else {
-                showNextQuestion(result.nextNumber, result.nextQuestion);
+                showNextQuestion(result.nextNumber, result.nextQuestion, result.nextIsFollowUp);
                 setBusy(false);
             }
         } catch (error) {
             showMessage(error.message, 'error');
             setBusy(false);
             if (error.body && error.body.retry) resetAnswer();   // bị từ chối: xoá để nói lại
+            if (isLive && livePhase === 'sending') livePhase = 'answer';   // gửi lỗi: cho bấm "Xong, gửi" lại
         }
     }
 
     btnSend.addEventListener('click', () => submit(false));
-    btnSkip.addEventListener('click', () => submit(true));
+    btnSkip.addEventListener('click', function () {
+        if (isLive) {
+            if (busy || livePhase === 'sending') return;
+            liveStopClock();
+            livePhase = 'sending';
+        }
+        submit(true);
+    });
 
     // Đổi sang câu hỏi tiếp theo, xóa câu trả lời cũ
-    function showNextQuestion(number, text) {
+    function showNextQuestion(number, text, isFollowUp) {
         questionText.textContent = text;
+        // [FOLLOW-UP] Đợt 8: câu hỏi thêm giữ nguyên số câu, hiện dòng "... hỏi thêm về câu trả lời vừa rồi"
+        const followUpNote = document.getElementById('followup-note');
+        if (followUpNote) followUpNote.hidden = !isFollowUp;
+        currentIsFollowUp = !!isFollowUp;
+        // Bỏ qua câu hỏi thêm không bị tính Sai (kể cả Thực chiến) -> đổi nhãn nút cho rõ
+        btnSkip.textContent = currentIsFollowUp ? 'Bỏ qua câu hỏi thêm' : isLive ? 'Bỏ qua (tính Sai)' : 'Bỏ qua câu này';
         document.querySelectorAll('.badge-step, .mobile-step').forEach(el => {
             el.textContent = 'Câu ' + number + ' / ' + totalQuestions;
         });
@@ -550,8 +653,9 @@
 
         events.length = 0;   // mỗi câu một dòng thời gian mới
         questionShownAt = Date.now();
-        logEvent('question_shown', number);
-        speakQuestion();     // [#17] tự đọc câu hỏi mới
+        logEvent(isFollowUp ? 'followup_shown' : 'question_shown', number);
+        if (isLive) liveBeginQuestion();   // [LIVE-MODE] đọc -> suy nghĩ -> trả lời
+        else speakQuestion();              // [#17] tự đọc câu hỏi mới
         // Nếu không có giọng đọc, đưa nhãn trạng thái về "Chờ bạn trả lời" sau khi hiện xác nhận
         setTimeout(function () { if (!isListening) setStatus('Chờ bạn trả lời', 'is-waiting'); }, 1500);
     }
@@ -560,6 +664,7 @@
     // AI chấm lỗi: giữ buổi luyện, hiện NGAY 2 lựa chọn: "Chấm lại" bằng AI, hoặc "Xem kết quả ngay" (chấm sơ bộ theo bộ đề,
     // không cần AI) -> người dùng không bị kẹt khi AI miễn phí quá tải. Lỗi cấu hình (sai key/model) thì ẩn "Chấm lại".
     async function finishSession(fallback) {
+        if (isLive) { liveStopClock(); livePhase = 'idle'; if (liveTimer) liveTimer.hidden = true; }
         if (isListening) stopListening();
         stopSpeaking();
         modal.style.display = 'none';
@@ -589,11 +694,15 @@
     btnFallbackScore.addEventListener('click', () => finishSession(true));
 
     btnStop.addEventListener('click', function () {
+        if (isLive) liveStopClock();   // tạm dừng đồng hồ khi đang hỏi có muốn dừng không
         if (isListening) stopListening();
         stopSpeaking();
         modal.style.display = 'flex';
     });
-    btnResume.addEventListener('click', function () { modal.style.display = 'none'; });
+    btnResume.addEventListener('click', function () {
+        modal.style.display = 'none';
+        if (isLive) liveResume();
+    });
     btnFinish.addEventListener('click', () => finishSession(false));
 
     // ---------- [#18] Kiểm tra micro trước khi vào ----------
@@ -611,6 +720,28 @@
     let micTesting = false;
     let micGotText = false;
     let micHintTimer = null;
+    const micLevel = document.getElementById('mic-level');
+    let micFrames = [];
+
+    // [VOICE] Kiểm tra micro: cho người dùng biết giọng mình to hay nhỏ trước khi vào phỏng vấn
+    const MIC_MIN_VOICED = 0.6;   // nói thử chỉ 1 câu ngắn (~2 giây) -> đủ 0.6 giây có tiếng là báo được mức to/nhỏ
+
+    function onMicVoiceFrame(frame) {
+        micFrames.push(frame);
+        if (micFrames.length % 5 === 0) updateMicLevel();
+    }
+
+    function updateMicLevel() {
+        if (!micLevel || !VA || !micFrames.length) return;
+        const s = VA.summarize(micFrames, FRAME_SECONDS, MIC_MIN_VOICED);
+        if (!s) return;
+        const label = VA.levelLabel(s.levelDb);
+        micLevel.hidden = false;
+        micLevel.dataset.level = label === 'Vừa' ? 'ok' : 'warn';
+        micLevel.textContent = label === 'Vừa' ? 'Âm lượng giọng: Vừa, người phỏng vấn nghe rõ.'
+            : label === 'Nhỏ' ? 'Âm lượng giọng: Nhỏ. Hãy nói to hơn hoặc ngồi gần micro.'
+            : 'Âm lượng giọng: Quá to, dễ rè. Hãy ngồi xa micro một chút.';
+    }
 
     function micStatus(text, ok) {
         micTestStatus.textContent = text;
@@ -622,6 +753,7 @@
     }
 
     function endMicTest() {
+        if (micTesting) updateMicLevel();   // [VOICE] chốt mức âm lượng bằng toàn bộ lượt nói thử
         micTesting = false;
         if (micHintTimer) clearTimeout(micHintTimer);
         micHintTimer = null;
@@ -637,7 +769,9 @@
         micCheck.style.display = 'none';
         logEvent('mic_check_' + how);
         if (how === 'skip') toggleTyping(true);
-        speakQuestion();   // bấm nút = có thao tác của người dùng, trình duyệt mới cho phép đọc
+        // bấm nút = có thao tác của người dùng, trình duyệt mới cho phép đọc / bật micro
+        if (isLive) liveBeginQuestion();
+        else speakQuestion();
     }
 
     function startMicTest() {
@@ -649,10 +783,12 @@
         btnMicTest.disabled = true;
         btnMicTest.textContent = 'Đang nghe...';
 
-        // 1. Sóng âm: chứng minh micro có thu được tiếng không
+        // 1. Sóng âm: chứng minh micro có thu được tiếng không (+ [VOICE] mức âm lượng giọng)
+        micFrames = [];
+        if (micLevel) micLevel.hidden = true;
         startMeter(micWave, function () {
             if (!micGotText) micStatus('Đã nghe thấy tiếng của bạn. Micro hoạt động.', true);
-        }).then(function () {
+        }, onMicVoiceFrame).then(function () {
             if (!heardSound) micStatus('Micro đã bật. Hãy nói thử: "Xin chào, tôi sẵn sàng phỏng vấn".');
         }).catch(function (error) {
             micStatus(describeMeterError(error), false);
@@ -682,6 +818,8 @@
             }
         };
         micTester.onend = function () {
+            // Lượt thử đã đóng trước đó (bấm "Vào phỏng vấn" / "Nói thử lại"): bỏ qua, nếu không sẽ tắt nhầm micro của câu trả lời
+            if (!micTesting) return;
             // Kết thúc lượt thử: nếu có tiếng mà không có chữ thì nói rõ nguyên nhân
             if (micTesting && !micGotText && heardSound) {
                 micStatus('Micro nghe thấy tiếng của bạn nhưng trình duyệt không chuyển được thành chữ. ' +
@@ -709,6 +847,144 @@
         btnMicTest.addEventListener('click', startMicTest);
         btnMicOk.addEventListener('click', () => closeMicCheck('ok'));
         btnMicSkip.addEventListener('click', () => closeMicCheck('skip'));
+    }
+
+    // ---------- [VOICE] Nhắc ngay khi đang nói nhỏ + hiện mức âm lượng ----------
+    function showVolumeHint(on) {
+        if (volumeHint) volumeHint.hidden = !on;
+    }
+
+    function onRoomVoiceFrame(frame) {
+        voiceFrames.push(frame);
+        if (voiceFrames.length % 5 !== 0) return;    // cập nhật 2 lần mỗi giây là đủ
+        showVolumeHint(VA.isQuietNow(voiceFrames, FRAME_SECONDS));
+        const recent = VA.summarize(voiceFrames.slice(-30), FRAME_SECONDS);
+        if (voiceLevel && recent) {
+            const label = VA.levelLabel(recent.levelDb);
+            voiceLevel.hidden = false;
+            voiceLevel.dataset.level = label === 'Vừa' ? 'ok' : 'warn';
+            voiceLevel.textContent = 'Âm lượng: ' + label;
+        }
+    }
+
+    // ---------- [LIVE-MODE] Các bước của một câu ở chế độ Thực chiến ----------
+    function formatClock(seconds) {
+        const s = Math.max(0, seconds);
+        return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    }
+
+    function setSpeakLabel(text) {
+        btnSpeak.lastChild.textContent = ' ' + text;
+    }
+
+    function liveStopClock() {
+        if (liveInterval) clearInterval(liveInterval);
+        liveInterval = null;
+    }
+
+    function liveShow(phase, label, seconds, total) {
+        liveTimer.hidden = false;
+        liveTimer.dataset.phase = phase;
+        liveTimer.dataset.low = phase === 'answer' && seconds <= 20 ? '1' : '0';   // còn ít giờ: nhấp nháy nhắc
+        livePhaseLabel.textContent = label;
+        liveClock.textContent = formatClock(seconds);
+        liveBarFill.style.width = (total > 0 ? Math.max(0, seconds) * 100 / total : 0) + '%';
+    }
+
+    // Đếm ngược từng giây; hết giờ gọi onDone
+    function liveRunClock(phase, seconds, total, label, onDone) {
+        liveStopClock();
+        livePhase = phase;
+        liveRemaining = seconds;
+        liveTotal = total;
+        liveShow(phase, label, liveRemaining, liveTotal);
+        liveInterval = setInterval(function () {
+            liveRemaining--;
+            liveShow(phase, label, liveRemaining, liveTotal);
+            if (liveRemaining <= 0) { liveStopClock(); onDone(); }
+        }, 1000);
+    }
+
+    // Câu mới hiện ra: đọc câu hỏi, đọc xong (hoặc máy không có giọng đọc) thì bắt đầu đếm suy nghĩ
+    function liveBeginQuestion() {
+        replaysUsed = 0;
+        updateReplayButton();
+        livePhase = 'reading';
+        liveShow('reading', 'Đang đọc câu hỏi', THINK_SECONDS, THINK_SECONDS);
+        setSpeakLabel('Trả lời ngay');
+        const token = ++liveQuestionToken;
+        const startIfSameQuestion = function () { if (token === liveQuestionToken) liveStartThinking(); };
+        speakQuestion(startIfSameQuestion);
+        setTimeout(startIfSameQuestion, TTS_SAFETY_MS);   // phòng khi giọng đọc không báo "xong"
+        logEvent('live_question_begin');
+    }
+
+    function liveStartThinking() {
+        if (livePhase !== 'reading') return;
+        setStatus('Đang suy nghĩ...', 'is-waiting');
+        liveRunClock('think', THINK_SECONDS, THINK_SECONDS, 'Thời gian suy nghĩ', liveStartAnswer);
+        logEvent('live_think_start');
+    }
+
+    // Hết giờ suy nghĩ (hoặc bấm "Trả lời ngay"): micro tự bật, bắt đầu đếm thời gian trả lời
+    function liveStartAnswer() {
+        if (busy || (livePhase !== 'think' && livePhase !== 'reading')) return;
+        liveStopClock();
+        stopSpeaking();
+        startListening();   // trình duyệt không nhận giọng nói -> tự chuyển sang gõ chữ (trường hợp duy nhất được gõ)
+        setSpeakLabel('Xong, gửi câu trả lời');
+        liveRunClock('answer', MAX_ANSWER_SECONDS, MAX_ANSWER_SECONDS, 'Thời gian trả lời', liveFinishAnswer);
+        logEvent('live_answer_start');
+    }
+
+    // Bấm "Xong, gửi" hoặc hết giờ: dừng micro và gửi luôn (không có bước sửa)
+    function liveFinishAnswer() {
+        if (livePhase !== 'answer') return;
+        liveStopClock();
+        livePhase = 'sending';
+        if (isListening) stopListening();
+        if (!currentAnswer()) {
+            showMessage('Bạn chưa nói gì nên câu này được tính là bỏ qua (Sai).', 'error');
+            submit(true);
+        } else {
+            submit(false);
+        }
+        logEvent('live_answer_end', liveRemaining + 's left');
+    }
+
+    function liveSpeakClick() {
+        if (busy) return;
+        if (livePhase === 'ready') liveBeginQuestion();
+        else if (livePhase === 'reading' || livePhase === 'think') liveStartAnswer();
+        else if (livePhase === 'answer') liveFinishAnswer();
+    }
+
+    // Đóng hộp thoại "Dừng buổi luyện?" mà chọn tiếp tục: đang suy nghĩ thì đếm tiếp phần còn lại;
+    // đang trả lời thì gửi phần đã nói (Thực chiến không cho nói lại từ đầu)
+    function liveResume() {
+        if (livePhase === 'reading' || livePhase === 'think') {
+            livePhase = 'think';
+            liveRunClock('think', Math.max(liveRemaining, 3), THINK_SECONDS, 'Thời gian suy nghĩ', liveStartAnswer);
+        } else if (livePhase === 'answer') {
+            liveFinishAnswer();
+        }
+    }
+
+    // Mở lại trang giữa buổi (không có hộp kiểm tra micro): cần 1 lần bấm để trình duyệt cho đọc / bật micro
+    function liveReady() {
+        livePhase = 'ready';
+        liveShow('ready', 'Sẵn sàng?', THINK_SECONDS, THINK_SECONDS);
+        setSpeakLabel('Bắt đầu câu này');
+        setStatus('Chờ bạn bắt đầu', 'is-waiting');
+    }
+
+    if (isLive) {
+        btnType.hidden = true;
+        btnClear.hidden = true;
+        btnSend.hidden = true;
+        updateReplayButton();
+        if (!micCheck || micCheck.style.display === 'none') liveReady();
+        else setSpeakLabel('Trả lời ngay');
     }
 
     logEvent('question_shown', 'first');

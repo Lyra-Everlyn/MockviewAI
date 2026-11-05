@@ -30,7 +30,8 @@
         <div class="head">
             <div>
                 <h1>Kết quả buổi luyện</h1>
-                <p class="sub">@Model.Position &middot; @Model.StartedAt.ToString("dd/MM") &middot; @Model.QuestionCount câu &middot; Người phỏng vấn: @Model.InterviewerName</p>
+                <p class="sub">@Model.Position &middot; @Model.StartedAt.ToString("dd/MM") &middot; @Model.QuestionCount câu &middot; Người phỏng vấn: @Model.InterviewerName
+                    @if (Model.IsLive) { <span class="mode-tag">Thực chiến</span> }</p>
             </div>
             <div class="acts">
                 <a href="/Home/InterviewDetail/@Model.SessionId" class="btn btn-main">Xem lại hội thoại</a>
@@ -44,6 +45,11 @@
             <section class="panel record" aria-label="Cách bạn tiếp cận từng câu">
                 <h2>Cách bạn tiếp cận từng câu</h2>
                 <p class="record-note">Đây là bản ghi cách trả lời, không phải thang điểm. Hơi đặc biệt và Đặc biệt vẫn là câu trả lời đúng, chỉ là bạn đi theo đường khác.</p>
+                @if (Model.FollowUpCount > 0)
+                {
+                    @* [FOLLOW-UP] Đợt 8 *@
+                    <p class="record-note">Người phỏng vấn đã hỏi thêm @Model.FollowUpCount lần vì câu trả lời đầu còn thiếu ý. Phần trả lời thêm được tính gộp vào câu đó; xem chi tiết ở "Xem lại hội thoại".</p>
+                }
                 <div class="tape big">
                     @for (int i = 0; i < Model.AnswerCategories.Count; i++)
                     {
@@ -89,6 +95,15 @@
                         <div class="row"><span>Cách nói</span><b>@Model.DeliveryScore</b></div>
                         <div class="bar"><i style="width: @(Model.DeliveryScore)%"></i></div>
                     </div>
+                    @if (Model.HasVoice)
+                    {
+                        <!-- [VOICE] Đợt 7: giọng nói (đo bằng micro trên trình duyệt) -->
+                        <dl class="voice-stats">
+                            <div><dt>Âm lượng</dt><dd class="@(Model.VoiceLevelLabel == "Vừa" ? "c-dung" : "c-dac_biet")">@Model.VoiceLevelLabel</dd></div>
+                            <div><dt>Thời gian nói nhỏ</dt><dd class="@(Model.QuietPercent > 30 ? "c-dac_biet" : "c-dung")">@Model.QuietPercent%</dd></div>
+                            <div><dt>Ngữ điệu</dt><dd class="@(Model.ToneLabel == "Đều đều" ? "c-dac_biet" : "c-dung")">@Model.ToneLabel</dd></div>
+                        </dl>
+                    }
                 }
                 @if (Model.InvalidAnswerCount > 0)
                 {
@@ -164,7 +179,8 @@
 
     <nav class="mobile-bottom-nav" aria-label="Điều hướng">
         <a href="/Home">Trang chủ</a>
-        <a href="/Interview/Create" class="active">Luyện</a>
+        <a href="/Interview/Create" class="@(Model.IsLive ? null : "active")">Luyện</a>
+        <a href="/Interview/Create?mode=live" class="@(Model.IsLive ? "active" : null)">Thực chiến</a>
         <a href="/Home/History">Lịch sử</a>
         <a href="/Profile">Hồ sơ</a>
     </nav>

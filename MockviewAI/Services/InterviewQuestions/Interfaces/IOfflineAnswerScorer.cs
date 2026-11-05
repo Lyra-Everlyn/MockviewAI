@@ -8,5 +8,8 @@ namespace MockviewAI.Services.InterviewQuestions.Interfaces
     public interface IOfflineAnswerScorer
     {
         AnswerVerdict Score(BankQuestion question, string answer);
+
+        // [FOLLOW-UP] Các ý cốt lõi câu trả lời đã chạm tới (không xét lỗi hay gặp) - dùng chọn câu hỏi thêm
+        IReadOnlyList<string> FindMetCorePoints(BankQuestion question, string answer);
     }
 }

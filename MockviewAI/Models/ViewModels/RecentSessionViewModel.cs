@@ -12,5 +12,6 @@
         public bool HasScore { get; set; }          // false: buổi dừng sớm, chưa có điểm
         public bool IsInProgress { get; set; }      // true: buổi chưa xong, bấm vào thì luyện tiếp
         public string StatusText { get; set; } = string.Empty;   // "Đã dừng" / "Chưa xong"
+        public bool IsLive { get; set; }            // [LIVE-MODE] buổi Thực chiến -> hiện nhãn trong Lịch sử
     }
 }
