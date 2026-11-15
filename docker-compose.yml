@@ -6,10 +6,10 @@ services:
     container_name: mysql_mockview_container
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-      MYSQL_DATABASE: "mockview_database"
-      MYSQL_USER: "mockview_user"
-      MYSQL_PASSWORD: "${MYSQL_USER_PASSWORD}"
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=mockview_database
+      - MYSQL_USER=mockview_user
+      - MYSQL_PASSWORD=${MYSQL_USER_PASSWORD}
     volumes:
       - mysql_data_final:/var/lib/mysql
     healthcheck:
@@ -30,27 +30,26 @@ services:
     image: mockviewai:dev
     container_name: web_mockview_container
     restart: always
-    environment:
-      ConnectionStrings__DefaultConnection: "Server=db_mockview;Port=3306;Database=mockview_database;Uid=mockview_user;Pwd=${MYSQL_USER_PASSWORD}"
-      ConnectionStrings__RedisConnection: "redis_mockview:6379"
-      
-      # Các biến từ Dokploy
-      Turnstile__SiteKey: "${Turnstile__SiteKey}"
-      Turnstile__SecretKey: "${Turnstile__SecretKey}"
-      SmtpSettings__Server: "${SmtpSettings__Server}"
-      SmtpSettings__Port: "${SmtpSettings__Port}"
-      SmtpSettings__Username: "${SmtpSettings__Username}"
-      SmtpSettings__SenderName: "${SmtpSettings__SenderName}"
-      SmtpSettings__SenderEmail: "${SmtpSettings__SenderEmail}"
-      SmtpSettings__Password: "${SmtpSettings__Password}"
-      Authentication__Google__ClientId: "${Authentication__Google__ClientId}"
-      Authentication__Google__ClientSecret: "${Authentication__Google__ClientSecret}"
-      CloudinarySettings__CloudName: "${CloudinarySettings__CloudName}"
-      CloudinarySettings__ApiSecret: "${CloudinarySettings__ApiSecret}"
-      CloudinarySettings__ApiKey: "${CloudinarySettings__ApiKey}"
-      Ai__Provider: "${Ai__Provider}"
-      Gemini__Model: "${Gemini__Model}"
-      Gemini__ApiKey: "${Gemini__ApiKey}"
+    einnvironment:
+      # ÉP DOCKER HÚT TỪNG BIẾN TỪ GIAO DIỆN DOKPLOY BƠM VÀO CONTAINER C#
+      - ConnectionStrings__DefaultConnection=${ConnectionStrgs__DefaultConnection}
+      - ConnectionStrings__RedisConnection=${ConnectionStrings__RedisConnection}
+      - Turnstile__SiteKey=${Turnstile__SiteKey}
+      - Turnstile__SecretKey=${Turnstile__SecretKey}
+      - SmtpSettings__Server=${SmtpSettings__Server}
+      - SmtpSettings__Port=${SmtpSettings__Port}
+      - SmtpSettings__Username=${SmtpSettings__Username}
+      - SmtpSettings__SenderName=${SmtpSettings__SenderName}
+      - SmtpSettings__SenderEmail=${SmtpSettings__SenderEmail}
+      - SmtpSettings__Password=${SmtpSettings__Password}
+      - Authentication__Google__ClientId=${Authentication__Google__ClientId}
+      - Authentication__Google__ClientSecret=${Authentication__Google__ClientSecret}
+      - CloudinarySettings__CloudName=${CloudinarySettings__CloudName}
+      - CloudinarySettings__ApiSecret=${CloudinarySettings__ApiSecret}
+      - CloudinarySettings__ApiKey=${CloudinarySettings__ApiKey}
+      - Ai__Provider=${Ai__Provider}
+      - Gemini__Model=${Gemini__Model}
+      - Gemini__ApiKey=${Gemini__ApiKey}
     ports:
       - "8080:8080"
     depends_on:
