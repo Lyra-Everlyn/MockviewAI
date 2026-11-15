@@ -6,37 +6,26 @@ services:
     container_name: mysql_mockview_container
     restart: always
     environment:
-      # Ghi thẳng mật khẩu vào đây, không dùng biến ${} nữa
+      # Hãy ghi trực tiếp mật khẩu thật của bạn vào đây
       MYSQL_ROOT_PASSWORD: "MatKhauCuaBan123!"
       MYSQL_DATABASE: mockview_database
       MYSQL_USER: mockview_user
       MYSQL_PASSWORD: "MatKhauCuaBan123!"
     volumes:
-      - mysql_data_v3:/var/lib/mysql # Phân vùng ổ cứng hoàn toàn mới
+      - mysql_data_v4:/var/lib/mysql
+    networks:
+      - dokploy-network
 
   redis_mockview:
     image: redis:alpine
     container_name: redis_mockview_container
     restart: always
-
-  web_mockview:
-    build:
-      context: .
-      dockerfile: MockviewAI/Dockerfile
-    image: mockviewai:dev
-    container_name: web_mockview_container
-    restart: always
-    environment:
-      # Bắt buộc phải có dấu ngoặc kép bọc ngoài toàn bộ chuỗi này
-      - "ConnectionStrings__DefaultConnection=Server=db_mockview;Port=3306;Database=mockview_database;Uid=mockview_user;Pwd=MatKhauCuaBan123!;"
-      - "ConnectionStrings__RedisConnection=redis_mockview:6379"
-    env_file:
-      - .env
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db_mockview
-      - redis_mockview
+    networks:
+      - dokploy-network
 
 volumes:
-  mysql_data_v3:
+  mysql_data_v4:
+
+networks:
+  dokploy-network:
+    external: true
