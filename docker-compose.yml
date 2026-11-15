@@ -7,9 +7,9 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
-      MYSQL_PASSWORD: ${MYSQL_USER_PASSWORD:?Set MYSQL_USER_PASSWORD in .env}
       MYSQL_DATABASE: mockview_database
       MYSQL_USER: mockview_user
+      MYSQL_PASSWORD: ${MYSQL_USER_PASSWORD:?Set MYSQL_USER_PASSWORD in .env}
     ports:
       - "127.0.0.1:3306:3306"
     volumes:
@@ -19,7 +19,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-      
+
   redis_mockview:
     image: redis:alpine
     container_name: redis_mockview_container
