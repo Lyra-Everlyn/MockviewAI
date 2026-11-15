@@ -6,12 +6,12 @@ services:
     container_name: mysql_mockview_container
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: mockview_database
       MYSQL_USER: mockview_user
-      MYSQL_PASSWORD: ${MYSQL_USER_PASSWORD:?Set MYSQL_USER_PASSWORD in .env}
+      MYSQL_PASSWORD: ${MYSQL_USER_PASSWORD}
     ports:
-      - "127.0.0.1:3306:3306"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -19,21 +19,29 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    networks:
-      - dokploy-network
 
   redis_mockview:
     image: redis:alpine
     container_name: redis_mockview_container
     restart: always
     ports:
-      - "127.0.0.1:6379:6379"
-    networks:
-      - dokploy-network
+      - "6379:6379"
+
+  web_mockview:
+    build:
+      context: .
+      dockerfile: MockviewAI/Dockerfile
+    image: mockviewai:dev
+    container_name: web_mockview_container
+    restart: always
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db_mockview;Port=3306;Database=mockview_database;Uid=mockview_user;Pwd=${MYSQL_USER_PASSWORD};
+      - ConnectionStrings__RedisConnection=redis_mockview:6379
+    ports:
+      - "8080:8080"
+    depends_on:
+      db_mockview:
+        condition: service_healthy
 
 volumes:
   mysql_data:
-
-networks:
-  dokploy-network:
-    external: true
