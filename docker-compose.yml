@@ -6,22 +6,26 @@ services:
     container_name: mysql_mockview_container
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=mockview_database
-      - MYSQL_USER=mockview_user
-      - MYSQL_PASSWORD=${MYSQL_USER_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
+      MYSQL_DATABASE: mockview_database
+      MYSQL_USER: mockview_user
+      MYSQL_PASSWORD: ${MYSQL_USER_PASSWORD:?Set MYSQL_USER_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:3306:3306"
     volumes:
-      - mysql_data_final:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
-      interval: 10s
-      timeout: 10s
-      retries: 15
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis_mockview:
     image: redis:alpine
     container_name: redis_mockview_container
     restart: always
+    ports:
+      - "127.0.0.1:6379:6379"
 
   web_mockview:
     build:
@@ -30,26 +34,6 @@ services:
     image: mockviewai:dev
     container_name: web_mockview_container
     restart: always
-    einnvironment:
-      # ÉP DOCKER HÚT TỪNG BIẾN TỪ GIAO DIỆN DOKPLOY BƠM VÀO CONTAINER C#
-      - ConnectionStrings__DefaultConnection=${ConnectionStrgs__DefaultConnection}
-      - ConnectionStrings__RedisConnection=${ConnectionStrings__RedisConnection}
-      - Turnstile__SiteKey=${Turnstile__SiteKey}
-      - Turnstile__SecretKey=${Turnstile__SecretKey}
-      - SmtpSettings__Server=${SmtpSettings__Server}
-      - SmtpSettings__Port=${SmtpSettings__Port}
-      - SmtpSettings__Username=${SmtpSettings__Username}
-      - SmtpSettings__SenderName=${SmtpSettings__SenderName}
-      - SmtpSettings__SenderEmail=${SmtpSettings__SenderEmail}
-      - SmtpSettings__Password=${SmtpSettings__Password}
-      - Authentication__Google__ClientId=${Authentication__Google__ClientId}
-      - Authentication__Google__ClientSecret=${Authentication__Google__ClientSecret}
-      - CloudinarySettings__CloudName=${CloudinarySettings__CloudName}
-      - CloudinarySettings__ApiSecret=${CloudinarySettings__ApiSecret}
-      - CloudinarySettings__ApiKey=${CloudinarySettings__ApiKey}
-      - Ai__Provider=${Ai__Provider}
-      - Gemini__Model=${Gemini__Model}
-      - Gemini__ApiKey=${Gemini__ApiKey}
     ports:
       - "8080:8080"
     depends_on:
@@ -57,4 +41,4 @@ services:
         condition: service_healthy
 
 volumes:
-  mysql_data_final:
+  mysql_data:
