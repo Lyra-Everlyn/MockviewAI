@@ -27,18 +27,18 @@ services:
     ports:
       - "127.0.0.1:6379:6379"
 
-  # web_mockview:
-  #   build:
-  #     context: .
-  #     dockerfile: MockviewAI/Dockerfile
-  #   image: mockviewai:dev
-  #   container_name: web_mockview_container
-  #   restart: always
-  #   ports:
-  #     - "9090:8080"
-  #   depends_on:
-  #     db_mockview:
-  #       condition: service_healthy
+  web_mockview:
+    build:
+      context: .
+      dockerfile: MockviewAI/Dockerfile
+    image: mockviewai:dev
+    container_name: web_mockview_container
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      db_mockview:
+        condition: service_healthy
 
 volumes:
   mysql_data:
