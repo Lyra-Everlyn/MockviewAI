@@ -7,6 +7,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
+      MYSQL_PASSWORD: ${MYSQL_USER_PASSWORD:?Set MYSQL_USER_PASSWORD in .env}
       MYSQL_DATABASE: mockview_database
       MYSQL_USER: mockview_user
     ports:
