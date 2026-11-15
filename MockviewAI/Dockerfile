@@ -8,7 +8,6 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-# Copy từ thư mục con vào container
 COPY ["MockviewAI/MockviewAI.csproj", "MockviewAI/"]
 RUN dotnet restore "./MockviewAI/MockviewAI.csproj"
 
