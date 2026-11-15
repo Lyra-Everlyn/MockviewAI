@@ -10,13 +10,9 @@ services:
       MYSQL_DATABASE: mockview_database
       MYSQL_USER: mockview_user
       MYSQL_PASSWORD: ${MYSQL_USER_PASSWORD}
+    # Đã xóa port 3306 để chống xung đột với host
     volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
+      - mysql_data_v2:/var/lib/mysql
 
   redis_mockview:
     image: redis:alpine
@@ -31,13 +27,13 @@ services:
     container_name: web_mockview_container
     restart: always
     environment:
-      - ConnectionStrings__DefaultConnection
-      - ConnectionStrings__RedisConnection
+      - ConnectionStrings__DefaultConnection=Server=db_mockview;Port=3306;Database=mockview_database;Uid=mockview_user;Pwd=${MYSQL_USER_PASSWORD}
+      - ConnectionStrings__RedisConnection=redis_mockview:6379
     ports:
       - "8080:8080"
     depends_on:
-      db_mockview:
-        condition: service_healthy
+      - db_mockview
+      - redis_mockview
 
 volumes:
-  mysql_data:
+  mysql_data_v2:
