@@ -5,15 +5,15 @@ services:
     image: mysql:8.0
     container_name: mysql_mockview_container
     restart: always
+    env_file:
+      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: mockview_database
       MYSQL_USER: mockview_user
-      MYSQL_PASSWORD: ${MYSQL_USER_PASSWORD}
     volumes:
-      - mysql_data_v5:/var/lib/mysql
+      - mysql_data_final:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 10s
       retries: 15
@@ -30,9 +30,8 @@ services:
     image: mockviewai:dev
     container_name: web_mockview_container
     restart: always
-    environment:
-      - "ConnectionStrings__DefaultConnection=Server=db_mockview;Port=3306;Database=mockview_database;Uid=mockview_user;Pwd=${MYSQL_USER_PASSWORD}"
-      - "ConnectionStrings__RedisConnection=redis_mockview:6379"
+    env_file:
+      - .env
     ports:
       - "8080:8080"
     depends_on:
@@ -40,4 +39,4 @@ services:
         condition: service_healthy
 
 volumes:
-  mysql_data_v5:
+  mysql_data_final:
