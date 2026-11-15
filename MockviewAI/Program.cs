@@ -56,6 +56,7 @@ namespace MockviewAI
                     )
                 )
             );
+            Console.WriteLine(connectionString);
 
             // --- B. Redis
             var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection") ?? throw new InvalidOperationException("Redis connection string is missing.");
