@@ -6,13 +6,13 @@ services:
     container_name: mysql_mockview_container
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      # Ghi thẳng mật khẩu vào đây, không dùng biến ${} nữa
+      MYSQL_ROOT_PASSWORD: "MatKhauCuaBan123!"
       MYSQL_DATABASE: mockview_database
       MYSQL_USER: mockview_user
-      MYSQL_PASSWORD: ${MYSQL_USER_PASSWORD}
-    # Đã xóa port 3306 để chống xung đột với host
+      MYSQL_PASSWORD: "MatKhauCuaBan123!"
     volumes:
-      - mysql_data_v2:/var/lib/mysql
+      - mysql_data_v3:/var/lib/mysql # Phân vùng ổ cứng hoàn toàn mới
 
   redis_mockview:
     image: redis:alpine
@@ -27,8 +27,11 @@ services:
     container_name: web_mockview_container
     restart: always
     environment:
-      - ConnectionStrings__DefaultConnection=Server=db_mockview;Port=3306;Database=mockview_database;Uid=mockview_user;Pwd=${MYSQL_USER_PASSWORD}
-      - ConnectionStrings__RedisConnection=redis_mockview:6379
+      # Bắt buộc phải có dấu ngoặc kép bọc ngoài toàn bộ chuỗi này
+      - "ConnectionStrings__DefaultConnection=Server=db_mockview;Port=3306;Database=mockview_database;Uid=mockview_user;Pwd=MatKhauCuaBan123!;"
+      - "ConnectionStrings__RedisConnection=redis_mockview:6379"
+    env_file:
+      - .env
     ports:
       - "8080:8080"
     depends_on:
@@ -36,4 +39,4 @@ services:
       - redis_mockview
 
 volumes:
-  mysql_data_v2:
+  mysql_data_v3:
