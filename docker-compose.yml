@@ -6,26 +6,22 @@ services:
     container_name: mysql_mockview_container
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
-      MYSQL_DATABASE: mockview_database
-      MYSQL_USER: mockview_user
-      MYSQL_PASSWORD: ${MYSQL_USER_PASSWORD:?Set MYSQL_USER_PASSWORD in .env}
-    ports:
-      - "127.0.0.1:3306:3306"
+      - MYSQL_ROOT_PASSWORD=MockviewPass123!
+      - MYSQL_DATABASE=mockview_database
+      - MYSQL_USER=mockview_user
+      - MYSQL_PASSWORD=MockviewPass123!
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data_sleep:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-pMockviewPass123!"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
 
   redis_mockview:
     image: redis:alpine
     container_name: redis_mockview_container
     restart: always
-    ports:
-      - "127.0.0.1:6379:6379"
 
   web_mockview:
     build:
@@ -34,6 +30,9 @@ services:
     image: mockviewai:dev
     container_name: web_mockview_container
     restart: always
+    environment:
+      - "ConnectionStrings__DefaultConnection=Server=db_mockview;Port=3306;Database=mockview_database;Uid=mockview_user;Pwd=MockviewPass123!"
+      - "ConnectionStrings__RedisConnection=redis_mockview:6379"
     ports:
       - "8080:8080"
     depends_on:
@@ -41,4 +40,4 @@ services:
         condition: service_healthy
 
 volumes:
-  mysql_data:
+  mysql_data_sleep:
