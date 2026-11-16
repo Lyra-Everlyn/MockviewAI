@@ -618,7 +618,7 @@
     background: var(--room-orange-soft);
     color: #8e552e;
 }
-/* Modal UI remains controlled by InterviewRoom.js via inline display:flex/none. */
+
 .interview-room-page .modal-overlay {
     position: fixed;
     inset: 0;
@@ -632,14 +632,15 @@
 }
 
 .interview-room-page .modal-box {
-    width: min(100%,470px);
+    width: min(100%, 470px);
     max-height: calc(100dvh - 40px);
     overflow: auto;
     padding: 28px;
-    background: #fff;
+    background: var(--color-surface);
+    color: var(--color-text);
     border: 1px solid var(--color-border);
     border-radius: 20px;
-    box-shadow: 0 22px 65px rgba(12,24,52,.24);
+    box-shadow: var(--shadow-panel);
     text-align: left;
 }
 

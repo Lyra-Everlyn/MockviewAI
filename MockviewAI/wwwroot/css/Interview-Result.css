@@ -382,9 +382,9 @@
     }
 
 .interview-result-notice--info {
-    background: #f0f5ff;
-    border-color: #d3e2fb;
-    color: #345b99;
+    background: var(--color-info-soft);
+    border-color: var(--color-info-border);
+    color: var(--color-info);
 }
 
 .interview-result-notice--warning {
