@@ -71,7 +71,7 @@
    ========================================================= */
 .interview-create-page {
     --ic-practice: #6554e8;
-    --ic-practice-soft: #f2efff;
+    /* --ic-practice-soft: #f2efff; */
     --ic-practice-border: #aa9bfa;
     --ic-live: #c65317;
     --ic-live-soft: #fff2e8;
@@ -80,7 +80,7 @@
 
 /* Neutral by default: no selected-mode styling until checked. */
 .interview-create-mode {
-    background: var(--color-surface);
+    /* background: var(--color-surface); */
     box-shadow: none;
     transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease;
 }

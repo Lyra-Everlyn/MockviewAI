@@ -26,7 +26,7 @@
     min-width: 0;
     padding: 38px;
     background: var(--gradient-primary);
-    color: var(--color-primary-text);
+    color: var(--color-text);
 }
 
     .auth-intro::before, .auth-intro::after {
@@ -74,7 +74,7 @@
 }
 
     .auth-brand span span, .auth-panel__mobile-brand strong span {
-        color: var(--color-primary-soft);
+        color: var(--color-primary);
     }
 
 .auth-brand__mark {
