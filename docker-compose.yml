@@ -6,34 +6,56 @@ services:
     container_name: mysql_mockview_container
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: mockview_database
-      MYSQL_USER: mockview_user
-      MYSQL_PASSWORD: ${MYSQL_USER_PASSWORD}
-    ports:
-      - "127.0.0.1:3306:3306"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "mockview_database"
+      MYSQL_USER: "mockview_user"
+      MYSQL_PASSWORD: "${MYSQL_USER_PASSWORD}"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data_final:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - dokploy-network
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
 
   redis_mockview:
     image: redis:alpine
     container_name: redis_mockview_container
     restart: always
+
+  web_mockview:
+    build:
+      context: .
+      dockerfile: MockviewAI/Dockerfile
+    image: mockviewai:dev
+    container_name: web_mockview_container
+    restart: always
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=db_mockview;Port=3306;Database=mockview_database;Uid=mockview_user;Pwd=${MYSQL_USER_PASSWORD}"
+      ConnectionStrings__RedisConnection: "redis_mockview:6379"
+
+      Turnstile__SiteKey: "${Turnstile__SiteKey}"
+      Turnstile__SecretKey: "${Turnstile__SecretKey}"
+      SmtpSettings__Server: "${SmtpSettings__Server}"
+      SmtpSettings__Port: "${SmtpSettings__Port}"
+      SmtpSettings__Username: "${SmtpSettings__Username}"
+      SmtpSettings__SenderName: "${SmtpSettings__SenderName}"
+      SmtpSettings__SenderEmail: "${SmtpSettings__SenderEmail}"
+      SmtpSettings__Password: "${SmtpSettings__Password}"
+      Authentication__Google__ClientId: "${Authentication__Google__ClientId}"
+      Authentication__Google__ClientSecret: "${Authentication__Google__ClientSecret}"
+      CloudinarySettings__CloudName: "${CloudinarySettings__CloudName}"
+      CloudinarySettings__ApiSecret: "${CloudinarySettings__ApiSecret}"
+      CloudinarySettings__ApiKey: "${CloudinarySettings__ApiKey}"
+      Ai__Provider: "${Ai__Provider}"
+      Gemini__Model: "${Gemini__Model}"
+      Gemini__ApiKey: "${Gemini__ApiKey}"
+      
     ports:
-      - "127.0.0.1:6379:6379"
-    networks:
-      - dokploy-network
+      - "8080:8080"
+    depends_on:
+      db_mockview:
+        condition: service_healthy
 
 volumes:
-  mysql_data:
-
-networks:
-  dokploy-network:
-    external: true
+  mysql_data_final:
