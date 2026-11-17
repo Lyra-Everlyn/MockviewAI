@@ -1,16 +1,15 @@
-/* OTP registration — page-specific composition only.
-   Generic OTP input rules are in components.css; colors are theme tokens. */
+/* OTP registration */
 .otp-shell {
     min-height: 565px;
 }
 
 .otp-steps__done .auth-steps__icon {
-    background: rgba(255,255,255,.25);
+    background: var(--color-on-gradient-surface-strong);
 }
 
 .otp-steps__current .auth-steps__icon {
-    background: rgba(255,255,255,.25);
-    box-shadow: 0 0 0 3px rgba(255,255,255,.17);
+    background: var(--color-on-gradient-surface-strong);
+    box-shadow: 0 0 0 3px var(--color-on-gradient-ring);
 }
 
 .otp-panel {

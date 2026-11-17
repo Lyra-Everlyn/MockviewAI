@@ -97,7 +97,7 @@
 .cv-step.is-current .cv-step__num {
     border-color: var(--color-primary);
     background: var(--color-primary);
-    color: #fff
+    color: var(--color-primary-text)
 }
 
 .cv-step.is-done .cv-step__num {
@@ -425,13 +425,13 @@
 }
 
 .cv-notice--error {
-    border: 1px solid #f5cbd1;
+    border: 1px solid var(--color-danger-border);
     background: var(--color-danger-soft);
     color: var(--color-danger)
 }
 
 .cv-notice--success {
-    border: 1px solid #c3e7d0;
+    border: 1px solid var(--color-success-border);
     background: var(--color-success-soft);
     color: var(--color-success)
 }
