@@ -1,0 +1,27 @@
+@*
+    #region _ThemeToggle
+    <summary>
+    [THEME] Nút chuyển giao diện sáng / tối, thay cho nhãn phiên bản "2.0.0" cũ.
+    - Dùng ở thanh điều hướng PC (_AppNavigation) và cột giới thiệu của các trang Auth / Onboarding
+      (cột này tự ẩn trên điện thoại, nên nút chỉ xuất hiện trên PC).
+    - Biểu tượng và chữ đổi bằng CSS theo html[data-theme], không cần chờ JavaScript.
+    - Yêu cầu trang đã nhúng Partials/_ThemeHead trong thẻ head.
+    </summary>
+    #endregion
+*@
+<button type="button"
+        class="theme-toggle"
+        data-theme-toggle
+        aria-pressed="false"
+        aria-label="Chuyển sang giao diện tối"
+        title="Chuyển giao diện sáng / tối">
+    <span class="theme-toggle__state theme-toggle__state--light" aria-hidden="true">
+        <i class="fa-solid fa-moon"></i>
+        <span>Chế độ tối</span>
+    </span>
+    <span class="theme-toggle__state theme-toggle__state--dark" aria-hidden="true">
+        <i class="fa-solid fa-sun"></i>
+        <span>Chế độ sáng</span>
+    </span>
+</button>
+<script src="~/js/_ThemeToggle.js" asp-append-version="true" defer></script>

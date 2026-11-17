@@ -26,7 +26,7 @@
     @await RenderSectionAsync("Styles", required: false)
 
     <!-- Theme đặt sau component/page styles để có thể thay đổi màu tập trung. -->
-    <link rel="stylesheet" href="~/css/themes/theme-indigo.css" asp-append-version="true" />
+    <partial name="Partials/_ThemeHead" />
 </head>
 <body class="app-layout">
     @if (!hideNavigation)

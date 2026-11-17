@@ -19,8 +19,7 @@
     <link rel="stylesheet" href="~/css/base.css">
     <link rel="stylesheet" href="~/css/components.css">
     <link rel="stylesheet" href="~/css/ViewProfile.css">
-    <link rel="stylesheet" href="~/css/themes/theme-indigo.css" media="(prefers-color-scheme: light)" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/themes/theme-dark-1.css" media="(prefers-color-scheme: dark)" asp-append-version="true" />
+    <partial name="Partials/_ThemeHead" />
 </head>
 <body>
     <partial name="Partials/_AppNavigation" />
@@ -142,6 +141,27 @@
                     </div>
 
                     <div class="settings-list">
+                        <button type="button"
+                                class="settings-item settings-item--button"
+                                data-theme-toggle
+                                aria-pressed="false"
+                                aria-label="Chuyển sang giao diện tối">
+                            <span class="settings-item__icon" aria-hidden="true">
+                                <i class="fa-solid fa-moon theme-state--light"></i>
+                                <i class="fa-solid fa-sun theme-state--dark"></i>
+                            </span>
+
+                            <span class="settings-item__content">
+                                <strong class="settings-item__title">Chế độ tối</strong>
+                                <span class="settings-item__description">
+                                    <span class="theme-state--light">Đang dùng giao diện sáng</span>
+                                    <span class="theme-state--dark">Đang dùng giao diện tối</span>
+                                </span>
+                            </span>
+
+                            <span class="settings-switch" aria-hidden="true"></span>
+                        </button>
+                        
                         <a href="#" class="settings-item">
                             <span class="settings-item__icon" aria-hidden="true">
                                 <i class="fa-solid fa-microphone-slash"></i>
@@ -251,7 +271,6 @@
         </div>
     </main>
     <partial name="Partials/_Notify" />
-    <partial name="Partials/_AppFooter" />
     <partial name="Partials/_LogoutPartial" />
     <script src="~/js/_Logout.js"></script>
     

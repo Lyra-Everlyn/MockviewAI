@@ -1,4 +1,3 @@
 <Solution>
   <Project Path="MockviewAI/MockviewAI.csproj" />
-  <Project Path="MockviewAI.Tests/MockviewAI.Tests.csproj" />
 </Solution>

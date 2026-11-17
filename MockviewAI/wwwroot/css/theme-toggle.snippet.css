@@ -1,0 +1,70 @@
+
+/* ---------- Theme Toggle ---------- */
+/* #region Theme Toggle
+   [THEME] Nút chuyển giao diện sáng / tối (thay nhãn "VER 2.0.0").
+   Chỉ khai báo cấu trúc; màu lấy từ biến của theme-*.css. Icon / chữ đổi theo html[data-theme].
+*/
+
+.theme-toggle {
+    display: inline-flex;
+    min-height: 30px;
+    align-items: center;
+    padding-inline: 13px;
+    border: 1px solid var(--color-nav-control-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-primary);
+    font: inherit;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .05em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+
+    .theme-toggle:hover {
+        border-color: var(--color-primary);
+        background: var(--color-primary-soft);
+    }
+
+    .theme-toggle:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+.theme-toggle__state {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.theme-toggle__state--dark,
+html[data-theme="dark"] .theme-toggle__state--light {
+    display: none;
+}
+
+html[data-theme="dark"] .theme-toggle__state--dark {
+    display: inline-flex;
+}
+
+/* Trên nền gradient (cột giới thiệu Auth / Onboarding): giữ kiểu viền trắng mờ như nhãn 2.0.0 cũ */
+.auth-intro .theme-toggle,
+.onboarding-aside .theme-toggle {
+    border-color: rgba(255, 255, 255, .32);
+    background: transparent;
+    color: inherit;
+}
+
+    .auth-intro .theme-toggle:hover,
+    .onboarding-aside .theme-toggle:hover {
+        border-color: rgba(255, 255, 255, .55);
+        background: rgba(255, 255, 255, .14);
+    }
+
+    .auth-intro .theme-toggle:focus-visible,
+    .onboarding-aside .theme-toggle:focus-visible {
+        outline-color: #fff;
+    }
+
+/* #endregion */

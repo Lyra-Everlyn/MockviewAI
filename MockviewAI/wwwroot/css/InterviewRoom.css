@@ -1,15 +1,10 @@
 ﻿/* MockviewAI — Interview Room */
-.interview-room-page {
-    --room-purple: #6554e8;
-    --room-purple-soft: #f2efff;
-    --room-orange: #c65317;
-    --room-orange-soft: #fff2e8;
+
+.interview-room-page [hidden] {
+    display: none !important;
 }
 
-    .interview-room-page [hidden] {
-        display: none !important;
-    }
-
+/* #region Header */
 .interview-room-shell {
     width: min(var(--layout-max-width),calc(100% - 48px));
     margin-inline: auto;
@@ -67,15 +62,17 @@
 }
 
     .interview-room-header__mode.is-practice {
-        background: var(--room-purple-soft);
-        color: var(--room-purple);
+        background: var(--color-mode-practice-soft);
+        color: var(--color-mode-practice);
     }
 
     .interview-room-header__mode.is-live {
-        background: var(--room-orange-soft);
-        color: var(--room-orange);
+        background: var(--color-mode-live-soft);
+        color: var(--color-mode-live);
     }
+/* #endregion */
 
+/* #region Progress */
 .interview-room-progress {
     padding: 19px 22px;
     margin-bottom: 18px;
@@ -121,15 +118,19 @@
 }
 
     .interview-room-progress .seg.done {
-        background: #aea6ef;
+        background: var(--color-mode-practice-border);
     }
 
     .interview-room-progress .seg.now {
-        background: var(--room-purple);
+        background: var(--color-mode-practice);
     }
 
+.interview-room-page:has(.interview-room-stage.is-live) .interview-room-progress .seg.done {
+    background: var(--color-mode-live-border);
+}
+
 .interview-room-page:has(.interview-room-stage.is-live) .interview-room-progress .seg.now {
-    background: var(--room-orange);
+    background: var(--color-mode-live);
 }
 
 .interview-room-progress .progress-track {
@@ -144,7 +145,9 @@
     background: var(--color-primary);
     transition: width .2s;
 }
+/* #endregion */
 
+/* #region Stage: người phỏng vấn + câu hỏi */
 .interview-room-stage {
     position: relative;
     background: var(--color-surface);
@@ -172,20 +175,20 @@
         height: 49px;
         place-items: center;
         border-radius: 14px;
-        background: #e8ecff;
-        color: #5565cd;
+        background: var(--color-persona-linh-soft);
+        color: var(--color-persona-linh);
         font-size: 19px;
         font-weight: 800;
     }
 
         .interview-room-stage .face.f-nam {
-            background: #e8f6f0;
-            color: #288066;
+            background: var(--color-persona-nam-soft);
+            color: var(--color-persona-nam);
         }
 
         .interview-room-stage .face.f-an {
-            background: #f3eaff;
-            color: #8b56bc;
+            background: var(--color-persona-an-soft);
+            color: var(--color-persona-an);
         }
 
     .interview-room-stage .asker-text {
@@ -205,12 +208,13 @@
         margin-top: 2px;
     }
 
+    /* Nhãn trạng thái: mặc định "Đang hỏi..." (vàng) */
     .interview-room-stage .status-tag {
         display: inline-flex;
         align-items: center;
-        border: 1px solid #f0dcaa;
-        background: #fff9e8;
-        color: #91650e;
+        border: 1px solid var(--color-warning-border);
+        background: var(--color-warning-soft);
+        color: var(--color-warning);
         padding: 6px 10px;
         font-size: 11px;
         font-weight: 750;
@@ -226,7 +230,7 @@
         .interview-room-stage .status-tag.is-listening {
             background: var(--color-success-soft);
             color: var(--color-success);
-            border-color: #b4e0c8;
+            border-color: var(--color-success-border);
         }
 
     .interview-room-stage .replay {
@@ -244,7 +248,7 @@
     }
 
         .interview-room-stage .replay:hover {
-            background: #e4e9ff;
+            background: var(--color-primary-soft-strong);
         }
 
         .interview-room-stage .replay:disabled {
@@ -256,9 +260,9 @@
         width: fit-content;
         margin: 0 0 11px;
         padding: 7px 11px;
-        border: 1px solid #ead8fd;
-        background: #f9f4ff;
-        color: #8055ac;
+        border: 1px solid var(--color-special-border);
+        background: var(--color-special-soft);
+        color: var(--color-special);
         font-size: 12px;
         border-radius: 9px;
         font-weight: 700;
@@ -278,7 +282,9 @@
         font-size: 12px;
         margin: -9px 0 17px;
     }
+/* #endregion */
 
+/* #region Đồng hồ Thực chiến */
     .interview-room-stage .live-timer {
         margin: 0 0 22px;
         padding: 15px 18px;
@@ -286,19 +292,19 @@
         grid-template-columns: minmax(0,1fr) auto;
         align-items: center;
         gap: 10px;
-        border: 1px solid #f4cda9;
-        background: var(--room-orange-soft);
+        border: 1px solid var(--color-mode-live-border);
+        background: var(--color-mode-live-soft);
         border-radius: 12px;
     }
 
     .interview-room-stage .live-phase {
         font-size: 13px;
         font-weight: 750;
-        color: var(--room-orange);
+        color: var(--color-mode-live);
     }
 
     .interview-room-stage .live-clock {
-        color: var(--room-orange);
+        color: var(--color-mode-live);
         font-weight: 850;
         font-size: 27px;
         font-variant-numeric: tabular-nums;
@@ -308,27 +314,29 @@
         grid-column: 1/-1;
         height: 7px;
         overflow: hidden;
-        background: #f7d5ba;
+        background: var(--color-mode-live-track);
         border-radius: 999px;
     }
 
         .interview-room-stage .live-bar i {
             display: block;
             height: 100%;
-            background: var(--room-orange);
+            background: var(--color-mode-live);
             width: 100%;
             transition: width .2s;
         }
 
     .interview-room-stage .live-timer[data-low="1"] {
-        background: #fff0f1;
-        border-color: #fac3c8;
+        background: var(--color-danger-soft);
+        border-color: var(--color-danger-border);
     }
 
         .interview-room-stage .live-timer[data-low="1"] .live-clock {
             color: var(--color-danger);
         }
+/* #endregion */
 
+/* #region Câu trả lời */
     .interview-room-stage .answer {
         position: relative;
         margin: 0;
@@ -340,9 +348,10 @@
         transition: border-color .2s, background .2s;
     }
 
+    /* Đang ghi âm: viền cam */
     .interview-room-stage:has(.status-tag.is-listening) .answer {
-        border-color: #f1b77b;
-        background: #fffcf8;
+        border-color: var(--color-mode-live-border);
+        background: var(--color-mode-live-soft);
     }
 
     .interview-room-stage .ans-head {
@@ -363,8 +372,8 @@
         display: none;
         padding: 5px 8px;
         border-radius: 999px;
-        background: #fff0e5;
-        color: var(--room-orange);
+        background: var(--color-surface);
+        color: var(--color-mode-live);
         font-size: 10px;
         font-weight: 800;
     }
@@ -374,18 +383,18 @@
     }
 
     .interview-room-stage .voice-level {
-        background: #ebf2ff;
+        background: var(--color-info-soft);
         border-radius: 7px;
         padding: 4px 8px;
-        color: #3a5eb3;
+        color: var(--color-info);
         font-size: 11px;
         font-weight: 750;
         margin-left: auto;
     }
 
         .interview-room-stage .voice-level[data-level="warn"] {
-            background: #fff4e2;
-            color: #a86d15;
+            background: var(--color-warning-soft);
+            color: var(--color-warning);
         }
 
     .interview-room-stage .transcript-text {
@@ -446,7 +455,7 @@
             height: 10%;
             min-height: 4px;
             border-radius: 4px;
-            background: #a4b0c8;
+            background: var(--color-subtle);
             transition: height .08s linear;
         }
 
@@ -471,7 +480,7 @@
         gap: 7px;
         margin-top: 13px;
         padding: 8px 12px;
-        border: 1px solid #f2c8ce;
+        border: 1px solid var(--color-danger-border);
         border-radius: 9px;
         color: var(--color-danger);
         background: var(--color-danger-soft);
@@ -481,7 +490,7 @@
     }
 
         .interview-room-stage .btn-clear-answer:hover {
-            background: #ffe5e8;
+            background: var(--color-danger-soft-strong);
         }
 
     .interview-room-stage .last-answer {
@@ -489,7 +498,7 @@
         padding: 12px 14px;
         color: var(--color-success);
         background: var(--color-success-soft);
-        border: 1px solid #aee3c2;
+        border: 1px solid var(--color-success-border);
         border-radius: 10px;
         font-size: 13px;
         line-height: 1.65;
@@ -502,7 +511,9 @@
         gap: 10px;
         margin-top: 22px;
     }
+/* #endregion */
 
+/* #region Buttons */
 .interview-room-page .room-btn {
     display: inline-flex;
     align-items: center;
@@ -527,7 +538,7 @@
 
 .interview-room-page .room-btn--primary {
     background: var(--color-primary);
-    color: #fff;
+    color: var(--color-primary-text);
 }
 
     .interview-room-page .room-btn--primary:hover:not(:disabled) {
@@ -546,36 +557,41 @@
     }
 
 .interview-room-page .room-btn--mic {
-    background: var(--room-purple);
-    color: white;
+    background: var(--color-mode-practice);
+    color: var(--color-on-mode-practice);
     min-width: 156px;
 }
 
     .interview-room-page .room-btn--mic:hover:not(:disabled) {
-        background: #5543d3;
+        background: var(--color-mode-practice-hover);
     }
 
-.interview-room-stage:has(.status-tag.is-listening) .room-btn--mic, .interview-room-stage.is-live .room-btn--mic {
-    background: var(--room-orange);
+/* Đang ghi âm hoặc chế độ Thực chiến: nút micro màu cam */
+.interview-room-stage:has(.status-tag.is-listening) .room-btn--mic,
+.interview-room-stage.is-live .room-btn--mic,
+.interview-room-stage:has(.status-tag.is-listening) .room-btn--mic:hover:not(:disabled),
+.interview-room-stage.is-live .room-btn--mic:hover:not(:disabled) {
+    background: var(--color-mode-live);
+    color: var(--color-on-mode-live);
 }
 
 .interview-room-page .room-btn--stop {
     background: var(--color-danger-soft);
     color: var(--color-danger);
-    border-color: #f4c9d0;
+    border-color: var(--color-danger-border);
 }
 
     .interview-room-page .room-btn--stop:hover:not(:disabled) {
-        background: #ffe1e5;
+        background: var(--color-danger-soft-strong);
     }
 
 .interview-room-page .room-btn--danger {
     background: var(--color-danger);
-    color: #fff;
+    color: var(--color-on-danger);
 }
 
     .interview-room-page .room-btn--danger:hover:not(:disabled) {
-        background: #b93b49;
+        background: var(--color-danger-hover);
     }
 
 .interview-room-page .room-btn:focus-visible, .interview-room-page button:focus-visible {
@@ -615,10 +631,12 @@
 }
 
 .interview-room-stage.is-live .tips {
-    background: var(--room-orange-soft);
-    color: #8e552e;
+    background: var(--color-mode-live-soft);
+    color: var(--color-mode-live);
 }
-/* Modal UI remains controlled by InterviewRoom.js via inline display:flex/none. */
+/* #endregion */
+
+/* #region Modal (dừng phiên, kiểm tra micro) */
 .interview-room-page .modal-overlay {
     position: fixed;
     inset: 0;
@@ -627,19 +645,20 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background: rgba(15,23,42,.65);
+    background: var(--color-loading-backdrop);
     backdrop-filter: blur(4px);
 }
 
 .interview-room-page .modal-box {
-    width: min(100%,470px);
+    width: min(100%, 470px);
     max-height: calc(100dvh - 40px);
     overflow: auto;
     padding: 28px;
-    background: #fff;
+    background: var(--color-surface);
+    color: var(--color-text);
     border: 1px solid var(--color-border);
     border-radius: 20px;
-    box-shadow: 0 22px 65px rgba(12,24,52,.24);
+    box-shadow: var(--shadow-loading-dialog);
     text-align: left;
 }
 
@@ -674,7 +693,7 @@
 
 .interview-room-page .browser-warning {
     margin: 0 0 13px;
-    color: #995c1c;
+    color: var(--color-warning);
     background: var(--color-warning-soft);
     border-radius: 9px;
     padding: 11px;
@@ -728,6 +747,7 @@
     font-weight: 750;
     margin-bottom: 10px;
 }
+/* #endregion */
 
 @media (max-width:768px) {
     .interview-room-shell {

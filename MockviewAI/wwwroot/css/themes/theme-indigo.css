@@ -46,6 +46,77 @@
     --shadow-card-hover: 0 12px 30px rgba(40, 51, 87, .075);
     --shadow-control: 0 8px 18px rgba(79, 99, 232, .16);
     --shadow-mobile-nav: 0 -7px 24px rgba(30, 42, 68, .06);
+
+    --color-on-gradient: #ffffff;
+    --color-on-gradient-muted: rgba(255, 255, 255, .86);
+    --color-on-gradient-accent: #d5e6ff;
+    --color-on-gradient-border: rgba(255, 255, 255, .28);
+    --color-on-gradient-border-strong: rgba(255, 255, 255, .55);
+    --color-on-gradient-surface: rgba(255, 255, 255, .14);
+    --color-on-gradient-surface-strong: rgba(255, 255, 255, .25);
+    --color-on-gradient-ring: rgba(255, 255, 255, .12);
+    --color-on-gradient-active: #ffffff;
+    --color-on-gradient-active-text: #5565ed;
+
+    /* Nền nhấn đậm hơn --color-primary-soft (hover của nút nền nhạt) */
+    --color-primary-soft-strong: #e4e9ff;
+
+    /* Viền và trạng thái đậm của các màu ngữ nghĩa sẵn có */
+    --color-success-border: #b4e0c8;
+    --color-warning-border: #f0dcaa;
+    --color-danger-border: #f4c9d0;
+    --color-danger-soft-strong: #ffe3e7;
+    --color-danger-hover: #b93b49;
+    --color-on-danger: #ffffff;
+
+    /* Thông tin (xanh dương) */
+    --color-info: #3a5eb3;
+    --color-info-soft: #ebf2ff;
+    --color-info-border: #c9dbf7;
+
+    /* Đặc biệt (tím) */
+    --color-special: #8055ac;
+    --color-special-soft: #f9f4ff;
+    --color-special-border: #ead8fd;
+
+    /* Chế độ Luyện tập */
+    --color-mode-practice: #6554e8;
+    --color-mode-practice-hover: #5543d3;
+    --color-mode-practice-soft: #f2efff;
+    --color-mode-practice-border: #aa9bfa;
+    --color-on-mode-practice: #ffffff;
+
+    /* Chế độ Thực chiến */
+    --color-mode-live: #c65317;
+    --color-mode-live-soft: #fff2e8;
+    --color-mode-live-border: #f4cda9;
+    --color-mode-live-track: #f7d5ba;
+    --color-on-mode-live: #ffffff;
+
+    /* Người phỏng vấn */
+    --color-persona-linh: #5565cd;
+    --color-persona-linh-soft: #e8ecff;
+    --color-persona-nam: #288066;
+    --color-persona-nam-soft: #e8f6f0;
+    --color-persona-an: #8b56bc;
+    --color-persona-an-soft: #f3eaff;
+
+    /* #region Verdict tokens
+        Màu 4 loại đánh giá câu trả lời: Đúng / Hơi đặc biệt / Đặc biệt / Sai.
+        Dùng ở trang Kết quả và Chi tiết buổi phỏng vấn.
+    */
+    --color-verdict-correct: #20845a;
+    --color-verdict-correct-soft: #ecfdf5;
+    --color-verdict-correct-border: #bce7d0;
+    --color-verdict-partial: #2566af;
+    --color-verdict-partial-soft: #eff6ff;
+    --color-verdict-partial-border: #cbdff8;
+    --color-verdict-special: #7754be;
+    --color-verdict-special-soft: #f5f3ff;
+    --color-verdict-special-border: #dfd5fc;
+    --color-verdict-wrong: #bb4050;
+    --color-verdict-wrong-soft: #fff0f1;
+    --color-verdict-wrong-border: #f4ccd0;
 }
 
 /* ---------- Global text ---------- */

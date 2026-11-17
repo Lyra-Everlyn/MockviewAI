@@ -1368,3 +1368,151 @@ body.app-layout--auth {
         font-size: 19px;
     }
 }
+
+/* ---------- Theme Toggle ---------- */
+/* #region Theme Toggle
+   [THEME] Nút chuyển giao diện sáng / tối (thay nhãn "VER 2.0.0").
+   Chỉ khai báo cấu trúc; màu lấy từ biến của theme-*.css. Icon / chữ đổi theo html[data-theme].
+*/
+
+.theme-toggle {
+    display: inline-flex;
+    min-height: 30px;
+    align-items: center;
+    padding-inline: 13px;
+    border: 1px solid var(--color-nav-control-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-primary);
+    font: inherit;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .05em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+
+    .theme-toggle:hover {
+        border-color: var(--color-primary);
+        background: var(--color-primary-soft);
+    }
+
+    .theme-toggle:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+.theme-toggle__state {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.theme-toggle__state--dark,
+html[data-theme="dark"] .theme-toggle__state--light {
+    display: none;
+}
+
+html[data-theme="dark"] .theme-toggle__state--dark {
+    display: inline-flex;
+}
+
+/* Trên nền gradient (cột giới thiệu Auth / Onboarding): giữ kiểu viền trắng mờ như nhãn 2.0.0 cũ */
+.auth-intro .theme-toggle,
+.onboarding-aside .theme-toggle {
+    border-color: var(--color-on-gradient-border);
+    background: transparent;
+    color: inherit;
+}
+
+    .auth-intro .theme-toggle:hover,
+    .onboarding-aside .theme-toggle:hover {
+        border-color: var(--color-on-gradient-border-strong);
+        background: var(--color-on-gradient-surface);
+    }
+
+    .auth-intro .theme-toggle:focus-visible,
+    .onboarding-aside .theme-toggle:focus-visible {
+        outline-color: var(--color-on-gradient);
+    }
+
+/* #endregion */
+
+
+/* settings-item dạng <button>: bỏ kiểu mặc định của trình duyệt */
+.settings-item--button {
+    width: 100%;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+    .settings-item--button:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: -2px;
+    }
+
+/* Nội dung chỉ hiện ở một theme */
+.theme-state--dark,
+html[data-theme="dark"] .theme-state--light {
+    display: none;
+}
+
+html[data-theme="dark"] .theme-state--dark {
+    display: inline;
+}
+
+/* Công tắc gạt (thay cho mũi tên ở cột cuối) */
+.settings-switch {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    justify-self: end;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 999px;
+    background: var(--color-surface-soft);
+    transition: background-color .18s ease, border-color .18s ease;
+}
+
+    .settings-switch::after {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--color-muted);
+        content: "";
+        transition: transform .18s ease, background-color .18s ease;
+    }
+
+html[data-theme="dark"] .settings-switch {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+}
+
+    html[data-theme="dark"] .settings-switch::after {
+        background: var(--color-primary-text);
+        transform: translateX(16px);
+    }
+
+/* Cột cuối của settings-item rộng 18px; công tắc cần rộng hơn */
+.settings-item--button {
+    grid-template-columns: 38px minmax(0, 1fr) 36px;
+}
+
+@media (max-width: 680px) {
+    .settings-item--button {
+        grid-template-columns: 36px minmax(0, 1fr) 36px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .settings-switch,
+    .settings-switch::after {
+        transition: none;
+    }
+}

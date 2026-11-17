@@ -1,8 +1,9 @@
-﻿/* Interview Result */
+﻿/* InterviewResult.css */
 .interview-result-page {
     min-width: 0;
 }
 
+/* #region Header */
 .interview-result-header {
     display: flex;
     align-items: flex-start;
@@ -52,22 +53,24 @@
     }
 
     .interview-result-meta > .interview-result-meta__live {
-        border-color: #f1c399;
-        background: #fff2e8;
-        color: #c65317;
+        border-color: var(--color-mode-live-border);
+        background: var(--color-mode-live-soft);
+        color: var(--color-mode-live);
     }
 
 .interview-result-meta__live i {
-    color: #c65317;
+    color: var(--color-mode-live);
 }
+/* #endregion */
 
+/* #region Card chung */
 .interview-result-card {
     min-width: 0;
     padding: 23px;
     border: 1px solid var(--color-border);
     border-radius: 16px;
     background: var(--color-surface);
-    box-shadow: 0 6px 24px rgba(30,48,90,.025);
+    box-shadow: var(--shadow-card);
 }
 
 .interview-result-card__heading {
@@ -121,7 +124,9 @@
     display: grid;
     gap: 18px;
 }
+/* #endregion */
 
+/* #region Dải xếp loại từng câu */
 .interview-result-record {
     margin-bottom: 18px;
 }
@@ -151,7 +156,7 @@
     padding: 13px 4px 9px;
     border: 1px solid var(--color-border);
     border-radius: 10px;
-    color: #657185;
+    color: var(--color-muted);
     background: var(--color-surface-soft);
     transition: transform .18s, border-color .18s;
 }
@@ -172,27 +177,27 @@
     }
 
     .interview-result-tape__item.is-dung {
-        background: #ecfdf5;
-        border-color: #bce7d0;
-        color: #20845a;
+        background: var(--color-verdict-correct-soft);
+        border-color: var(--color-verdict-correct-border);
+        color: var(--color-verdict-correct);
     }
 
     .interview-result-tape__item.is-hoi_dac_biet {
-        background: #eff6ff;
-        border-color: #cbdff8;
-        color: #2566af;
+        background: var(--color-verdict-partial-soft);
+        border-color: var(--color-verdict-partial-border);
+        color: var(--color-verdict-partial);
     }
 
     .interview-result-tape__item.is-dac_biet {
-        background: #f5f3ff;
-        border-color: #dfd5fc;
-        color: #7754be;
+        background: var(--color-verdict-special-soft);
+        border-color: var(--color-verdict-special-border);
+        color: var(--color-verdict-special);
     }
 
     .interview-result-tape__item.is-sai {
-        background: #fff0f1;
-        border-color: #f4ccd0;
-        color: #bb4050;
+        background: var(--color-verdict-wrong-soft);
+        border-color: var(--color-verdict-wrong-border);
+        color: var(--color-verdict-wrong);
     }
 
 .interview-result-legend {
@@ -220,19 +225,19 @@
 }
 
     .interview-result-dot.is-dung {
-        background: #20845a;
+        background: var(--color-verdict-correct);
     }
 
     .interview-result-dot.is-hoi_dac_biet {
-        background: #2566af;
+        background: var(--color-verdict-partial);
     }
 
     .interview-result-dot.is-dac_biet {
-        background: #7754be;
+        background: var(--color-verdict-special);
     }
 
     .interview-result-dot.is-sai {
-        background: #bb4050;
+        background: var(--color-verdict-wrong);
     }
 
 .interview-result-chip {
@@ -244,10 +249,12 @@
 }
 
 .interview-result-chip--reference {
-    background: #fff6e8;
-    color: #a8651b;
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
 }
+/* #endregion */
 
+/* #region Điểm */
 .interview-result-score__total {
     display: flex;
     align-items: baseline;
@@ -364,7 +371,9 @@
     font-size: 11px;
     line-height: 1.6;
 }
+/* #endregion */
 
+/* #region Thông báo */
 .interview-result-notice {
     display: flex;
     gap: 9px;
@@ -382,23 +391,25 @@
     }
 
 .interview-result-notice--info {
-    background: #f0f5ff;
-    border-color: #d3e2fb;
-    color: #345b99;
+    background: var(--color-info-soft);
+    border-color: var(--color-info-border);
+    color: var(--color-info);
 }
 
 .interview-result-notice--warning {
-    background: #fffaed;
-    border-color: #f5e5b6;
-    color: #95691f;
+    background: var(--color-warning-soft);
+    border-color: var(--color-warning-border);
+    color: var(--color-warning);
 }
 
 .interview-result-notice--error {
-    background: #fff3f3;
-    border-color: #f2cbd0;
-    color: #a93b4d;
+    background: var(--color-danger-soft);
+    border-color: var(--color-danger-border);
+    color: var(--color-danger);
 }
+/* #endregion */
 
+/* #region Nhận xét */
 .interview-result-feedback__summary {
     padding: 15px;
     border-radius: 10px;
@@ -422,11 +433,11 @@
     }
 
         .interview-result-feedback__group h3 i {
-            color: #20845a;
+            color: var(--color-success);
         }
 
 .interview-result-feedback__group--improve h3 i {
-    color: #bd8034;
+    color: var(--color-warning);
 }
 
 .interview-result-feedback__group ul {
@@ -461,7 +472,9 @@
     color: var(--color-muted);
     font-size: 13px;
 }
+/* #endregion */
 
+/* #region Chỉ số lo lắng */
 .interview-result-anxiety__subtitle {
     margin-top: -7px;
     color: var(--color-muted);
@@ -496,18 +509,18 @@
 }
 
     .interview-result-anxiety__level.is-low {
-        background: #e9f8f0;
-        color: #20845a;
+        background: var(--color-success-soft);
+        color: var(--color-success);
     }
 
     .interview-result-anxiety__level.is-medium {
-        background: #fff4e8;
-        color: #ad6b27;
+        background: var(--color-warning-soft);
+        color: var(--color-warning);
     }
 
     .interview-result-anxiety__level.is-high {
-        background: #fff0f1;
-        color: #bb4050;
+        background: var(--color-danger-soft);
+        color: var(--color-danger);
     }
 
 .interview-result-anxiety__trend {
@@ -517,11 +530,11 @@
 }
 
     .interview-result-anxiety__trend.is-decreasing {
-        color: #20845a;
+        color: var(--color-success);
     }
 
     .interview-result-anxiety__trend.is-increasing {
-        color: #ba6738;
+        color: var(--color-warning);
     }
 
 .interview-result-anxiety__note {
@@ -530,7 +543,9 @@
     font-size: 11px;
     line-height: 1.7;
 }
+/* #endregion */
 
+/* #region Bước tiếp theo */
 .interview-result-email {
     margin-top: 0;
 }
@@ -572,6 +587,7 @@
     .interview-result-next__feedback:hover {
         text-decoration: underline;
     }
+/* #endregion */
 
 @media (max-width: 950px) {
     .interview-result-header {
