@@ -1,61 +1,128 @@
+# =============================================================================
+#  MockviewAI — docker-compose.yml (PRODUCTION)
+# -----------------------------------------------------------------------------
+#  Môi trường : Production — VPS Hostinger, triển khai qua Dokploy
+#  Tên miền   : https://mockviewai.com
+#  Thành phần : 3 container trong cùng mạng nội bộ của Compose
+#                 - db_mockview    : MySQL 8.0 (dữ liệu chính)
+#                 - redis_mockview : Redis (cache, phiên làm việc)
+#                 - web_mockview   : ASP.NET Core MVC (build từ MockviewAI/Dockerfile)
+#
+#  Bí mật (mật khẩu, API key...) KHÔNG ghi trong file này.
+#  Mọi giá trị dạng ${TEN_BIEN} được khai báo ở tab "Environment" của Dokploy;
+#  Dokploy tự sinh file .env cạnh file này khi deploy.
+#
+#  HTTPS & tên miền do reverse proxy Traefik tích hợp sẵn của Dokploy đảm nhận:
+#  Traefik nhận request từ mockviewai.com, cấp chứng chỉ SSL tự động,
+#  rồi chuyển tiếp vào cổng nội bộ 8080 của web_mockview.
+# =============================================================================
+
+# Khai báo phiên bản định dạng Compose.
+# Docker Compose v2 bỏ qua dòng này (chỉ in cảnh báo), giữ lại để tương thích công cụ cũ.
 version: '3.8'
 
 services:
+
+  # ---------------------------------------------------------------------------
+  #  CƠ SỞ DỮ LIỆU — MySQL 8.0
+  # ---------------------------------------------------------------------------
   db_mockview:
     image: mysql:8.0
     container_name: mysql_mockview_container
-    restart: always
+    restart: always                       # Tự khởi động lại khi lỗi hoặc khi VPS reboot
+
     environment:
+      # Mật khẩu tài khoản root — chỉ dùng cho quản trị, ứng dụng KHÔNG đăng nhập bằng root
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      # Database được tạo tự động ở lần chạy đầu tiên (khi volume còn trống)
       MYSQL_DATABASE: "mockview_database"
+      # Tài khoản riêng cho ứng dụng, chỉ có quyền trên mockview_database
       MYSQL_USER: "mockview_user"
       MYSQL_PASSWORD: "${MYSQL_USER_PASSWORD}"
-    volumes:
-      - mysql_data_final:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
-      interval: 10s
-      timeout: 10s
-      retries: 15
 
+    # Không mở cổng 3306 ra ngoài: chỉ web_mockview truy cập được qua mạng nội bộ Compose.
+
+    volumes:
+      # Lưu dữ liệu MySQL ra volume để không mất khi container bị xoá / build lại.
+      # LƯU Ý: đổi tên volume này = MySQL khởi tạo database MỚI, trống.
+      - mysql_data_final:/var/lib/mysql
+
+    healthcheck:
+      # web_mockview chỉ khởi động khi MySQL trả lời "ping" (xem depends_on bên dưới).
+      # Dùng 127.0.0.1 (TCP) thay cho localhost để chắc chắn MySQL đã nhận kết nối mạng.
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      interval: 10s                       # Kiểm tra mỗi 10 giây
+      timeout: 10s                        # Quá 10 giây không trả lời = 1 lần thất bại
+      retries: 15                         # Cho MySQL tối đa ~150 giây để khởi động lần đầu
+
+  # ---------------------------------------------------------------------------
+  #  BỘ NHỚ ĐỆM — Redis
+  # ---------------------------------------------------------------------------
   redis_mockview:
-    image: redis:alpine
+    image: redis:alpine                   # Bản alpine: nhẹ, đủ dùng cho cache
     container_name: redis_mockview_container
     restart: always
+    # Không mở cổng 6379 ra ngoài và không lưu volume:
+    # Redis chỉ chứa cache / dữ liệu tạm, mất khi khởi động lại là chấp nhận được.
 
+  # ---------------------------------------------------------------------------
+  #  ỨNG DỤNG WEB — ASP.NET Core MVC (.NET)
+  # ---------------------------------------------------------------------------
   web_mockview:
     build:
-      context: .
+      context: .                          # Gốc repo (chứa MockviewAI.slnx)
       dockerfile: MockviewAI/Dockerfile
-    image: mockviewai:dev
+    image: mockviewai:dev                 # Tên image sau khi build trên VPS
     container_name: web_mockview_container
     restart: always
+
+    # Biến môi trường dạng Section__Key (2 dấu gạch dưới) được ASP.NET Core
+    # đọc thành cấu hình Section:Key, ghi đè giá trị trong appsettings.json.
     environment:
+      # --- Kết nối nội bộ: dùng TÊN SERVICE làm host (db_mockview, redis_mockview) ---
       ConnectionStrings__DefaultConnection: "Server=db_mockview;Port=3306;Database=mockview_database;Uid=mockview_user;Pwd=${MYSQL_USER_PASSWORD}"
       ConnectionStrings__RedisConnection: "redis_mockview:6379"
 
+      # --- Cloudflare Turnstile (CAPTCHA chống spam ở trang Auth) ---
       Turnstile__SiteKey: "${Turnstile__SiteKey}"
       Turnstile__SecretKey: "${Turnstile__SecretKey}"
+
+      # --- SMTP: gửi mã OTP, khôi phục mật khẩu, email kết quả phỏng vấn ---
       SmtpSettings__Server: "${SmtpSettings__Server}"
       SmtpSettings__Port: "${SmtpSettings__Port}"
       SmtpSettings__Username: "${SmtpSettings__Username}"
       SmtpSettings__SenderName: "${SmtpSettings__SenderName}"
       SmtpSettings__SenderEmail: "${SmtpSettings__SenderEmail}"
       SmtpSettings__Password: "${SmtpSettings__Password}"
+
+      # --- Đăng nhập Google (OAuth 2.0, callback /signin-google) ---
       Authentication__Google__ClientId: "${Authentication__Google__ClientId}"
       Authentication__Google__ClientSecret: "${Authentication__Google__ClientSecret}"
+
+      # --- Cloudinary: lưu ảnh đại diện / file người dùng ---
       CloudinarySettings__CloudName: "${CloudinarySettings__CloudName}"
       CloudinarySettings__ApiSecret: "${CloudinarySettings__ApiSecret}"
       CloudinarySettings__ApiKey: "${CloudinarySettings__ApiKey}"
+
+      # --- AI chấm điểm phỏng vấn ---
+      # Ai__Provider = "Gemini" -> gọi Gemini thật; giá trị khác -> dùng MockAiScoringService (dữ liệu giả)
       Ai__Provider: "${Ai__Provider}"
-      Gemini__Model: "${Gemini__Model}"
-      Gemini__ApiKey: "${Gemini__ApiKey}"
-      
+      Gemini__Model: "${Gemini__Model}"     # Phải là model sinh văn bản (không dùng bản -tts, -live, image...)
+      Gemini__ApiKey: "${Gemini__ApiKey}"   # Key chính dùng cho chấm điểm
+      # Chưa truyền vào container: Gemini__ApiKeys__0..N và Groq__ApiKeys__0..N (xoay vòng key).
+      # Khi bật tính năng xoay vòng key, cần thêm các dòng đó vào đây VÀ khai báo trong Dokploy.
+
     ports:
+      # Cổng HOST:CONTAINER. Ứng dụng lắng nghe cổng 8080 bên trong container.
+      # Traefik của Dokploy định tuyến mockviewai.com -> cổng 8080 này.
       - "8080:8080"
+
     depends_on:
       db_mockview:
-        condition: service_healthy
+        condition: service_healthy        # Chờ MySQL healthy rồi mới chạy (app tự chạy Migration khi khởi động)
 
+# -----------------------------------------------------------------------------
+#  VOLUMES — vùng lưu trữ bền vững do Docker quản lý trên VPS
+# -----------------------------------------------------------------------------
 volumes:
-  mysql_data_final:
+  mysql_data_final:                       # Dữ liệu MySQL production — KHÔNG xoá
