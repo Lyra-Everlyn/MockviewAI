@@ -1,34 +1,45 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 using MockviewAI.Models.DTOs;
+using MockviewAI.Models.Speech;
 using MockviewAI.Services.Exceptions;
 using MockviewAI.Services.Interviews;
+using MockviewAI.Services.Speech;
+using MockviewAI.Services.Speech.Interfaces;
 
 namespace MockviewAI.Controllers
 {
     /// <summary>
     /// [AI-INTERVIEW]
     /// Controller chịu trách nhiệm quản lý toàn bộ vòng đời của một buổi phỏng vấn AI.
-    /// Bao gồm: Khởi tạo, Phòng phỏng vấn, Ghi nhận câu trả lời, Chấm điểm và Xem kết quả.
+    /// Bao gồm: Khởi tạo, Phòng phỏng vấn, Chuyển giọng nói thành chữ, Ghi nhận câu trả lời, Chấm điểm và Xem kết quả.
     /// </summary>
-    
     [Authorize]
     public class InterviewController : Controller
     {
         private readonly IInterviewService _interviewService;
+        private readonly ISpeechToTextService _speechToText;
+        private readonly SpeechOptions _speechOptions;
 
-        public InterviewController(IInterviewService interviewService)
+        public InterviewController(
+            IInterviewService interviewService,
+            ISpeechToTextService speechToText,
+            IOptions<SpeechOptions> speechOptions)
         {
             _interviewService = interviewService;
+            _speechToText = speechToText;
+            _speechOptions = speechOptions.Value;
         }
 
         /// <summary>
-        /// Bộ lọc lỗi an toàn. Chỉ hiển thị cho người dùng những lỗi logic được định nghĩa trước 
-        /// (InterviewException, AiScoringException). Che giấu các lỗi hệ thống (Database, Network).
+        /// Bộ lọc lỗi an toàn. Chỉ hiển thị cho người dùng những lỗi logic được định nghĩa trước
+        /// (InterviewException, AiScoringException, SpeechException). Che giấu các lỗi hệ thống (Database, Network).
         /// </summary>
         private static string SafeMessage(Exception ex) =>
-            ex is InterviewException or AiScoringException ? ex.Message : "Có lỗi xảy ra. Vui lòng thử lại.";
+            ex is InterviewException or AiScoringException or SpeechException ? ex.Message : "Có lỗi xảy ra. Vui lòng thử lại.";
 
         /// <summary>
         /// Lấy Email của người dùng hiện tại từ Claims (Cookie đã được lưu lúc Login).
@@ -120,6 +131,64 @@ namespace MockviewAI.Controllers
 
             // Trả về View phòng phỏng vấn cho câu hỏi hiện tại
             return View("~/Views/Home/InterviewRoom.cshtml", room);
+        }
+
+        /// <summary>
+        /// POST: /Interview/Transcribe
+        /// [SPEECH] Nhận file ghi âm câu trả lời (multipart/form-data: sessionId + audio),
+        /// chuyển thành chữ bằng Whisper rồi chuẩn hoá bằng Gemini. KHÔNG lưu gì vào database.
+        /// -- Câu hỏi dùng làm ngữ cảnh được lấy từ server (không tin dữ liệu trình duyệt gửi lên).
+        /// -- Chỉ chủ buổi phỏng vấn, khi buổi đang diễn ra, mới gọi được.
+        /// </summary>
+        /// <param name="sessionId">Mã buổi phỏng vấn đang diễn ra.</param>
+        /// <param name="audio">File ghi âm (webm / ogg / mp4 / m4a / wav...).</param>
+        /// <returns>JSON { rawText, text, normalized, empty } hoặc 400 { message, retry, configError }.</returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [EnableRateLimiting("SpeechRateLimit")]
+        [RequestSizeLimit(12 * 1024 * 1024)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 12 * 1024 * 1024)]
+        public async Task<IActionResult> Transcribe([FromForm] int sessionId, IFormFile? audio, CancellationToken ct)
+        {
+            if (audio == null || audio.Length == 0)
+                return BadRequest(new { message = "Không nhận được file ghi âm. Vui lòng thử lại.", retry = true });
+            if (audio.Length > _speechOptions.MaxAudioBytes)
+                return BadRequest(new { message = "File ghi âm quá lớn. Hãy trả lời ngắn gọn hơn rồi thử lại." });
+            if (!AudioFormats.TryGetExtension(audio.ContentType, out var mediaType, out var extension))
+                return BadRequest(new { message = "Định dạng ghi âm không được hỗ trợ. Hãy dùng Chrome, Edge, Firefox hoặc Safari bản mới." });
+
+            try
+            {
+                // Kiểm tra quyền + buổi đang diễn ra, đồng thời lấy câu hỏi hiện tại làm ngữ cảnh
+                string question = await _interviewService.GetCurrentQuestionAsync(CurrentEmail, sessionId);
+
+                byte[] data;
+                using (var buffer = new MemoryStream((int)audio.Length))
+                {
+                    await audio.CopyToAsync(buffer, ct);
+                    data = buffer.ToArray();
+                }
+
+                var clip = new AudioClip(data, "answer" + extension, mediaType);
+                var result = await _speechToText.TranscribeAnswerAsync(clip, question, ct);
+
+                return Json(new
+                {
+                    rawText = result.RawText,
+                    text = result.Text,
+                    normalized = result.Normalized,
+                    empty = result.IsEmpty
+                });
+            }
+            catch (SpeechException ex)
+            {
+                // configError = true: lỗi cấu hình phía server, trình duyệt dùng chữ tự nhận dạng thay vì thử lại
+                return BadRequest(new { message = ex.Message, configError = ex.IsConfigurationError, retry = ex.IsTransient });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = SafeMessage(ex) });
+            }
         }
 
         /// <summary>

@@ -138,6 +138,22 @@ namespace MockviewAI.Services.Interviews
             };
         }
 
+        /// <summary>
+        /// [SPEECH] Câu hỏi hiện tại (câu chính hoặc câu hỏi thêm) của buổi đang diễn ra, dùng làm ngữ cảnh cho STT.
+        /// Kiểm tra buổi thuộc người dùng và còn InProgress. Không ghi gì vào database.
+        /// </summary>
+        public async Task<string> GetCurrentQuestionAsync(string email, int sessionId)
+        {
+            var user = await GetUserAsync(email);
+            var session = await FindSessionAsync(user, sessionId);
+            if (session == null || session.Status != SessionStatus.InProgress)
+                throw new InterviewException("Không tìm thấy buổi luyện đang diễn ra.");
+
+            var current = FollowUps.Next(session.Answers)
+                ?? throw new InterviewException("Bạn đã trả lời hết các câu hỏi.");
+            return current.Question;
+        }
+
         public async Task<SubmitAnswerResultDto> SubmitAnswerAsync(string email, SubmitAnswerDto dto)
         {
             var user = await GetUserAsync(email);

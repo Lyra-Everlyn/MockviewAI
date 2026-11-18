@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
+using System.Security.Principal;
+using System.Threading.RateLimiting;
 using MockviewAI.Data;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
@@ -23,9 +26,9 @@ using MockviewAI.Services.Onboarding;
 using MockviewAI.Services.Profiles;
 using MockviewAI.Services.Security;
 using MockviewAI.Services.SessionHistory;
-using StackExchange.Redis;
-using System.Security.Principal;
-using System.Threading.RateLimiting;
+using MockviewAI.Services.Speech;
+using MockviewAI.Services.Speech.Interfaces;
+using MockviewAI.Services.Speech.Implementations;
 
 namespace MockviewAI
 {
@@ -33,6 +36,7 @@ namespace MockviewAI
     {
         public static void Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
             DotNetEnv.Env.TraversePath().Load();
 
             var builder = WebApplication.CreateBuilder(args);
@@ -140,8 +144,13 @@ namespace MockviewAI
                 client.BaseAddress = new Uri("https://api.groq.com/openai/v1/");
             }).AddHttpMessageHandler<GroqKeyHandler>();
 
-
-
+            // -- Speech-to-Text (Groq Whisper + Gemini chuẩn hoá)
+            builder.Services.Configure<SpeechOptions>(builder.Configuration.GetSection(SpeechOptions.SectionName));
+            builder.Services.AddSingleton<ISpeechPromptBuilder, SpeechPromptBuilder>();
+            builder.Services.AddScoped<ISpeechTranscriber, GroqWhisperTranscriber>();
+            builder.Services.AddScoped<ITranscriptNormalizer, GeminiTranscriptNormalizer>();
+            builder.Services.AddScoped<ISpeechToTextService, SpeechToTextService>();
+            builder.Services.AddSingleton<IHallucinationFilter, WhisperHallucinationFilter>();   // dòng mới
 
             // -- Google Authentication % Cookies
             builder.Services.AddAuthentication(options =>
@@ -226,6 +235,23 @@ namespace MockviewAI
                         });
                 });
 
+                options.AddPolicy("SpeechRateLimit", context =>
+                {
+                    var userKey = context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                                  ?? context.Connection.RemoteIpAddress?.ToString()
+                                  ?? "unknown";
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: "speech:" + userKey,
+                        factory: partition => new FixedWindowRateLimiterOptions
+                        {
+                            AutoReplenishment = true,
+                            PermitLimit = 20,
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0
+                        });
+                });
+
                 options.OnRejected = async (context, token) =>
                 {
                     context.HttpContext.Response.StatusCode = 429;
@@ -268,14 +294,12 @@ namespace MockviewAI
             app.UseRouting();
 
 
-            // --- Enable rate limitter
-            app.UseRateLimiter();
-
-
             // --- Enforce security workflow: Identity check before permission check
             app.UseAuthentication();
             app.UseAuthorization();
-
+           
+            // --- Enable rate limitter
+            app.UseRateLimiter();
 
             app.MapStaticAssets();
             app.MapControllerRoute(
