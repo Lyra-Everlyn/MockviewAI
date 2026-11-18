@@ -1,0 +1,281 @@
+@{
+    Layout = null;
+    ViewData["ActiveNav"] = "terms";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Điều khoản sử dụng nền tảng MockviewAI.">
+    <title>Điều khoản sử dụng - MockviewAI</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/Terms.css" asp-append-version="true">
+    <partial name="Partials/_ThemeHead" />
+</head>
+<body>
+    <partial name="Partials/_AppNavigation" />
+
+    <div class="terms-progress" aria-hidden="true">
+        <span id="termsProgressBar"></span>
+    </div>
+
+    <main class="page-shell terms-page">
+        <header class="page-header terms-header">
+            <div class="page-header__content">
+                <span class="page-header__eyebrow">
+                    <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
+                    THÔNG TIN PHÁP LÝ
+                </span>
+                <h1 class="page-header__title">Điều khoản sử dụng</h1>
+                <p class="page-header__description">
+                    Vui lòng đọc các điều khoản dưới đây trước khi sử dụng MockviewAI.
+                    Khi truy cập hoặc sử dụng nền tảng, bạn đồng ý tuân thủ những quy định này.
+                </p>
+                <div class="terms-meta">
+                    <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> Cập nhật lần cuối: 18/11/2026</span>
+                    <span class="terms-meta__separator" aria-hidden="true"></span>
+                    <span><i class="fa-regular fa-clock" aria-hidden="true"></i> Thời gian đọc: khoảng 6 phút</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="terms-notice" aria-label="Lưu ý quan trọng">
+            <span class="terms-notice__icon"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></span>
+            <p>
+                <strong>Lưu ý:</strong> MockviewAI là công cụ hỗ trợ luyện tập phỏng vấn.
+                Nội dung do AI tạo ra chỉ nhằm mục đích tham khảo và không bảo đảm kết quả tuyển dụng.
+            </p>
+        </section>
+
+        <div class="terms-layout">
+            <aside class="terms-sidebar" aria-label="Mục lục điều khoản">
+                <div class="terms-sidebar__heading">TRONG TRANG NÀY</div>
+                <nav class="terms-toc" id="termsToc">
+                    <a class="terms-toc__link is-active" href="#acceptance">1. Chấp thuận điều khoản</a>
+                    <a class="terms-toc__link" href="#service">2. Mô tả dịch vụ</a>
+                    <a class="terms-toc__link" href="#account">3. Tài khoản người dùng</a>
+                    <a class="terms-toc__link" href="#acceptable-use">4. Quy tắc sử dụng</a>
+                    <a class="terms-toc__link" href="#ai-content">5. Nội dung AI</a>
+                    <a class="terms-toc__link" href="#data">6. Dữ liệu và quyền riêng tư</a>
+                    <a class="terms-toc__link" href="#intellectual-property">7. Sở hữu trí tuệ</a>
+                    <a class="terms-toc__link" href="#availability">8. Tính khả dụng</a>
+                    <a class="terms-toc__link" href="#liability">9. Giới hạn trách nhiệm</a>
+                    <a class="terms-toc__link" href="#changes">10. Thay đổi điều khoản</a>
+                    <a class="terms-toc__link" href="#contact">11. Liên hệ</a>
+                </nav>
+                <button class="terms-print button button--secondary" id="printTerms" type="button">
+                    <i class="fa-solid fa-print" aria-hidden="true"></i>
+                    In điều khoản
+                </button>
+            </aside>
+
+            <article class="terms-content" id="termsContent">
+                <section class="terms-section" id="acceptance">
+                    <span class="terms-section__number">01</span>
+                    <div>
+                        <h2>Chấp thuận điều khoản</h2>
+                        <p>
+                            Các Điều khoản sử dụng này điều chỉnh việc truy cập và sử dụng nền tảng
+                            MockviewAI. Bằng việc tạo tài khoản, đăng nhập hoặc tiếp tục sử dụng dịch vụ,
+                            bạn xác nhận đã đọc, hiểu và đồng ý với các điều khoản được nêu tại đây.
+                        </p>
+                        <p>
+                            Nếu không đồng ý với bất kỳ nội dung nào, vui lòng ngừng truy cập và sử dụng
+                            nền tảng. Một số tính năng có thể đi kèm điều kiện hoặc hướng dẫn bổ sung.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="terms-section" id="service">
+                    <span class="terms-section__number">02</span>
+                    <div>
+                        <h2>Mô tả dịch vụ</h2>
+                        <p>
+                            MockviewAI cung cấp môi trường mô phỏng phỏng vấn tuyển dụng có ứng dụng trí tuệ
+                            nhân tạo, giúp người dùng thực hành trả lời câu hỏi, rèn luyện cách diễn đạt và
+                            tham khảo phản hồi sau mỗi phiên luyện tập.
+                        </p>
+                        <ul>
+                            <li>Tạo phiên phỏng vấn mô phỏng theo vị trí hoặc mục tiêu nghề nghiệp.</li>
+                            <li>Thực hành trả lời bằng các phương thức được nền tảng hỗ trợ.</li>
+                            <li>Xem lại nội dung, điểm số hoặc phản hồi khi tính năng tương ứng khả dụng.</li>
+                        </ul>
+                        <p>
+                            Tính năng có thể được cập nhật, điều chỉnh hoặc ngừng cung cấp để phục vụ việc
+                            bảo trì và phát triển hệ thống.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="terms-section" id="account">
+                    <span class="terms-section__number">03</span>
+                    <div>
+                        <h2>Tài khoản người dùng</h2>
+                        <p>Khi đăng ký và sử dụng tài khoản, bạn có trách nhiệm:</p>
+                        <ul>
+                            <li>Cung cấp thông tin đăng ký chính xác và cập nhật khi có thay đổi.</li>
+                            <li>Bảo vệ thông tin đăng nhập và không chia sẻ quyền truy cập trái phép.</li>
+                            <li>Thông báo cho hệ thống khi phát hiện dấu hiệu truy cập bất thường.</li>
+                            <li>Chịu trách nhiệm đối với hoạt động được thực hiện thông qua tài khoản của mình, trong phạm vi pháp luật cho phép.</li>
+                        </ul>
+                        <p>
+                            MockviewAI có thể tạm hạn chế quyền truy cập nếu phát hiện dấu hiệu vi phạm
+                            điều khoản hoặc rủi ro đối với an toàn của nền tảng và người dùng.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="terms-section" id="acceptable-use">
+                    <span class="terms-section__number">04</span>
+                    <div>
+                        <h2>Quy tắc sử dụng</h2>
+                        <p>Bạn đồng ý không sử dụng MockviewAI để:</p>
+                        <ul>
+                            <li>Thực hiện hành vi vi phạm pháp luật hoặc xâm phạm quyền, lợi ích hợp pháp của người khác.</li>
+                            <li>Phát tán mã độc, gây gián đoạn hoặc tìm cách truy cập trái phép vào hệ thống.</li>
+                            <li>Can thiệp, đảo ngược hoặc khai thác trái phép các thành phần kỹ thuật của nền tảng.</li>
+                            <li>Đăng tải nội dung đe dọa, quấy rối, lừa đảo hoặc xâm phạm quyền riêng tư.</li>
+                            <li>Sử dụng dịch vụ theo cách gây ảnh hưởng tiêu cực đến trải nghiệm của người dùng khác.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="terms-section" id="ai-content">
+                    <span class="terms-section__number">05</span>
+                    <div>
+                        <h2>Nội dung do AI tạo ra</h2>
+                        <p>
+                            Phản hồi, câu hỏi, nhận xét và điểm đánh giá được tạo bởi AI có thể chưa đầy đủ,
+                            chưa chính xác hoặc không phản ánh hoàn toàn tiêu chí của nhà tuyển dụng thực tế.
+                            Kết quả chỉ nên được xem là tài liệu tham khảo để tự luyện tập.
+                        </p>
+                        <div class="terms-inline-note">
+                            <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+                            <p>
+                                Bạn nên kết hợp phản hồi từ MockviewAI với kinh nghiệm thực tế, tài liệu
+                                chuyên môn và góp ý từ người hướng dẫn.
+                            </p>
+                        </div>
+                        <p>
+                            MockviewAI không cam kết người dùng sẽ được tuyển dụng, đạt một mức điểm cụ thể
+                            hoặc nhận được lời mời phỏng vấn sau khi sử dụng dịch vụ.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="terms-section" id="data">
+                    <span class="terms-section__number">06</span>
+                    <div>
+                        <h2>Dữ liệu và quyền riêng tư</h2>
+                        <p>
+                            Việc thu thập, sử dụng, lưu trữ và bảo vệ dữ liệu cá nhân được thực hiện theo
+                            Chính sách quyền riêng tư của MockviewAI và các quy định pháp luật có liên quan.
+                        </p>
+                        <p>
+                            Khi sử dụng các tính năng phỏng vấn, bạn nên tránh cung cấp thông tin nhạy cảm
+                            không cần thiết trong câu trả lời, bản ghi hoặc nội dung tải lên.
+                        </p>
+                        <p>
+                            Bạn có thể xem Chính sách quyền riêng tư tại
+                            <a class="terms-text-link" href="/Privacy">trang Chính sách quyền riêng tư</a>
+                            (nếu được triển khai trên hệ thống).
+                        </p>
+                    </div>
+                </section>
+
+                <section class="terms-section" id="intellectual-property">
+                    <span class="terms-section__number">07</span>
+                    <div>
+                        <h2>Sở hữu trí tuệ</h2>
+                        <p>
+                            Giao diện, thiết kế, thương hiệu, mã nguồn và các thành phần thuộc MockviewAI
+                            được bảo vệ theo quy định về sở hữu trí tuệ. Bạn không được sao chép, phân phối,
+                            sửa đổi hoặc khai thác các thành phần này khi chưa có sự cho phép hợp lệ.
+                        </p>
+                        <p>
+                            Đối với nội dung do bạn cung cấp, bạn chịu trách nhiệm bảo đảm mình có quyền
+                            sử dụng và chia sẻ nội dung đó trên nền tảng.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="terms-section" id="availability">
+                    <span class="terms-section__number">08</span>
+                    <div>
+                        <h2>Tính khả dụng của dịch vụ</h2>
+                        <p>
+                            MockviewAI hướng tới việc duy trì dịch vụ ổn định nhưng không bảo đảm nền tảng
+                            luôn hoạt động liên tục hoặc không có lỗi. Một số tính năng có thể tạm thời
+                            không khả dụng do bảo trì, cập nhật, sự cố kết nối hoặc nguyên nhân ngoài khả năng kiểm soát.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="terms-section" id="liability">
+                    <span class="terms-section__number">09</span>
+                    <div>
+                        <h2>Giới hạn trách nhiệm</h2>
+                        <p>
+                            Trong phạm vi pháp luật cho phép, MockviewAI không chịu trách nhiệm đối với
+                            quyết định tuyển dụng của bên thứ ba, kết quả nghề nghiệp cá nhân hoặc thiệt hại
+                            phát sinh từ việc người dùng phụ thuộc hoàn toàn vào nội dung AI mà không tự
+                            kiểm tra, đánh giá.
+                        </p>
+                        <p>
+                            Không nội dung nào trong điều khoản này loại trừ trách nhiệm mà pháp luật
+                            hiện hành không cho phép loại trừ.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="terms-section" id="changes">
+                    <span class="terms-section__number">10</span>
+                    <div>
+                        <h2>Thay đổi điều khoản</h2>
+                        <p>
+                            Điều khoản có thể được cập nhật để phản ánh thay đổi của dịch vụ hoặc yêu cầu
+                            pháp lý. Phiên bản mới sẽ được đăng trên trang này cùng ngày cập nhật.
+                            Việc bạn tiếp tục sử dụng nền tảng sau khi thay đổi có hiệu lực đồng nghĩa
+                            với việc bạn chấp thuận phiên bản được cập nhật, trong phạm vi pháp luật cho phép.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="terms-section terms-section--last" id="contact">
+                    <span class="terms-section__number">11</span>
+                    <div>
+                        <h2>Liên hệ</h2>
+                        <p>
+                            Nếu có câu hỏi liên quan đến Điều khoản sử dụng, vui lòng liên hệ đội ngũ
+                            MockviewAI thông qua kênh hỗ trợ được công bố trên nền tảng.
+                        </p>
+                        <a class="button button--primary terms-contact-button" href="/Feedback">
+                            <i class="fa-regular fa-message" aria-hidden="true"></i>
+                            Gửi yêu cầu hỗ trợ
+                        </a>
+                    </div>
+                </section>
+
+                <div class="terms-endnote">
+                    <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                    <span>Cảm ơn bạn đã sử dụng MockviewAI. Chúc bạn có những buổi luyện tập hiệu quả!</span>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <button class="terms-back-top" id="backToTop" type="button" aria-label="Lên đầu trang">
+        <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+    </button>
+
+    <partial name="Partials/_AppFooter" />
+    <partial name="Partials/_Notify" />
+
+    <script src="~/js/Terms.js" asp-append-version="true" defer></script>
+</body>
+</html>
