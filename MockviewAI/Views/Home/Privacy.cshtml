@@ -2,9 +2,8 @@
     Layout = null;
     ViewData["ActiveNav"] = "privacy";
 
-    // Cập nhật ngày này mỗi khi nội dung chính sách thay đổi
     var lastUpdated = new DateTime(2026, 11, 18);
-    var supportEmail = "support@mockview.ai"; // TODO: thay bằng email hỗ trợ thật
+    var supportEmail = "mockviewai@gmail.com";
 
     var sections = new[]
     {
@@ -39,8 +38,6 @@
 
 <body class="app-layout">
     <div class="privacy-progress" aria-hidden="true"><span class="privacy-progress__bar" data-privacy-progress></span></div>
-
-    <partial name="Partials/_AppNavigation" />
 
     <div class="app-layout__content">
         <main class="page-shell">
