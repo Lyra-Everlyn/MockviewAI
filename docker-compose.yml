@@ -108,9 +108,51 @@ services:
       # Ai__Provider = "Gemini" -> gọi Gemini thật; giá trị khác -> dùng MockAiScoringService (dữ liệu giả)
       Ai__Provider: "${Ai__Provider}"
       Gemini__Model: "${Gemini__Model}"     # Phải là model sinh văn bản (không dùng bản -tts, -live, image...)
-      Gemini__ApiKey: "${Gemini__ApiKey}"   # Key chính dùng cho chấm điểm
-      # Chưa truyền vào container: Gemini__ApiKeys__0..N và Groq__ApiKeys__0..N (xoay vòng key).
-      # Khi bật tính năng xoay vòng key, cần thêm các dòng đó vào đây VÀ khai báo trong Dokploy.
+      Gemini__ApiKey: "${Gemini__ApiKey}"   # Key dự phòng: chỉ dùng khi danh sách Gemini__ApiKeys__N trống
+
+      # --- Xoay vòng API key (ApiKeyRotationService) ---
+      # Key hết lượt / bị khoá (401, 403, 429) -> nghỉ 1 phút, tự chuyển sang key kế tiếp.
+      # Ô nào để trống trong Dokploy sẽ bị bỏ qua, nên có thể khai báo ít hơn 6 key.
+      # Thêm key thứ 7 trở đi: thêm dòng ở ĐÂY và khai báo trong Dokploy (cả 2 nơi).
+      Gemini__ApiKeys__0: "${Gemini__ApiKeys__0:-}"
+      Gemini__ApiKeys__1: "${Gemini__ApiKeys__1:-}"
+      Gemini__ApiKeys__2: "${Gemini__ApiKeys__2:-}"
+      Gemini__ApiKeys__3: "${Gemini__ApiKeys__3:-}"
+      Gemini__ApiKeys__4: "${Gemini__ApiKeys__4:-}"
+      Gemini__ApiKeys__5: "${Gemini__ApiKeys__5:-}"
+
+      # Groq: dùng cho nhận giọng nói (Whisper). Thiếu hết key -> phòng phỏng vấn báo "thiếu Groq API key".
+      Groq__ApiKeys__0: "${Groq__ApiKeys__0:-}"
+      Groq__ApiKeys__1: "${Groq__ApiKeys__1:-}"
+      Groq__ApiKeys__2: "${Groq__ApiKeys__2:-}"
+      Groq__ApiKeys__3: "${Groq__ApiKeys__3:-}"
+      Groq__ApiKeys__4: "${Groq__ApiKeys__4:-}"
+      Groq__ApiKeys__5: "${Groq__ApiKeys__5:-}"
+
+      # --- Nhận giọng nói (STT): Groq Whisper -> lọc ảo giác -> Gemini chuẩn hoá ---
+      # Cú pháp ${TEN:-mặc_định}: Dokploy không khai báo (hoặc để trống) -> dùng giá trị mặc định,
+      # tránh truyền chuỗi rỗng vào ô kiểu số / true-false (ứng dụng sẽ lỗi khi khởi động).
+      Speech__WhisperModel: "${Speech__WhisperModel:-whisper-large-v3}"
+      Speech__WhisperFallbackModel: "${Speech__WhisperFallbackModel:-}"            # Trống = không thử model thứ 2
+      Speech__Language: "${Speech__Language:-vi}"
+      Speech__MaxAudioBytes: "${Speech__MaxAudioBytes:-10485760}"                 # 10 MB
+      Speech__TranscribeTimeoutSeconds: "${Speech__TranscribeTimeoutSeconds:-30}"
+      # Ngưỡng bỏ đoạn Whisper tự bịa trên khoảng im lặng
+      Speech__NoSpeechThreshold: "${Speech__NoSpeechThreshold:-0.6}"
+      Speech__LogprobThreshold: "${Speech__LogprobThreshold:--1.0}"
+      Speech__CompressionRatioThreshold: "${Speech__CompressionRatioThreshold:-2.4}"
+      # Gợi ý ngầm cho Whisper. Cú pháp ${TEN-...} (KHÔNG có dấu hai chấm): chỉ dùng mặc định khi
+      # CHƯA khai báo; khai báo rỗng (Speech__WhisperStylePrompt=) = TẮT câu mẫu.
+      Speech__UseQuestionAsWhisperPrompt: "${Speech__UseQuestionAsWhisperPrompt:-false}"
+      Speech__WhisperStylePrompt: "${Speech__WhisperStylePrompt-Dạ, em làm backend với C#, .NET Core, Docker, Redis cache, PostgreSQL và REST API.}"
+      # Gemini sửa chính tả / thuật ngữ; lỗi hoặc quá giờ -> dùng nguyên bản Whisper
+      Speech__NormalizeTranscript: "${Speech__NormalizeTranscript:-true}"
+      Speech__NormalizerModel: "${Speech__NormalizerModel:-gemini-3.5-flash-lite}"
+      Speech__NormalizerFallbackModel: "${Speech__NormalizerFallbackModel:-}"      # Trống = dùng Gemini__Model
+      Speech__NormalizerThinkingLevel: "${Speech__NormalizerThinkingLevel:-minimal}"
+      Speech__NormalizeAttemptTimeoutSeconds: "${Speech__NormalizeAttemptTimeoutSeconds:-8}"
+      Speech__NormalizeTimeoutSeconds: "${Speech__NormalizeTimeoutSeconds:-14}"
+      Speech__MaxLengthChangeRatio: "${Speech__MaxLengthChangeRatio:-0.3}"
 
     ports:
       # Cổng HOST:CONTAINER. Ứng dụng lắng nghe cổng 8080 bên trong container.
