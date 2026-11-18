@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="vi">
+<!-- MockViewAI · trang chủ · đủ 6 đợt (xem docs/cac-dot-giao-dien.md) -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MockViewAI · Chuẩn bị phỏng vấn có lộ trình, dựa trên số liệu thật</title>
+<meta name="description" content="MockViewAI giúp sinh viên sắp ra trường, mới ra trường và người đi làm 1–2 năm tự lập lộ trình chuẩn bị phỏng vấn: checklist lưu theo tài khoản, bài tập thở và số liệu khảo sát 53 người.">
+<meta property="og:title" content="MockViewAI · Chuẩn bị phỏng vấn có lộ trình">
+<meta property="og:description" content="Checklist chuẩn bị theo bằng chứng, bài tập thở 4–6 và số liệu khảo sát 53 người về lo lắng khi phỏng vấn.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#070b16">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2322d3ee'/%3E%3Cstop offset='1' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='%23070b16'/%3E%3Cpath d='M8 22V10l8 7 8-7v12' fill='none' stroke='url(%23g)' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- Mỗi đợt thêm một file CSS -->
+<link rel="stylesheet" href="assets/home/1-nen-hero.css">
+<link rel="stylesheet" href="assets/home/2-so-lieu-hanh-trinh.css">
+<link rel="stylesheet" href="assets/home/3-san-pham.css">
+<link rel="stylesheet" href="assets/home/4-bai-tho.css">
+<link rel="stylesheet" href="assets/home/5-checklist.css">
+<link rel="stylesheet" href="assets/home/6-cuoi-trang.css">
+</head>
+<body class="no-js">
+<script>document.body.classList.remove('no-js')</script>
+<a class="skip" href="#main">Bỏ qua, tới nội dung chính</a>
+<div class="bg-fx" aria-hidden="true"></div>
+
+<!-- ======================= THANH TRÊN ======================= -->
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="brand" href="#top" aria-label="MockViewAI – về đầu trang">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="bm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><rect x=".5" y=".5" width="31" height="31" rx="9" fill="#0b1224" stroke="rgba(165,184,255,.35)"/><path d="M8 22V10l8 7 8-7v12" fill="none" stroke="url(#bm)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span translate="no">MockViewAI</span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Menu chính">
+      <a href="#san-pham">Sản phẩm</a>
+      <a href="#hanh-trinh">Hành trình</a>
+      <a href="#so-lieu">Số liệu</a>
+      <a href="#tho">Bài thở</a>
+      <a href="#checklist-sec">Checklist</a>
+      <a href="#bai-viet">Bài viết</a>
+      <a href="nghien-cuu/index.html">Nghiên cứu</a>
+    </nav>
+    <div class="auth-area">
+      <button type="button" id="auth-open" class="btn btn-ghost btn-sm inline-flex">Đăng nhập</button>
+      <div id="auth-user" class="hidden">
+        <span id="auth-email"></span>
+        <button type="button" id="auth-logout" class="btn btn-ghost btn-sm">Đăng xuất</button>
+      </div>
+    </div>
+    <button type="button" class="menu-btn" id="menu-btn" aria-controls="nav" aria-expanded="false" aria-label="Mở menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+<!-- ▼ ĐỢT 1 -->
+<!-- ======================= HERO ======================= -->
+<section class="hero" id="top">
+  <canvas id="orb-canvas" aria-hidden="true"></canvas>
+  <div class="floor" aria-hidden="true"></div>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="hero-tag"><i></i>Dự án học tập · dựa trên khảo sát 53 người</span>
+      <h1>Bước vào phòng phỏng vấn <span class="grad">có lộ trình</span>, bớt run hơn.</h1>
+      <p class="lead"><strong translate="no">MockViewAI</strong> giúp sinh viên sắp ra trường, mới ra trường và người đi làm 1–2 năm <strong>tự lập lộ trình chuẩn bị phỏng vấn</strong>: checklist lưu theo tài khoản, bài tập thở, và số liệu thật về điều người mới hay gặp.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#checklist">Bắt đầu chuẩn bị
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn btn-ghost" href="#so-lieu">Xem số liệu khảo sát</a>
+      </div>
+      <ul class="hero-notes">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Cần tài khoản để lưu tiến độ</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg>Không thay thế tư vấn tâm lý</li>
+      </ul>
+    </div>
+    <div class="stage3d" id="stage3d" role="img" aria-label="Minh họa giao diện luyện phỏng vấn với AI: phòng phỏng vấn, câu hỏi nối tiếp và thẻ điểm tham khảo">
+      <div class="ring3d" aria-hidden="true"></div>
+      <div class="stack" id="stack" aria-hidden="true">
+        <div class="shot shot-main"><div class="ui ui-room"><div class="ui-head"><span class="ui-av">L</span><span class="ui-name"><b>Linh</b><small>Chuyên viên tuyển dụng (HR)</small></span><span class="ui-pill ">Đang suy nghĩ…</span><span class="ui-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>Nghe lại (còn 1)</span></div>
+          <p class="ui-q">Chào bạn, hãy giới thiệu ngắn về bản thân bạn.</p>
+          <div class="ui-time"><span>Thời gian suy nghĩ</span><b id="hero-timer">0:12</b></div><div class="ui-track"><i id="hero-track"></i></div>
+          <div class="ui-ans"><small>Câu trả lời của bạn</small><p class="ph">Câu trả lời của bạn sẽ hiện ở đây.</p></div>
+          <div class="ui-btns"><span class="ui-b pri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Trả lời ngay</span><span class="ui-b">Bỏ qua (tính Sai)</span></div>
+          <p class="ui-note">Thực chiến: hết 15 giây suy nghĩ micro tự bật, nói một lần, tối đa 2 phút; hết giờ tự gửi.</p></div></div>
+        <div class="shot shot-side"><div class="ui ui-res"><h4>Điểm tham khảo</h4><div class="ui-score"><b>78</b><span>/100</span></div>
+  <div class="ui-row"><span>Nội dung câu trả lời</span><b>81</b></div><div class="ui-bar"><i data-w="81"></i></div>
+  <div class="ui-row"><span>Cách nói</span><b>73</b></div><div class="ui-bar"><i data-w="73"></i></div>
+  <div class="ui-mets"><div><small>Âm lượng</small><b style="color:var(--ui-yellow)">Nhỏ</b></div><div><small>Nói nhỏ</small><b style="color:var(--ui-yellow)">46% thời gian</b></div><div><small>Ngữ điệu</small><b style="color:var(--ui-green)">Tự nhiên</b></div></div>
+  <p class="ui-foot">Điểm tổng = 60% nội dung + 40% cách nói.</p></div></div>
+        <div class="shot shot-strip"><div class="ui"><div class="ui-head"><span class="ui-av">L</span><span class="ui-name"><b>Linh</b><small>Chuyên viên tuyển dụng (HR)</small></span><span class="ui-pill ">Chờ bạn trả lời</span></div>
+          <p class="ui-follow">↳ Linh hỏi thêm về câu trả lời vừa rồi</p><p class="ui-q">Bạn cho chị biết thêm bạn đang học gì và đang ở giai đoạn nào nhé?</p></div></div>
+      </div>
+      <p class="shot-label">Giao diện bản thử nghiệm · dữ liệu mẫu</p>
+    </div>
+  </div>
+</section>
+
+<!-- ▼ ĐỢT 2 -->
+<!-- ======================= SỐ LIỆU ======================= -->
+<section class="sec" id="so-lieu" style="padding-top:clamp(40px,6vw,72px)">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Số liệu thật, không phỏng đoán</span>
+      <h2>Điều nhóm thấy khi hỏi <span class="grad">53 người</span> sắp và mới đi phỏng vấn</h2>
+      <p>Khảo sát online của nhóm Ngũ Hổ Tướng, 7–12/10/2026, thang 5 mức. % là tỷ lệ chọn “đồng ý” hoặc “rất đồng ý”.</p>
+    </div>
+    <div class="stats reveal">
+      <div class="stat"><span class="num" data-count="53">53</span><p>người trả lời: sinh viên năm cuối, mới tốt nghiệp và người đi làm 1–2 năm</p><span class="src">Khảo sát Google Forms</span></div>
+      <div class="stat"><span class="num" data-count="64.2" data-suffix="%">64,2%</span><p>nhớ những câu trả lời chưa tốt rõ hơn những câu đã trả lời tốt</p><span class="src">Phát biểu S9 · sau phỏng vấn</span></div>
+      <div class="stat"><span class="num" data-count="62.3" data-suffix="%">62,3%</span><p>trả lời tự tin hơn khi được hỏi về dự án thật đã làm</p><span class="src">Phát biểu S6 · trong phỏng vấn</span></div>
+      <div class="stat"><span class="num" data-count="55.8" data-suffix="%">55,8%</span><p>sẽ dùng ứng dụng luyện phỏng vấn với AI nếu có</p><span class="src">Phát biểu S12 · nhu cầu</span></div>
+    </div>
+    <p class="note reveal">Mẫu chọn thuận tiện nên số liệu chỉ mô tả 53 người này, không đại diện cho mọi người mới tốt nghiệp. <a href="nghien-cuu/index.html?tab=b#ket-qua">Xem đủ 12 phát biểu và cách tính →</a></p>
+  </div>
+</section>
+
+<!-- ▼ ĐỢT 2 -->
+<!-- ======================= HÀNH TRÌNH ======================= -->
+<section class="sec" id="hanh-trinh">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Hành trình 3 giai đoạn</span>
+      <h2>Mỗi giai đoạn một nỗi lo riêng, và <span class="grad">một việc cụ thể</span> để làm</h2>
+      <p>Bên trái là điều người khảo sát gặp. Bên phải là việc nên làm, tổng hợp từ các nghiên cứu trong bài “Điều gì giúp giảm lo âu”.</p>
+    </div>
+    <div class="tabs reveal" role="tablist" aria-label="Chọn giai đoạn">
+      <button class="tab" role="tab" id="t-truoc" aria-controls="p-truoc" aria-selected="true" style="--c:var(--before)"><span class="dot"></span>Trước phỏng vấn</button>
+      <button class="tab" role="tab" id="t-trong" aria-controls="p-trong" aria-selected="false" tabindex="-1" style="--c:var(--during)"><span class="dot"></span>Trong phỏng vấn</button>
+      <button class="tab" role="tab" id="t-sau" aria-controls="p-sau" aria-selected="false" tabindex="-1" style="--c:var(--after)"><span class="dot"></span>Sau phỏng vấn</button>
+    </div>
+
+    <div class="panel journey reveal" id="p-truoc" role="tabpanel" aria-labelledby="t-truoc" style="--c:var(--before)">
+      <div class="j-orb" aria-hidden="true"><div class="core"></div><div class="r"></div><div class="r"></div><div class="lbl">01 · Trước<small>vài tuần → ngày phỏng vấn</small></div></div>
+      <div class="glass j-card">
+        <h3>Điều nhiều bạn gặp</h3>
+        <p class="sub">% đồng ý trong 53 người</p>
+        <div class="meter"><div class="meter-top"><span>Lo kiến thức của mình chưa đủ đáp ứng yêu cầu</span><b>49,1%</b></div><div class="meter-track"><div class="meter-fill" data-w="49.1"></div></div><small>S1 · nỗi lo rõ nhất trước phỏng vấn</small></div>
+        <div class="meter"><div class="meter-top"><span>Từng từ chối hoặc bỏ buổi phỏng vấn dù đã được mời</span><b>26,9%</b></div><div class="meter-track"><div class="meter-fill" data-w="26.9"></div></div><small>S4 · hơn một nửa (53,8%) không gặp điều này</small></div>
+      </div>
+      <div class="glass j-card">
+        <h3>Việc nên làm</h3>
+        <p class="sub">Theo bằng chứng, mức độ khác nhau</p>
+        <ol class="steps">
+          <li>Học một khung trả lời (tình huống → hành động → kết quả) rồi tập theo khung đó.</li>
+          <li>Tìm hiểu kỹ vị trí ứng tuyển để thấy mình đã chuẩn bị đủ.</li>
+          <li>Tập thở chậm vài phút mỗi ngày.</li>
+          <li>Liệt kê điểm mạnh của bản thân, nói chuyện với người hỗ trợ mình.</li>
+        </ol>
+        <a class="more" href="bai-viet/4-dieu-gi-giup.html#lo-trinh">Đọc lộ trình và nguồn →</a>
+      </div>
+    </div>
+
+    <div class="panel journey" id="p-trong" role="tabpanel" aria-labelledby="t-trong" style="--c:var(--during)" hidden>
+      <div class="j-orb" aria-hidden="true"><div class="core"></div><div class="r"></div><div class="r"></div><div class="lbl">02 · Trong<small>trong phòng phỏng vấn</small></div></div>
+      <div class="glass j-card">
+        <h3>Điều nhiều bạn gặp</h3>
+        <p class="sub">% đồng ý trong 53 người</p>
+        <div class="meter"><div class="meter-top"><span>Tự tin hơn khi kể về dự án thật đã làm</span><b>62,3%</b></div><div class="meter-track"><div class="meter-fill" data-w="62.3"></div></div><small>S6 · điểm sáng: điểm trung bình cao nhất (3,85)</small></div>
+        <div class="meter"><div class="meter-top"><span>Phỏng vấn online khó đọc phản ứng nhà tuyển dụng hơn</span><b>45,3%</b></div><div class="meter-track"><div class="meter-fill" data-w="45.3"></div></div><small>S7</small></div>
+      </div>
+      <div class="glass j-card">
+        <h3>Việc nên làm</h3>
+        <p class="sub">Theo bằng chứng, mức độ khác nhau</p>
+        <ol class="steps">
+          <li>Ngay trước khi vào, thay vì cố “bình tĩnh lại”, tự nói “mình đang hào hứng”.</li>
+          <li>Đặt chú ý vào câu hỏi và người đối diện, thay vì soi xem mình trông thế nào.</li>
+          <li>Nói chậm, rõ, trả lời theo cấu trúc đã tập.</li>
+          <li>Khi được, kể bằng một dự án thật bạn đã làm.</li>
+        </ol>
+        <a class="more" href="bai-viet/4-dieu-gi-giup.html#hao-hung">Đọc bằng chứng →</a>
+      </div>
+    </div>
+
+    <div class="panel journey" id="p-sau" role="tabpanel" aria-labelledby="t-sau" style="--c:var(--after)" hidden>
+      <div class="j-orb" aria-hidden="true"><div class="core"></div><div class="r"></div><div class="r"></div><div class="lbl">03 · Sau<small>chờ kết quả, nhìn lại</small></div></div>
+      <div class="glass j-card">
+        <h3>Điều nhiều bạn gặp</h3>
+        <p class="sub">% đồng ý trong 53 người</p>
+        <div class="meter"><div class="meter-top"><span>Nhớ câu trả lời chưa tốt rõ hơn câu đã trả lời tốt</span><b>64,2%</b></div><div class="meter-track"><div class="meter-fill" data-w="64.2"></div></div><small>S9 · tỷ lệ đồng ý cao nhất trong 12 phát biểu</small></div>
+        <div class="meter"><div class="meter-top"><span>Thấy kết quả không phản ánh đúng năng lực thật</span><b>32,1%</b></div><div class="meter-track"><div class="meter-fill" data-w="32.1"></div></div><small>S11</small></div>
+      </div>
+      <div class="glass j-card">
+        <h3>Việc nên làm</h3>
+        <p class="sub">Theo bằng chứng, mức độ khác nhau</p>
+        <ol class="steps">
+          <li>Ghi lại cả điều làm tốt và điều cần tập thêm, không chỉ điều chưa tốt.</li>
+          <li>Nhớ rằng điểm phỏng vấn không đo được toàn bộ năng lực làm việc của bạn.</li>
+          <li>Tập diễn giải tình huống chưa rõ (ví dụ chưa có phản hồi) theo hướng bớt tiêu cực.</li>
+        </ol>
+        <a class="more" href="bai-viet/3-lo-au-va-ket-qua.html">Đọc: lo âu có làm phỏng vấn kém đi? →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ▼ ĐỢT 3 -->
+<!-- ======================= SẢN PHẨM ======================= -->
+<section class="sec" id="san-pham">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Sản phẩm</span>
+      <h2>Ba công cụ, nói rõ <span class="grad">cái nào đã chạy</span>, cái nào đang thử</h2>
+      <p>Hai công cụ dùng được ngay trên trang này. Phỏng vấn thử với AI đang thử nghiệm và chưa mở cho người dùng.</p>
+    </div>
+    <div class="features">
+      <article class="glass feat reveal" data-tilt>
+        <div class="feat-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg></div>
+        <span class="badge badge-live">Đang chạy</span>
+        <h3>Checklist chuẩn bị</h3>
+        <p>5 việc theo thứ tự thời gian, mỗi việc dẫn tới bài viết giải thích vì sao.</p>
+        <ul><li>Lưu tiến độ theo tài khoản, F5 vẫn còn</li><li>Mỗi người chỉ thấy tiến độ của mình</li></ul>
+      </article>
+      <article class="glass feat reveal" data-tilt>
+        <div class="feat-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h11a3 3 0 1 0-3-3"/><path d="M3 12h15a3 3 0 1 1-3 3"/><path d="M3 16h7"/></svg></div>
+        <span class="badge badge-live">Đang chạy</span>
+        <h3>Bài tập thở 4–6</h3>
+        <p>Hít vào 4 giây, thở ra 6 giây, có quả cầu dẫn nhịp. Dùng được không cần đăng nhập.</p>
+        <ul><li>Làm trước ngày và ngay trước khi vào phòng</li><li>Tự dừng sau 6 nhịp, khoảng 1 phút</li></ul>
+      </article>
+      <article class="glass feat reveal" data-tilt>
+        <div class="feat-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></div>
+        <span class="badge badge-beta">Đang thử nghiệm</span>
+        <h3>Phỏng vấn thử với AI</h3>
+        <p>Người phỏng vấn ảo hỏi bằng giọng nói, bạn trả lời một lần như thật, rồi xem lại phản hồi.</p>
+        <ul><li>Câu hỏi về dự án của chính bạn</li><li>Phản hồi cả điều làm tốt, không chỉ điều sai</li></ul>
+      </article>
+    </div>
+<div class="gallery">
+      <figure class="reveal"><button type="button" class="g-card" id="open-demo" aria-haspopup="dialog" aria-label="Mở bản demo phòng phỏng vấn">
+          <span class="g-ui" aria-hidden="true"><div class="ui ui-room">
+            <div class="ui-head"><span class="ui-av">L</span><span class="ui-name"><b>Linh</b><small>Chuyên viên tuyển dụng (HR)</small></span><span class="ui-pill ">Đang suy nghĩ…</span><span class="ui-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>Nghe lại (còn 1)</span></div>
+            <p class="ui-follow" hidden>↳ Linh hỏi thêm về câu trả lời vừa rồi</p>
+            <p class="ui-q">Chào bạn, hãy giới thiệu ngắn về bản thân bạn.</p>
+            <div class="ui-time"><span>Thời gian suy nghĩ</span><b class="g-timer">0:12</b></div>
+            <div class="ui-track"><i style="width:80%"></i></div>
+            <div class="ui-ans"><small>Câu trả lời của bạn</small><p class="ph">Câu trả lời của bạn sẽ hiện ở đây.</p>
+              <div class="ui-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+            <div class="ui-btns">
+              <span class="ui-b pri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Trả lời ngay</span>
+              <span class="ui-b">Bỏ qua (tính Sai)</span>
+            </div>
+            <p class="ui-note">Thực chiến: hết 15 giây suy nghĩ micro tự bật, nói một lần, tối đa 2 phút; hết giờ tự gửi. Không xoá, không sửa, nghe lại câu hỏi 1 lần.</p>
+          </div></span><span class="g-play">▶ Thử bản demo</span></button>
+        <figcaption>Phòng phỏng vấn: có thời gian suy nghĩ, trả lời một lần. Bấm để thử bản lớn.</figcaption></figure>
+      <figure class="reveal"><div class="g-card g-static"><div class="ui">
+            <div class="ui-turn-h"><span class="ui-av sm">L</span>Câu 1 · Linh hỏi</div>
+            <p class="ui-q" style="font-size:1.2em;margin:.5em 0 0">Hãy giới thiệu ngắn về bản thân bạn.</p>
+            <span class="ui-bubble">Em tên Hà, sinh viên năm cuối ngành Công nghệ thông tin…</span>
+            <p class="ui-meta">Âm lượng: Nhỏ · nói nhỏ 46% thời gian · ngữ điệu: Tự nhiên</p>
+            <div class="ui-sub">
+              <div class="ui-turn-h"><span class="ui-av sm">L</span>Linh hỏi thêm</div>
+              <p class="why">Vì câu trả lời đầu chưa thấy ý: có minh chứng (dự án, bài tập lớn, thực tập hoặc kết quả cụ thể)</p>
+              <p class="ui-q">Bạn có thể kể một thứ bạn đã tự tay làm ra để chứng minh những kỹ năng đó không?</p>
+              <span class="ui-bubble">Em làm đồ án web bán sách bằng ASP.NET, có khoảng 50 bạn dùng thử.</span>
+              <p class="ui-meta">Âm lượng: Vừa · nói nhỏ 8% thời gian · ngữ điệu: Tự nhiên</p>
+            </div>
+            <div class="ui-verdict">
+              <p><span class="ui-ok">✓ Đúng</span><span class="ui-meta">Hướng trả lời: hiện tại – kinh nghiệm – mong muốn</span></p>
+              <div class="ui-tags"><span class="y">✓ Có minh chứng cụ thể</span><span class="y">✓ Nêu được kết quả</span><span class="n">× Chưa nói mong muốn với vị trí</span></div>
+            </div>
+          </div></div><figcaption>Xem lại hội thoại: ý đạt và ý còn thiếu.</figcaption></figure>
+      <figure class="reveal"><div class="g-card g-static"><div class="ui ui-res"><h4>Điểm tham khảo</h4><div class="ui-score"><b>78</b><span>/100</span></div>
+  <div class="ui-row"><span>Nội dung câu trả lời</span><b>81</b></div><div class="ui-bar"><i data-w="81"></i></div>
+  <div class="ui-row"><span>Cách nói</span><b>73</b></div><div class="ui-bar"><i data-w="73"></i></div>
+  <div class="ui-mets"><div><small>Âm lượng</small><b style="color:var(--ui-yellow)">Nhỏ</b></div><div><small>Nói nhỏ</small><b style="color:var(--ui-yellow)">46% thời gian</b></div><div><small>Ngữ điệu</small><b style="color:var(--ui-green)">Tự nhiên</b></div></div>
+  <p class="ui-foot">Điểm tổng = 60% nội dung + 40% cách nói.</p></div></div><figcaption>Kết quả mẫu (dữ liệu giả lập).</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ▼ ĐỢT 4 -->
+<!-- ======================= BÀI THỞ ======================= -->
+<section class="sec" id="tho">
+  <div class="wrap breath">
+    <div class="breath-stage reveal">
+      <div class="b-ring" aria-hidden="true"></div><div class="b-ring r2" aria-hidden="true"></div>
+      <div class="b-orb" id="b-orb" aria-hidden="true"></div>
+      <div class="b-text"><div><b id="b-phase">Sẵn sàng</b><span id="b-sec" aria-hidden="true"></span></div></div>
+    </div>
+    <div class="reveal">
+      <span class="eyebrow">Bài tập thở 4–6</span>
+      <h2 style="font-size:clamp(2rem,4vw,3rem);margin:.9rem 0 1rem">Một phút để <span class="grad">chậm lại</span> trước khi vào phòng</h2>
+      <p style="color:var(--ink-2)">Thở ra dài hơn hít vào. Bấm bắt đầu và theo quả cầu: phồng lên khi hít vào, thu lại khi thở ra.</p>
+      <div class="b-controls">
+        <button type="button" class="btn btn-primary" id="b-start">Bắt đầu thở</button>
+        <button type="button" class="btn btn-ghost" id="b-stop" disabled>Dừng</button>
+      </div>
+      <p class="b-count" id="b-count" aria-live="polite">6 nhịp · khoảng 1 phút</p>
+      <p class="evidence">Một phân tích gộp các thử nghiệm ngẫu nhiên cho thấy bài tập thở giảm lo âu ở mức nhỏ–vừa. Phần lớn nghiên cứu có nguy cơ sai lệch trung bình, nên đây là công cụ hỗ trợ chứ không phải cách chữa. <a href="bai-viet/4-dieu-gi-giup.html#tho-cham">Xem nguồn →</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ▼ ĐỢT 5 -->
+<!-- ======================= CHECKLIST ======================= -->
+<section class="sec" id="checklist-sec">
+  <div class="wrap cl-grid">
+    <div class="cl-side reveal">
+      <span class="eyebrow">Checklist chuẩn bị</span>
+      <h2 style="font-size:clamp(2rem,4vw,3rem);margin:.9rem 0 1rem">Năm việc, <span class="grad">đúng thứ tự thời gian</span></h2>
+      <p>Mỗi việc lấy từ lộ trình trong bài “Điều gì giúp giảm lo âu — theo bằng chứng”, kèm link giải thích.</p>
+      <ol>
+        <li>Đăng nhập hoặc tạo tài khoản bằng email.</li>
+        <li>Tích từng việc khi đã làm xong.</li>
+        <li>Quay lại bất cứ lúc nào, tiến độ vẫn còn.</li>
+      </ol>
+      <p class="note">Tiến độ lưu trên Supabase, mỗi tài khoản chỉ đọc được dòng của chính mình.</p>
+    </div>
+
+    <div class="glass cl-box reveal" id="checklist">
+      <div id="checklist-locked" class="flex">
+        <div class="lock" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a5f3fc" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+        <p>Đăng nhập bằng email để tích và lưu tiến độ chuẩn bị của riêng bạn.</p>
+        <button type="button" id="auth-open-2" class="btn btn-primary">Đăng nhập / Tạo tài khoản</button>
+      </div>
+      <div id="checklist-owner" class="hidden"><span>Đang lưu cho</span> <b id="auth-email-2" style="color:#fff"></b></div>
+      <div class="cl-head">
+        <h3>Trước buổi phỏng vấn</h3>
+        <div><span id="checklist-count">0 / 5 hoàn thành</span><span id="checklist-percent">0% tiến độ</span></div>
+      </div>
+      <div class="bar" id="checklist-bar" role="progressbar" aria-label="Tiến độ checklist" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="checklist-bar-fill"></div></div>
+      <ul id="checklist-items">
+        <li class="checklist-item"><label><input type="checkbox" data-key="truoc-01"><span><span class="when">Vài tuần trước</span><span class="t">Học một khung trả lời và tập theo khung đó</span><span class="d">Tình huống → hành động → kết quả. Luyện có khung hiệu quả hơn chỉ luyện thêm.</span><a class="why" href="bai-viet/4-dieu-gi-giup.html#cau-truc">Vì sao?</a></span></label></li>
+        <li class="checklist-item"><label><input type="checkbox" data-key="truoc-02"><span><span class="when">Vài tuần trước</span><span class="t">Tìm hiểu kỹ vị trí và công ty ứng tuyển</span><span class="d">Đọc kỹ mô tả công việc để thấy mình đã chuẩn bị đủ.</span><a class="why" href="bai-viet/4-dieu-gi-giup.html#lo-trinh">Vì sao?</a></span></label></li>
+        <li class="checklist-item"><label><input type="checkbox" data-key="truoc-03"><span><span class="when">Những ngày trước</span><span class="t">Tập thở chậm vài phút mỗi ngày</span><span class="d">Hít vào 4 giây, thở ra 6 giây. Có thể dùng bài thở ở trên.</span><a class="why" href="bai-viet/4-dieu-gi-giup.html#tho-cham">Vì sao?</a></span></label></li>
+        <li class="checklist-item"><label><input type="checkbox" data-key="truoc-04"><span><span class="when">Những ngày trước</span><span class="t">Liệt kê điểm mạnh, nói chuyện với người hỗ trợ mình</span><span class="d">Chuẩn bị sẵn 1–2 dự án thật để kể.</span><a class="why" href="bai-viet/4-dieu-gi-giup.html#nguon-luc">Vì sao?</a></span></label></li>
+        <li class="checklist-item"><label><input type="checkbox" data-key="truoc-05"><span><span class="when">Ngay trước khi vào</span><span class="t">Tự nói “mình đang hào hứng”, rồi đặt chú ý vào câu hỏi</span><span class="d">Thay vì cố ép mình bình tĩnh lại.</span><a class="why" href="bai-viet/4-dieu-gi-giup.html#hao-hung">Vì sao?</a></span></label></li>
+      </ul>
+      <div id="checklist-done" class="hidden" role="status">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5eead4" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        Bạn đã sẵn sàng hơn rồi! Chúc buổi phỏng vấn suôn sẻ.
+      </div>
+      <p id="save-status" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ▼ ĐỢT 6 -->
+<!-- ======================= 5 ĐIỀU HAY GẶP ======================= -->
+<section class="sec" id="dieu-hay-gap">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">5 điều người mới hay gặp</span>
+      <h2>Không phải “lỗi”, mà là <span class="grad">thói quen có thể tập lại</span></h2>
+      <p>Năm phát biểu trong khảo sát, kèm một cách thử thay. Gợi ý lấy từ bài viết của nhóm; khảo sát không kiểm định hiệu quả của chúng.</p>
+    </div>
+    <div class="pitfalls">
+      <article class="glass pit reveal" data-tilt><div class="pit-top"><span class="pit-id">S10 · SAU</span><span class="pit-pct">49,1%<small>đồng ý</small></span></div>
+        <h3>Hiếm khi hỏi nhà tuyển dụng lý do mình không được chọn</h3>
+        <p class="try"><b>Thử thay:</b> sau mỗi buổi, tự ghi lại điều làm tốt và điều cần tập thêm. <a href="bai-viet/4-dieu-gi-giup.html#lo-trinh">Lộ trình</a></p></article>
+      <article class="glass pit reveal" data-tilt><div class="pit-top"><span class="pit-id">S8 · TRONG</span><span class="pit-pct">45,3%<small>đồng ý</small></span></div>
+        <h3>Để ý nét mặt nhà tuyển dụng nhiều hơn nội dung câu hỏi</h3>
+        <p class="try"><b>Thử thay:</b> chủ động đặt chú ý vào câu hỏi và người đối diện. <a href="bai-viet/4-dieu-gi-giup.html#huong-ra-ngoai">Bằng chứng</a></p></article>
+      <article class="glass pit reveal" data-tilt><div class="pit-top"><span class="pit-id">S5 · TRONG</span><span class="pit-pct">43,4%<small>đồng ý</small></span></div>
+        <h3>Nhà tuyển dụng im lặng thì nói tiếp dù không còn gì để thêm</h3>
+        <p class="try"><b>Thử thay:</b> trả lời theo khung tình huống → hành động → kết quả, xong kết quả thì dừng. <a href="bai-viet/4-dieu-gi-giup.html#cau-truc">Bằng chứng</a></p></article>
+      <article class="glass pit reveal" data-tilt><div class="pit-top"><span class="pit-id">S3 · TRƯỚC</span><span class="pit-pct">34,6%<small>đồng ý</small></span></div>
+        <h3>Khó nói về điểm mạnh của mình mà không thấy như đang khoe</h3>
+        <p class="try"><b>Thử thay:</b> liệt kê điểm mạnh trước, gắn mỗi điểm với một việc cụ thể đã làm. <a href="bai-viet/4-dieu-gi-giup.html#nguon-luc">Bằng chứng</a></p></article>
+      <article class="glass pit reveal" data-tilt><div class="pit-top"><span class="pit-id">S2 · TRƯỚC</span><span class="pit-pct">25,0%<small>đồng ý</small></span></div>
+        <h3>Học thuộc lòng câu trả lời từng chữ</h3>
+        <p class="try"><b>Thử thay:</b> nhớ khung và ý chính thay vì nhớ từng chữ. <a href="bai-viet/4-dieu-gi-giup.html#cau-truc">Bằng chứng</a></p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= BÀI VIẾT ======================= -->
+<section class="sec" id="bai-viet">
+  <div class="wrap">
+    <div class="sec-head-row reveal">
+      <div class="sec-head">
+        <span class="eyebrow">Bài viết</span>
+        <h2>Bốn bài đọc, <span class="grad">mỗi số liệu đều có nguồn</span></h2>
+        <p>Nguồn ưu tiên tạp chí bình duyệt có DOI và số liệu thống kê Việt Nam gần nhất. Mỗi bài có nút kiểm tra DOI trên Crossref.</p>
+      </div>
+      <div class="car-ctrl" aria-label="Chuyển bài viết">
+        <span class="car-count" id="car-count" aria-live="polite">1 / 5</span>
+        <button type="button" class="car-btn" id="car-prev" aria-controls="post-track" aria-label="Bài trước"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <button type="button" class="car-btn" id="car-next" aria-controls="post-track" aria-label="Bài tiếp theo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+    <div class="post-track reveal" id="post-track" tabindex="0" role="region" aria-label="Danh sách bài viết, lướt ngang">
+      <a class="post-card c1" href="bai-viet/1-ap-luc-tim-viec.html" aria-label="Bài 1: Sinh viên Việt Nam đang gặp áp lực gì khi tìm việc?">
+        <span class="pc-cover" aria-hidden="true"><span class="pc-n">01</span><span class="pc-topic">Bối cảnh</span><span class="pc-grid"></span></span>
+        <span class="pc-body"><span class="pc-meta">Bài 1 / 4 · 4 phút đọc · 7 nguồn</span><span class="pc-title">Sinh viên Việt Nam đang gặp áp lực gì khi tìm việc?</span><span class="pc-desc">Người trẻ thất nghiệp nhiều gấp khoảng 4 lần mức chung, và phỏng vấn là nơi áp lực dồn lại.</span><span class="pc-go">Đọc bài <span aria-hidden="true">→</span></span></span>
+      </a>
+      <a class="post-card c2" href="bai-viet/2-vi-sao-lo-au.html" aria-label="Bài 2: Vì sao phỏng vấn khiến người mới lo âu?">
+        <span class="pc-cover" aria-hidden="true"><span class="pc-n">02</span><span class="pc-topic">Nguyên nhân</span><span class="pc-grid"></span></span>
+        <span class="pc-body"><span class="pc-meta">Bài 2 / 4 · 4 phút đọc · 8 nguồn</span><span class="pc-title">Vì sao phỏng vấn khiến người mới lo âu?</span><span class="pc-desc">Lo âu phỏng vấn có 3 lớp, 5 dạng, và một gốc rễ chung: sợ bị đánh giá.</span><span class="pc-go">Đọc bài <span aria-hidden="true">→</span></span></span>
+      </a>
+      <a class="post-card c3" href="bai-viet/3-lo-au-va-ket-qua.html" aria-label="Bài 3: Lo âu có thật sự làm phỏng vấn kém đi?">
+        <span class="pc-cover" aria-hidden="true"><span class="pc-n">03</span><span class="pc-topic">Tác động</span><span class="pc-grid"></span></span>
+        <span class="pc-body"><span class="pc-meta">Bài 3 / 4 · 4 phút đọc · 6 nguồn</span><span class="pc-title">Lo âu có thật sự làm phỏng vấn kém đi?</span><span class="pc-desc">Lo âu làm điểm phỏng vấn giảm nhẹ, nhưng không nói lên bạn làm việc giỏi hay kém.</span><span class="pc-go">Đọc bài <span aria-hidden="true">→</span></span></span>
+      </a>
+      <a class="post-card c4" href="bai-viet/4-dieu-gi-giup.html" aria-label="Bài 4: Điều gì giúp giảm lo âu — theo bằng chứng?">
+        <span class="pc-cover" aria-hidden="true"><span class="pc-n">04</span><span class="pc-topic">Giải pháp</span><span class="pc-grid"></span></span>
+        <span class="pc-body"><span class="pc-meta">Bài 4 / 4 · 6 phút đọc · 11 nguồn</span><span class="pc-title">Điều gì giúp giảm lo âu — theo bằng chứng?</span><span class="pc-desc">Các cách giảm lo âu, xếp theo độ mạnh của bằng chứng khoa học.</span><span class="pc-go">Đọc bài <span aria-hidden="true">→</span></span></span>
+      </a>
+      <a class="post-card c5 pc-more" href="nghien-cuu/index.html" aria-label="Đọc tiếp: trang nghiên cứu của nhóm">
+        <span class="pc-cover" aria-hidden="true"><span class="pc-n">+</span><span class="pc-topic">Đọc sâu hơn</span><span class="pc-grid"></span></span>
+        <span class="pc-body"><span class="pc-meta">53 phản hồi · 4 chuyên gia · 18 tài liệu</span><span class="pc-title">Nghiên cứu của nhóm</span><span class="pc-desc">Khảo sát, phỏng vấn chuyên gia và thư viện 18 tài liệu có trang tóm tắt riêng.</span><span class="pc-go">Xem nghiên cứu <span aria-hidden="true">→</span></span></span>
+      </a>
+    </div>
+    <div class="car-bar" aria-hidden="true"><span id="car-bar"></span></div>
+  </div>
+</section>
+
+<!-- ======================= NGHIÊN CỨU ======================= -->
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="glass research reveal">
+      <div>
+        <span class="eyebrow">Nghiên cứu của nhóm</span>
+        <h2>Vì sao người trẻ hiểu bài vẫn run khi bước vào phòng phỏng vấn?</h2>
+        <p>Nghiên cứu Unit 16 của nhóm Ngũ Hổ Tướng: khảo sát, phỏng vấn chuyên gia và tổng quan tài liệu. Đây là nền tảng cho các tính năng của <span translate="no">MockViewAI</span>.</p>
+        <a class="btn btn-ghost" href="nghien-cuu/index.html">Xem trang nghiên cứu →</a>
+      </div>
+      <div class="r-nums">
+        <div><b>53</b><span>phản hồi khảo sát</span></div>
+        <div><b>4</b><span>chuyên gia phỏng vấn</span></div>
+        <div><b>18</b><span>tài liệu tham khảo</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= KÊU GỌI CUỐI ======================= -->
+<section class="sec" id="cta-cuoi" style="padding-top:0;padding-bottom:0">
+  <div class="wrap">
+    <div class="final reveal">
+      <h2>Sẵn sàng cho buổi phỏng vấn tiếp theo?</h2>
+      <p>Tạo tài khoản, đi qua 5 việc trong checklist, và quay lại bất cứ lúc nào để xem mình đã chuẩn bị tới đâu.</p>
+      <a class="btn btn-primary" href="#checklist">Bắt đầu chuẩn bị
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ======================= CHÂN TRANG ======================= -->
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="#top"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="9" fill="#0b1224" stroke="rgba(165,184,255,.35)"/><path d="M8 22V10l8 7 8-7v12" fill="none" stroke="url(#bm)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span translate="no">MockViewAI</span></a>
+        <p style="margin-top:1rem">Dự án học tập của nhóm Ngũ Hổ Tướng: khóa Vibe Code (MindX) và nghiên cứu Unit 16 (BTEC FPT Hà Nội).</p>
+      </div>
+      <div>
+        <h4>Trên trang</h4>
+        <ul>
+          <li><a href="#checklist-sec">Checklist chuẩn bị</a></li>
+          <li><a href="#tho">Bài tập thở</a></li>
+          <li><a href="#so-lieu">Số liệu khảo sát</a></li>
+          <li><a href="#bai-viet">Bài viết</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Nguồn và minh bạch</h4>
+        <ul>
+          <li><a href="nghien-cuu/index.html">Trang nghiên cứu</a></li>
+          <li><a href="nghien-cuu/index.html#tham-khao">Tài liệu tham khảo</a></li>
+          <li><a href="nghien-cuu/index.html#su-dung-ai">Khai báo sử dụng AI</a></li>
+          <li><a href="https://github.com/LoveKurumi1000" target="_blank" rel="noopener">GitHub của nhóm ↗</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="disclaimer">
+      <span><span translate="no">MockViewAI</span> không thay thế tư vấn tâm lý và không cam kết trúng tuyển.</span>
+      <span>© 2026 · Dự án học tập</span>
+    </div>
+  </div>
+</footer>
+
+<div class="mobile-cta" id="mobile-cta"><a class="btn btn-primary" href="#checklist">Bắt đầu chuẩn bị</a></div>
+
+<!-- ======================= DEMO PHÒNG PHỎNG VẤN (bản lớn) ======================= -->
+<dialog id="demo-dialog" aria-label="Bản demo phòng phỏng vấn">
+  <div class="dd-top"><span>Bản demo · không ghi âm thật, dữ liệu mẫu</span><button type="button" id="demo-close" aria-label="Đóng">×</button></div>
+  <div class="ui ui-room" id="demo-room">
+            <div class="ui-head"><span class="ui-av">L</span><span class="ui-name"><b>Linh</b><small>Chuyên viên tuyển dụng (HR)</small></span><span class="ui-pill ">Đang suy nghĩ…</span><span class="ui-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>Nghe lại (còn 1)</span></div>
+            <p class="ui-follow" id="d-follow" hidden>↳ Linh hỏi thêm về câu trả lời vừa rồi</p>
+            <p class="ui-q" id="d-q">Chào bạn, hãy giới thiệu ngắn về bản thân bạn.</p>
+            <div class="ui-time"><span id="d-tlabel">Thời gian suy nghĩ</span><b id="d-timer">0:15</b></div>
+            <div class="ui-track"><i id="d-track" style="width:100%"></i></div>
+            <div class="ui-ans"><small>Câu trả lời của bạn</small><p class="ph" id="d-ans">Câu trả lời của bạn sẽ hiện ở đây.</p>
+              <div class="ui-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+            <div class="ui-btns">
+              <button type="button" class="ui-b pri" id="d-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Trả lời ngay</span></button>
+              <button type="button" class="ui-b" id="d-skip">Bỏ qua (tính Sai)</button>
+            </div>
+            <p class="ui-note">Thực chiến: hết 15 giây suy nghĩ micro tự bật, nói một lần, tối đa 2 phút; hết giờ tự gửi. Không xoá, không sửa, nghe lại câu hỏi 1 lần.</p>
+            <p class="sr-only" id="d-live" aria-live="polite"></p>
+          </div>
+</dialog>
+
+<!-- ======================= HỘP ĐĂNG NHẬP (app.js điều khiển) ======================= -->
+<dialog id="auth-dialog" aria-labelledby="auth-title">
+  <form id="auth-form" novalidate>
+    <div class="dlg-top"><h2 id="auth-title">Đăng nhập</h2><button type="button" id="auth-close" aria-label="Đóng">×</button></div>
+    <p class="dlg-sub">Tài khoản dùng để lưu tiến độ checklist của riêng bạn.</p>
+    <label class="field"><span>Email</span><input id="auth-email-input" type="email" autocomplete="email" inputmode="email" placeholder="ten@gmail.com" required></label>
+    <label class="field"><span>Mật khẩu</span><input id="auth-password-input" type="password" autocomplete="current-password" minlength="6" placeholder="Ít nhất 6 ký tự" required></label>
+    <p id="auth-error" class="hidden" role="alert"></p>
+    <p id="auth-info" class="hidden" role="status"></p>
+    <button type="submit" id="auth-submit" class="btn btn-primary">Đăng nhập</button>
+    <p class="dlg-switch"><span id="auth-switch-text">Chưa có tài khoản?</span> <button type="button" id="auth-switch">Đăng ký</button></p>
+  </form>
+</dialog>
+
+<!-- Mỗi đợt thêm một file JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="app.js"></script>
+<script src="assets/home/1-hero.js"></script>
+<script src="assets/home/2-hanh-trinh.js"></script>
+<script src="assets/home/3-san-pham.js"></script>
+<script src="assets/home/4-bai-tho.js"></script>
+<script src="assets/home/6-cuoi-trang.js"></script>
+</body>
+</html>

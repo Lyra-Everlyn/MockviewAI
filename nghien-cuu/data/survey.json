@@ -1,0 +1,398 @@
+{
+ "source": "ASM1 – Data Understanding, Bảng 17–19, Hình 4–18 (CSV xuất từ Google Forms, 53 phản hồi). Số đã được kiểm lại: trung bình/độ lệch chuẩn tính từ số đếm khớp Bảng 18.",
+ "title_form": "Ngu Ho Tuong Team: Survey on Students' Psychology in Job Interviews (Khảo sát tâm lý sinh viên khi phỏng vấn tuyển dụng)",
+ "collected": {
+  "first": "2026-10-07",
+  "last": "2026-10-12",
+  "responses": 53,
+  "planned_min": 50,
+  "note": "33/53 phản hồi đến trong ngày đầu tiên"
+ },
+ "channels": "Gửi link qua Zalo (người quen, nhóm lớp), đi từng lớp với mã QR, nhờ chia sẻ cho sinh viên sắp tốt nghiệp",
+ "scale": {
+  "points": 5,
+  "labels": "1 = Rất không đồng ý … 5 = Rất đồng ý (chỉ 2 đầu thang có nhãn)",
+  "grouping": "1–2 = không đồng ý, 3 = trung lập, 4–5 = đồng ý; điểm giữa = 3.0",
+  "change_note": "Proposal dự kiến thang 4 mức; đổi sang 5 mức theo góp ý của giảng viên. Dòng hướng dẫn đầu Form ghi nhầm 1–4 khi thu dữ liệu (đã sửa sau) → một số người có thể hiểu 3 là 'Đồng ý'; ghi nhận là giới hạn."
+ },
+ "structure": "17 câu, 5 phần: thông tin chung (3), trước phỏng vấn (4), trong (4), sau (3), nhu cầu hỗ trợ (3). 12 câu là phát biểu S1–S12; song ngữ Anh–Việt.",
+ "analysis": "Thống kê mô tả (đếm, %, trung bình, độ lệch chuẩn) bằng Python pandas/matplotlib; không làm kiểm định ý nghĩa vì mẫu nhỏ, không ngẫu nhiên. Không cộng các phát biểu thành một điểm tổng (không phải thang đo đã chuẩn hoá như MASI).",
+ "sample": {
+  "group": [
+   [
+    "Sinh viên năm cuối",
+    29,
+    54.7
+   ],
+   [
+    "Mới tốt nghiệp (< 1 năm)",
+    10,
+    18.9
+   ],
+   [
+    "Đã đi làm 1–2 năm",
+    14,
+    26.4
+   ]
+  ],
+  "field": [
+   [
+    "CNTT / Kỹ thuật phần mềm",
+    17,
+    32.1
+   ],
+   [
+    "Thiết kế đồ hoạ / Đa phương tiện",
+    10,
+    18.9
+   ],
+   [
+    "Marketing / Truyền thông",
+    10,
+    18.9
+   ],
+   [
+    "Kinh tế / Tài chính",
+    8,
+    15.1
+   ],
+   [
+    "Khác hoặc không ghi (ngôn ngữ 3, hướng dẫn du lịch, quản trị khách sạn, quản lý chất lượng, 2 bỏ trống)",
+    8,
+    15.1
+   ]
+  ],
+  "interviews_attended": [
+   [
+    "Chưa từng",
+    8,
+    15.1
+   ],
+   [
+    "1–2 lần",
+    32,
+    60.4
+   ],
+   [
+    "3–5 lần",
+    8,
+    15.1
+   ],
+   [
+    "Hơn 5 lần",
+    5,
+    9.4
+   ]
+  ]
+ },
+ "statements": [
+  {
+   "id": "S1",
+   "stage": "before",
+   "text_vi": "Tôi thường lo kiến thức của mình chưa đủ đáp ứng yêu cầu nhà tuyển dụng",
+   "text_en": "I often worry that my knowledge is not enough to meet the employer's requirements.",
+   "counts_1_to_5": [
+    5,
+    6,
+    16,
+    15,
+    11
+   ],
+   "n": 53,
+   "mean": 3.4,
+   "sd": 1.21,
+   "disagree_pct": 20.8,
+   "neutral_pct": 30.2,
+   "agree_pct": 49.1,
+   "note": "phát biểu mô tả một vấn đề: điểm cao = gặp vấn đề nhiều hơn",
+   "mean_attended_1plus_n45": 3.44,
+   "mean_never_attended_n8": 3.12
+  },
+  {
+   "id": "S2",
+   "stage": "before",
+   "text_vi": "Tôi chuẩn bị kỹ đến mức học thuộc lòng câu trả lời từng chữ",
+   "text_en": "I prepare my answers so thoroughly that I end up memorising them word for word.",
+   "counts_1_to_5": [
+    5,
+    13,
+    21,
+    5,
+    8
+   ],
+   "n": 52,
+   "mean": 2.96,
+   "sd": 1.17,
+   "disagree_pct": 34.6,
+   "neutral_pct": 40.4,
+   "agree_pct": 25.0,
+   "note": "phát biểu mô tả một vấn đề: điểm cao = gặp vấn đề nhiều hơn",
+   "mean_attended_1plus_n45": 3.05,
+   "mean_never_attended_n8": 2.5
+  },
+  {
+   "id": "S3",
+   "stage": "before",
+   "text_vi": "Tôi thấy khó nói về điểm mạnh của mình mà không cảm thấy như đang khoe khoang",
+   "text_en": "I find it hard to talk about my strengths without feeling that I am showing off.",
+   "counts_1_to_5": [
+    7,
+    8,
+    19,
+    7,
+    11
+   ],
+   "n": 52,
+   "mean": 3.13,
+   "sd": 1.3,
+   "disagree_pct": 28.8,
+   "neutral_pct": 36.5,
+   "agree_pct": 34.6,
+   "note": "phát biểu mô tả một vấn đề: điểm cao = gặp vấn đề nhiều hơn",
+   "mean_attended_1plus_n45": 3.18,
+   "mean_never_attended_n8": 2.88
+  },
+  {
+   "id": "S4",
+   "stage": "before",
+   "text_vi": "Tôi từng từ chối hoặc bỏ buổi phỏng vấn dù đã được mời",
+   "text_en": "I have turned down or skipped an interview even after being invited.",
+   "counts_1_to_5": [
+    15,
+    13,
+    10,
+    3,
+    11
+   ],
+   "n": 52,
+   "mean": 2.65,
+   "sd": 1.49,
+   "disagree_pct": 53.8,
+   "neutral_pct": 19.2,
+   "agree_pct": 26.9,
+   "note": "phát biểu mô tả một vấn đề: điểm cao = gặp vấn đề nhiều hơn",
+   "mean_attended_1plus_n45": 2.73,
+   "mean_never_attended_n8": 2.25
+  },
+  {
+   "id": "S5",
+   "stage": "during",
+   "text_vi": "Khi nhà tuyển dụng im lặng sau câu trả lời, tôi hay nói tiếp dù không còn gì để thêm",
+   "text_en": "When the interviewer stays silent after my answer, I tend to keep talking even when I have nothing more to add.",
+   "counts_1_to_5": [
+    6,
+    13,
+    11,
+    16,
+    7
+   ],
+   "n": 53,
+   "mean": 3.09,
+   "sd": 1.24,
+   "disagree_pct": 35.8,
+   "neutral_pct": 20.8,
+   "agree_pct": 43.4,
+   "note": "phát biểu mô tả một vấn đề: điểm cao = gặp vấn đề nhiều hơn",
+   "mean_attended_1plus_n45": 3.2,
+   "mean_never_attended_n8": 2.5
+  },
+  {
+   "id": "S6",
+   "stage": "during",
+   "text_vi": "Tôi trả lời tự tin hơn khi được hỏi về dự án thực tế đã làm so với khi được hỏi về bản thân",
+   "text_en": "I answer more confidently when asked about a real project I have done than when asked about myself.",
+   "counts_1_to_5": [
+    2,
+    3,
+    15,
+    14,
+    19
+   ],
+   "n": 53,
+   "mean": 3.85,
+   "sd": 1.1,
+   "disagree_pct": 9.4,
+   "neutral_pct": 28.3,
+   "agree_pct": 62.3,
+   "note": "phát biểu tích cực (không phải vấn đề)",
+   "mean_attended_1plus_n45": 4.0,
+   "mean_never_attended_n8": 3.0
+  },
+  {
+   "id": "S7",
+   "stage": "during",
+   "text_vi": "Phỏng vấn online khiến tôi khó đọc phản ứng của nhà tuyển dụng hơn phỏng vấn trực tiếp",
+   "text_en": "In online interviews, it is harder for me to read the interviewer's reactions than in face-to-face interviews.",
+   "counts_1_to_5": [
+    3,
+    9,
+    17,
+    9,
+    15
+   ],
+   "n": 53,
+   "mean": 3.45,
+   "sd": 1.23,
+   "disagree_pct": 22.6,
+   "neutral_pct": 32.1,
+   "agree_pct": 45.3,
+   "note": "phát biểu mô tả một vấn đề: điểm cao = gặp vấn đề nhiều hơn",
+   "mean_attended_1plus_n45": 3.51,
+   "mean_never_attended_n8": 3.12
+  },
+  {
+   "id": "S8",
+   "stage": "during",
+   "text_vi": "Trong phỏng vấn, tôi để ý nét mặt nhà tuyển dụng nhiều hơn nội dung câu họ hỏi",
+   "text_en": "During an interview, I pay more attention to the interviewer's facial expressions than to what they are actually asking.",
+   "counts_1_to_5": [
+    1,
+    14,
+    14,
+    13,
+    11
+   ],
+   "n": 53,
+   "mean": 3.36,
+   "sd": 1.15,
+   "disagree_pct": 28.3,
+   "neutral_pct": 26.4,
+   "agree_pct": 45.3,
+   "note": "phát biểu mô tả một vấn đề: điểm cao = gặp vấn đề nhiều hơn",
+   "mean_attended_1plus_n45": 3.47,
+   "mean_never_attended_n8": 2.75
+  },
+  {
+   "id": "S9",
+   "stage": "after",
+   "text_vi": "Sau phỏng vấn, tôi nhớ những câu trả lời chưa tốt rõ hơn những câu đã trả lời tốt",
+   "text_en": "After an interview, I remember the questions I answered poorly more clearly than the ones I answered well.",
+   "counts_1_to_5": [
+    2,
+    4,
+    13,
+    19,
+    15
+   ],
+   "n": 53,
+   "mean": 3.77,
+   "sd": 1.07,
+   "disagree_pct": 11.3,
+   "neutral_pct": 24.5,
+   "agree_pct": 64.2,
+   "note": "phát biểu mô tả một vấn đề: điểm cao = gặp vấn đề nhiều hơn",
+   "mean_attended_1plus_n45": 3.84,
+   "mean_never_attended_n8": 3.38
+  },
+  {
+   "id": "S10",
+   "stage": "after",
+   "text_vi": "Tôi hiếm khi hỏi nhà tuyển dụng lý do mình không được chọn",
+   "text_en": "I rarely ask the employer why I was not selected.",
+   "counts_1_to_5": [
+    3,
+    6,
+    18,
+    12,
+    14
+   ],
+   "n": 53,
+   "mean": 3.53,
+   "sd": 1.17,
+   "disagree_pct": 17.0,
+   "neutral_pct": 34.0,
+   "agree_pct": 49.1,
+   "note": "phát biểu mô tả một vấn đề: điểm cao = gặp vấn đề nhiều hơn",
+   "mean_attended_1plus_n45": 3.67,
+   "mean_never_attended_n8": 2.75
+  },
+  {
+   "id": "S11",
+   "stage": "after",
+   "text_vi": "Tôi cảm thấy kết quả phỏng vấn không phản ánh đúng năng lực thật của mình",
+   "text_en": "I feel that interview results do not reflect my true abilities.",
+   "counts_1_to_5": [
+    7,
+    9,
+    20,
+    6,
+    11
+   ],
+   "n": 53,
+   "mean": 3.09,
+   "sd": 1.29,
+   "disagree_pct": 30.2,
+   "neutral_pct": 37.7,
+   "agree_pct": 32.1,
+   "note": "phát biểu mô tả một vấn đề: điểm cao = gặp vấn đề nhiều hơn",
+   "mean_attended_1plus_n45": 3.09,
+   "mean_never_attended_n8": 3.12
+  },
+  {
+   "id": "S12",
+   "stage": "support",
+   "text_vi": "Nếu có ứng dụng luyện phỏng vấn với AI (mô phỏng nhà tuyển dụng thật), tôi sẽ dùng",
+   "text_en": "If there were an app that lets you practise interviews with AI (simulating a real interviewer), would you use it?",
+   "counts_1_to_5": [
+    3,
+    7,
+    13,
+    7,
+    22
+   ],
+   "n": 52,
+   "mean": 3.73,
+   "sd": 1.3,
+   "disagree_pct": 19.2,
+   "neutral_pct": 25.0,
+   "agree_pct": 55.8,
+   "note": "phát biểu tích cực (không phải vấn đề)",
+   "mean_attended_1plus_n45": 3.76,
+   "mean_never_attended_n8": 3.57
+  }
+ ],
+ "stage_labels": {
+  "before": "Trước phỏng vấn",
+  "during": "Trong phỏng vấn",
+  "after": "Sau phỏng vấn",
+  "support": "Nhu cầu hỗ trợ"
+ },
+ "features_wanted": {
+  "n": 52,
+  "note": "Chọn nhiều đáp án; % chia cho 52 người trả lời (Google Forms chia 53 nên thấp hơn chút). Trung vị 3 tính năng/người; 6 người chọn cả 5.",
+  "items": [
+   [
+    "Câu hỏi theo đúng ngành của mình",
+    31,
+    59.6
+   ],
+   [
+    "Phân tích và chấm điểm câu trả lời",
+    31,
+    59.6
+   ],
+   [
+    "Nhận xét ngôn ngữ cơ thể và giọng nói",
+    29,
+    55.8
+   ],
+   [
+    "Câu trả lời mẫu",
+    24,
+    46.2
+   ],
+   [
+    "Người phỏng vấn ảo (avatar AI)",
+    22,
+    42.3
+   ]
+  ]
+ },
+ "robustness": [
+  "Bỏ 7 người chọn cùng một mức cho mọi phát biểu (n = 46): không trung bình nào đổi quá 0,11; thứ tự 12 phát biểu giữ nguyên.",
+  "Bỏ 14 người đã đi làm 1–2 năm (n = 39): không trung bình nào đổi quá 0,27 (lớn nhất S5: 3,09 → 2,82); top 3 (S6, S9, S12) và thấp nhất (S4) giữ nguyên.",
+  "Theo nhóm: khác biệt lớn nhất ở S5 (đã đi làm 3,86; năm cuối 2,93; mới tốt nghiệp 2,50) – nhóm nhỏ nên không kết luận."
+ ],
+ "experience_finding": "Người chưa từng phỏng vấn (n = 8) cho điểm thấp hơn ở hầu hết phát biểu; lớn nhất S6 (3,00 vs 4,00), S10 (2,75 vs 3,67), S8 (2,75 vs 3,47), S5 (2,50 vs 3,20). Liên quan Q1: người chưa có kinh nghiệm KHÔNG lo về kiến thức hơn (S1: 3,12 vs 3,44) – nhóm quá nhỏ để chắc chắn.",
+ "open_comments": "18 người viết góp ý; 11 người 'không có gì thêm'. 3 ý tưởng: thêm ngôn ngữ khác; mẹo ghi điểm và cư xử chuyên nghiệp; mong app sớm hoàn thiện. Quá ít để rút ra chủ đề."
+}

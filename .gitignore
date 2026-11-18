@@ -1,0 +1,16 @@
+# Khóa bí mật — không bao giờ đưa lên GitHub
+.env
+.env.*
+supabase/.env
+supabase/.temp/
+
+# Tài liệu khóa học / tham khảo (không phải code của dự án)
+Tài liệu tham khảo (Đọc thêm)/
+vibecode-builder-mentor-full-package/
+tham-khao-mo-rong (cac buoi sau)/
+
+# Rác hệ thống
+node_modules/
+.DS_Store
+Thumbs.db
+desktop.ini

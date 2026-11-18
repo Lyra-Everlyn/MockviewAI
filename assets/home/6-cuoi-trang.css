@@ -1,0 +1,85 @@
+/* MockViewAI — Đợt 6: 5 điều hay gặp, bài viết, nghiên cứu, CTA cuối, nút cố định đáy */
+/* ==========================================================================
+   5 ĐIỀU HAY GẶP
+   ========================================================================== */
+.pitfalls{display:grid;grid-template-columns:repeat(6,1fr);gap:18px}
+.pit{grid-column:span 2;padding:24px;display:flex;flex-direction:column}
+.pit:nth-child(4),.pit:nth-child(5){grid-column:span 3}
+.pit-top{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;margin-bottom:.75rem}
+.pit-id{font:700 .8125rem/1 var(--display);color:var(--muted);letter-spacing:.06em}
+.pit-pct{font:700 2rem/1 var(--display);color:#fff}
+.pit-pct small{font:500 .8125rem/1 var(--font);color:var(--muted);margin-left:.3rem}
+.pit h3{font-size:1.08rem;line-height:1.35;margin-bottom:.9rem}
+.pit .try{margin-top:auto;padding-top:.9rem;border-top:1px solid var(--line);font-size:.9375rem;color:var(--ink-2)}
+.pit .try b{color:var(--cyan);font-weight:600}
+.pit .try a{font-weight:600}
+@media (max-width:980px){.pitfalls{grid-template-columns:1fr 1fr}.pit,.pit:nth-child(4),.pit:nth-child(5){grid-column:auto}}
+@media (max-width:620px){.pitfalls{grid-template-columns:1fr}}
+
+/* ==========================================================================
+   BÀI VIẾT — băng chuyền lướt ngang có mũi tên
+   ========================================================================== */
+.sec-head-row{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:clamp(28px,4vw,44px)}
+.sec-head-row .sec-head{margin-bottom:0}
+.car-ctrl{display:flex;align-items:center;gap:10px;flex:none}
+.car-count{font:600 .9375rem/1 var(--display);color:var(--muted);min-width:3.4em;text-align:right;font-variant-numeric:tabular-nums}
+.car-btn{width:52px;height:52px;border-radius:16px;border:1px solid var(--line-2);background:rgba(255,255,255,.03);color:#fff;cursor:pointer;display:grid;place-items:center;transition:border-color .2s,background .2s,transform .2s,opacity .2s}
+.car-btn svg{width:22px;height:22px}
+.car-btn:hover:not(:disabled){border-color:var(--cyan);background:rgba(34,211,238,.08);transform:translateY(-2px)}
+.car-btn:disabled{opacity:.35;cursor:default}
+.post-track{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 36px) / 3);gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;
+  padding:6px 2px 26px;margin:0 -2px;scrollbar-width:none;overscroll-behavior-x:contain;cursor:grab}
+.post-track::-webkit-scrollbar{display:none}
+.post-track.dragging{cursor:grabbing;scroll-snap-type:none}
+.post-track.dragging a{pointer-events:none}
+.post-card{scroll-snap-align:start;display:flex;flex-direction:column;border-radius:var(--r-lg);overflow:hidden;text-decoration:none;color:inherit;
+  border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015));transition:transform .3s,border-color .3s,box-shadow .3s}
+.post-card:hover,.post-card:focus-visible{transform:translateY(-6px);border-color:rgba(34,211,238,.5);box-shadow:0 30px 60px -30px rgba(34,211,238,.35)}
+.pc-cover{position:relative;display:block;height:150px;overflow:hidden;border-bottom:1px solid var(--line);
+  background:radial-gradient(120% 140% at 0% 0%,var(--c1) 0%,transparent 55%),radial-gradient(120% 140% at 100% 100%,var(--c2) 0%,transparent 55%),#0b1224}
+.pc-grid{position:absolute;inset:0;opacity:.35;background-image:linear-gradient(rgba(255,255,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.12) 1px,transparent 1px);background-size:22px 22px;
+  transform:perspective(300px) rotateX(55deg) translateY(30px) scale(1.6);transform-origin:50% 100%;transition:transform .5s}
+.post-card:hover .pc-grid{transform:perspective(300px) rotateX(55deg) translateY(18px) scale(1.6)}
+.pc-n{position:absolute;left:20px;bottom:10px;z-index:1;font:700 4.2rem/1 var(--display);letter-spacing:-.04em;color:#fff;text-shadow:0 0 30px var(--c1)}
+.pc-topic{position:absolute;right:16px;top:16px;z-index:1;padding:.3rem .7rem;border-radius:999px;font-size:.8125rem;font-weight:600;color:#fff;background:rgba(7,11,22,.55);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(6px)}
+.c1{--c1:rgba(34,211,238,.55);--c2:rgba(109,139,255,.45)}
+.c2{--c1:rgba(160,140,240,.6);--c2:rgba(34,211,238,.3)}
+.c3{--c1:rgba(217,139,187,.55);--c2:rgba(109,139,255,.4)}
+.c4{--c1:rgba(79,193,180,.6);--c2:rgba(139,92,246,.4)}
+.c5{--c1:rgba(240,184,74,.45);--c2:rgba(139,92,246,.45)}
+.pc-body{display:flex;flex-direction:column;flex:1;padding:20px 22px 22px}
+.pc-meta{font-size:.8125rem;color:var(--muted);margin-bottom:.55rem}
+.pc-title{font:700 1.15rem/1.35 var(--display);color:#fff;margin-bottom:.6rem;letter-spacing:-.01em}
+.pc-desc{font-size:.9375rem;color:var(--ink-2);margin-bottom:1.2rem}
+.pc-go{margin-top:auto;font-size:.9375rem;font-weight:600;color:var(--accent-2);display:inline-flex;gap:.4rem}
+.post-card:hover .pc-go span{transform:translateX(4px)}
+.pc-go span{transition:transform .25s}
+.pc-more{border-style:dashed}
+.car-bar{height:3px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;max-width:320px}
+.car-bar span{display:block;height:100%;width:25%;border-radius:inherit;background:linear-gradient(90deg,#22d3ee,#a78bfa);transform-origin:0 50%;transition:margin-left .2s}
+@media (max-width:980px){.post-track{grid-auto-columns:calc((100% - 18px) / 2)}}
+@media (max-width:640px){.post-track{grid-auto-columns:86%}.sec-head-row{flex-direction:column;align-items:stretch}.car-ctrl{justify-content:flex-end}.car-btn{width:46px;height:46px}}
+
+/* ==========================================================================
+   NGHIÊN CỨU + CTA + CHÂN TRANG
+   ========================================================================== */
+.research{display:grid;grid-template-columns:1.2fr 1fr;gap:28px;align-items:center;padding:clamp(28px,4vw,48px);position:relative;overflow:hidden}
+.research::after{content:"";position:absolute;width:420px;height:420px;right:-120px;top:-160px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.35),transparent 65%);pointer-events:none}
+.research h2{font-size:clamp(1.7rem,3.2vw,2.4rem);margin:.8rem 0 .8rem}
+.research p{color:var(--ink-2)}
+.r-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;position:relative;z-index:1}
+.r-nums div{padding:18px;border-radius:16px;border:1px solid var(--line);background:rgba(7,11,22,.5)}
+.r-nums b{display:block;font:700 2rem/1 var(--display);color:#fff;margin-bottom:.4rem}
+.r-nums span{font-size:.875rem;color:var(--muted)}
+@media (max-width:860px){.research{grid-template-columns:1fr}}
+@media (max-width:420px){.r-nums{grid-template-columns:1fr}}
+.final{text-align:center;padding:clamp(40px,6vw,72px) var(--pad);border-radius:var(--r-xl);position:relative;overflow:hidden;
+  background:radial-gradient(600px 300px at 50% 0%,rgba(34,211,238,.18),transparent 70%),linear-gradient(180deg,rgba(17,26,46,.9),rgba(11,17,34,.9));border:1px solid var(--line-2)}
+.final h2{font-size:clamp(1.9rem,4vw,3rem);margin-bottom:1rem}
+.final p{color:var(--ink-2);max-width:34rem;margin:0 auto 1.75rem}
+/* ---------- Nút cố định đáy điện thoại ---------- */
+.mobile-cta{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:90;display:none;transition:transform .3s,opacity .3s}
+.mobile-cta .btn{width:100%}
+.mobile-cta.off{transform:translateY(140%);opacity:0;pointer-events:none}
+@media (max-width:760px){.mobile-cta{display:block}footer{padding-bottom:110px}}
+

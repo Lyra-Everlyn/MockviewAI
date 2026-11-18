@@ -1,0 +1,20 @@
+/* MockViewAI — Đợt 4: bài tập thở 4–6 */
+/* ==========================================================================
+   BÀI THỞ
+   ========================================================================== */
+.breath{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,64px);align-items:center}
+.breath-stage{position:relative;display:grid;place-items:center;aspect-ratio:1;max-width:440px;width:100%;margin:0 auto}
+.b-ring{position:absolute;inset:0;border-radius:50%;border:1px solid var(--line-2)}
+.b-ring.r2{inset:12%;border-style:dashed;border-color:rgba(34,211,238,.25);animation:spin 60s linear infinite}
+.b-orb{width:46%;aspect-ratio:1;border-radius:50%;transform:scale(1);
+  background:radial-gradient(circle at 35% 30%,#e0fbff 0%,#67e8f9 18%,#3b82f6 52%,#4c1d95 85%,#0b1122 100%);
+  box-shadow:0 0 90px -10px rgba(34,211,238,.7),0 0 0 1px rgba(255,255,255,.1) inset;transition:transform 4s cubic-bezier(.45,0,.55,1),box-shadow 4s}
+.b-orb.in{transform:scale(1.55);box-shadow:0 0 140px 0 rgba(34,211,238,.6),0 0 0 1px rgba(255,255,255,.15) inset}
+.b-orb.out{transition-duration:6s}
+.b-text{position:absolute;inset:0;display:grid;place-items:center;text-align:center;pointer-events:none}
+.b-text b{display:block;font:700 1.35rem/1.2 var(--display);color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.6)}
+.b-text span{font:700 2.4rem/1 var(--display);color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.6)}
+.b-controls{display:flex;gap:.75rem;flex-wrap:wrap;margin:1.5rem 0 1rem}
+.b-count{font-size:.9375rem;color:var(--muted)}
+.evidence{margin-top:1.25rem;padding:1rem 1.15rem;border-left:2px solid var(--cyan);background:rgba(34,211,238,.05);border-radius:0 12px 12px 0;font-size:.9375rem;color:var(--ink-2)}
+@media (max-width:860px){.breath{grid-template-columns:1fr}.breath-stage{max-width:320px}}

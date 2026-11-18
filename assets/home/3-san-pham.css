@@ -1,0 +1,43 @@
+/* MockViewAI — Đợt 3: sản phẩm, hàng 3 thẻ, hộp thoại demo */
+/* ==========================================================================
+   SẢN PHẨM
+   ========================================================================== */
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.feat{padding:clamp(22px,2.6vw,30px);position:relative;overflow:hidden}
+.feat::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(140deg,rgba(34,211,238,.5),transparent 35%,transparent 65%,rgba(139,92,246,.5));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.7}
+.feat-ico{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;margin-bottom:1.1rem;transform:translateZ(40px);
+  background:linear-gradient(145deg,rgba(34,211,238,.18),rgba(139,92,246,.18));border:1px solid rgba(165,184,255,.3);box-shadow:0 10px 30px -10px rgba(34,211,238,.5)}
+.feat-ico svg{width:24px;height:24px;color:#a5f3fc}
+.feat h3{font-size:1.25rem;margin:.75rem 0 .5rem;transform:translateZ(24px)}
+.feat p{color:var(--ink-2);font-size:.98rem;margin-bottom:1rem}
+.feat ul{margin:0;padding:0;list-style:none;font-size:.9375rem;color:var(--muted)}
+.feat li{padding:.3rem 0 .3rem 1.4rem;position:relative}
+.feat li::before{content:"";position:absolute;left:0;top:.85rem;width:8px;height:8px;border-radius:2px;background:var(--cyan);transform:rotate(45deg)}
+@media (max-width:900px){.features{grid-template-columns:1fr}}
+
+
+/* Hàng 3 thẻ trong mục Sản phẩm (bố cục như bản trước) */
+.gallery{margin-top:28px;display:grid;grid-template-columns:1.3fr 1fr .62fr;gap:16px;align-items:start}
+.gallery figure{margin:0}
+.g-card{position:relative;display:block;width:100%;padding:0;border-radius:16px;overflow:hidden;border:1px solid var(--line-2);background:#0b1224;text-align:left;font:inherit;color:inherit;transition:transform .3s,border-color .3s}
+button.g-card{cursor:pointer}
+.g-card:hover{transform:translateY(-4px);border-color:var(--cyan)}
+.g-card .ui{border:0;border-radius:0}
+.g-ui{display:block}
+.g-ui .ui{padding-bottom:3.8em}
+.gallery figure:nth-child(1) .ui{font-size:clamp(7px,.72vw,10px)}
+.gallery figure:nth-child(2) .ui{font-size:clamp(6.5px,.58vw,8.5px)}
+.gallery figure:nth-child(3) .ui{font-size:clamp(6.5px,.6vw,9px)}
+.g-play{position:absolute;right:12px;bottom:12px;padding:.45rem .8rem;border-radius:999px;font-size:.8125rem;font-weight:600;color:#04111a;background:linear-gradient(135deg,#67e8f9,#a596ff);box-shadow:0 8px 24px -8px rgba(34,211,238,.7);opacity:.95}
+.gallery figcaption{font-size:.875rem;color:var(--muted);margin-top:.6rem}
+#demo-dialog{border:0;padding:0;background:transparent;width:min(720px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto}
+#demo-dialog::backdrop{background:rgba(3,6,14,.78);backdrop-filter:blur(4px)}
+#demo-dialog .ui{box-shadow:0 40px 100px -20px rgba(0,0,0,.85),0 0 60px -20px rgba(165,150,255,.5)}
+#demo-dialog .ui-room .ui-q{min-height:2.6em}
+.dd-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:10px;font-size:.875rem;color:var(--ink-2)}
+#demo-close{width:44px;height:44px;border-radius:12px;border:1px solid var(--line-2);background:rgba(7,11,22,.8);color:#fff;font-size:1.3rem;cursor:pointer}
+@media (max-width:900px){.gallery{grid-template-columns:1fr 1fr}.gallery figure:first-child{grid-column:1/-1}
+  .gallery figure:nth-child(1) .ui{font-size:clamp(6px,2.2vw,10px)}.gallery figure:nth-child(2) .ui,.gallery figure:nth-child(3) .ui{font-size:clamp(5px,1.35vw,8px)}}
+@media (max-width:480px){#demo-dialog .ui{font-size:14px;padding:1.15em}}
