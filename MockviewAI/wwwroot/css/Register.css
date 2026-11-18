@@ -21,7 +21,7 @@
     grid-column: 1 / -1;
 }
 
-.register-consent {
+.register-terms {
     display: flex;
     align-items: flex-start;
     gap: 11px;
@@ -31,7 +31,7 @@
     background: var(--color-surface-soft);
 }
 
-.register-consent__checkbox {
+.register-terms__checkbox {
     width: 18px;
     height: 18px;
     margin-top: 2px;
@@ -40,29 +40,29 @@
     cursor: pointer;
 }
 
-.register-consent__text {
+.register-terms__text {
     color: var(--color-text-soft);
     font-size: 12px;
     line-height: 1.8;
 }
 
-    .register-consent__text label {
+    .register-terms__text label {
         cursor: pointer;
     }
 
-    .register-consent__text a {
+    .register-terms__text a {
         color: var(--color-primary);
         font-weight: 750;
         text-decoration: underline;
         text-underline-offset: 3px;
     }
 
-        .register-consent__text a:hover {
+        .register-terms__text a:hover {
             color: var(--color-primary-hover);
         }
 
-        .register-consent__text a:focus-visible,
-        .register-consent__checkbox:focus-visible {
+        .register-terms__text a:focus-visible,
+        .register-terms__checkbox:focus-visible {
             outline: 2px solid var(--color-primary);
             outline-offset: 3px;
             border-radius: 3px;
@@ -99,7 +99,7 @@
         gap: 15px;
     }
 
-    .register-consent {
+    .register-terms {
         padding: 13px 12px;
     }
 }

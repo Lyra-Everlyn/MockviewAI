@@ -22,4 +22,8 @@ RUN dotnet publish "./MockviewAI.csproj" -c $BUILD_CONFIGURATION -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+USER root
+RUN mkdir -p /app/keys && chown $APP_UID /app/keys
+USER $APP_UID
 ENTRYPOINT ["dotnet", "MockviewAI.dll"]

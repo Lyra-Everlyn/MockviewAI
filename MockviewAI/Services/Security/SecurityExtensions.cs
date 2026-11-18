@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using MockviewAI.Models.Security;
 
@@ -36,6 +37,16 @@ namespace MockviewAI.Services.Security
                 o.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("172.16.0.0/12"));
                 o.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("192.168.0.0/16"));
             });
+
+            // Lưu bộ khoá mã hoá (cookie đăng nhập, mã chống giả mạo form) ra thư mục bền vững.
+            // Không lưu: mỗi lần deploy container mới tạo khoá mới -> người dùng bị đăng xuất, form đang mở báo lỗi 400.
+            // Production: DataProtection__KeysPath=/app/keys (gắn volume trong docker-compose). Local: thư mục keys cạnh ứng dụng.
+            var keysPath = config["DataProtection:KeysPath"];
+            if (string.IsNullOrWhiteSpace(keysPath))
+                keysPath = Path.Combine(AppContext.BaseDirectory, "keys");
+            services.AddDataProtection()
+                .SetApplicationName("MockviewAI")
+                .PersistKeysToFileSystem(new DirectoryInfo(keysPath));
 
             return services;
         }
