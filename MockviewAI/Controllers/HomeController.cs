@@ -33,9 +33,18 @@ namespace MockviewAI.Controllers
             return View(recent);
         }
 
+        [AllowAnonymous]
+        [HttpGet]
         public IActionResult Privacy()
         {
             return View();
+        }
+.
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult Terms()
+        {
+            return Redirect(Url.Action(nameof(Privacy), "Home") + "#dieu-khoan");
         }
         #endregion
 
