@@ -26,14 +26,23 @@ namespace MockviewAI.Controllers
         [Authorize]
         [Route("Home")]
         [Route("Home/Index")]
-        [Route("")] // Gắn luôn route rỗng để truy cập root domain sẽ nhảy vào Home
+        [Route("")]
         public async Task<IActionResult> Index()
         {
             var recent = await _history.GetHistoryAsync(CurrentEmail, 2);
             return View(recent);
         }
 
+        [AllowAnonymous]
+        [HttpGet]
         public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult Terms()
         {
             return View();
         }

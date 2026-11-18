@@ -1,0 +1,151 @@
+/* =========================================================
+   MockviewAI — Policy page
+   - Thanh tiến độ đọc
+   - Scrollspy: tô sáng mục đang đọc trong mục lục
+   - Mục lục thu gọn trên mobile
+   - Nút lên đầu trang, in / lưu PDF
+   - Ước tính thời gian đọc
+   ========================================================= */
+
+(function () {
+    'use strict';
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const scrollBehavior = prefersReducedMotion ? 'auto' : 'smooth';
+
+    const progressBar = document.querySelector('[data-privacy-progress]');
+    const content = document.querySelector('[data-privacy-content]');
+    const sections = Array.from(document.querySelectorAll('[data-privacy-section]'));
+    const tocLinks = Array.from(document.querySelectorAll('[data-privacy-toc-link]'));
+    const toc = document.querySelector('.privacy-toc');
+    const tocToggle = document.querySelector('[data-privacy-toc-toggle]');
+    const topButton = document.querySelector('[data-privacy-top]');
+    const printButton = document.querySelector('[data-privacy-print]');
+    const readTime = document.querySelector('[data-privacy-read-time]');
+
+    /* ---------- Thời gian đọc (~200 từ/phút) ---------- */
+    if (content && readTime) {
+        const words = content.textContent.trim().split(/\s+/).length;
+        readTime.textContent = '~' + Math.max(1, Math.round(words / 200)) + ' phút đọc';
+    }
+
+    /* ---------- Tiến độ đọc + nút lên đầu trang ---------- */
+    let ticking = false;
+
+    function updateOnScroll() {
+        const doc = document.documentElement;
+        const max = doc.scrollHeight - doc.clientHeight;
+        const ratio = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+
+        if (progressBar) progressBar.style.transform = 'scaleX(' + ratio + ')';
+        if (topButton) topButton.hidden = window.scrollY < 480;
+
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', function () {
+        if (!ticking) {
+            window.requestAnimationFrame(updateOnScroll);
+            ticking = true;
+        }
+    }, { passive: true });
+
+    updateOnScroll();
+
+    /* ---------- Scrollspy ---------- */
+    function setActive(id) {
+        tocLinks.forEach(function (link) {
+            const isActive = link.getAttribute('href') === '#' + id;
+            link.classList.toggle('is-active', isActive);
+            if (isActive) {
+                link.setAttribute('aria-current', 'true');
+            } else {
+                link.removeAttribute('aria-current');
+            }
+        });
+    }
+
+    if ('IntersectionObserver' in window && sections.length) {
+        const visible = new Map();
+
+        const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    visible.set(entry.target.id, entry.boundingClientRect.top);
+                } else {
+                    visible.delete(entry.target.id);
+                }
+            });
+
+            // Chọn section gần đỉnh màn hình nhất trong số đang hiển thị
+            if (visible.size) {
+                const topMost = Array.from(visible.entries())
+                    .sort(function (a, b) { return a[1] - b[1]; })[0][0];
+                setActive(topMost);
+            }
+        }, {
+            rootMargin: '-90px 0px -55% 0px',
+            threshold: 0
+        });
+
+        sections.forEach(function (section) { observer.observe(section); });
+    }
+
+    /* ---------- Mục lục: cuộn mượt + đóng trên mobile ---------- */
+    function setTocOpen(open) {
+        if (!toc || !tocToggle) return;
+        toc.classList.toggle('is-open', open);
+        tocToggle.setAttribute('aria-expanded', String(open));
+    }
+
+    if (tocToggle) {
+        tocToggle.addEventListener('click', function () {
+            setTocOpen(!toc.classList.contains('is-open'));
+        });
+    }
+
+    tocLinks.forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            const id = link.getAttribute('href').slice(1);
+            const target = document.getElementById(id);
+            if (!target) return;
+
+            event.preventDefault();
+            target.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
+            history.replaceState(null, '', '#' + id);
+            setActive(id);
+            setTocOpen(false);
+
+            // Chuyển focus cho người dùng bàn phím / trình đọc màn hình
+            target.setAttribute('tabindex', '-1');
+            target.focus({ preventScroll: true });
+        });
+    });
+
+    // Mở trang với #anchor có sẵn
+    if (location.hash) {
+        const initial = document.getElementById(location.hash.slice(1));
+        if (initial) setActive(initial.id);
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && toc && toc.classList.contains('is-open')) {
+            setTocOpen(false);
+            tocToggle.focus();
+        }
+    });
+
+    /* ---------- Nút lên đầu trang ---------- */
+    if (topButton) {
+        topButton.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: scrollBehavior });
+        });
+    }
+
+    /* ---------- In / lưu PDF ---------- */
+    if (printButton) {
+        printButton.addEventListener('click', function () {
+            window.print();
+        });
+    }
+})();
