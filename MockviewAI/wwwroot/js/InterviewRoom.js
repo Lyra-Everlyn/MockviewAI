@@ -1,5 +1,6 @@
 // MockviewAI | Interview Room
 // Điều khiển câu hỏi, nhận dạng giọng nói, chấm điểm và chế độ Thực chiến.
+// [SPEECH] Khi dừng nói: bản ghi âm được gửi lên server (Whisper + Gemini) và thay cho chữ trình duyệt nhận dạng.
 
 (function () {
     const room = document.getElementById('interview-room');
@@ -81,8 +82,24 @@
     let hintTimer = null;
 
     const isOpera = /OPR\/|Opera/i.test(navigator.userAgent);
-    const OPERA_WARNING = 'Bạn đang dùng Opera: trình duyệt này thường KHÔNG chuyển giọng nói thành chữ được. ' +
-        'Để nói trực tiếp, hãy mở trang bằng Chrome hoặc Edge. Hoặc bấm "Bỏ qua, tôi sẽ gõ chữ" để gõ câu trả lời.';
+    const OPERA_WARNING = 'Bạn đang dùng Opera: trình duyệt này thường KHÔNG hiện chữ trực tiếp khi bạn nói. ' +
+        'Bạn vẫn có thể nói bình thường, chữ sẽ hiện sau khi bấm "Dừng nói". Để thấy chữ ngay khi nói, hãy dùng Chrome hoặc Edge.';
+
+    // ============================================================================
+    // [SPEECH] GHI ÂM GỬI SERVER (WHISPER + GEMINI)
+    // ============================================================================
+    // Chữ trình duyệt nhận dạng chỉ để người dùng thấy ngay khi nói; bản chốt lấy từ server.
+    const REC = window.MockviewRecorder || null;
+    const TRANSCRIBE_URL = '/Interview/Transcribe';
+    let recording = null;            // phiên ghi âm đang chạy
+    let pendingTranscription = null; // Promise của lần chuyển chữ đang chờ server
+    let transcribeToken = 0;         // tăng mỗi lần huỷ / bắt đầu mới để bỏ kết quả cũ
+    let liveTextAvailable = true;    // false = trình duyệt không hiện chữ trực tiếp, chỉ dựa vào server
+    let finishing = false;           // đang chấm điểm: không mở khoá nút khi chuyển chữ xong
+
+    function canRecord() {
+        return !!(REC && REC.isSupported());
+    }
 
     // ============================================================================
     // THEO DÕI SỰ KIỆN
@@ -96,7 +113,10 @@
     window.mockviewEvents = events;
 
     function logEvent(type, detail) {
-        events.push({ type: type, atSeconds: Math.round((Date.now() - questionShownAt) / 100) / 10, detail: detail || null });
+        const atSeconds = Math.round((Date.now() - questionShownAt) / 100) / 10;
+        events.push({ type: type, atSeconds: atSeconds, detail: detail || null });
+        // [SPEECH] Hiện trong DevTools (F12 > Console) để chẩn đoán khi ghi âm bị ngắt sớm
+        if (/^(listen_|record_|mic_|stt_|recognition_)/.test(type)) console.info('[STT] ' + atSeconds + 's ' + type, detail || '');
     }
 
     // ============================================================================
@@ -165,9 +185,12 @@
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             throw new Error('unsupported');
         }
-        // Tắt tự động khuếch đại để chỉ số âm lượng phản ánh giọng nói thực tế.
+        // [SPEECH] Một luồng micro duy nhất, dùng chung cho bộ đo và bản ghi gửi Whisper.
+        // Bản sửa 18/11: cấu hình giống SoundLab — bật cả 3 bộ xử lý của trình duyệt, KỂ CẢ tự động khuếch đại.
+        // Tắt khuếch đại làm bản ghi nhỏ ("Âm lượng: Nhỏ") và Whisper nghe sót / nghe sai nhiều hơn.
+        // Đổi lại: chỉ số âm lượng phản ánh mức SAU khuếch đại (sẽ chỉnh ngưỡng ở bước 5).
         audioStream = await navigator.mediaDevices.getUserMedia({
-            audio: { autoGainControl: false, noiseSuppression: false, echoCancellation: true }
+            audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 }
         });
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         audioContext = new AudioCtx();
@@ -319,8 +342,11 @@
     // HIỂN THỊ BẢN CHÉP GIỌNG NÓI
     // ============================================================================
 
-    function renderTranscript(finalPart, interimPart) {
+    /// draft = true: chữ do trình duyệt tự nhận dạng (chất lượng thấp), sẽ bị thay bằng bản của server.
+    /// Hiển thị xám nghiêng + nhãn "Bản nháp" để người dùng không nhầm với kết quả cuối.
+    function renderTranscript(finalPart, interimPart, draft) {
         transcriptText.textContent = '';
+        transcriptText.classList.toggle('is-draft', !!draft && !!(finalPart || interimPart));
         btnClear.hidden = isLive || isTyping || (!finalPart && !interimPart);
         if (!finalPart && !interimPart) {
             transcriptText.textContent = PLACEHOLDER;
@@ -335,10 +361,25 @@
             transcriptText.appendChild(span);
         }
         const words = ((finalPart + ' ' + interimPart).trim().match(/\S+/g) || []).length;
+        if (draft) {
+            transcriptMeta.textContent = isListening
+                ? 'Bản nháp — chữ chính xác sẽ hiện sau khi bạn ' + (isLive ? 'gửi câu trả lời.' : 'bấm "Dừng nói".')
+                : 'Bản nháp — đang chuẩn hoá thành chữ chính xác...';
+            transcriptMeta.hidden = false;
+            return;
+        }
         transcriptMeta.textContent = isLive
             ? 'Đã ghi nhận ' + words + ' từ. Nói xong thì bấm "Xong, gửi câu trả lời" (hết giờ sẽ tự gửi).'
             : 'Đã ghi nhận ' + words + ' từ. Bấm "Dừng nói" rồi "Gửi câu trả lời" khi bạn nói xong.';
         transcriptMeta.hidden = false;
+    }
+
+    // [SPEECH] Trình duyệt không hiện chữ trực tiếp: báo người dùng cứ nói, chữ hiện sau khi dừng
+    function renderRecordingOnly() {
+        transcriptText.classList.remove('is-draft');
+        transcriptText.textContent = 'Đang ghi âm... Chữ sẽ hiện sau khi bạn bấm "' + (isLive ? 'Xong, gửi câu trả lời' : 'Dừng nói') + '".';
+        transcriptMeta.hidden = true;
+        btnClear.hidden = true;
     }
 
     // ============================================================================
@@ -400,57 +441,81 @@
             const solid = (committedText + ' ' + finalPart).trim();
             const interim = interimPart.trim();
             spokenText = (solid + ' ' + interim).trim();
-            renderTranscript(solid, interim);
+            renderTranscript(solid, interim, !!recording);
         };
 
         recognition.onerror = function (event) {
             logEvent('mic_error', event.error);
             if (event.error === 'no-speech' || event.error === 'aborted') return;
 
-            stopListening();
+            // [SPEECH] Bản sửa 18/11: đang ghi âm thì lỗi nhận dạng của trình duyệt KHÔNG được dừng ghi âm.
+            // Chữ cuối cùng lấy từ server; chỉ người dùng bấm "Dừng nói" mới kết thúc. Mất micro thì mới dừng.
+            if (recording && event.error !== 'audio-capture') {
+                fallBackToRecordingOnly('error:' + event.error);
+                return;
+            }
+
+            stopListening('recognition_error:' + event.error);
             showMessage(describeSpeechError(event.error), 'error');
             if (event.error === 'network' || event.error === 'language-not-supported') toggleTyping(true);
         };
 
         recognition.onend = function () {
-            // Khi nhận dạng tự ngắt, nối phiên nghe và giữ lại phần văn bản đã nhận.
-            if (isListening) {
-                committedText = spokenText;
-                try { recognition.start(); return; } catch (e) { }
-            }
-            stopListening();
+            // Khi nhận dạng tự ngắt (Chrome tự ngắt sau vài giây im lặng), nối phiên nghe và giữ lại phần văn bản đã nhận.
+            if (!isListening) return;
+            // [SPEECH] Trình duyệt đã báo không chuyển được chữ: chỉ còn ghi âm, không khởi động lại
+            if (!liveTextAvailable) return;
+            committedText = spokenText;
+            logEvent('recognition_restart');
+            try { recognition.start(); return; } catch (e) { logEvent('recognition_restart_failed', e && e.name); }
+
+            // [SPEECH] Bản sửa 18/11: khởi động lại thất bại (thường do gọi quá sớm) -> thử lại sau 300 ms.
+            // Trước đây nhánh này gọi stopListening() nên đoạn im lặng giữa câu làm dừng luôn ghi âm.
+            setTimeout(function () {
+                if (!isListening || !liveTextAvailable) return;
+                try { recognition.start(); return; } catch (e) { logEvent('recognition_restart_failed', 'retry:' + (e && e.name)); }
+                if (recording) fallBackToRecordingOnly('restart_failed');
+                else stopListening('recognition_ended');
+            }, 300);
         };
     }
 
     function startListening() {
-        if (!SpeechRecognition) {
+        // [SPEECH] Không có SpeechRecognition nhưng ghi âm được: vẫn trả lời bằng giọng nói, chữ lấy từ server
+        liveTextAvailable = !!SpeechRecognition;
+        if (!SpeechRecognition && !canRecord()) {
             showMessage('Trình duyệt này chưa hỗ trợ nhận giọng nói. Hãy dùng Chrome/Edge hoặc bấm "Gõ câu trả lời".', 'error');
             toggleTyping(true);
             return;
         }
-        if (isOpera) showMessage('Bạn đang dùng Opera: có thể sẽ không ra chữ. Nếu vậy hãy dùng Chrome/Edge hoặc gõ câu trả lời.');
+        if (!SpeechRecognition) showMessage('Trình duyệt này không hiện chữ trực tiếp. Bạn cứ nói bình thường, chữ sẽ hiện sau khi dừng nói.');
+        else if (isOpera) showMessage('Bạn đang dùng Opera: có thể sẽ không hiện chữ trực tiếp. Bạn cứ nói, chữ sẽ hiện sau khi dừng nói.');
         else showMessage('');
 
-        if (!recognition) setupRecognition();
+        if (SpeechRecognition && !recognition) setupRecognition();
         stopSpeaking();
+        cancelRecording();
         committedText = '';
         spokenText = '';
         speakSeconds = null;
         pauses = [];
         lastSpeechAt = null;
         lastAnswer.hidden = true;
-        renderTranscript('', '');
+        if (liveTextAvailable) renderTranscript('', '');
+        else renderRecordingOnly();
         speakStartedAt = Date.now();
         isListening = true;
         btnSpeak.lastChild.textContent = ' Dừng nói';
         setStatus('Đang lắng nghe...', 'is-listening');
         logEvent('listen_start');
 
-        try {
-            recognition.start();
-        } catch (e) {
+        if (SpeechRecognition) {
+            try {
+                recognition.start();
+            } catch (e) {
 
-            logEvent('mic_error', 'start_failed');
+                logEvent('mic_error', 'start_failed');
+            }
         }
 
         buildWave(roomWave);
@@ -459,11 +524,13 @@
         startMeter(roomWave, function () {
             setStatus('Đang nghe bạn nói...', 'is-listening');
             logEvent('sound_detected');
-        }, onRoomVoiceFrame).catch(function (error) {
+        }, onRoomVoiceFrame).then(function () {
+            beginRecording();
+        }).catch(function (error) {
             roomWave.hidden = true;
             logEvent('meter_error', error && error.name);
             if (error && error.name !== 'unsupported') {
-                stopListening();
+                stopListening('meter_error');
                 showMessage(describeMeterError(error), 'error');
             }
         });
@@ -472,7 +539,8 @@
         hintTimer = setTimeout(function () {
             if (!isListening || lastSpeechAt !== null) return;
             if (heardSound) {
-
+                // [SPEECH] Đang ghi âm thì chữ sẽ có từ server, không cần báo lỗi trình duyệt
+                if (recording) return;
                 showMessage('Micro nghe thấy tiếng của bạn nhưng trình duyệt chưa chuyển được thành chữ. ' +
                     'Hãy thử Chrome/Edge hoặc bấm "Gõ câu trả lời".', 'error');
             } else {
@@ -481,28 +549,128 @@
         }, heardSound ? NO_TEXT_HINT_MS : NO_SOUND_HINT_MS);
     }
 
-    function stopListening() {
+    /// [SPEECH] Nhận dạng của trình duyệt ngừng hẳn nhưng vẫn đang ghi âm: giữ chữ đã có, tiếp tục ghi, chữ cuối lấy từ server.
+    function fallBackToRecordingOnly(reason) {
+        if (!liveTextAvailable) return;
+        liveTextAvailable = false;
+        logEvent('recognition_fallback', reason);
+        if (!spokenText) renderRecordingOnly();
+        showMessage('Chữ hiện trực tiếp tạm dừng nhưng hệ thống VẪN ĐANG GHI ÂM. Bạn cứ nói tiếp, chữ đầy đủ sẽ hiện sau khi bấm "Dừng nói".');
+    }
+
+    /// reason: lý do dừng (ghi vào log để biết ghi âm dừng vì người dùng bấm hay vì lỗi).
+    function stopListening(reason) {
         if (!isListening) return;
         isListening = false;
         clearHintTimer();
         speakSeconds = (Date.now() - speakStartedAt) / 1000;
         btnSpeak.lastChild.textContent = ' Bấm để nói';
         setStatus('Chờ bạn trả lời', 'is-waiting');
-        logEvent('listen_stop', speakSeconds.toFixed(1) + 's');
-        try { recognition.stop(); } catch (e) { }
+        logEvent('listen_stop', speakSeconds.toFixed(1) + 's ' + (reason || 'other'));
+        if (recognition) { try { recognition.stop(); } catch (e) { } }
+        finishRecording();   // [SPEECH] gửi bản ghi lên server (chạy nền, xem runTranscription)
         stopMeter();
         roomWave.hidden = true;
         if (VA && voiceFrames.length) lastVoice = VA.summarize(voiceFrames, FRAME_SECONDS);
         showVolumeHint(false);
         btnSend.hidden = isLive || spokenText === '';
-        if (spokenText !== '') renderTranscript(spokenText, '');
+        if (spokenText !== '') renderTranscript(spokenText, '', !!pendingTranscription);
     }
 
     btnSpeak.addEventListener('click', function () {
         if (isLive) { liveSpeakClick(); return; }
         if (isTyping) toggleTyping(false);
-        isListening ? stopListening() : startListening();
+        isListening ? stopListening('user') : startListening();
     });
+
+    // ============================================================================
+    // [SPEECH] CHUYỂN GIỌNG NÓI THÀNH CHỮ TRÊN SERVER
+    // ============================================================================
+
+    /// Bắt đầu ghi âm từ luồng micro của bộ đo (gọi sau khi micro đã mở).
+    function beginRecording() {
+        if (!isListening || !audioStream || !canRecord()) return;
+        try {
+            recording = REC.start(audioStream);
+            logEvent('record_start');
+        } catch (e) {
+            recording = null;
+            logEvent('record_error', e && e.name);
+        }
+    }
+
+    /// Dừng ghi và gửi lên server. Kết quả cập nhật vào spokenText khi về.
+    function finishRecording() {
+        if (!recording) return;
+        const rec = recording;
+        recording = null;
+        const myToken = ++transcribeToken;
+        pendingTranscription = runTranscription(rec, myToken);
+    }
+
+    /// Huỷ bản ghi đang chạy và bỏ qua kết quả chuyển chữ đang chờ (xoá ghi âm, sang câu mới, kết thúc buổi).
+    function cancelRecording() {
+        transcribeToken++;
+        if (recording) { recording.abort(); recording = null; }
+        pendingTranscription = null;
+    }
+
+    async function runTranscription(rec, myToken) {
+        setBusy(true);
+        setStatus('Đang chuẩn hoá câu trả lời...', 'is-waiting');
+        showMessage('Đang chuyển giọng nói thành chữ và sửa lỗi thuật ngữ...');
+        try {
+            const recorded = await rec.stop();
+            if (myToken !== transcribeToken) return;
+            logEvent('record_stop', recorded ? (recorded.durationMs / 1000).toFixed(1) + 's ' + recorded.blob.size + 'B' : 'too_short');
+            if (!recorded) {
+                showMessage(spokenText ? '' : 'Bản ghi quá ngắn. Hãy bấm nói và trả lời lại.', spokenText ? undefined : 'error');
+                return;
+            }
+
+            const result = await REC.transcribe(TRANSCRIBE_URL, token, sessionId, recorded);
+            if (myToken !== transcribeToken) return;
+            logEvent('stt_server', result.normalized ? 'normalized' : 'raw');
+            console.info('[STT] normalized=' + result.normalized, { raw: result.rawText, text: result.text });
+
+            if (result.empty) {
+                showMessage(spokenText ? '' : 'Không nghe rõ lời bạn nói. Hãy nói to, rõ hơn rồi thử lại.', spokenText ? undefined : 'error');
+                return;
+            }
+
+            committedText = result.text;
+            spokenText = result.text;
+            renderTranscript(spokenText, '');
+            // Chỉ báo "đã chuẩn hoá" khi Gemini thật sự sửa xong; không thì nói rõ đây là bản chép nguyên văn
+            if (!isLive) {
+                showMessage(result.normalized
+                    ? 'Đã chuẩn hoá câu trả lời. Hãy xem lại rồi bấm "Gửi câu trả lời".'
+                    : 'Đã chuyển giọng nói thành chữ (chưa sửa được thuật ngữ). Hãy xem lại, sửa nếu cần rồi bấm "Gửi câu trả lời".',
+                    'success');
+            } else {
+                showMessage('');
+            }
+        } catch (error) {
+            if (myToken !== transcribeToken) return;
+            logEvent('stt_server_error', error && error.message);
+            // Server lỗi: giữ chữ trình duyệt nhận dạng (nếu có) để người dùng không mất câu trả lời
+            showMessage(spokenText
+                ? 'Chưa chuẩn hoá được câu trả lời, hệ thống dùng chữ trình duyệt nhận dạng.'
+                : error.message + ' Bạn có thể nói lại hoặc bấm "Gõ câu trả lời".', 'error');
+            if (!spokenText) renderTranscript('', '');
+        } finally {
+            if (myToken === transcribeToken) {
+                pendingTranscription = null;
+                // Server không trả được chữ (lỗi / bản ghi quá ngắn / im lặng): chữ trình duyệt thành bản dùng chính thức
+                if (spokenText && transcriptText.classList.contains('is-draft')) renderTranscript(spokenText, '', false);
+                if (!finishing) {
+                    setBusy(false);
+                    setStatus('Chờ bạn trả lời', 'is-waiting');
+                    btnSend.hidden = isLive || isTyping || spokenText === '';
+                }
+            }
+        }
+    }
 
     // ============================================================================
     // TRẢ LỜI BẰNG VĂN BẢN
@@ -534,6 +702,7 @@
     }
 
     function resetAnswer() {
+        cancelRecording();   // [SPEECH] bỏ bản ghi / kết quả chuyển chữ của câu trước
         committedText = '';
         spokenText = '';
         speakSeconds = null;
@@ -555,7 +724,8 @@
         if (isListening) {
             isListening = false;
             clearHintTimer();
-            try { recognition.abort(); } catch (e) { }
+            if (recognition) { try { recognition.abort(); } catch (e) { } }
+            cancelRecording();   // [SPEECH] không gửi bản ghi đã xoá lên server
             stopMeter();
             roomWave.hidden = true;
             btnSpeak.lastChild.textContent = ' Bấm để nói';
@@ -575,6 +745,11 @@
         if (busy) return;
         if (isListening) stopListening();
         stopSpeaking();
+        // [SPEECH] Đang chờ server chuyển chữ: đợi xong rồi mới gửi câu trả lời
+        if (pendingTranscription) {
+            await pendingTranscription;
+            if (busy) return;
+        }
 
         const answer = currentAnswer();
         if (!skipped && !answer) {
@@ -629,6 +804,8 @@
             liveStopClock();
             livePhase = 'sending';
         }
+        // [SPEECH] Bỏ qua câu: không cần chuyển chữ phần đã nói
+        if (isListening) cancelRecording();
         submit(true);
     });
 
@@ -669,8 +846,10 @@
     // Nếu chấm AI lỗi, cho phép thử lại hoặc dùng kết quả sơ bộ không cần AI.
     // Lỗi cấu hình không thể giải quyết bằng thử lại nên chỉ cho xem kết quả sơ bộ.
     async function finishSession(fallback) {
+        finishing = true;   // [SPEECH] không để kết quả chuyển chữ về muộn mở khoá lại các nút
         if (isLive) { liveStopClock(); livePhase = 'idle'; if (liveTimer) liveTimer.hidden = true; }
-        if (isListening) stopListening();
+        if (isListening) { cancelRecording(); stopListening(); }
+        else cancelRecording();
         stopSpeaking();
         modal.style.display = 'none';
         setBusy(true);
@@ -801,7 +980,10 @@
         });
 
         if (!SpeechRecognition) {
-            micStatus('Trình duyệt này chưa chuyển được giọng nói thành chữ. Hãy dùng Chrome/Edge, hoặc bấm "Bỏ qua, tôi sẽ gõ chữ".', false);
+            // [SPEECH] Ghi âm được thì vẫn trả lời bằng giọng nói, chỉ không hiện chữ trực tiếp
+            micStatus(canRecord()
+                ? 'Trình duyệt này không hiện chữ trực tiếp, nhưng bạn vẫn trả lời bằng giọng nói được (chữ hiện sau khi dừng nói). Hãy xem sóng âm bên trên có nhảy khi bạn nói không.'
+                : 'Trình duyệt này chưa chuyển được giọng nói thành chữ. Hãy dùng Chrome/Edge, hoặc bấm "Bỏ qua, tôi sẽ gõ chữ".', canRecord() ? undefined : false);
             return;
         }
         micTester = new SpeechRecognition();
@@ -826,8 +1008,10 @@
             if (!micTesting) return;
 
             if (micTesting && !micGotText && heardSound) {
-                micStatus('Micro nghe thấy tiếng của bạn nhưng trình duyệt không chuyển được thành chữ. ' +
-                    'Hãy dùng Chrome/Edge, hoặc bấm "Bỏ qua, tôi sẽ gõ chữ".', false);
+                micStatus(canRecord()
+                    ? 'Micro nghe thấy tiếng của bạn. Trình duyệt không hiện chữ trực tiếp, nhưng chữ sẽ hiện sau khi bạn dừng nói. Bấm "Vào phỏng vấn" để bắt đầu.'
+                    : 'Micro nghe thấy tiếng của bạn nhưng trình duyệt không chuyển được thành chữ. ' +
+                    'Hãy dùng Chrome/Edge, hoặc bấm "Bỏ qua, tôi sẽ gõ chữ".', canRecord() ? true : false);
             }
             endMicTest();
         };
@@ -843,7 +1027,9 @@
         buildWave(micWave);
         if (isOpera || !SpeechRecognition) {
             browserWarning.textContent = !SpeechRecognition
-                ? 'Trình duyệt này chưa hỗ trợ chuyển giọng nói thành chữ. Hãy mở bằng Chrome hoặc Edge, hoặc bấm "Bỏ qua, tôi sẽ gõ chữ".'
+                ? (canRecord()
+                    ? 'Trình duyệt này không hiện chữ trực tiếp khi bạn nói. Bạn vẫn trả lời bằng giọng nói được, chữ sẽ hiện sau khi dừng nói. Để thấy chữ ngay, hãy dùng Chrome hoặc Edge.'
+                    : 'Trình duyệt này chưa hỗ trợ chuyển giọng nói thành chữ. Hãy mở bằng Chrome hoặc Edge, hoặc bấm "Bỏ qua, tôi sẽ gõ chữ".')
                 : OPERA_WARNING;
             browserWarning.hidden = false;
         }
@@ -943,11 +1129,13 @@
         logEvent('live_answer_start');
     }
 
-    function liveFinishAnswer() {
+    async function liveFinishAnswer() {
         if (livePhase !== 'answer') return;
         liveStopClock();
         livePhase = 'sending';
         if (isListening) stopListening();
+        // [SPEECH] Chờ server chuyển chữ xong rồi mới quyết định gửi hay tính bỏ qua
+        if (pendingTranscription) await pendingTranscription;
         if (!currentAnswer()) {
             showMessage('Bạn chưa nói gì nên câu này được tính là bỏ qua (Sai).', 'error');
             submit(true);

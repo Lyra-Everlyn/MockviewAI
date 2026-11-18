@@ -749,6 +749,17 @@
 }
 /* #endregion */
 
+
+.interview-room-stage .transcript-text.is-draft {
+    color: var(--color-muted);
+    font-style: italic;
+}
+
+    .interview-room-stage .transcript-text.is-draft .interim {
+        color: var(--color-subtle);
+    }
+
+
 @media (max-width:768px) {
     .interview-room-shell {
         width: calc(100% - 30px);

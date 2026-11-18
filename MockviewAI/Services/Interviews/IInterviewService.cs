@@ -24,5 +24,12 @@ namespace MockviewAI.Services.Interviews
         
         // Lấy dữ liệu trang kết quả. Trả về null nếu không tìm thấy buổi.
         Task<SessionResultViewModel?> GetResultAsync(string email, int sessionId);
+
+        /// <summary>
+        /// [SPEECH] Lấy nội dung câu hỏi hiện tại (câu chính hoặc câu hỏi thêm) của buổi đang diễn ra,
+        /// dùng làm ngữ cảnh cho chuyển giọng nói thành chữ. Đồng thời kiểm tra buổi thuộc người dùng và còn đang làm.
+        /// </summary>
+        /// <exception cref="Exceptions.InterviewException">Không tìm thấy buổi, buổi đã kết thúc hoặc đã hết câu hỏi.</exception>
+        Task<string> GetCurrentQuestionAsync(string email, int sessionId);
     }
 }

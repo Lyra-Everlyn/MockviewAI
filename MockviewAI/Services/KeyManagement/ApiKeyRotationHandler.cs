@@ -1,52 +1,71 @@
-﻿using System.Net;
-
-namespace MockviewAI.Services.KeyManagement
+﻿namespace MockviewAI.Services.KeyManagement
 {
     /// <summary>
     /// [SWITCH API]
-    /// -- HTTP Handler ngầm can thiệp vào các request gửi đi. 
-    /// -- Đổi Key và thử lại ngay lập tức khi gặp lỗi 4xx. Tạm nghỉ 1.5s và thử lại khi gặp lỗi 5xx.
+    /// -- HTTP Handler ngầm gắn API Key vào mọi request gửi đi của một HttpClient.
+    /// -- Lỗi do key (401, 402, 403, 429): đánh dấu key bị phạt, đổi key khác và thử lại 1 lần.
+    /// -- Lỗi máy chủ (5xx): chờ 1.5 giây rồi thử lại 1 lần.
+    /// -- Mỗi nhà cung cấp gắn key theo cách riêng (Bearer, x-goog-api-key...) qua <see cref="ApplyKey"/> (Open/Closed).
+    /// LƯU Ý: request được gửi lại nguyên vẹn, nên nội dung phải đọc lại được
+    /// (ByteArrayContent, StringContent, JsonContent...) — KHÔNG dùng StreamContent.
     /// </summary>
-    public class ApiKeyRotationHandler : DelegatingHandler
+    public abstract class ApiKeyRotationHandler : DelegatingHandler
     {
+        private const int ServerErrorRetryDelayMs = 1500;
         private readonly IApiKeyProvider _keyProvider;
 
-        public ApiKeyRotationHandler(IApiKeyProvider keyProvider)
+        protected ApiKeyRotationHandler(IApiKeyProvider keyProvider)
         {
             _keyProvider = keyProvider;
         }
 
+        #region Key strategy
+        /// <summary>
+        /// Gắn API Key vào request theo đúng chuẩn của nhà cung cấp.
+        /// Phải XOÁ key cũ (nếu có) trước khi gắn key mới, vì request có thể được gửi lại.
+        /// </summary>
+        protected abstract void ApplyKey(HttpRequestMessage request, string key);
+        #endregion
+
+        #region Pipeline
+        /// <summary>
+        /// Gắn key, gửi request và xử lý thử lại theo mã lỗi.
+        /// </summary>
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            // Không có key: gửi nguyên request, để dịch vụ phía trên kiểm tra HasKeys và báo lỗi cấu hình
+            if (!_keyProvider.HasKeys)
+                return await base.SendAsync(request, cancellationToken);
+
             var currentKey = _keyProvider.GetNextKey();
-            request.Headers.Remove("Authorization");
-            request.Headers.Add("Authorization", $"Bearer {currentKey}");
+            ApplyKey(request, currentKey);
 
             var response = await base.SendAsync(request, cancellationToken);
             int statusCode = (int)response.StatusCode;
             bool isKeyError = statusCode is 401 or 402 or 403 or 429;
-            bool isServerError = statusCode >= 500 && statusCode < 600;
+            bool isServerError = statusCode is >= 500 and < 600;
 
-            if (isKeyError || isServerError)
+            if (!isKeyError && !isServerError)
+                return response;
+
+            if (isKeyError)
             {
-                if (isKeyError)
-                {
-                    _keyProvider.MarkKeyAsExhausted(currentKey);
+                _keyProvider.MarkKeyAsExhausted(currentKey);
 
-                    var newKey = _keyProvider.GetNextKey();
-                    request.Headers.Remove("Authorization");
-                    request.Headers.Add("Authorization", $"Bearer {newKey}");
-                }
+                // Chỉ có 1 key: thử lại cũng sẽ lỗi y hệt -> trả kết quả ngay
+                if (_keyProvider.KeyCount < 2)
+                    return response;
 
-                if (isServerError)
-                {
-                    await Task.Delay(1500, cancellationToken);
-                }
-
-                response = await base.SendAsync(request, cancellationToken);
+                ApplyKey(request, _keyProvider.GetNextKey());
+            }
+            else
+            {
+                await Task.Delay(ServerErrorRetryDelayMs, cancellationToken);
             }
 
-            return response;
+            response.Dispose();
+            return await base.SendAsync(request, cancellationToken);
         }
+        #endregion
     }
 }
