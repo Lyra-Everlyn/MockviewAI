@@ -36,6 +36,10 @@ namespace MockviewAI.Controllers
         [HttpGet]
         public IActionResult Login() => View();
 
+        /// <summary>
+        /// Xử lý form đăng nhập bằng email / mật khẩu.
+        /// Mọi trường hợp thất bại đều hiển thị lại trang Login kèm thông báo lỗi.
+        /// </summary>
         [HttpPost]
         [Route("Auth/Login")]
         [ValidateAntiForgeryToken]
@@ -47,41 +51,42 @@ namespace MockviewAI.Controllers
                 string ipAddressString = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
                 bool isHuman = await _turnstileService.VerifyAsync(turnstileToken, ipAddressString);
                 if (!isHuman)
-                {
-                    ViewData["ErrorMessage"] = "Xác thực bảo mật thất bại (Captcha không hợp lệ).";
-                    return View();
-                }
-
+                    return LoginFailed("Xác thực bảo mật thất bại (Captcha không hợp lệ).");
+        
                 if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
-                {
-                    ViewData["ErrorMessage"] = "Vui lòng nhập đầy đủ Email và Mật khẩu.";
-                    return View();
-                }
-
+                    return LoginFailed("Vui lòng nhập đầy đủ Email và Mật khẩu.");
+        
                 var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
                 var emailThrottleKey = LoginThrottleService.BuildEmailKey(email);
-
+        
                 var (isLocked, wait) = await _throttleService.IsLockedOutAsync(throttleKey, emailThrottleKey);
                 if (isLocked)
                 {
                     var minutes = (int)Math.Ceiling(wait.TotalMinutes);
-                    ViewData["ErrorMessage"] = $"Đăng nhập sai quá nhiều. Vui lòng thử lại sau {minutes} phút.";
-                    return View();
+                    return LoginFailed($"Đăng nhập sai quá nhiều. Vui lòng thử lại sau {minutes} phút.");
                 }
-              
-
+        
                 var user = await _authService.AuthenticateAsync(email, password);
-
+        
                 await _throttleService.ResetAsync(throttleKey, emailThrottleKey);
                 await SignInUser(user!.Email, $"{user.LastName} {user.FirstName}".Trim(), user.Role, user.AvatarUrl);
-
+        
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)
             {
-                ViewData["ErrorMessage"] = ex.Message;
-                return View();
+                return LoginFailed(ex.Message);
             }
+        }
+        
+        /// <summary>
+        /// Hiển thị lại trang Login kèm thông báo lỗi.
+        /// Phải ghi rõ tên view "Login": action này tên LoginApp, nên View() trống sẽ đi tìm LoginApp.cshtml (không tồn tại) và gây lỗi 500.
+        /// </summary>
+        private IActionResult LoginFailed(string message)
+        {
+            ViewData["ErrorMessage"] = message;
+            return View(nameof(Login));
         }
 
 
