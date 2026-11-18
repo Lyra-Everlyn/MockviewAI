@@ -6,7 +6,7 @@
 
 /* ---------- Reading progress ---------- */
 
-.policy-progress {
+.privacy-progress {
     position: fixed;
     z-index: 200;
     top: 0;
@@ -16,7 +16,7 @@
     pointer-events: none;
 }
 
-.policy-progress__bar {
+.privacy-progress__bar {
     display: block;
     width: 100%;
     height: 100%;
@@ -28,7 +28,7 @@
 
 /* ---------- Header ---------- */
 
-.policy-header {
+.privacy-header {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
@@ -36,20 +36,20 @@
     gap: 20px;
 }
 
-.policy-meta {
+.privacy-meta {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 8px;
 }
 
-    .policy-meta .status-chip {
+    .privacy-meta .status-chip {
         gap: 6px;
         min-height: 30px;
         font-size: 11px;
     }
 
-.policy-print {
+.privacy-print {
     min-height: 36px;
     padding: 0 14px;
     font-size: 12px;
@@ -57,7 +57,7 @@
 
 /* ---------- Layout ---------- */
 
-.policy-layout {
+.privacy-layout {
     display: grid;
     grid-template-columns: 240px minmax(0, 1fr);
     align-items: start;
@@ -66,13 +66,13 @@
 
 /* ---------- Table of contents ---------- */
 
-.policy-aside {
+.privacy-aside {
     position: sticky;
     top: 90px; /* 66px nav + khoảng thở */
     min-width: 0;
 }
 
-.policy-toc {
+.privacy-toc {
     padding: 18px 12px;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-card);
@@ -80,11 +80,11 @@
     box-shadow: var(--shadow-card);
 }
 
-.policy-toc__toggle {
+.privacy-toc__toggle {
     display: none;
 }
 
-.policy-toc__title {
+.privacy-toc__title {
     display: block;
     margin: 0 10px 10px;
     color: var(--color-muted);
@@ -93,12 +93,12 @@
     letter-spacing: .12em;
 }
 
-.policy-toc__list {
+.privacy-toc__list {
     display: grid;
     gap: 2px;
 }
 
-.policy-toc__link {
+.privacy-toc__link {
     position: relative;
     display: flex;
     align-items: center;
@@ -112,17 +112,17 @@
     transition: background .18s ease, color .18s ease;
 }
 
-    .policy-toc__link:hover {
+    .privacy-toc__link:hover {
         background: var(--color-surface-soft);
         color: var(--color-text);
     }
 
-    .policy-toc__link.is-active {
+    .privacy-toc__link.is-active {
         background: var(--color-primary-soft);
         color: var(--color-primary);
     }
 
-        .policy-toc__link.is-active::before {
+        .privacy-toc__link.is-active::before {
             position: absolute;
             top: 8px;
             bottom: 8px;
@@ -133,7 +133,7 @@
             content: "";
         }
 
-.policy-toc__index {
+.privacy-toc__index {
     flex: 0 0 auto;
     color: var(--color-subtle);
     font-size: 11px;
@@ -141,17 +141,17 @@
     font-variant-numeric: tabular-nums;
 }
 
-.policy-toc__link.is-active .policy-toc__index {
+.privacy-toc__link.is-active .privacy-toc__index {
     color: var(--color-primary);
 }
 
 /* ---------- Content ---------- */
 
-.policy-content {
+.privacy-content {
     padding: 34px 36px;
 }
 
-.policy-summary {
+.privacy-summary {
     display: flex;
     gap: 14px;
     margin-bottom: 8px;
@@ -161,7 +161,7 @@
     background: var(--color-info-soft);
 }
 
-.policy-summary__icon {
+.privacy-summary__icon {
     display: grid;
     flex: 0 0 38px;
     width: 38px;
@@ -172,30 +172,30 @@
     color: var(--color-info);
 }
 
-.policy-summary strong {
+.privacy-summary strong {
     color: var(--color-text);
     font-size: 14px;
     font-weight: 800;
 }
 
-.policy-summary p {
+.privacy-summary p {
     margin-top: 4px;
     color: var(--color-text-soft);
     font-size: 13px;
     line-height: 1.65;
 }
 
-.policy-section {
+.privacy-section {
     padding-top: 30px;
     scroll-margin-top: 90px;
 }
 
-    .policy-section + .policy-section {
+    .privacy-section + .privacy-section {
         margin-top: 30px;
         border-top: 1px solid var(--color-border);
     }
 
-.policy-section__title {
+.privacy-section__title {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -207,7 +207,7 @@
     letter-spacing: -.02em;
 }
 
-.policy-section__icon {
+.privacy-section__icon {
     display: grid;
     flex: 0 0 36px;
     width: 36px;
@@ -219,29 +219,29 @@
     font-size: 15px;
 }
 
-.policy-section p {
+.privacy-section p {
     color: var(--color-text-soft);
     font-size: 14px;
     line-height: 1.75;
 }
 
-    .policy-section p + p,
-    .policy-section > * + p {
+    .privacy-section p + p,
+    .privacy-section > * + p {
         margin-top: 12px;
     }
 
-.policy-section strong {
+.privacy-section strong {
     color: var(--color-text);
 }
 
 /* ---------- Lists ---------- */
 
-.policy-list {
+.privacy-list {
     display: grid;
     gap: 10px;
 }
 
-    .policy-list li {
+    .privacy-list li {
         display: flex;
         align-items: flex-start;
         gap: 11px;
@@ -250,7 +250,7 @@
         line-height: 1.6;
     }
 
-        .policy-list li > i {
+        .privacy-list li > i {
             display: grid;
             flex: 0 0 22px;
             width: 22px;
@@ -263,24 +263,24 @@
             font-size: 11px;
         }
 
-.policy-list--danger li > i {
+.privacy-list--danger li > i {
     background: var(--color-danger-soft);
     color: var(--color-danger);
 }
 
 /* ---------- Mini cards ---------- */
 
-.policy-grid {
+.privacy-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
 }
 
-.policy-grid--3 {
+.privacy-grid--3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.policy-card {
+.privacy-card {
     display: grid;
     align-content: start;
     gap: 6px;
@@ -291,7 +291,7 @@
     background: var(--color-surface-soft);
 }
 
-    .policy-card > i {
+    .privacy-card > i {
         display: grid;
         width: 34px;
         height: 34px;
@@ -303,12 +303,12 @@
         font-size: 14px;
     }
 
-    .policy-card strong {
+    .privacy-card strong {
         font-size: 14px;
         font-weight: 800;
     }
 
-    .policy-section .policy-card p {
+    .privacy-section .privacy-card p {
         margin: 0;
         color: var(--color-muted);
         font-size: 12px;
@@ -317,7 +317,7 @@
 
 /* ---------- Callouts ---------- */
 
-.policy-callout {
+.privacy-callout {
     display: flex;
     align-items: flex-start;
     gap: 12px;
@@ -327,22 +327,22 @@
     border-radius: var(--radius-card);
 }
 
-    .policy-callout > i {
+    .privacy-callout > i {
         margin-top: 3px;
     }
 
-    .policy-section .policy-callout p {
+    .privacy-section .privacy-callout p {
         margin: 0;
         font-size: 13px;
     }
 
-.policy-callout--success {
+.privacy-callout--success {
     border-color: var(--color-success-border);
     background: var(--color-success-soft);
     color: var(--color-success);
 }
 
-.policy-callout--warning {
+.privacy-callout--warning {
     border-color: var(--color-warning-border);
     background: var(--color-warning-soft);
     color: var(--color-warning);
@@ -350,29 +350,29 @@
 
 /* ---------- Table ---------- */
 
-.policy-table-wrap {
+.privacy-table-wrap {
     overflow-x: auto;
     margin: 14px 0;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-card);
 }
 
-.policy-table {
+.privacy-table {
     width: 100%;
     min-width: 520px;
     border-collapse: collapse;
     font-size: 13px;
 }
 
-    .policy-table th,
-    .policy-table td {
+    .privacy-table th,
+    .privacy-table td {
         padding: 12px 16px;
         border-bottom: 1px solid var(--color-border);
         text-align: left;
         vertical-align: top;
     }
 
-    .policy-table th {
+    .privacy-table th {
         background: var(--color-surface-soft);
         color: var(--color-muted);
         font-size: 11px;
@@ -381,36 +381,36 @@
         text-transform: uppercase;
     }
 
-    .policy-table td {
+    .privacy-table td {
         color: var(--color-text-soft);
     }
 
-        .policy-table td:first-child {
+        .privacy-table td:first-child {
             color: var(--color-text);
             font-weight: 700;
         }
 
-    .policy-table tbody tr:last-child td {
+    .privacy-table tbody tr:last-child td {
         border-bottom: 0;
     }
 
 /* ---------- Actions / contact ---------- */
 
-.policy-actions {
+.privacy-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 16px;
 }
 
-.policy-contact {
+.privacy-contact {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
     margin-top: 14px;
 }
 
-    .policy-contact .action-card__title {
+    .privacy-contact .action-card__title {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -418,7 +418,7 @@
 
 /* ---------- Back to top ---------- */
 
-.policy-top {
+.privacy-top {
     position: fixed;
     z-index: 90;
     right: 24px;
@@ -436,18 +436,18 @@
     transition: transform .18s ease, border-color .18s ease, background .18s ease;
 }
 
-    .policy-top[hidden] {
+    .privacy-top[hidden] {
         display: none;
     }
 
-    .policy-top:hover {
+    .privacy-top:hover {
         transform: translateY(-2px);
         border-color: var(--color-primary);
         background: var(--color-primary-soft);
     }
 
-    .policy-top:focus-visible,
-    .policy-toc__toggle:focus-visible {
+    .privacy-top:focus-visible,
+    .privacy-toc__toggle:focus-visible {
         outline: 2px solid var(--color-primary);
         outline-offset: 2px;
     }
@@ -455,24 +455,24 @@
 /* ---------- Responsive ---------- */
 
 @media (max-width: 900px) {
-    .policy-layout {
+    .privacy-layout {
         grid-template-columns: minmax(0, 1fr);
         gap: 16px;
     }
 
-    .policy-aside {
+    .privacy-aside {
         position: static;
     }
 
-    .policy-toc {
+    .privacy-toc {
         padding: 6px;
     }
 
-    .policy-toc__title {
+    .privacy-toc__title {
         display: none;
     }
 
-    .policy-toc__toggle {
+    .privacy-toc__toggle {
         display: flex;
         width: 100%;
         min-height: 44px;
@@ -487,84 +487,84 @@
         cursor: pointer;
     }
 
-        .policy-toc__toggle span {
+        .privacy-toc__toggle span {
             display: inline-flex;
             align-items: center;
             gap: 9px;
         }
 
-        .policy-toc__toggle i:first-child {
+        .privacy-toc__toggle i:first-child {
             color: var(--color-primary);
         }
 
-    .policy-toc__caret {
+    .privacy-toc__caret {
         color: var(--color-muted);
         font-size: 12px;
         transition: transform .18s ease;
     }
 
-    .policy-toc__toggle[aria-expanded="true"] .policy-toc__caret {
+    .privacy-toc__toggle[aria-expanded="true"] .privacy-toc__caret {
         transform: rotate(180deg);
     }
 
-    .policy-toc__list {
+    .privacy-toc__list {
         display: none;
         padding: 6px 0 4px;
         border-top: 1px solid var(--color-border);
         margin-top: 6px;
     }
 
-    .policy-toc.is-open .policy-toc__list {
+    .privacy-toc.is-open .privacy-toc__list {
         display: grid;
     }
 
-    .policy-grid--3 {
+    .privacy-grid--3 {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 768px) {
-    .policy-header {
+    .privacy-header {
         align-items: flex-start;
     }
 
-    .policy-content {
+    .privacy-content {
         padding: 22px 18px;
     }
 
-    .policy-section {
+    .privacy-section {
         padding-top: 24px;
         scroll-margin-top: 20px; /* nav mobile nằm ở đáy */
     }
 
-        .policy-section + .policy-section {
+        .privacy-section + .privacy-section {
             margin-top: 24px;
         }
 
-    .policy-section__title {
+    .privacy-section__title {
         font-size: 17px;
     }
 
-    .policy-section__icon {
+    .privacy-section__icon {
         flex-basis: 32px;
         width: 32px;
         height: 32px;
         font-size: 13px;
     }
 
-    .policy-section p,
-    .policy-list li {
+    .privacy-section p,
+    .privacy-list li {
         font-size: 13px;
     }
 
-    .policy-grid,
-    .policy-grid--3,
-    .policy-contact {
+    .privacy-grid,
+    .privacy-grid--3,
+    .privacy-contact {
         grid-template-columns: minmax(0, 1fr);
     }
 
     /* Tránh bị thanh điều hướng dưới đáy che */
-    .policy-top {
+    .privacy-top {
         right: 16px;
         bottom: calc(84px + env(safe-area-inset-bottom));
     }
@@ -575,11 +575,11 @@
 @media print {
     .app-nav,
     .app-footer,
-    .policy-aside,
-    .policy-progress,
-    .policy-top,
-    .policy-print,
-    .policy-actions {
+    .privacy-aside,
+    .privacy-progress,
+    .privacy-top,
+    .privacy-print,
+    .privacy-actions {
         display: none !important;
     }
 
@@ -589,25 +589,25 @@
         color: #000 !important;
     }
 
-    .policy-layout {
+    .privacy-layout {
         display: block;
     }
 
-    .policy-content {
+    .privacy-content {
         padding: 0;
         border: 0;
         box-shadow: none;
     }
 
-    .policy-section {
+    .privacy-section {
         break-inside: avoid;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .policy-progress__bar,
-    .policy-toc__caret,
-    .policy-top {
+    .privacy-progress__bar,
+    .privacy-toc__caret,
+    .privacy-top {
         transition: none;
     }
 }

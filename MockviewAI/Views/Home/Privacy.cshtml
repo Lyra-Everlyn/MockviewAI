@@ -1,6 +1,6 @@
 ﻿@{
     Layout = null;
-    ViewData["ActiveNav"] = "policy";
+    ViewData["ActiveNav"] = "privacy";
 
     // Cập nhật ngày này mỗi khi nội dung chính sách thay đổi
     var lastUpdated = new DateTime(2026, 11, 18);
@@ -33,18 +33,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="~/css/base.css" asp-append-version="true">
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true">
-    <link rel="stylesheet" href="~/css/Policy.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/Privacy.css" asp-append-version="true">
     <partial name="Partials/_ThemeHead" />
 </head>
 
 <body class="app-layout">
-    <div class="policy-progress" aria-hidden="true"><span class="policy-progress__bar" data-policy-progress></span></div>
+    <div class="privacy-progress" aria-hidden="true"><span class="privacy-progress__bar" data-privacy-progress></span></div>
 
     <partial name="Partials/_AppNavigation" />
 
     <div class="app-layout__content">
         <main class="page-shell">
-            <header class="page-header policy-header">
+            <header class="page-header privacy-header">
                 <div class="page-header__content">
                     <span class="page-header__eyebrow">PHÁP LÝ</span>
                     <h1 class="page-header__title">Chính sách &amp; Điều khoản</h1>
@@ -53,38 +53,38 @@
                     </p>
                 </div>
 
-                <div class="policy-meta">
+                <div class="privacy-meta">
                     <span class="status-chip">
                         <i class="fa-regular fa-calendar" aria-hidden="true"></i>
                         Cập nhật: @lastUpdated.ToString("dd/MM/yyyy")
                     </span>
                     <span class="status-chip status-chip--success">
                         <i class="fa-regular fa-clock" aria-hidden="true"></i>
-                        <span data-policy-read-time>~5 phút đọc</span>
+                        <span data-privacy-read-time>~5 phút đọc</span>
                     </span>
-                    <button type="button" class="button button--secondary policy-print" data-policy-print>
+                    <button type="button" class="button button--secondary privacy-print" data-privacy-print>
                         <i class="fa-solid fa-print" aria-hidden="true"></i>
                         In / Lưu PDF
                     </button>
                 </div>
             </header>
 
-            <div class="policy-layout">
+            <div class="privacy-layout">
                 <!-- ---------- Mục lục ---------- -->
-                <aside class="policy-aside">
-                    <nav class="policy-toc" aria-label="Mục lục chính sách">
-                        <button type="button" class="policy-toc__toggle" data-policy-toc-toggle aria-expanded="false" aria-controls="policy-toc-list">
+                <aside class="privacy-aside">
+                    <nav class="privacy-toc" aria-label="Mục lục chính sách">
+                        <button type="button" class="privacy-toc__toggle" data-privacy-toc-toggle aria-expanded="false" aria-controls="privacy-toc-list">
                             <span><i class="fa-solid fa-list-ul" aria-hidden="true"></i> Mục lục</span>
-                            <i class="fa-solid fa-chevron-down policy-toc__caret" aria-hidden="true"></i>
+                            <i class="fa-solid fa-chevron-down privacy-toc__caret" aria-hidden="true"></i>
                         </button>
 
-                        <span class="policy-toc__title">MỤC LỤC</span>
-                        <ol id="policy-toc-list" class="policy-toc__list">
+                        <span class="privacy-toc__title">MỤC LỤC</span>
+                        <ol id="privacy-toc-list" class="privacy-toc__list">
                             @for (var i = 0; i < sections.Length; i++)
                             {
                                 <li>
-                                    <a class="policy-toc__link" href="#@sections[i].Id" data-policy-toc-link>
-                                        <span class="policy-toc__index">@((i + 1).ToString("00"))</span>
+                                    <a class="privacy-toc__link" href="#@sections[i].Id" data-privacy-toc-link>
+                                        <span class="privacy-toc__index">@((i + 1).ToString("00"))</span>
                                         <span>@sections[i].Title</span>
                                     </a>
                                 </li>
@@ -94,40 +94,40 @@
                 </aside>
 
                 <!-- ---------- Nội dung ---------- -->
-                <article class="policy-content surface-card" data-policy-content>
-                    <div class="policy-summary">
-                        <div class="policy-summary__icon" aria-hidden="true"><i class="fa-solid fa-lightbulb"></i></div>
+                <article class="privacy-content surface-card" data-privacy-content>
+                    <div class="privacy-summary">
+                        <div class="privacy-summary__icon" aria-hidden="true"><i class="fa-solid fa-lightbulb"></i></div>
                         <div>
                             <strong>Tóm tắt nhanh</strong>
                             <p>Chúng tôi chỉ dùng dữ liệu để vận hành buổi luyện phỏng vấn và đánh giá câu trả lời của bạn. Chúng tôi không bán dữ liệu cá nhân. Bạn có thể yêu cầu xem, sửa hoặc xóa dữ liệu bất cứ lúc nào.</p>
                         </div>
                     </div>
 
-                    <section id="@sections[0].Id" class="policy-section" data-policy-section>
-                        <h2 class="policy-section__title"><span class="policy-section__icon"><i class="@sections[0].Icon" aria-hidden="true"></i></span>1. @sections[0].Title</h2>
+                    <section id="@sections[0].Id" class="privacy-section" data-privacy-section>
+                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[0].Icon" aria-hidden="true"></i></span>1. @sections[0].Title</h2>
                         <p>MockviewAI ("chúng tôi") là nền tảng giúp người dùng luyện phỏng vấn với AI trong môi trường mô phỏng. Chính sách này áp dụng cho website, ứng dụng và mọi dịch vụ liên quan của MockviewAI.</p>
                         <p>Khi tạo tài khoản hoặc sử dụng dịch vụ, bạn xác nhận đã đọc và đồng ý với nội dung dưới đây.</p>
                     </section>
 
-                    <section id="@sections[1].Id" class="policy-section" data-policy-section>
-                        <h2 class="policy-section__title"><span class="policy-section__icon"><i class="@sections[1].Icon" aria-hidden="true"></i></span>2. @sections[1].Title</h2>
-                        <div class="policy-grid">
-                            <div class="policy-card">
+                    <section id="@sections[1].Id" class="privacy-section" data-privacy-section>
+                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[1].Icon" aria-hidden="true"></i></span>2. @sections[1].Title</h2>
+                        <div class="privacy-grid">
+                            <div class="privacy-card">
                                 <i class="fa-regular fa-id-card" aria-hidden="true"></i>
                                 <strong>Thông tin tài khoản</strong>
                                 <p>Họ tên, email, ảnh đại diện (khi đăng nhập bằng Google) và mật khẩu đã được mã hóa.</p>
                             </div>
-                            <div class="policy-card">
+                            <div class="privacy-card">
                                 <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
                                 <strong>Hồ sơ nghề nghiệp</strong>
                                 <p>Vị trí ứng tuyển, cấp độ kinh nghiệm và định hướng nghề nghiệp mà bạn cung cấp.</p>
                             </div>
-                            <div class="policy-card">
+                            <div class="privacy-card">
                                 <i class="fa-regular fa-comments" aria-hidden="true"></i>
                                 <strong>Nội dung buổi luyện</strong>
                                 <p>Câu hỏi, câu trả lời dạng văn bản hoặc giọng nói, điểm số và nhận xét.</p>
                             </div>
-                            <div class="policy-card">
+                            <div class="privacy-card">
                                 <i class="fa-solid fa-laptop" aria-hidden="true"></i>
                                 <strong>Dữ liệu kỹ thuật</strong>
                                 <p>Địa chỉ IP, loại trình duyệt, thời gian truy cập và nhật ký lỗi để đảm bảo an toàn hệ thống.</p>
@@ -135,35 +135,35 @@
                         </div>
                     </section>
 
-                    <section id="@sections[2].Id" class="policy-section" data-policy-section>
-                        <h2 class="policy-section__title"><span class="policy-section__icon"><i class="@sections[2].Icon" aria-hidden="true"></i></span>3. @sections[2].Title</h2>
-                        <ul class="policy-list">
+                    <section id="@sections[2].Id" class="privacy-section" data-privacy-section>
+                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[2].Icon" aria-hidden="true"></i></span>3. @sections[2].Title</h2>
+                        <ul class="privacy-list">
                             <li><i class="fa-solid fa-check" aria-hidden="true"></i>Tạo và cá nhân hóa buổi phỏng vấn theo vị trí bạn chọn.</li>
                             <li><i class="fa-solid fa-check" aria-hidden="true"></i>Chấm điểm, đưa nhận xét và theo dõi tiến độ luyện tập.</li>
                             <li><i class="fa-solid fa-check" aria-hidden="true"></i>Xác thực tài khoản, gửi mã OTP và thông báo quan trọng.</li>
                             <li><i class="fa-solid fa-check" aria-hidden="true"></i>Phát hiện gian lận, spam và bảo vệ hệ thống.</li>
                             <li><i class="fa-solid fa-check" aria-hidden="true"></i>Cải thiện chất lượng sản phẩm dựa trên dữ liệu thống kê đã ẩn danh.</li>
                         </ul>
-                        <div class="policy-callout policy-callout--success">
+                        <div class="privacy-callout privacy-callout--success">
                             <i class="fa-solid fa-hand" aria-hidden="true"></i>
                             <p><strong>Cam kết:</strong> chúng tôi không bán và không cho thuê dữ liệu cá nhân của bạn cho bất kỳ bên nào.</p>
                         </div>
                     </section>
 
-                    <section id="@sections[3].Id" class="policy-section" data-policy-section>
-                        <h2 class="policy-section__title"><span class="policy-section__icon"><i class="@sections[3].Icon" aria-hidden="true"></i></span>4. @sections[3].Title</h2>
+                    <section id="@sections[3].Id" class="privacy-section" data-privacy-section>
+                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[3].Icon" aria-hidden="true"></i></span>4. @sections[3].Title</h2>
                         <p>Khi bạn trả lời bằng giọng nói, trình duyệt sẽ xin quyền dùng micro. Bản ghi âm được chuyển thành văn bản để AI phân tích. Bạn có thể tắt micro và trả lời bằng văn bản bất cứ lúc nào.</p>
-                        <div class="policy-callout policy-callout--warning">
+                        <div class="privacy-callout privacy-callout--warning">
                             <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
                             <p><strong>Lưu ý:</strong> điểm và nhận xét do AI tạo ra chỉ mang tính tham khảo cho việc luyện tập, không thay thế đánh giá của nhà tuyển dụng thật.</p>
                         </div>
                     </section>
 
-                    <section id="@sections[4].Id" class="policy-section" data-policy-section>
-                        <h2 class="policy-section__title"><span class="policy-section__icon"><i class="@sections[4].Icon" aria-hidden="true"></i></span>5. @sections[4].Title</h2>
+                    <section id="@sections[4].Id" class="privacy-section" data-privacy-section>
+                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[4].Icon" aria-hidden="true"></i></span>5. @sections[4].Title</h2>
                         <p>Chúng tôi chỉ chia sẻ phần dữ liệu cần thiết với các đối tác kỹ thuật để vận hành dịch vụ:</p>
-                        <div class="policy-table-wrap">
-                            <table class="policy-table">
+                        <div class="privacy-table-wrap">
+                            <table class="privacy-table">
                                 <thead>
                                     <tr><th scope="col">Dịch vụ</th><th scope="col">Mục đích</th><th scope="col">Dữ liệu liên quan</th></tr>
                                 </thead>
@@ -178,9 +178,9 @@
                         <p>Ngoài các trường hợp trên, chúng tôi chỉ cung cấp dữ liệu khi có yêu cầu hợp pháp từ cơ quan nhà nước có thẩm quyền.</p>
                     </section>
 
-                    <section id="@sections[5].Id" class="policy-section" data-policy-section>
-                        <h2 class="policy-section__title"><span class="policy-section__icon"><i class="@sections[5].Icon" aria-hidden="true"></i></span>6. @sections[5].Title</h2>
-                        <ul class="policy-list">
+                    <section id="@sections[5].Id" class="privacy-section" data-privacy-section>
+                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[5].Icon" aria-hidden="true"></i></span>6. @sections[5].Title</h2>
+                        <ul class="privacy-list">
                             <li><i class="fa-solid fa-lock" aria-hidden="true"></i>Kết nối được mã hóa bằng HTTPS/TLS.</li>
                             <li><i class="fa-solid fa-key" aria-hidden="true"></i>Mật khẩu được băm (hash), không lưu dạng văn bản thuần.</li>
                             <li><i class="fa-solid fa-user-lock" aria-hidden="true"></i>Chỉ nhân sự được ủy quyền mới truy cập được dữ liệu, và mọi lần truy cập đều được ghi nhật ký.</li>
@@ -188,27 +188,27 @@
                         </ul>
                     </section>
 
-                    <section id="@sections[6].Id" class="policy-section" data-policy-section>
-                        <h2 class="policy-section__title"><span class="policy-section__icon"><i class="@sections[6].Icon" aria-hidden="true"></i></span>7. @sections[6].Title</h2>
-                        <div class="policy-grid policy-grid--3">
-                            <div class="policy-card"><i class="fa-regular fa-eye" aria-hidden="true"></i><strong>Truy cập</strong><p>Xem dữ liệu chúng tôi đang lưu về bạn.</p></div>
-                            <div class="policy-card"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i><strong>Chỉnh sửa</strong><p>Cập nhật thông tin trong trang Hồ sơ.</p></div>
-                            <div class="policy-card"><i class="fa-regular fa-trash-can" aria-hidden="true"></i><strong>Xóa</strong><p>Yêu cầu xóa tài khoản và lịch sử luyện tập.</p></div>
+                    <section id="@sections[6].Id" class="privacy-section" data-privacy-section>
+                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[6].Icon" aria-hidden="true"></i></span>7. @sections[6].Title</h2>
+                        <div class="privacy-grid privacy-grid--3">
+                            <div class="privacy-card"><i class="fa-regular fa-eye" aria-hidden="true"></i><strong>Truy cập</strong><p>Xem dữ liệu chúng tôi đang lưu về bạn.</p></div>
+                            <div class="privacy-card"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i><strong>Chỉnh sửa</strong><p>Cập nhật thông tin trong trang Hồ sơ.</p></div>
+                            <div class="privacy-card"><i class="fa-regular fa-trash-can" aria-hidden="true"></i><strong>Xóa</strong><p>Yêu cầu xóa tài khoản và lịch sử luyện tập.</p></div>
                         </div>
-                        <div class="policy-actions">
+                        <div class="privacy-actions">
                             <a href="/Profile" class="button button--secondary"><i class="fa-regular fa-user" aria-hidden="true"></i> Đến trang Hồ sơ</a>
                         </div>
                     </section>
 
-                    <section id="@sections[7].Id" class="policy-section" data-policy-section>
-                        <h2 class="policy-section__title"><span class="policy-section__icon"><i class="@sections[7].Icon" aria-hidden="true"></i></span>8. @sections[7].Title</h2>
+                    <section id="@sections[7].Id" class="privacy-section" data-privacy-section>
+                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[7].Icon" aria-hidden="true"></i></span>8. @sections[7].Title</h2>
                         <p>Chúng tôi dùng cookie <strong>bắt buộc</strong> để duy trì phiên đăng nhập và chống giả mạo yêu cầu (anti-forgery), cùng bộ nhớ trình duyệt để ghi nhớ giao diện sáng/tối bạn chọn. Nếu tắt cookie, một số chức năng như đăng nhập sẽ không hoạt động.</p>
                     </section>
 
-                    <section id="@sections[8].Id" class="policy-section" data-policy-section>
-                        <h2 class="policy-section__title"><span class="policy-section__icon"><i class="@sections[8].Icon" aria-hidden="true"></i></span>9. @sections[8].Title</h2>
+                    <section id="@sections[8].Id" class="privacy-section" data-privacy-section>
+                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[8].Icon" aria-hidden="true"></i></span>9. @sections[8].Title</h2>
                         <p>Khi sử dụng MockviewAI, bạn đồng ý:</p>
-                        <ul class="policy-list policy-list--danger">
+                        <ul class="privacy-list privacy-list--danger">
                             <li><i class="fa-solid fa-xmark" aria-hidden="true"></i>Không chia sẻ tài khoản hoặc dùng tài khoản của người khác.</li>
                             <li><i class="fa-solid fa-xmark" aria-hidden="true"></i>Không gửi nội dung vi phạm pháp luật, xúc phạm hoặc chứa mã độc.</li>
                             <li><i class="fa-solid fa-xmark" aria-hidden="true"></i>Không khai thác lỗ hổng, tấn công hoặc thu thập dữ liệu tự động từ hệ thống.</li>
@@ -216,15 +216,15 @@
                         <p>Chúng tôi có quyền tạm khóa tài khoản vi phạm. Trước khi khóa, chúng tôi sẽ thông báo nếu điều kiện cho phép.</p>
                     </section>
 
-                    <section id="@sections[9].Id" class="policy-section" data-policy-section>
-                        <h2 class="policy-section__title"><span class="policy-section__icon"><i class="@sections[9].Icon" aria-hidden="true"></i></span>10. @sections[9].Title</h2>
+                    <section id="@sections[9].Id" class="privacy-section" data-privacy-section>
+                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[9].Icon" aria-hidden="true"></i></span>10. @sections[9].Title</h2>
                         <p>Chính sách có thể được cập nhật khi tính năng hoặc quy định pháp luật thay đổi. Ngày cập nhật gần nhất luôn hiển thị ở đầu trang. Khi có thay đổi quan trọng, chúng tôi sẽ thông báo qua email hoặc ngay trên ứng dụng.</p>
                     </section>
 
-                    <section id="@sections[10].Id" class="policy-section" data-policy-section>
-                        <h2 class="policy-section__title"><span class="policy-section__icon"><i class="@sections[10].Icon" aria-hidden="true"></i></span>11. @sections[10].Title</h2>
+                    <section id="@sections[10].Id" class="privacy-section" data-privacy-section>
+                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[10].Icon" aria-hidden="true"></i></span>11. @sections[10].Title</h2>
                         <p>Nếu bạn có câu hỏi hoặc muốn thực hiện quyền đối với dữ liệu của mình, hãy liên hệ:</p>
-                        <div class="policy-contact">
+                        <div class="privacy-contact">
                             <a class="action-card" href="mailto:@supportEmail">
                                 <div class="action-card__icon" aria-hidden="true"><i class="fa-regular fa-envelope"></i></div>
                                 <div class="action-card__content">
@@ -250,7 +250,7 @@
         </main>
     </div>
 
-    <button type="button" class="policy-top" data-policy-top aria-label="Lên đầu trang" hidden>
+    <button type="button" class="privacy-top" data-privacy-top aria-label="Lên đầu trang" hidden>
         <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
     </button>
 

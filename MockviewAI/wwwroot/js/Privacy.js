@@ -13,15 +13,15 @@
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const scrollBehavior = prefersReducedMotion ? 'auto' : 'smooth';
 
-    const progressBar = document.querySelector('[data-policy-progress]');
-    const content = document.querySelector('[data-policy-content]');
-    const sections = Array.from(document.querySelectorAll('[data-policy-section]'));
-    const tocLinks = Array.from(document.querySelectorAll('[data-policy-toc-link]'));
-    const toc = document.querySelector('.policy-toc');
-    const tocToggle = document.querySelector('[data-policy-toc-toggle]');
-    const topButton = document.querySelector('[data-policy-top]');
-    const printButton = document.querySelector('[data-policy-print]');
-    const readTime = document.querySelector('[data-policy-read-time]');
+    const progressBar = document.querySelector('[data-privacy-progress]');
+    const content = document.querySelector('[data-privacy-content]');
+    const sections = Array.from(document.querySelectorAll('[data-privacy-section]'));
+    const tocLinks = Array.from(document.querySelectorAll('[data-privacy-toc-link]'));
+    const toc = document.querySelector('.privacy-toc');
+    const tocToggle = document.querySelector('[data-privacy-toc-toggle]');
+    const topButton = document.querySelector('[data-privacy-top]');
+    const printButton = document.querySelector('[data-privacy-print]');
+    const readTime = document.querySelector('[data-privacy-read-time]');
 
     /* ---------- Thời gian đọc (~200 từ/phút) ---------- */
     if (content && readTime) {
