@@ -38,7 +38,7 @@ namespace MockviewAI.Controllers
 
         /// <summary>
         /// Xử lý form đăng nhập bằng email / mật khẩu.
-        /// Mọi trường hợp thất bại đều hiển thị lại trang Login kèm thông báo lỗi.
+        /// Mọi trường hợp thất bại đều quay về trang Login kèm thông báo lỗi (xem LoginFailed).
         /// </summary>
         [HttpPost]
         [Route("Auth/Login")]
@@ -52,25 +52,25 @@ namespace MockviewAI.Controllers
                 bool isHuman = await _turnstileService.VerifyAsync(turnstileToken, ipAddressString);
                 if (!isHuman)
                     return LoginFailed("Xác thực bảo mật thất bại (Captcha không hợp lệ).");
-        
+
                 if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
                     return LoginFailed("Vui lòng nhập đầy đủ Email và Mật khẩu.");
-        
+
                 var throttleKey = LoginThrottleService.BuildKey(email, HttpContext.Connection.RemoteIpAddress);
                 var emailThrottleKey = LoginThrottleService.BuildEmailKey(email);
-        
+
                 var (isLocked, wait) = await _throttleService.IsLockedOutAsync(throttleKey, emailThrottleKey);
                 if (isLocked)
                 {
                     var minutes = (int)Math.Ceiling(wait.TotalMinutes);
                     return LoginFailed($"Đăng nhập sai quá nhiều. Vui lòng thử lại sau {minutes} phút.");
                 }
-        
+
                 var user = await _authService.AuthenticateAsync(email, password);
-        
+
                 await _throttleService.ResetAsync(throttleKey, emailThrottleKey);
                 await SignInUser(user!.Email, $"{user.LastName} {user.FirstName}".Trim(), user.Role, user.AvatarUrl);
-        
+
                 return RedirectAfterLogin(user);
             }
             catch (Exception ex)
@@ -78,17 +78,19 @@ namespace MockviewAI.Controllers
                 return LoginFailed(ex.Message);
             }
         }
-        
+
         /// <summary>
-        /// Hiển thị lại trang Login kèm thông báo lỗi.
-        /// Phải ghi rõ tên view "Login": action này tên LoginApp, nên View() trống sẽ đi tìm LoginApp.cshtml (không tồn tại) và gây lỗi 500.
+        /// Đăng nhập thất bại: lưu thông báo vào TempData (hộp thông báo _Notify chỉ đọc TempData)
+        /// rồi chuyển về trang Login (mẫu Post-Redirect-Get):
+        /// -- người dùng THẤY lỗi (sai mật khẩu, CAPTCHA, bị khoá...);
+        /// -- không render view theo tên action "LoginApp" (không tồn tại -> lỗi 500 như trước);
+        /// -- trang mới có mã chống giả mạo + CAPTCHA mới, bấm F5 không gửi lại form.
         /// </summary>
         private IActionResult LoginFailed(string message)
         {
-            ViewData["ErrorMessage"] = message;
-            return View(nameof(Login));
+            TempData["ErrorMessage"] = message;
+            return RedirectToAction(nameof(Login));
         }
-
 
         [HttpGet]
         [Route("Auth/LoginGoogle")]

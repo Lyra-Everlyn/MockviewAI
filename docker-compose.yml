@@ -154,6 +154,14 @@ services:
       Speech__NormalizeTimeoutSeconds: "${Speech__NormalizeTimeoutSeconds:-14}"
       Speech__MaxLengthChangeRatio: "${Speech__MaxLengthChangeRatio:-0.3}"
 
+      # --- Khoá mã hoá cookie đăng nhập / mã chống giả mạo form (Data Protection) ---
+      # Lưu ra volume dataprotection_keys: deploy lại KHÔNG đăng xuất người dùng, form đang mở không bị lỗi 400.
+      DataProtection__KeysPath: "/app/keys"
+
+    volumes:
+      # Khoá Data Protection. KHÔNG xoá volume này: mất khoá = mọi người dùng bị đăng xuất.
+      - dataprotection_keys:/app/keys
+
     ports:
       # Cổng HOST:CONTAINER. Ứng dụng lắng nghe cổng 8080 bên trong container.
       # Traefik của Dokploy định tuyến mockviewai.com -> cổng 8080 này.
@@ -168,3 +176,4 @@ services:
 # -----------------------------------------------------------------------------
 volumes:
   mysql_data_final:                       # Dữ liệu MySQL production — KHÔNG xoá
+  dataprotection_keys:                    # Khoá mã hoá cookie / form — KHÔNG xoá
