@@ -2,36 +2,59 @@
 
 namespace MockviewAI.Services.Security
 {
+    /// <summary>
+    /// [SECURITY] 
+    /// Gọi API siteverify của Cloudflare Turnstile.
+    /// </summary>
     public class TurnstileService : ITurnstileService
     {
+        #region Fields
+        private const string VerifyUrl = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+
         private readonly HttpClient _httpClient;
         private readonly string _secretKey;
+        private readonly ILogger<TurnstileService> _logger;
+        #endregion
 
-        public TurnstileService(HttpClient httpClient, IConfiguration config)
+        #region Constructor
+        public TurnstileService(HttpClient httpClient, IConfiguration config, ILogger<TurnstileService> logger)
         {
             _httpClient = httpClient;
+            _logger = logger;
             _secretKey = config["Turnstile:SecretKey"] ?? throw new InvalidOperationException("Turnstile SecretKey is missing.");
         }
+        #endregion
 
+        #region ITurnstileService
         public async Task<bool> VerifyAsync(string token, string? ipAddress)
         {
             if (string.IsNullOrWhiteSpace(token)) return false;
 
-            var content = new FormUrlEncodedContent(new[]
+            var content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                new KeyValuePair<string, string>("secret", _secretKey),
-                new KeyValuePair<string, string>("response", token),
-                new KeyValuePair<string, string>("remoteip", ipAddress ?? string.Empty)
+                ["secret"] = _secretKey,
+                ["response"] = token,
+                ["remoteip"] = ipAddress ?? string.Empty
             });
 
-            var response = await _httpClient.PostAsync("https://challenges.cloudflare.com/turnstile/v0/siteverify", content);
+            try
+            {
+                using var response = await _httpClient.PostAsync(VerifyUrl, content);
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Turnstile verify returned HTTP {Status}", (int)response.StatusCode);
+                    return false;
+                }
 
-            if (!response.IsSuccessStatusCode) return false;
-
-            var jsonString = await response.Content.ReadAsStringAsync();
-            using var document = JsonDocument.Parse(jsonString);
-
-            return document.RootElement.GetProperty("success").GetBoolean();
+                using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+                return document.RootElement.TryGetProperty("success", out var success) && success.ValueKind == JsonValueKind.True;
+            }
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
+            {
+                _logger.LogWarning(ex, "Turnstile verify failed");
+                return false;
+            }
         }
+        #endregion
     }
 }

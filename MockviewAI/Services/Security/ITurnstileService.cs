@@ -1,8 +1,11 @@
 ﻿namespace MockviewAI.Services.Security
 {
+    /// <summary>
+    /// [SECURITY] 
+    /// Xác minh token Cloudflare Turnstile (CAPTCHA). Lỗi mạng / phản hồi lạ = không hợp lệ.
+    /// </summary>
     public interface ITurnstileService
     {
-        // Call the Cloudflare API to verify the validity of the token
         Task<bool> VerifyAsync(string token, string? ipAddress);
     }
 }

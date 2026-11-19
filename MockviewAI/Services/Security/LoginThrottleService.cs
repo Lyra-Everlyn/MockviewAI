@@ -1,95 +1,85 @@
+using System.Net;
 using Microsoft.Extensions.Options;
 using MockviewAI.Models.Security;
 using StackExchange.Redis;
-using System.Net;
 
 namespace MockviewAI.Services.Security
 {
+    /// <summary>
+    /// [SECURITY] 
+    /// Đếm lần đăng nhập sai trong Redis và khoá tạm thời.
+    /// Khoá theo cặp email + IP sau MaxFailedLogins lần sai; khoá riêng email sau gấp đôi số lần đó (chống dò từ nhiều IP).
+    /// </summary>
     public class LoginThrottleService : ILoginThrottleService
     {
+        #region Fields
+        private const string Prefix = "MockviewAI_";
+
         private readonly IDatabase _db;
         private readonly SecurityOptions _options;
-        private readonly string _prefix = "MockviewAI_";
+        #endregion
 
+        #region Constructor
         public LoginThrottleService(IConnectionMultiplexer redis, IOptions<SecurityOptions> options)
         {
             _db = redis.GetDatabase();
             _options = options.Value;
         }
+        #endregion
 
+        #region Keys
         public static string BuildKey(string email, IPAddress? ip) =>
             $"Throttle|{(email ?? string.Empty).Trim().ToLowerInvariant()}|{ip}";
 
         public static string BuildEmailKey(string email) =>
             $"Throttle|EmailOnly|{(email ?? string.Empty).Trim().ToLowerInvariant()}";
+        #endregion
 
+        #region ILoginThrottleService
+        /// <summary>Khoá còn hiệu lực khi khoá ":Locked" còn tồn tại; thời gian còn lại lấy từ TTL của Redis.</summary>
         public async Task<(bool LockedOut, TimeSpan Remaining)> IsLockedOutAsync(string key, string emailKey)
         {
-            var now = DateTime.UtcNow;
-
-            var ipLockedUntilStr = await _db.StringGetAsync($"{_prefix}{key}:LockedUntil");
-            if (ipLockedUntilStr.HasValue && DateTime.TryParse(ipLockedUntilStr, out var ipLockedUntil) && ipLockedUntil > now)
+            foreach (var k in new[] { key, emailKey })
             {
-                return (true, ipLockedUntil - now);
+                if (string.IsNullOrEmpty(k)) continue;
+                var ttl = await _db.KeyTimeToLiveAsync(Prefix + k + ":Locked");
+                if (ttl is { } remaining && remaining > TimeSpan.Zero) return (true, remaining);
             }
-
-            if (!string.IsNullOrEmpty(emailKey))
-            {
-                var emailLockedUntilStr = await _db.StringGetAsync($"{_prefix}{emailKey}:LockedUntil");
-                if (emailLockedUntilStr.HasValue && DateTime.TryParse(emailLockedUntilStr, out var emailLockedUntil) && emailLockedUntil > now)
-                {
-                    return (true, emailLockedUntil - now);
-                }
-            }
-
             return (false, TimeSpan.Zero);
         }
 
         public async Task RegisterFailureAsync(string key, string emailKey)
         {
-            var failKey = $"{_prefix}{key}:Failures";
-            var lockKey = $"{_prefix}{key}:LockedUntil";
+            var window = TimeSpan.FromMinutes(Math.Max(1, _options.LockoutMinutes));
+            int max = Math.Max(1, _options.MaxFailedLogins);
 
-            var emailFailKey = $"{_prefix}{emailKey}:Failures";
-            var emailLockKey = $"{_prefix}{emailKey}:LockedUntil";
-
-            var window = TimeSpan.FromMinutes(_options.LockoutMinutes);
-
-            var batch = _db.CreateBatch();
-            var ipIncrTask = batch.StringIncrementAsync(failKey);
-            var emailIncrTask = batch.StringIncrementAsync(emailFailKey);
-            batch.Execute();
-
-            await Task.WhenAll(ipIncrTask, emailIncrTask);
-            long ipFailures = await ipIncrTask;
-            long emailFailures = await emailIncrTask;
-
-            if (ipFailures == 1) await _db.KeyExpireAsync(failKey, window);
-            if (ipFailures >= _options.MaxFailedLogins)
-            {
-                var lockedUntil = DateTime.UtcNow.Add(window);
-                await _db.StringSetAsync(lockKey, lockedUntil.ToString("O"), window);
-                await _db.KeyDeleteAsync(failKey);
-            }
-
-            if (emailFailures == 1) await _db.KeyExpireAsync(emailFailKey, window);
-            if (emailFailures >= _options.MaxFailedLogins * 2)
-            {
-                var lockedUntil = DateTime.UtcNow.Add(window);
-                await _db.StringSetAsync(emailLockKey, lockedUntil.ToString("O"), window);
-                await _db.KeyDeleteAsync(emailFailKey);
-            }
+            await CountAsync(key, max, window);
+            await CountAsync(emailKey, max * 2, window);
         }
 
         public async Task ResetAsync(string key, string emailKey)
         {
-            var batch = _db.CreateBatch();
-            var t1 = batch.KeyDeleteAsync($"{_prefix}{key}:Failures");
-            var t2 = batch.KeyDeleteAsync($"{_prefix}{key}:LockedUntil");
-            var t3 = batch.KeyDeleteAsync($"{_prefix}{emailKey}:Failures");
-            var t4 = batch.KeyDeleteAsync($"{_prefix}{emailKey}:LockedUntil");
-            batch.Execute();
-            await Task.WhenAll(t1, t2, t3, t4);
+            await _db.KeyDeleteAsync(new RedisKey[]
+            {
+                Prefix + key + ":Failures", Prefix + key + ":Locked",
+                Prefix + emailKey + ":Failures", Prefix + emailKey + ":Locked"
+            });
         }
+        #endregion
+
+        #region Helpers
+        private async Task CountAsync(string key, int limit, TimeSpan window)
+        {
+            if (string.IsNullOrEmpty(key)) return;
+
+            string failKey = Prefix + key + ":Failures";
+            long failures = await _db.StringIncrementAsync(failKey);
+            if (failures == 1) await _db.KeyExpireAsync(failKey, window);
+
+            if (failures < limit) return;
+            await _db.StringSetAsync(Prefix + key + ":Locked", "1", window);
+            await _db.KeyDeleteAsync(failKey);
+        }
+        #endregion
     }
 }
