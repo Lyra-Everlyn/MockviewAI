@@ -2,226 +2,264 @@
     Layout = null;
     ViewData["ActiveNav"] = "privacy";
 
-    var lastUpdated = new DateTime(2026, 11, 18);
+    var lastUpdated = new DateTime(2026, 11, 19);
     var supportEmail = "mockviewai@gmail.com";
+    var isSignedIn = User.Identity?.IsAuthenticated == true;
 
     var sections = new[]
     {
-        new { Id = "gioi-thieu",   Icon = "fa-solid fa-circle-info",     Title = "Giới thiệu" },
-        new { Id = "thu-thap",     Icon = "fa-solid fa-database",        Title = "Dữ liệu chúng tôi thu thập" },
-        new { Id = "muc-dich",     Icon = "fa-solid fa-bullseye",        Title = "Mục đích sử dụng dữ liệu" },
-        new { Id = "ai-giong-noi", Icon = "fa-solid fa-microphone",      Title = "Ghi âm và xử lý bằng AI" },
-        new { Id = "ben-thu-ba",   Icon = "fa-solid fa-share-nodes",     Title = "Chia sẻ với bên thứ ba" },
-        new { Id = "bao-mat",      Icon = "fa-solid fa-shield-halved",   Title = "Bảo mật và lưu trữ" },
-        new { Id = "quyen",        Icon = "fa-solid fa-user-shield",     Title = "Quyền của bạn" },
-        new { Id = "cookie",       Icon = "fa-solid fa-cookie-bite",     Title = "Cookie" },
-        new { Id = "dieu-khoan",   Icon = "fa-solid fa-file-contract",   Title = "Điều khoản sử dụng" },
-        new { Id = "thay-doi",     Icon = "fa-solid fa-clock-rotate-left", Title = "Thay đổi chính sách" },
-        new { Id = "lien-he",      Icon = "fa-regular fa-envelope",      Title = "Liên hệ" }
+        new { Id = "gioi-thieu", Icon = "fa-solid fa-circle-info", Title = "Giới thiệu" },
+        new { Id = "thu-thap", Icon = "fa-solid fa-database", Title = "Dữ liệu chúng tôi thu thập" },
+        new { Id = "muc-dich", Icon = "fa-solid fa-bullseye", Title = "Mục đích sử dụng dữ liệu" },
+        new { Id = "giong-noi", Icon = "fa-solid fa-microphone", Title = "Giọng nói và xử lý bằng AI" },
+        new { Id = "ben-thu-ba", Icon = "fa-solid fa-share-nodes", Title = "Chia sẻ với bên thứ ba" },
+        new { Id = "luu-tru", Icon = "fa-solid fa-shield-halved", Title = "Bảo mật và thời gian lưu trữ" },
+        new { Id = "quyen", Icon = "fa-solid fa-user-shield", Title = "Quyền của bạn" },
+        new { Id = "cookie", Icon = "fa-solid fa-cookie-bite", Title = "Cookie và bộ nhớ trình duyệt" },
+        new { Id = "thay-doi", Icon = "fa-solid fa-clock-rotate-left", Title = "Thay đổi chính sách" },
+        new { Id = "lien-he", Icon = "fa-regular fa-envelope", Title = "Liên hệ" }
     };
+
+    Microsoft.AspNetCore.Html.IHtmlContent SectionTitle(string id)
+    {
+        var index = Array.FindIndex(sections, x => x.Id == id);
+        var section = sections[index];
+        return Html.Raw($"<span class=\"legal-section__icon\" aria-hidden=\"true\"><i class=\"{section.Icon}\"></i></span>"
+                      + $"<span><span class=\"legal-section__number\">{index + 1:00}.</span> {System.Net.WebUtility.HtmlEncode(section.Title)}</span>");
+    }
 }
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chính sách &amp; Điều khoản - MockviewAI</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="MockviewAI thu thập dữ liệu gì, dùng để làm gì, chia sẻ với ai và bạn có những quyền gì đối với dữ liệu của mình." />
+    <title>Chính sách quyền riêng tư - MockviewAI</title>
     <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true">
-    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true">
-    <link rel="stylesheet" href="~/css/Privacy.css" asp-append-version="true">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Legal.css" asp-append-version="true" />
     <partial name="Partials/_ThemeHead" />
 </head>
+<body class="@(isSignedIn ? "app-layout" : "legal-guest")">
+    @if (isSignedIn)
+    {
+        <partial name="Partials/_AppNavigation" />
+    }
+    else
+    {
+        <header class="legal-guestbar">
+            <a class="legal-guestbar__brand" href="/Auth/Login" aria-label="MockviewAI - Đăng nhập">
+                <img src="~/favicon.ico" asp-append-version="true" alt="" aria-hidden="true" />
+                <span>Mockview<span>AI</span></span>
+            </a>
+            <div class="legal-guestbar__actions">
+                <a class="button button--secondary" href="/Auth/Login">Đăng nhập</a>
+                <a class="button button--primary" href="/Auth/Register">Đăng ký</a>
+            </div>
+        </header>
+    }
 
-<body class="app-layout">
-    <div class="privacy-progress" aria-hidden="true"><span class="privacy-progress__bar" data-privacy-progress></span></div>
+    <div class="legal-progress" aria-hidden="true"><span class="legal-progress__bar" data-legal-progress></span></div>
 
     <div class="app-layout__content">
-        <main class="page-shell">
-            <header class="page-header privacy-header">
+        <main class="page-shell legal-page">
+            <header class="page-header legal-header">
                 <div class="page-header__content">
-                    <span class="page-header__eyebrow">PHÁP LÝ</span>
-                    <h1 class="page-header__title">Chính sách &amp; Điều khoản</h1>
-                    <p class="page-header__description">
-                        Cách MockviewAI thu thập, sử dụng và bảo vệ dữ liệu của bạn, cùng các điều khoản khi sử dụng nền tảng luyện phỏng vấn.
-                    </p>
+                    <span class="page-header__eyebrow legal-header__eyebrow">
+                        <i class="fa-solid fa-user-shield" aria-hidden="true"></i>
+                        QUYỀN RIÊNG TƯ
+                    </span>
+                    <h1 class="page-header__title">Chính sách quyền riêng tư</h1>
+                    <p class="page-header__description">MockviewAI thu thập dữ liệu gì, dùng để làm gì, chia sẻ với ai và bạn có những quyền gì đối với dữ liệu của mình.</p>
                 </div>
-
-                <div class="privacy-meta">
+                <div class="legal-meta">
                     <span class="status-chip">
                         <i class="fa-regular fa-calendar" aria-hidden="true"></i>
                         Cập nhật: @lastUpdated.ToString("dd/MM/yyyy")
                     </span>
                     <span class="status-chip status-chip--success">
                         <i class="fa-regular fa-clock" aria-hidden="true"></i>
-                        <span data-privacy-read-time>~5 phút đọc</span>
+                        <span data-legal-read-time>~5 phút đọc</span>
                     </span>
-                    <button type="button" class="button button--secondary privacy-print" data-privacy-print>
+                    <button type="button" class="button button--secondary legal-print" data-legal-print>
                         <i class="fa-solid fa-print" aria-hidden="true"></i>
                         In / Lưu PDF
                     </button>
                 </div>
             </header>
 
-            <div class="privacy-layout">
-                <!-- ---------- Mục lục ---------- -->
-                <aside class="privacy-aside">
-                    <nav class="privacy-toc" aria-label="Mục lục chính sách">
-                        <button type="button" class="privacy-toc__toggle" data-privacy-toc-toggle aria-expanded="false" aria-controls="privacy-toc-list">
+            <div class="legal-layout">
+                <aside class="legal-aside">
+                    <nav class="legal-toc" aria-label="Mục lục">
+                        <button type="button" class="legal-toc__toggle" data-legal-toc-toggle aria-expanded="false" aria-controls="legal-toc-list">
                             <span><i class="fa-solid fa-list-ul" aria-hidden="true"></i> Mục lục</span>
-                            <i class="fa-solid fa-chevron-down privacy-toc__caret" aria-hidden="true"></i>
+                            <i class="fa-solid fa-chevron-down legal-toc__caret" aria-hidden="true"></i>
                         </button>
-
-                        <span class="privacy-toc__title">MỤC LỤC</span>
-                        <ol id="privacy-toc-list" class="privacy-toc__list">
+                        <span class="legal-toc__title">TRONG TRANG NÀY</span>
+                        <ol id="legal-toc-list" class="legal-toc__list">
                             @for (var i = 0; i < sections.Length; i++)
                             {
                                 <li>
-                                    <a class="privacy-toc__link" href="#@sections[i].Id" data-privacy-toc-link>
-                                        <span class="privacy-toc__index">@((i + 1).ToString("00"))</span>
+                                    <a class="legal-toc__link" href="#@sections[i].Id" data-legal-toc-link>
+                                        <span class="legal-toc__index">@((i + 1).ToString("00"))</span>
                                         <span>@sections[i].Title</span>
                                     </a>
                                 </li>
                             }
                         </ol>
                     </nav>
+
+                    <a class="legal-related" asp-controller="Home" asp-action="Terms" target="_blank" rel="noopener noreferrer">
+                        <span class="legal-related__icon" aria-hidden="true"><i class="fa-solid fa-file-contract"></i></span>
+                        <span class="legal-related__text">
+                            <small>XEM THÊM</small>
+                            <strong>Điều khoản sử dụng</strong>
+                        </span>
+                        <i class="fa-solid fa-chevron-right legal-related__chevron" aria-hidden="true"></i>
+                    </a>
                 </aside>
 
-                <!-- ---------- Nội dung ---------- -->
-                <article class="privacy-content surface-card" data-privacy-content>
-                    <div class="privacy-summary">
-                        <div class="privacy-summary__icon" aria-hidden="true"><i class="fa-solid fa-lightbulb"></i></div>
+                <article class="legal-content surface-card" data-legal-content>
+                    <div class="legal-summary">
+                        <span class="legal-summary__icon" aria-hidden="true"><i class="fa-solid fa-lightbulb"></i></span>
                         <div>
                             <strong>Tóm tắt nhanh</strong>
-                            <p>Chúng tôi chỉ dùng dữ liệu để vận hành buổi luyện phỏng vấn và đánh giá câu trả lời của bạn. Chúng tôi không bán dữ liệu cá nhân. Bạn có thể yêu cầu xem, sửa hoặc xóa dữ liệu bất cứ lúc nào.</p>
+                            <p>Chúng tôi chỉ dùng dữ liệu để vận hành buổi luyện phỏng vấn và đánh giá câu trả lời của bạn. <strong>Không lưu file ghi âm</strong>, không bán dữ liệu cá nhân. Bạn có thể xoá từng buổi luyện bất cứ lúc nào và yêu cầu xoá toàn bộ tài khoản.</p>
                         </div>
                     </div>
 
-                    <section id="@sections[0].Id" class="privacy-section" data-privacy-section>
-                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[0].Icon" aria-hidden="true"></i></span>1. @sections[0].Title</h2>
-                        <p>MockviewAI ("chúng tôi") là nền tảng giúp người dùng luyện phỏng vấn với AI trong môi trường mô phỏng. Chính sách này áp dụng cho website, ứng dụng và mọi dịch vụ liên quan của MockviewAI.</p>
-                        <p>Khi tạo tài khoản hoặc sử dụng dịch vụ, bạn xác nhận đã đọc và đồng ý với nội dung dưới đây.</p>
+                    <section id="gioi-thieu" class="legal-section" data-legal-section>
+                        <h2 class="legal-section__title">@SectionTitle("gioi-thieu")</h2>
+                        <p>MockviewAI ("chúng tôi") là nền tảng luyện phỏng vấn kỹ thuật với AI, được phát triển trong một dự án nghiên cứu học thuật. Chính sách này áp dụng cho website mockviewai.com và các dịch vụ liên quan.</p>
+                        <p>Chính sách này đi kèm <a class="legal-link" href="/Terms">Điều khoản sử dụng</a>. Khi tạo tài khoản hoặc sử dụng dịch vụ, bạn xác nhận đã đọc cả hai văn bản.</p>
                     </section>
 
-                    <section id="@sections[1].Id" class="privacy-section" data-privacy-section>
-                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[1].Icon" aria-hidden="true"></i></span>2. @sections[1].Title</h2>
-                        <div class="privacy-grid">
-                            <div class="privacy-card">
+                    <section id="thu-thap" class="legal-section" data-legal-section>
+                        <h2 class="legal-section__title">@SectionTitle("thu-thap")</h2>
+                        <div class="legal-grid">
+                            <div class="legal-card">
                                 <i class="fa-regular fa-id-card" aria-hidden="true"></i>
                                 <strong>Thông tin tài khoản</strong>
-                                <p>Họ tên, email, ảnh đại diện (khi đăng nhập bằng Google) và mật khẩu đã được mã hóa.</p>
+                                <p>Họ tên, email, ảnh đại diện (khi đăng nhập bằng Google) và mật khẩu đã được băm.</p>
                             </div>
-                            <div class="privacy-card">
+                            <div class="legal-card">
                                 <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
                                 <strong>Hồ sơ nghề nghiệp</strong>
-                                <p>Vị trí ứng tuyển, cấp độ kinh nghiệm và định hướng nghề nghiệp mà bạn cung cấp.</p>
+                                <p>Chuyên ngành, vị trí mong muốn, tình trạng tốt nghiệp, mức kinh nghiệm; nội dung CV nếu bạn tải lên.</p>
                             </div>
-                            <div class="privacy-card">
+                            <div class="legal-card">
                                 <i class="fa-regular fa-comments" aria-hidden="true"></i>
                                 <strong>Nội dung buổi luyện</strong>
-                                <p>Câu hỏi, câu trả lời dạng văn bản hoặc giọng nói, điểm số và nhận xét.</p>
+                                <p>Câu hỏi, câu trả lời dạng văn bản (kể cả văn bản chuyển từ giọng nói), điểm số và nhận xét.</p>
                             </div>
-                            <div class="privacy-card">
+                            <div class="legal-card">
+                                <i class="fa-solid fa-wave-square" aria-hidden="true"></i>
+                                <strong>Chỉ số giọng nói</strong>
+                                <p>Thời lượng trả lời, khoảng lặng, mức âm lượng và độ biến thiên cao độ — để chấm điểm cách nói.</p>
+                            </div>
+                            <div class="legal-card">
                                 <i class="fa-solid fa-laptop" aria-hidden="true"></i>
                                 <strong>Dữ liệu kỹ thuật</strong>
-                                <p>Địa chỉ IP, loại trình duyệt, thời gian truy cập và nhật ký lỗi để đảm bảo an toàn hệ thống.</p>
+                                <p>Địa chỉ IP, thời gian truy cập, số lần đăng nhập sai và nhật ký lỗi để bảo vệ hệ thống.</p>
+                            </div>
+                            <div class="legal-card">
+                                <i class="fa-regular fa-message" aria-hidden="true"></i>
+                                <strong>Góp ý</strong>
+                                <p>Nội dung bạn gửi qua trang Góp ý.</p>
                             </div>
                         </div>
                     </section>
 
-                    <section id="@sections[2].Id" class="privacy-section" data-privacy-section>
-                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[2].Icon" aria-hidden="true"></i></span>3. @sections[2].Title</h2>
-                        <ul class="privacy-list">
-                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>Tạo và cá nhân hóa buổi phỏng vấn theo vị trí bạn chọn.</li>
-                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>Chấm điểm, đưa nhận xét và theo dõi tiến độ luyện tập.</li>
-                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>Xác thực tài khoản, gửi mã OTP và thông báo quan trọng.</li>
-                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>Phát hiện gian lận, spam và bảo vệ hệ thống.</li>
-                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>Cải thiện chất lượng sản phẩm dựa trên dữ liệu thống kê đã ẩn danh.</li>
+                    <section id="muc-dich" class="legal-section" data-legal-section>
+                        <h2 class="legal-section__title">@SectionTitle("muc-dich")</h2>
+                        <ul class="legal-list">
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>Tạo và cá nhân hoá buổi phỏng vấn theo vị trí (và CV, nếu có).</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>Chuyển giọng nói thành văn bản, chấm điểm, nhận xét và theo dõi tiến độ.</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>Xác thực tài khoản, gửi mã OTP, email kết quả (khi bạn chọn nhận).</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>Chống spam, chặn đăng nhập trái phép và bảo vệ hệ thống.</li>
                         </ul>
-                        <div class="privacy-callout privacy-callout--success">
+                        <div class="legal-callout legal-callout--success">
                             <i class="fa-solid fa-hand" aria-hidden="true"></i>
                             <p><strong>Cam kết:</strong> chúng tôi không bán và không cho thuê dữ liệu cá nhân của bạn cho bất kỳ bên nào.</p>
                         </div>
                     </section>
 
-                    <section id="@sections[3].Id" class="privacy-section" data-privacy-section>
-                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[3].Icon" aria-hidden="true"></i></span>4. @sections[3].Title</h2>
-                        <p>Khi bạn trả lời bằng giọng nói, trình duyệt sẽ xin quyền dùng micro. Bản ghi âm được chuyển thành văn bản để AI phân tích. Bạn có thể tắt micro và trả lời bằng văn bản bất cứ lúc nào.</p>
-                        <div class="privacy-callout privacy-callout--warning">
+                    <section id="giong-noi" class="legal-section" data-legal-section>
+                        <h2 class="legal-section__title">@SectionTitle("giong-noi")</h2>
+                        <p>Khi bạn trả lời bằng giọng nói, trình duyệt xin quyền dùng micro. Đoạn ghi âm của <strong>từng câu trả lời</strong> được gửi tới dịch vụ nhận dạng giọng nói để chuyển thành văn bản, sau đó AI sửa lỗi chính tả và thuật ngữ.</p>
+                        <ul class="legal-list">
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>MockviewAI <strong>không lưu file ghi âm</strong> — chỉ lưu văn bản câu trả lời và các chỉ số giọng nói ở mục 2.</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>Bạn luôn xem lại được văn bản trước khi gửi (chế độ Luyện tập), hoặc trả lời bằng cách gõ phím.</li>
+                        </ul>
+                        <div class="legal-callout legal-callout--warning">
                             <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
                             <p><strong>Lưu ý:</strong> điểm và nhận xét do AI tạo ra chỉ mang tính tham khảo cho việc luyện tập, không thay thế đánh giá của nhà tuyển dụng thật.</p>
                         </div>
                     </section>
 
-                    <section id="@sections[4].Id" class="privacy-section" data-privacy-section>
-                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[4].Icon" aria-hidden="true"></i></span>5. @sections[4].Title</h2>
-                        <p>Chúng tôi chỉ chia sẻ phần dữ liệu cần thiết với các đối tác kỹ thuật để vận hành dịch vụ:</p>
-                        <div class="privacy-table-wrap">
-                            <table class="privacy-table">
+                    <section id="ben-thu-ba" class="legal-section" data-legal-section>
+                        <h2 class="legal-section__title">@SectionTitle("ben-thu-ba")</h2>
+                        <p>Chúng tôi chỉ gửi phần dữ liệu cần thiết tới các dịch vụ kỹ thuật sau để vận hành nền tảng:</p>
+                        <div class="legal-table-wrap">
+                            <table class="legal-table">
                                 <thead>
                                     <tr><th scope="col">Dịch vụ</th><th scope="col">Mục đích</th><th scope="col">Dữ liệu liên quan</th></tr>
                                 </thead>
                                 <tbody>
+                                    <tr><td>Groq (Whisper)</td><td>Chuyển giọng nói thành văn bản</td><td>Đoạn ghi âm câu trả lời, câu hỏi đang trả lời</td></tr>
+                                    <tr><td>Google Gemini</td><td>Sửa bản chép, chấm điểm, nhận xét, phân tích CV</td><td>Văn bản câu trả lời, câu hỏi, nội dung CV (nếu có)</td></tr>
                                     <tr><td>Google OAuth</td><td>Đăng nhập bằng Google</td><td>Tên, email, ảnh đại diện</td></tr>
-                                    <tr><td>Cloudflare Turnstile</td><td>Chống bot khi đăng nhập</td><td>Tín hiệu trình duyệt, IP</td></tr>
-                                    <tr><td>Nhà cung cấp mô hình AI</td><td>Tạo câu hỏi, chấm điểm</td><td>Nội dung câu trả lời</td></tr>
-                                    <tr><td>Dịch vụ email</td><td>Gửi OTP, thông báo</td><td>Địa chỉ email</td></tr>
+                                    <tr><td>Cloudflare Turnstile</td><td>Chống bot khi đăng nhập, đăng ký</td><td>Tín hiệu trình duyệt, địa chỉ IP</td></tr>
+                                    <tr><td>Cloudinary</td><td>Lưu ảnh đại diện</td><td>Ảnh bạn tải lên</td></tr>
+                                    <tr><td>Dịch vụ email (SMTP)</td><td>Gửi mã OTP, email kết quả</td><td>Địa chỉ email, nội dung thông báo</td></tr>
                                 </tbody>
                             </table>
                         </div>
+                        <p>Mỗi dịch vụ xử lý dữ liệu theo chính sách riêng của họ; một số dịch vụ AI ở gói miễn phí có thể dùng dữ liệu được gửi tới để cải thiện sản phẩm. Vì vậy, vui lòng không đưa thông tin nhạy cảm không cần thiết vào câu trả lời hoặc CV.</p>
                         <p>Ngoài các trường hợp trên, chúng tôi chỉ cung cấp dữ liệu khi có yêu cầu hợp pháp từ cơ quan nhà nước có thẩm quyền.</p>
                     </section>
 
-                    <section id="@sections[5].Id" class="privacy-section" data-privacy-section>
-                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[5].Icon" aria-hidden="true"></i></span>6. @sections[5].Title</h2>
-                        <ul class="privacy-list">
-                            <li><i class="fa-solid fa-lock" aria-hidden="true"></i>Kết nối được mã hóa bằng HTTPS/TLS.</li>
-                            <li><i class="fa-solid fa-key" aria-hidden="true"></i>Mật khẩu được băm (hash), không lưu dạng văn bản thuần.</li>
-                            <li><i class="fa-solid fa-user-lock" aria-hidden="true"></i>Chỉ nhân sự được ủy quyền mới truy cập được dữ liệu, và mọi lần truy cập đều được ghi nhật ký.</li>
-                            <li><i class="fa-solid fa-box-archive" aria-hidden="true"></i>Dữ liệu được lưu khi tài khoản còn hoạt động và được xóa hoặc ẩn danh sau khi bạn yêu cầu xóa tài khoản.</li>
+                    <section id="luu-tru" class="legal-section" data-legal-section>
+                        <h2 class="legal-section__title">@SectionTitle("luu-tru")</h2>
+                        <ul class="legal-list">
+                            <li><i class="fa-solid fa-lock" aria-hidden="true"></i>Kết nối được mã hoá bằng HTTPS/TLS; mật khẩu được băm, không lưu dạng văn bản thuần.</li>
+                            <li><i class="fa-solid fa-key" aria-hidden="true"></i>Khoá truy cập dịch vụ (API key, mật khẩu cơ sở dữ liệu) được tách khỏi mã nguồn.</li>
+                            <li><i class="fa-solid fa-user-lock" aria-hidden="true"></i>Đăng nhập sai nhiều lần sẽ tạm khoá; yêu cầu gửi quá nhanh sẽ bị giới hạn.</li>
+                            <li><i class="fa-solid fa-box-archive" aria-hidden="true"></i>Tài khoản và lịch sử luyện tập được lưu cho tới khi bạn xoá buổi luyện hoặc yêu cầu xoá tài khoản; CV tải lên được lưu tạm tối đa 7 ngày.</li>
                         </ul>
                     </section>
 
-                    <section id="@sections[6].Id" class="privacy-section" data-privacy-section>
-                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[6].Icon" aria-hidden="true"></i></span>7. @sections[6].Title</h2>
-                        <div class="privacy-grid privacy-grid--3">
-                            <div class="privacy-card"><i class="fa-regular fa-eye" aria-hidden="true"></i><strong>Truy cập</strong><p>Xem dữ liệu chúng tôi đang lưu về bạn.</p></div>
-                            <div class="privacy-card"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i><strong>Chỉnh sửa</strong><p>Cập nhật thông tin trong trang Hồ sơ.</p></div>
-                            <div class="privacy-card"><i class="fa-regular fa-trash-can" aria-hidden="true"></i><strong>Xóa</strong><p>Yêu cầu xóa tài khoản và lịch sử luyện tập.</p></div>
+                    <section id="quyen" class="legal-section" data-legal-section>
+                        <h2 class="legal-section__title">@SectionTitle("quyen")</h2>
+                        <div class="legal-grid legal-grid--3">
+                            <div class="legal-card"><i class="fa-regular fa-eye" aria-hidden="true"></i><strong>Truy cập</strong><p>Xem hồ sơ và toàn bộ lịch sử luyện tập của bạn.</p></div>
+                            <div class="legal-card"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i><strong>Chỉnh sửa</strong><p>Cập nhật thông tin trong trang Hồ sơ.</p></div>
+                            <div class="legal-card"><i class="fa-regular fa-trash-can" aria-hidden="true"></i><strong>Xoá</strong><p>Tự xoá từng buổi luyện trong Lịch sử; gửi email để xoá toàn bộ tài khoản.</p></div>
                         </div>
-                        <div class="privacy-actions">
+                        <div class="legal-actions">
                             <a href="/Profile" class="button button--secondary"><i class="fa-regular fa-user" aria-hidden="true"></i> Đến trang Hồ sơ</a>
+                            <a href="/Home/History" class="button button--secondary"><i class="fa-regular fa-clock" aria-hidden="true"></i> Đến trang Lịch sử</a>
                         </div>
                     </section>
 
-                    <section id="@sections[7].Id" class="privacy-section" data-privacy-section>
-                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[7].Icon" aria-hidden="true"></i></span>8. @sections[7].Title</h2>
-                        <p>Chúng tôi dùng cookie <strong>bắt buộc</strong> để duy trì phiên đăng nhập và chống giả mạo yêu cầu (anti-forgery), cùng bộ nhớ trình duyệt để ghi nhớ giao diện sáng/tối bạn chọn. Nếu tắt cookie, một số chức năng như đăng nhập sẽ không hoạt động.</p>
+                    <section id="cookie" class="legal-section" data-legal-section>
+                        <h2 class="legal-section__title">@SectionTitle("cookie")</h2>
+                        <p>Chúng tôi chỉ dùng cookie <strong>bắt buộc</strong>: duy trì phiên đăng nhập và chống giả mạo yêu cầu (anti-forgery). Bộ nhớ trình duyệt (localStorage) chỉ dùng để ghi nhớ giao diện sáng/tối bạn chọn. Không có cookie quảng cáo hay theo dõi.</p>
+                        <p>Nếu tắt cookie, các chức năng cần đăng nhập sẽ không hoạt động.</p>
                     </section>
 
-                    <section id="@sections[8].Id" class="privacy-section" data-privacy-section>
-                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[8].Icon" aria-hidden="true"></i></span>9. @sections[8].Title</h2>
-                        <p>Khi sử dụng MockviewAI, bạn đồng ý:</p>
-                        <ul class="privacy-list privacy-list--danger">
-                            <li><i class="fa-solid fa-xmark" aria-hidden="true"></i>Không chia sẻ tài khoản hoặc dùng tài khoản của người khác.</li>
-                            <li><i class="fa-solid fa-xmark" aria-hidden="true"></i>Không gửi nội dung vi phạm pháp luật, xúc phạm hoặc chứa mã độc.</li>
-                            <li><i class="fa-solid fa-xmark" aria-hidden="true"></i>Không khai thác lỗ hổng, tấn công hoặc thu thập dữ liệu tự động từ hệ thống.</li>
-                        </ul>
-                        <p>Chúng tôi có quyền tạm khóa tài khoản vi phạm. Trước khi khóa, chúng tôi sẽ thông báo nếu điều kiện cho phép.</p>
-                    </section>
-
-                    <section id="@sections[9].Id" class="privacy-section" data-privacy-section>
-                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[9].Icon" aria-hidden="true"></i></span>10. @sections[9].Title</h2>
+                    <section id="thay-doi" class="legal-section" data-legal-section>
+                        <h2 class="legal-section__title">@SectionTitle("thay-doi")</h2>
                         <p>Chính sách có thể được cập nhật khi tính năng hoặc quy định pháp luật thay đổi. Ngày cập nhật gần nhất luôn hiển thị ở đầu trang. Khi có thay đổi quan trọng, chúng tôi sẽ thông báo qua email hoặc ngay trên ứng dụng.</p>
                     </section>
 
-                    <section id="@sections[10].Id" class="privacy-section" data-privacy-section>
-                        <h2 class="privacy-section__title"><span class="privacy-section__icon"><i class="@sections[10].Icon" aria-hidden="true"></i></span>11. @sections[10].Title</h2>
-                        <p>Nếu bạn có câu hỏi hoặc muốn thực hiện quyền đối với dữ liệu của mình, hãy liên hệ:</p>
-                        <div class="privacy-contact">
+                    <section id="lien-he" class="legal-section" data-legal-section>
+                        <h2 class="legal-section__title">@SectionTitle("lien-he")</h2>
+                        <p>Nếu có câu hỏi hoặc muốn thực hiện quyền đối với dữ liệu của mình, hãy liên hệ:</p>
+                        <div class="legal-contact">
                             <a class="action-card" href="mailto:@supportEmail">
                                 <div class="action-card__icon" aria-hidden="true"><i class="fa-regular fa-envelope"></i></div>
                                 <div class="action-card__content">
@@ -232,11 +270,11 @@
                                 <span class="action-card__chevron" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
                             </a>
                             <a class="action-card" href="/Feedback">
-                                <div class="action-card__icon" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                                <div class="action-card__icon" aria-hidden="true"><i class="fa-regular fa-message"></i></div>
                                 <div class="action-card__content">
                                     <span class="action-card__eyebrow">GÓP Ý</span>
                                     <h3 class="action-card__title">Gửi ý kiến</h3>
-                                    <p class="action-card__description">Góp ý trực tiếp trên MockviewAI.</p>
+                                    <p class="action-card__description">Góp ý trực tiếp trên MockviewAI (cần đăng nhập).</p>
                                 </div>
                                 <span class="action-card__chevron" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
                             </a>
@@ -247,13 +285,13 @@
         </main>
     </div>
 
-    <button type="button" class="privacy-top" data-privacy-top aria-label="Lên đầu trang" hidden>
+    <button type="button" class="legal-top" data-legal-top aria-label="Lên đầu trang" hidden>
         <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
     </button>
 
     <partial name="Partials/_AppFooter" />
     <partial name="Partials/_Notify" />
 
-    <script src="~/js/Policy.js" asp-append-version="true" defer></script>
+    <script src="~/js/Legal.js" asp-append-version="true" defer></script>
 </body>
 </html>

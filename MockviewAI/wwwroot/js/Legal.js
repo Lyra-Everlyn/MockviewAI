@@ -1,10 +1,6 @@
-/* =========================================================
-   MockviewAI — Policy page
-   - Thanh tiến độ đọc
-   - Scrollspy: tô sáng mục đang đọc trong mục lục
-   - Mục lục thu gọn trên mobile
-   - Nút lên đầu trang, in / lưu PDF
-   - Ước tính thời gian đọc
+﻿/* =========================================================
+   MockviewAI — Trang pháp lý (Điều khoản sử dụng + Chính sách quyền riêng tư)
+   Dùng chung cho Views/Home/Terms.cshtml và Privacy.cshtml.
    ========================================================= */
 
 (function () {
@@ -13,15 +9,15 @@
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const scrollBehavior = prefersReducedMotion ? 'auto' : 'smooth';
 
-    const progressBar = document.querySelector('[data-privacy-progress]');
-    const content = document.querySelector('[data-privacy-content]');
-    const sections = Array.from(document.querySelectorAll('[data-privacy-section]'));
-    const tocLinks = Array.from(document.querySelectorAll('[data-privacy-toc-link]'));
-    const toc = document.querySelector('.privacy-toc');
-    const tocToggle = document.querySelector('[data-privacy-toc-toggle]');
-    const topButton = document.querySelector('[data-privacy-top]');
-    const printButton = document.querySelector('[data-privacy-print]');
-    const readTime = document.querySelector('[data-privacy-read-time]');
+    const progressBar = document.querySelector('[data-legal-progress]');
+    const content = document.querySelector('[data-legal-content]');
+    const sections = Array.from(document.querySelectorAll('[data-legal-section]'));
+    const tocLinks = Array.from(document.querySelectorAll('[data-legal-toc-link]'));
+    const toc = document.querySelector('.legal-toc');
+    const tocToggle = document.querySelector('[data-legal-toc-toggle]');
+    const topButton = document.querySelector('[data-legal-top]');
+    const printButton = document.querySelector('[data-legal-print]');
+    const readTime = document.querySelector('[data-legal-read-time]');
 
     /* ---------- Thời gian đọc (~200 từ/phút) ---------- */
     if (content && readTime) {
