@@ -1,0 +1,54 @@
+@model MockviewAI.Models.ViewModels.CvSavedViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Đang lưu CV";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Đang lưu CV - MockviewAI</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/UploadCV.css" asp-append-version="true" />
+    <partial name="Partials/_ThemeHead" />
+    <partial name="~/Views/CV/_CvStorageMeta.cshtml" model="Model" />
+</head>
+<body class="app-layout cv-page">
+    <partial name="Partials/_AppNavigation" />
+    <div class="app-layout__content">
+        <main class="cv-page__main">
+            <script type="application/json" id="cvSavedData">@Html.Raw(Model.CvJson)</script>
+
+            <div class="cv-notice cv-notice--info" id="cvSavedStatus" role="status">
+                <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                <span>Đang lưu CV vào trình duyệt của bạn...</span>
+            </div>
+
+            <div class="cv-notice cv-notice--error" id="cvSavedError" role="alert" hidden>
+                <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                <span id="cvSavedErrorText"></span>
+            </div>
+
+            <div class="cv-review__actions" id="cvSavedActions" hidden>
+                <a class="button button--secondary cv-button-secondary" asp-controller="CV" asp-action="Index">
+                    <i class="fa-regular fa-folder-open" aria-hidden="true"></i> Mở CV của tôi
+                </a>
+            </div>
+
+            <noscript>
+                <div class="cv-notice cv-notice--error" role="alert">
+                    <span>Trình duyệt đang tắt JavaScript nên không thể lưu CV. Hãy bật JavaScript rồi tải CV lên lại.</span>
+                </div>
+            </noscript>
+        </main>
+    </div>
+    <partial name="Partials/_AppFooter" />
+    <partial name="Partials/_Notify" />
+    <script src="~/js/CvStorage.js" asp-append-version="true"></script>
+    <script src="~/js/CvSaved.js" asp-append-version="true"></script>
+</body>
+</html>

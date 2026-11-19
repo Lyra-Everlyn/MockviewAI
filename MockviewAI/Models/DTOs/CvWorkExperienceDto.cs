@@ -1,10 +1,8 @@
 ﻿namespace MockviewAI.Models.DTOs
 {
     /// <summary>
-    /// [USER CV]
-    /// -- Sub class
+    /// [USER CV] Một mục kinh nghiệm làm việc / thực tập.
     /// </summary>
-    
     public class CvWorkExperienceDto
     {
         public string CompanyName { get; set; } = string.Empty;

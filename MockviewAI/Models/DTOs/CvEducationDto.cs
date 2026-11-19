@@ -1,10 +1,8 @@
 ﻿namespace MockviewAI.Models.DTOs
 {
     /// <summary>
-    /// [USER CV]
-    /// -- Sub class
+    /// [USER CV] Một mục học vấn.
     /// </summary>
-    
     public class CvEducationDto
     {
         public string SchoolName { get; set; } = string.Empty;

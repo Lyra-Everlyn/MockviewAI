@@ -6,6 +6,7 @@ namespace MockviewAI.Services.Ai.Implementations
 {
     /// <summary>
     /// [AI-MODULE] 
+    /// /// -- [DEPRECATED 19/11/2026] Không còn dùng ở Production (Task 1 chặn). Giữ lại để dev offline, sẽ xoá sau.
     /// MockAiScoringService
     /// -- Bộ chấm GIẢ: không cần API key, không tốn tiền.
     /// -- Dùng để dev giao diện/test khi chưa có key. Kết quả luôn gắn nhãn [MOCK].

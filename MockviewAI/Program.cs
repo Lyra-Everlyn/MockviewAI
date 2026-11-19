@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 using System.Security.Principal;
 using System.Threading.RateLimiting;
+
 using MockviewAI.Data;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
@@ -14,6 +15,8 @@ using MockviewAI.Services.Ai;
 using MockviewAI.Services.Ai.Implementations;
 using MockviewAI.Services.Ai.Interfaces;
 using MockviewAI.Services.Auth;
+using MockviewAI.Services.CvParser;
+
 using MockviewAI.Services.InterviewQuestions.Implementations;
 using MockviewAI.Services.InterviewQuestions.Interfaces;
 using MockviewAI.Services.Emails;
@@ -41,7 +44,7 @@ namespace MockviewAI
 
             var builder = WebApplication.CreateBuilder(args);
             builder.Configuration.AddEnvironmentVariables();
-
+            
 
             // =========================================================================
             // PART 1: CONNECTION CONFIGURATION
@@ -108,23 +111,11 @@ namespace MockviewAI
                 Path.Combine(sp.GetRequiredService<IWebHostEnvironment>().ContentRootPath, "Data", "InterviewQuestions")));
             builder.Services.AddSingleton<IQuestionSelector>(sp => new RandomQuestionSelector(sp.GetRequiredService<IQuestionBankStore>()));
             builder.Services.AddSingleton<IAnswerVerdictValidator, AnswerVerdictValidator>();
-            builder.Services.AddSingleton<IOfflineAnswerScorer, BankKeywordScorer>();   // chấm sơ bộ khi AI lỗi
-            builder.Services.AddSingleton<IFollowUpPlanner, FollowUpPlanner>();         // [FOLLOW-UP] Đợt 8: hỏi thêm khi thiếu ý
+            builder.Services.AddSingleton<IOfflineAnswerScorer, BankKeywordScorer>();
+            builder.Services.AddSingleton<IFollowUpPlanner, FollowUpPlanner>();
 
-            if (string.Equals(builder.Configuration["Ai:Provider"], "Gemini", StringComparison.OrdinalIgnoreCase))
-            {
-                builder.Services.AddSingleton<IScoringPromptBuilder, ScoringPromptBuilder>();
-                builder.Services.AddSingleton<IAiResponseParser, GeminiResponseParser>();
-                builder.Services.AddHttpClient<IAiScoringService, GeminiAiScoringService>(c =>
-                {
-                    c.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
-                    c.Timeout = TimeSpan.FromSeconds(180);
-                });
-            }
-            else
-            {
-                builder.Services.AddScoped<IAiScoringService, MockAiScoringService>();
-            }
+            // -- AI Chấm điểm phỏng vấn
+            var aiProvider = builder.Services.AddAiScoring(builder.Configuration, builder.Environment);
 
 
             // -- AI Service v2
@@ -137,6 +128,7 @@ namespace MockviewAI
             builder.Services.AddHttpClient("GeminiClient", client =>
             {
                 client.BaseAddress = new Uri("https://generativelanguage.googleapis.com/v1beta/");
+                client.Timeout = TimeSpan.FromSeconds(180);
             }).AddHttpMessageHandler<GeminiKeyHandler>();
 
             builder.Services.AddHttpClient("GroqClient", client =>
@@ -151,6 +143,10 @@ namespace MockviewAI
             builder.Services.AddScoped<ITranscriptNormalizer, GeminiTranscriptNormalizer>();
             builder.Services.AddScoped<ISpeechToTextService, SpeechToTextService>();
             builder.Services.AddSingleton<IHallucinationFilter, WhisperHallucinationFilter>();   // dòng mới
+
+            // -- CV (PDF -> PdfPig / Gemini -> Redis)
+            builder.Services.AddCvServices(builder.Configuration);
+
 
             // -- Google Authentication % Cookies
             builder.Services.AddAuthentication(options =>
@@ -274,6 +270,8 @@ namespace MockviewAI
 
             // --- Standard security: Forwarded headers & HTTP security headers
             app.UseAppSecurity();
+            
+            app.Logger.LogInformation("AI scoring provider: {Provider} | Environment: {Env}", aiProvider, app.Environment.EnvironmentName);
 
 
             if (!app.Environment.IsDevelopment())
