@@ -7,89 +7,99 @@ using Microsoft.Extensions.Options;
 using MockviewAI.Models.Ai;
 using MockviewAI.Services.Ai.Interfaces;
 using MockviewAI.Services.Exceptions;
+using MockviewAI.Services.KeyManagement.ProviderExtensions;
 
 namespace MockviewAI.Services.Ai.Implementations
 {
     /// <summary>
-    /// [AI-MODULE] 
+    /// [AI-MODULE]
     /// GeminiAiScoringService
-    /// -- Chỉ lo việc GỬI REQUEST tới Gemini bằng HttpClient.
-    /// -- Soạn prompt do IScoringPromptBuilder, đọc kết quả do IAiResponseParser. API key không bao giờ được log.
-    /// -- Calls the Gemini generateContent REST API directly with HttpClient (no extra NuGet package).
+    /// -- Chỉ lo việc GỬI REQUEST chấm điểm tới Gemini (generateContent).
+    /// -- Soạn prompt do IScoringPromptBuilder, đọc kết quả do IAiResponseParser.
+    /// -- [TASK 2] Dùng HttpClient "GeminiClient": API key do GeminiKeyHandler gắn và XOAY VÒNG
+    ///    (Gemini__ApiKeys__0..N, hoặc Gemini__ApiKey nếu chỉ có 1 key). Class này không đọc, không ghi log key.
+    /// -- Key lỗi quota (429/401/403): handler tự đổi key và gửi lại. Hết key / quá tải: thử model dự phòng.
     /// </summary>
-
     public class GeminiAiScoringService : IAiScoringService
     {
-        // Dùng khi cấu hình không khai báo Gemini:FallbackModels
+        public const string HttpClientName = "GeminiClient";
         private static readonly string[] DefaultFallbackModels = { "gemini-3.5-flash-lite" };
-
-        private static readonly string[] NonTextModelMarkers =
-            { "-tts", "-live", "native-audio", "transcribe", "image", "embedding", "imagen", "veo", "lyria", "omni", "robotics" };
-
+        private static readonly string[] NonTextModelMarkers = { "-tts", "-live", "native-audio", "transcribe", "image", "embedding", "imagen", "veo", "lyria", "omni", "robotics" };
         private static readonly Regex SafeModelName = new(@"^[A-Za-z0-9._-]+$", RegexOptions.Compiled);
 
-        private readonly HttpClient _http;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly GeminiKeyProvider _keys;
         private readonly GeminiOptions _options;
         private readonly IScoringPromptBuilder _promptBuilder;
         private readonly IAiResponseParser _parser;
         private readonly ILogger<GeminiAiScoringService> _logger;
 
         public GeminiAiScoringService(
-            HttpClient http,
+            IHttpClientFactory httpClientFactory,
+            GeminiKeyProvider keys,
             IOptions<GeminiOptions> options,
             IScoringPromptBuilder promptBuilder,
             IAiResponseParser parser,
             ILogger<GeminiAiScoringService> logger)
         {
-            _http = http;
+            _httpClientFactory = httpClientFactory;
+            _keys = keys;
             _options = options.Value;
             _promptBuilder = promptBuilder;
             _parser = parser;
             _logger = logger;
         }
 
+        #region IAiScoringService
+        /// <inheritdoc />
         public async Task<ContentScoreResult> ScoreContentAsync(ScoreRequest request, CancellationToken ct = default)
         {
-            if (string.IsNullOrWhiteSpace(_options.ApiKey))
-                throw new AiScoringException("AI chưa được cấu hình (thiếu Gemini:ApiKey).", isConfigurationError: true);
+            if (!_keys.HasKeys)
+                throw new AiScoringException("AI chưa được cấu hình (thiếu Gemini__ApiKeys__0 hoặc Gemini__ApiKey).", isConfigurationError: true);
             if (request.Answers.Count == 0)
                 throw new AiScoringException("Chưa có câu trả lời nào để chấm.");
 
-            // Model name comes from config only; reject anything that could change the URL path
+            // Tên model chỉ lấy từ cấu hình; chặn ký tự có thể làm đổi đường dẫn URL
             if (!SafeModelName.IsMatch(_options.Model ?? ""))
                 throw new AiScoringException("Tên model Gemini không hợp lệ (Gemini:Model).", isConfigurationError: true);
 
-            // Chỉ model sinh VĂN BẢN mới chấm được. Model giọng nói/ảnh/video/embedding (vd gemini-3.8-flash-tts) trả về
-            // âm thanh hoặc vector, không trả JSON -> báo lỗi cấu hình rõ ràng thay vì gọi API rồi nhận lỗi mơ hồ.
+            // Chỉ model sinh VĂN BẢN mới chấm được (model giọng nói/ảnh/embedding không trả JSON)
             if (IsNonTextModel(_options.Model!))
             {
-                _logger.LogError("Gemini:Model '{Model}' is not a text-generation model. Use e.g. gemini-3.8-flash", _options.Model);
+                _logger.LogError("Gemini:Model '{Model}' is not a text-generation model.", _options.Model);
                 throw new AiScoringException(
-                    $"Model AI '{_options.Model}' không dùng để chấm văn bản. Quản trị viên cần đổi Gemini:Model (ví dụ gemini-3.8-flash).",
+                    $"Model AI '{_options.Model}' không dùng để chấm văn bản. Quản trị viên cần đổi Gemini:Model.",
                     isConfigurationError: true);
             }
 
             string systemPrompt = _promptBuilder.SystemPrompt;
             string userPrompt = _promptBuilder.BuildUserPrompt(request);
+            var http = _httpClientFactory.CreateClient(HttpClientName);
+
+            _logger.LogInformation("Scoring with Gemini ({KeyCount} key(s) in rotation)", _keys.KeyCount);
 
             AiScoringException? lastError = null;
             foreach (var model in ModelsToTry())
             {
                 try
                 {
-                    return await ScoreWithModelAsync(model, systemPrompt, userPrompt, ct);
+                    return await ScoreWithModelAsync(http, model, systemPrompt, userPrompt, ct);
                 }
                 catch (AiScoringException ex) when ((ex.IsTransient || ex.CanTryOtherModel) && !ct.IsCancellationRequested)
                 {
-                    // Quá tải / hết lượt / hết giờ chờ / model không nhận yêu cầu: thử model kế tiếp thay vì báo lỗi ngay
+                    // Quá tải / hết lượt ở mọi key / hết giờ chờ / model không nhận yêu cầu: thử model kế tiếp
                     _logger.LogWarning("Gemini model {Model} unavailable ({Reason}). Trying the next model if any.", model, ex.Message);
                     lastError = ex;
                 }
             }
             throw lastError ?? new AiScoringException("AI tạm thời không phản hồi. Vui lòng thử lại sau.") { IsTransient = true };
         }
+        #endregion
 
-        // Model chính trước, rồi các model dự phòng hợp lệ (bỏ trùng, bỏ model không phải văn bản)
+        #region Request
+        /// <summary>
+        /// Model chính trước, rồi các model dự phòng hợp lệ (bỏ trùng, bỏ model không phải văn bản).
+        /// </summary>
         private List<string> ModelsToTry()
         {
             var models = new List<string> { _options.Model! };
@@ -103,9 +113,13 @@ namespace MockviewAI.Services.Ai.Implementations
             return models;
         }
 
-        private async Task<ContentScoreResult> ScoreWithModelAsync(string model, string systemPrompt, string userPrompt, CancellationToken ct)
+        /// <summary>
+        /// Gửi yêu cầu chấm với một model. 400 không do key (model không nhận temperature / chế độ JSON)
+        /// -> gửi lại 1 lần với cấu hình tối giản.
+        /// </summary>
+        private async Task<ContentScoreResult> ScoreWithModelAsync(HttpClient http, string model, string systemPrompt, string userPrompt, CancellationToken ct)
         {
-            using (var response = await SendAsync(model, systemPrompt, userPrompt, minimal: false, ct))
+            using (var response = await SendAsync(http, model, systemPrompt, userPrompt, minimal: false, ct))
             {
                 if (response.IsSuccessStatusCode)
                     return _parser.Parse(await response.Content.ReadAsStringAsync(ct));
@@ -113,15 +127,13 @@ namespace MockviewAI.Services.Ai.Implementations
                 var reason = await ReadErrorReasonAsync(response, ct);
                 _logger.LogWarning("Gemini returned HTTP {Status} for model {Model}: {Reason}", (int)response.StatusCode, model, reason);
 
-                // 400 không phải do API key: model không nhận một tham số (temperature / chế độ JSON...)
-                // -> gửi lại 1 lần với cấu hình tối giản. Bộ đọc kết quả vẫn tự tách được JSON trong câu trả lời.
                 bool retryMinimal = response.StatusCode == HttpStatusCode.BadRequest
                                     && !reason.Contains("API key", StringComparison.OrdinalIgnoreCase);
                 if (!retryMinimal)
                     throw ToFriendlyException(response.StatusCode, reason, model);
             }
 
-            using (var retry = await SendAsync(model, systemPrompt, userPrompt, minimal: true, ct))
+            using (var retry = await SendAsync(http, model, systemPrompt, userPrompt, minimal: true, ct))
             {
                 if (retry.IsSuccessStatusCode)
                 {
@@ -135,15 +147,19 @@ namespace MockviewAI.Services.Ai.Implementations
             }
         }
 
-        private async Task<HttpResponseMessage> SendAsync(string model, string systemPrompt, string userPrompt, bool minimal, CancellationToken ct)
+        /// <summary>
+        /// Gửi một request generateContent. KHÔNG gắn key ở đây — GeminiKeyHandler gắn và xoay vòng.
+        /// Nội dung dùng JsonContent (đọc lại được) vì handler có thể gửi lại request khi đổi key.
+        /// </summary>
+        private async Task<HttpResponseMessage> SendAsync(HttpClient http, string model, string systemPrompt, string userPrompt, bool minimal, CancellationToken ct)
         {
             object generationConfig = minimal
                 ? new { maxOutputTokens = _options.MaxTokens }
                 : new
                 {
                     maxOutputTokens = _options.MaxTokens,
-                    temperature = 0.2,                         // low = more consistent scores
-                    responseMimeType = "application/json"      // ask Gemini for pure JSON
+                    temperature = 0.2,                         // thấp = điểm ổn định hơn
+                    responseMimeType = "application/json"      // yêu cầu Gemini trả JSON thuần
                 };
 
             var body = new
@@ -153,43 +169,44 @@ namespace MockviewAI.Services.Ai.Implementations
                 generationConfig
             };
 
-            var msg = new HttpRequestMessage(HttpMethod.Post, $"v1beta/models/{model}:generateContent")
+            // BaseAddress của "GeminiClient" đã có ".../v1beta/" -> chỉ ghép phần models/...
+            using var msg = new HttpRequestMessage(HttpMethod.Post, $"models/{model}:generateContent")
             {
                 Content = JsonContent.Create(body)
             };
-            msg.Headers.Add("x-goog-api-key", _options.ApiKey);     // never log this header
 
             try
             {
-                return await _http.SendAsync(msg, ct);
+                return await http.SendAsync(msg, ct);
             }
             catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
             {
                 _logger.LogWarning(ex, "Gemini request failed (network/timeout) for model {Model}", model);
                 throw new AiScoringException("Không kết nối được tới AI hoặc AI phản hồi quá lâu. Vui lòng thử lại.", ex) { IsTransient = true };
             }
-            finally
-            {
-                msg.Dispose();
-            }
         }
+        #endregion
 
+        #region Helpers
         private static bool IsNonTextModel(string model) =>
             NonTextModelMarkers.Any(m => model.Contains(m, StringComparison.OrdinalIgnoreCase));
 
-        // Đổi mã lỗi HTTP thành thông báo tiếng Việt đúng bản chất (cấu hình hay quá tải)
+        /// <summary>
+        /// Đổi mã lỗi HTTP thành thông báo tiếng Việt đúng bản chất (cấu hình hay quá tải).
+        /// 429 ở đây nghĩa là handler đã thử hết các key mà vẫn bị giới hạn.
+        /// </summary>
         private static AiScoringException ToFriendlyException(HttpStatusCode status, string reason, string model)
         {
             int code = (int)status;
             if (status == HttpStatusCode.NotFound)
                 return new AiScoringException(
-                    $"AI chưa được cấu hình đúng: không tìm thấy model '{model}' (mã 404). Quản trị viên cần kiểm tra Gemini:Model (ví dụ gemini-3.8-flash).",
+                    $"AI chưa được cấu hình đúng: không tìm thấy model '{model}' (mã 404). Quản trị viên cần kiểm tra Gemini:Model.",
                     isConfigurationError: true)
                 { CanTryOtherModel = true };
             if (status is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden
                 || (status == HttpStatusCode.BadRequest && reason.Contains("API key", StringComparison.OrdinalIgnoreCase)))
                 return new AiScoringException(
-                    $"AI chưa được cấu hình đúng: API key không hợp lệ hoặc chưa được cấp quyền (mã {code}). Quản trị viên cần kiểm tra Gemini:ApiKey.",
+                    $"AI chưa được cấu hình đúng: API key không hợp lệ hoặc chưa được cấp quyền (mã {code}). Quản trị viên cần kiểm tra Gemini__ApiKeys.",
                     isConfigurationError: true);
             if (status == HttpStatusCode.BadRequest)
                 return new AiScoringException(
@@ -203,8 +220,10 @@ namespace MockviewAI.Services.Ai.Implementations
             return new AiScoringException($"AI không xử lý được yêu cầu (mã {code}). Vui lòng thử lại.");
         }
 
-        // Gemini thường trả {"error":{"code":400,"message":"...","status":"INVALID_ARGUMENT"}} (đôi khi bọc trong mảng [...]).
-        // Đọc được thì lấy status + message; không đọc được thì ghi nguyên văn (cắt ngắn) để còn biết lý do. Không chứa API key.
+        /// <summary>
+        /// Đọc lý do lỗi từ body Gemini ({"error":{"status","message"}}, đôi khi bọc trong mảng).
+        /// Không đọc được JSON thì trả nguyên văn (cắt ngắn). Body lỗi không chứa API key.
+        /// </summary>
         private static async Task<string> ReadErrorReasonAsync(HttpResponseMessage response, CancellationToken ct)
         {
             string body;
@@ -238,5 +257,6 @@ namespace MockviewAI.Services.Ai.Implementations
         }
 
         private static string Truncate(string text, int max) => text.Length > max ? text[..max] + "..." : text;
+        #endregion
     }
 }
