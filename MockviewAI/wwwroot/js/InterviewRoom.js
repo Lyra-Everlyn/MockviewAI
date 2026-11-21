@@ -846,7 +846,7 @@
     // Nếu chấm AI lỗi, cho phép thử lại hoặc dùng kết quả sơ bộ không cần AI.
     // Lỗi cấu hình không thể giải quyết bằng thử lại nên chỉ cho xem kết quả sơ bộ.
     async function finishSession(fallback) {
-        finishing = true;   // [SPEECH] không để kết quả chuyển chữ về muộn mở khoá lại các nút
+        finishing = true;
         if (isLive) { liveStopClock(); livePhase = 'idle'; if (liveTimer) liveTimer.hidden = true; }
         if (isListening) { cancelRecording(); stopListening(); }
         else cancelRecording();
@@ -856,14 +856,16 @@
         btnRetryScore.hidden = true;
         btnFallbackScore.hidden = true;
         showMessage('Đang chấm điểm. AI có thể mất 1–2 phút, vui lòng không tắt trang...');
+        if (!fallback) window.MockviewScoringOverlay?.show();
         logEvent('finish', fallback ? 'fallback' : 'ai');
         try {
             const result = await postJson('/Interview/Finish', { sessionId: sessionId, fallback: !!fallback });
+            window.MockviewScoringOverlay?.release();
             window.location.href = result.redirectUrl;
         } catch (error) {
+            window.MockviewScoringOverlay?.hide();
             scoreFailures++;
             let text = error.message;
-            // Lỗi cấu hình không thể giải quyết bằng thử lại nên chỉ cho xem kết quả sơ bộ.
             const configError = !!(error.body && error.body.configError);
             btnRetryScore.hidden = configError;
             btnFallbackScore.hidden = false;
