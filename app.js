@@ -37,9 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // Tài khoản MockviewAI (đăng nhập ở ứng dụng, xem assets/user-menu.js). Khi có mà chưa đăng nhập Supabase:
   // mở khoá checklist, lưu tiến độ trên trình duyệt này — mỗi tài khoản một khoá riêng (k = mã tài khoản).
   const appUser = window.mvAppUser || null;
-  const localKey = appUser ? 'mv-checklist:' + (appUser.key || 'tai-khoan') : null;
+  // Chưa đăng nhập gì cả: vẫn cho tích, lưu tạm dưới khoá "khách". Đăng nhập sau thì việc đã tích được chuyển sang tài khoản.
+  const GUEST_KEY = 'mv-checklist:khach';
+  const APP_KEY = appUser ? 'mv-checklist:' + (appUser.key || 'tai-khoan') : null;
+  let localKey = APP_KEY;
   let localMode = false;
-  const readLocal = () => { try { return JSON.parse(localStorage.getItem(localKey) || '{}'); } catch { return {}; } };
+  const readKey = (k) => { try { return JSON.parse(localStorage.getItem(k) || '{}'); } catch { return {}; } };
+  const readLocal = () => readKey(localKey);
+  const guestDone = () => { const g = readKey(GUEST_KEY); return boxes.map((b) => b.dataset.key).filter((k) => g[k] === true); };
+  const clearGuest = () => { try { localStorage.removeItem(GUEST_KEY); } catch { /* bị chặn lưu: bỏ qua */ } };
+  const guestNote = $('checklist-guest');
   let mode = 'login';
 
   // ---------- Step 1: hiển thị tiến độ ----------
@@ -122,8 +129,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function applyGuest() {
+    localMode = true; localKey = GUEST_KEY; currentUser = null;
+    show(guestNote, true, 'block');
+    show($('checklist-owner'), false, 'flex');
+    show(lockEl, false, 'flex');
+    const saved = readLocal();
+    boxes.forEach((b) => { b.disabled = false; b.checked = saved[b.dataset.key] === true; });
+    render();
+    setStatus('');   // ghi chú phía trên hộp đã nói lưu ở đâu, không nhắc lại
+  }
+
   function applyAppUser() {
-    localMode = true;
+    localMode = true; localKey = APP_KEY;
+    show(guestNote, false, 'block');
+    // Chuyển các việc đã tích lúc chưa đăng nhập sang tài khoản này
+    const moved = guestDone();
+    if (moved.length) {
+      try {
+        const mine = readLocal(); moved.forEach((k) => { mine[k] = true; });
+        localStorage.setItem(localKey, JSON.stringify(mine)); clearGuest();
+      } catch { /* bị chặn lưu: giữ nguyên */ }
+    }
     const owner = $('auth-email-2'); if (owner) owner.textContent = appUser.name || 'tài khoản MockviewAI của bạn';
     show($('checklist-owner'), true, 'flex');
     show(lockEl, false, 'flex');
@@ -135,22 +162,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function applyUser(user) {
     if (!user && appUser) { currentUser = null; applyAppUser(); return; }
-    localMode = false;
+    if (!user) { applyGuest(); show(auth.openBtn, true, 'inline-flex'); show(auth.userBox, false, 'flex'); return; }
+    localMode = false; localKey = APP_KEY;
+    show(guestNote, false, 'block');
     currentUser = user;
     show(auth.openBtn, !user, 'inline-flex');
     show(auth.userBox, !!user, 'flex');
     if (auth.email) auth.email.textContent = user ? user.email : '';
     const owner = $('auth-email-2'); if (owner) owner.textContent = user ? user.email : '';
     show($('checklist-owner'), !!user, 'flex');
-    show(lockEl, !user, 'flex');
-    boxes.forEach((b) => { b.disabled = !user; });
-    if (!user) {
-      boxes.forEach((b) => { b.checked = false; });   // không để lại tiến độ của người vừa đăng xuất
-      render();
-      setStatus('Đăng nhập để lưu tiến độ chuẩn bị của riêng bạn.');
-      return;
-    }
-    loadProgress();
+    show(lockEl, false, 'flex');
+    loadProgress();   // đăng xuất thì applyUser(null) → applyGuest(): không hiện lại tiến độ của người vừa đăng xuất
   }
 
   // ---------- Step 2: lưu & đọc lại từ Supabase ----------
@@ -165,6 +187,13 @@ document.addEventListener('DOMContentLoaded', () => {
     boxes.forEach((b) => { b.disabled = false; });
     if (error) { setStatus('Chưa tải được tiến độ. Kiểm tra mạng rồi tải lại trang.'); return; }
     const saved = new Map(data.map((row) => [row.item_key, row.is_done]));
+    // Chuyển các việc đã tích lúc chưa đăng nhập lên tài khoản (chỉ thêm, không bỏ tích việc nào đã lưu)
+    const moved = guestDone().filter((k) => saved.get(k) !== true);
+    if (moved.length) {
+      const { error: moveErr } = await db.from(TABLE).upsert(
+        moved.map((k) => ({ user_id: uid, item_key: k, is_done: true })), { onConflict: 'user_id,item_key' });
+      if (!moveErr) { moved.forEach((k) => saved.set(k, true)); clearGuest(); }
+    }
     boxes.forEach((b) => { b.checked = saved.get(b.dataset.key) === true; });
     render();
     setStatus('Tiến độ được lưu tự động.');

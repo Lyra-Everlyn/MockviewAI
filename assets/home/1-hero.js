@@ -118,15 +118,7 @@
   if (fine) addEventListener('pointermove', (e) => { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; });
   requestAnimationFrame(frame);
 
-  /* ---------- 2. Ảnh sản phẩm xếp lớp: nghiêng theo chuột ---------- */
-  const stage = document.getElementById('stage3d'), stack = document.getElementById('stack');
-  if (stage && stack && fine && !reduce) {
-    stage.addEventListener('pointermove', (e) => {
-      const r = stage.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-      stack.style.transform = `rotateX(${14 - y * 12}deg) rotateY(${-20 + x * 18}deg) rotateZ(2deg)`;
-    });
-    stage.addEventListener('pointerleave', () => { stack.style.transform = ''; });
-  }
+  /* 2. Ảnh sản phẩm ở hero đặt thẳng (không nghiêng theo chuột) để chữ đọc được. */
 
   /* ---------- 3. Thẻ nghiêng 3D ---------- */
   if (fine && !reduce) document.querySelectorAll('[data-tilt]').forEach((el) => {
@@ -138,24 +130,7 @@
     el.addEventListener('pointerleave', () => { el.style.setProperty('--rx', '0deg'); el.style.setProperty('--ry', '0deg'); });
   });
 
-  /* ---------- 4. Hiện dần + đếm số + thanh đo ---------- */
-  const fmt = (v, dec) => v.toFixed(dec).replace('.', ',');
-  function countUp(el) {
-    const end = parseFloat(el.dataset.count), dec = el.dataset.count.includes('.') ? 1 : 0, suf = el.dataset.suffix || '';
-    if (reduce) { el.textContent = fmt(end, dec) + suf; return; }
-    const t0 = performance.now();
-    (function step(t) { const k = Math.min((t - t0) / 1400, 1), e = 1 - Math.pow(1 - k, 3);
-      el.textContent = fmt(end * e, dec) + suf; if (k < 1) requestAnimationFrame(step); })(t0);
-  }
-  const fillMeters = (root) => root.querySelectorAll('.meter-fill').forEach((m) => { m.style.width = m.dataset.w + '%'; });
-  const io = new IntersectionObserver((es) => es.forEach((e) => {
-    if (!e.isIntersecting) return;
-    e.target.classList.add('in');
-    e.target.querySelectorAll('[data-count]').forEach(countUp);
-    fillMeters(e.target);
-    io.unobserve(e.target);
-  }), { threshold: .15 });
-  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+  /* 4. Đã bỏ: hiệu ứng hiện dần, số tự đếm tăng và thanh tự chạy. Số liệu hiện ngay, đọc được cả khi tắt JS. */
 
   /* ---------- 7. Menu điện thoại + mục đang xem + nút cố định đáy ---------- */
   const nav = document.getElementById('nav'), mb = document.getElementById('menu-btn');

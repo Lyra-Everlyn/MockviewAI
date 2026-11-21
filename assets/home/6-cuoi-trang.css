@@ -1,20 +1,4 @@
-/* MockViewAI — Đợt 6: 5 điều hay gặp, bài viết, nghiên cứu, CTA cuối, nút cố định đáy */
-/* ==========================================================================
-   5 ĐIỀU HAY GẶP
-   ========================================================================== */
-.pitfalls{display:grid;grid-template-columns:repeat(6,1fr);gap:18px}
-.pit{grid-column:span 2;padding:24px;display:flex;flex-direction:column}
-.pit:nth-child(4),.pit:nth-child(5){grid-column:span 3}
-.pit-top{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;margin-bottom:.75rem}
-.pit-id{font:700 .8125rem/1 var(--display);color:var(--muted);letter-spacing:.06em}
-.pit-pct{font:700 2rem/1 var(--display);color:rgb(var(--c-hi))}
-.pit-pct small{font:500 .8125rem/1 var(--font);color:var(--muted);margin-left:.3rem}
-.pit h3{font-size:1.08rem;line-height:1.35;margin-bottom:.9rem}
-.pit .try{margin-top:auto;padding-top:.9rem;border-top:1px solid var(--line);font-size:.9375rem;color:var(--ink-2)}
-.pit .try b{color:var(--cyan);font-weight:600}
-.pit .try a{font-weight:600}
-@media (max-width:980px){.pitfalls{grid-template-columns:1fr 1fr}.pit,.pit:nth-child(4),.pit:nth-child(5){grid-column:auto}}
-@media (max-width:620px){.pitfalls{grid-template-columns:1fr}}
+/* MockViewAI — Đợt 6: bài viết, nghiên cứu, CTA cuối, nút cố định đáy (khối "5 điều hay gặp" đã gộp vào Hành trình) */
 
 /* ==========================================================================
    BÀI VIẾT — băng chuyền lướt ngang có mũi tên

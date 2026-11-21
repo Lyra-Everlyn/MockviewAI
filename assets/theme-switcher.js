@@ -5,14 +5,13 @@
   const KEY = 'mv-theme';
   // Xếp theo hành trình một buổi phỏng vấn: đêm trước → sáng hôm đó → phòng chờ → lúc luyện / phỏng vấn → sau đó
   const THEMES = [
-    { id: 'night',    name: 'Đêm trước buổi phỏng vấn', hint: 'Tối, ánh đèn bàn ấm',                 dots: ['21 26 44', '242 179 94', '127 196 181'] },
-    { id: 'morning',  name: 'Sáng ngày phỏng vấn',      hint: 'Sáng, dễ đọc ban ngày',               dots: ['238 243 241', '35 120 106', '23 38 46'] },
-    { id: 'waiting',  name: 'Phòng chờ',                hint: 'Sáng dịu, xanh chàm, nhịp thở chậm',  dots: ['236 238 248', '72 82 190', '26 28 58'] },
-    { id: 'original', name: 'Phòng luyện với AI',       hint: 'Tối xanh rêu, xanh ngọc và san hô',   dots: ['9 22 24', '92 214 172', '255 140 120'] },
-    { id: 'dusk',     name: 'Sau buổi phỏng vấn',       hint: 'Hoàng hôn tím, nhìn lại nhẹ nhàng',   dots: ['31 23 42', '244 166 150', '176 158 234'] },
+    { id: 'night',   name: 'Tối',  hint: 'Đèn bàn ấm, dịu mắt buổi tối', dots: ['21 26 44', '242 179 94', '127 196 181'] },
+    { id: 'morning', name: 'Sáng', hint: 'Dễ đọc ban ngày',              dots: ['238 243 241', '35 120 106', '23 38 46'] },
   ];
+  // Bản cũ có 5 theme: ai đã lưu theme cũ thì đưa về bản gần nhất
+  const LEGACY = { waiting: 'morning', original: 'night', dusk: 'night' };
   const root = document.documentElement;
-  const saved = () => { try { return localStorage.getItem(KEY); } catch { return null; } };
+  const saved = () => { try { const v = localStorage.getItem(KEY); return LEGACY[v] || v; } catch { return null; } };
   const systemTheme = () => (matchMedia('(prefers-color-scheme: light)').matches ? 'morning' : 'night');
   const valid = (id) => THEMES.some((t) => t.id === id);
   const metaColor = document.querySelector('meta[name="theme-color"]');

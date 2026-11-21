@@ -407,15 +407,5 @@ html[data-theme="dusk"]{
 }
 
 /* ---- Chi tiết riêng theo theme: những chỗ không chỉ đổi màu là đủ ---- */
-/* Theme sáng (Sáng ngày phỏng vấn, Phòng chờ): quả cầu dùng điểm phản sáng trắng
-   (ở theme tối "hi" là trắng, ở theme sáng "hi" là màu chữ đậm) */
-:is(html[data-theme="morning"],html[data-theme="waiting"]) .b-orb{
-  background:radial-gradient(circle at 35% 30%,#fff 0%,color-mix(in srgb,rgb(var(--c-primary)) 45%,#fff) 18%,rgb(var(--c-primary)) 55%,rgb(var(--c-primary-3)) 100%);
-  box-shadow:0 0 90px -10px rgb(var(--c-primary) / .45),0 0 0 1px rgb(255 255 255 / .5) inset}
-:is(html[data-theme="morning"],html[data-theme="waiting"]) .b-orb.in{box-shadow:0 0 140px 0 rgb(var(--c-primary) / .4),0 0 0 1px rgb(255 255 255 / .6) inset}
-:is(html[data-theme="morning"],html[data-theme="waiting"]) .b-text b,:is(html[data-theme="morning"],html[data-theme="waiting"]) .b-text span{color:#fff;text-shadow:0 2px 14px rgb(var(--c-primary-4) / .55)}
-:is(html[data-theme="morning"],html[data-theme="waiting"]) .j-orb .core{
-  background:radial-gradient(circle at 32% 28%,#fff 0%,color-mix(in srgb,var(--c) 40%,#fff) 30%,var(--c) 78%,color-mix(in srgb,var(--c) 75%,#000) 100%);
-  box-shadow:0 0 70px -10px var(--c),0 0 0 1px rgb(255 255 255 / .6) inset}
 /* Theme sáng: menu ba gạch trên điện thoại phải đặc hẳn — 3% trong suốt vẫn làm lộ chữ đậm phía sau */
 @media (max-width:1040px){ :is(html[data-theme="morning"],html[data-theme="waiting"]) .nav{background:rgb(var(--c-bg))} }

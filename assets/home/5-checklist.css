@@ -64,3 +64,7 @@
 #auth-submit{width:100%}
 .dlg-switch{text-align:center;font-size:.9375rem;color:var(--muted);margin:1rem 0 0}
 #auth-switch{background:none;border:0;color:var(--accent-2);font-weight:600;cursor:pointer;min-height:44px;padding:0 .3rem}
+
+/* Chưa đăng nhập: vẫn tích được, lưu tạm trên trình duyệt */
+.cl-guest{margin:0 0 1rem;padding:.7rem .9rem;border-radius:12px;border:1px solid var(--line-2);background:rgb(var(--c-hi) / .03);font-size:.9375rem;color:var(--ink-2)}
+.cl-guest a{font-weight:600}

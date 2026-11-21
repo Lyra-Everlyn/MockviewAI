@@ -275,5 +275,5 @@ window.MVHeroModels = (() => {
     }
   }
 
-  return { night: { draw: night }, morning: { draw: morning }, waiting: { draw: waiting }, dusk: { draw: dusk } };
+  return { night: { draw: night }, morning: { draw: night } /* bản sáng dùng chung cánh cửa; sợi chỉ cũ giữ ở hàm morning() */, waiting: { draw: waiting }, dusk: { draw: dusk } };
 })();
