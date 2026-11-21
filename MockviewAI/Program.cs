@@ -9,6 +9,7 @@ using System.Security.Principal;
 using System.Threading.RateLimiting;
 
 using MockviewAI.Data;
+using MockviewAI.Middleware;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Ai;
@@ -289,6 +290,9 @@ namespace MockviewAI
             }
 
             //app.UseHttpsRedirection();
+            // --- Development: phục vụ landing page tại /landing (xem Middleware/LocalLandingPageExtensions.cs)
+            app.UseLocalLandingPage();
+
             app.UseRouting();
 
 

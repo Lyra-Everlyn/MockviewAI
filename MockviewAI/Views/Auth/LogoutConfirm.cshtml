@@ -1,0 +1,85 @@
+@{
+    Layout = null;
+    var returnUrl = ViewBag.ReturnUrl as string;
+    var displayName = ViewBag.DisplayName as string;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Đăng xuất - MockviewAI</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Login.css" asp-append-version="true" />
+    <partial name="Partials/_ThemeHead" />
+</head>
+<body class="app-layout app-layout--auth">
+    <div class="app-layout__content">
+        <main class="auth-page">
+            <div class="auth-shell">
+                <section class="auth-intro" aria-labelledby="logout-intro-title">
+                    <div class="auth-intro__top">
+                        <a class="auth-brand" asp-controller="Home" asp-action="Index" aria-label="MockviewAI - Trang chủ">
+                            <span class="auth-brand__mark" aria-hidden="true"><img src="~/favicon.ico" asp-append-version="true" alt="" /></span>
+                            <span>Mockview<span>AI</span></span>
+                        </a>
+                    </div>
+                    <div class="auth-intro__body">
+                        <span class="auth-intro__eyebrow"><i class="fa-solid fa-book-open" aria-hidden="true"></i> TÀI LIỆU VẪN MỞ CHO BẠN</span>
+                        <h1 id="logout-intro-title">Đăng xuất xong, bạn vẫn đọc tiếp được.</h1>
+                        <p>Bài viết, số liệu khảo sát và nghiên cứu trên trang giới thiệu không cần tài khoản. Lịch sử luyện tập vẫn được lưu cho lần đăng nhập sau.</p>
+                    </div>
+                    <p class="auth-intro__bottom">Luyện tập hôm nay, vững vàng ngày mai.</p>
+                </section>
+
+                <section class="auth-panel" aria-labelledby="logout-heading">
+                    <div class="auth-panel__mobile-brand">
+                        <span class="auth-brand__mark" aria-hidden="true"><img src="~/favicon.ico" asp-append-version="true" alt="" /></span>
+                        <strong>Mockview<span>AI</span></strong>
+                    </div>
+                    <div class="auth-panel__header">
+                        <span class="auth-panel__eyebrow">TÀI KHOẢN</span>
+                        <h2 id="logout-heading">Đăng xuất khỏi MockviewAI?</h2>
+                        @if (!string.IsNullOrWhiteSpace(displayName))
+                        {
+                            <p>Bạn đang đăng nhập với tên <strong>@displayName</strong>.</p>
+                        }
+                    </div>
+
+                    @* Đăng xuất bằng POST + mã chống giả mạo: trang khác không thể lén đăng xuất bạn bằng một đường link. *@
+                    <form class="auth-form" id="logoutConfirmForm" method="post" asp-controller="Auth" asp-action="Logout">
+                        @Html.AntiForgeryToken()
+                        @if (returnUrl != null)
+                        {
+                            <input type="hidden" name="returnUrl" value="@returnUrl" />
+                        }
+                        <button type="submit" class="button button--primary auth-submit">
+                            <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+                            <span>Đăng xuất</span>
+                        </button>
+                    </form>
+
+                    <p class="auth-register">
+                        @if (returnUrl != null)
+                        {
+                            <a class="text-link" href="@returnUrl">Ở lại và quay về trang giới thiệu</a>
+                        }
+                        else
+                        {
+                            <a class="text-link" asp-controller="Home" asp-action="Index">Ở lại và vào luyện phỏng vấn</a>
+                        }
+                    </p>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <partial name="Partials/_AppFooter" />
+    @* Giống nút Đăng xuất trong ứng dụng: xoá dữ liệu tạm và CV lưu trên trình duyệt (máy dùng chung) trước khi gửi form *@
+    <script src="~/js/_Logout.js" asp-append-version="true" defer></script>
+    <script src="~/js/LogoutConfirm.js" asp-append-version="true" defer></script>
+</body>
+</html>

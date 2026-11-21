@@ -71,6 +71,10 @@
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="email" value="@email" />
                         <input type="hidden" name="code" id="finalCode" />
+                        @if (ViewBag.ReturnUrl is string landingReturnUrl)
+                        {
+                            <input type="hidden" name="returnUrl" value="@landingReturnUrl" />
+                        }
 
                         <fieldset class="otp-fieldset">
                             <legend class="form-field__label">Mã xác thực</legend>
@@ -91,7 +95,7 @@
                     </form>
 
                     <p class="otp-panel__help">Chưa nhận được mã? Hãy kiểm tra cả thư mục Spam hoặc Thư rác.</p>
-                    <a class="otp-panel__back text-link" asp-controller="Auth" asp-action="Register">
+                    <a class="otp-panel__back text-link" asp-controller="Auth" asp-action="Register" asp-route-returnUrl="@ViewBag.ReturnUrl">
                         <i class="fa-solid fa-chevron-left" aria-hidden="true"></i> Nhầm email? Quay lại đăng ký
                     </a>
                 </section>

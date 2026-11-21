@@ -38,6 +38,7 @@ namespace MockviewAI.Services.Security
         public static IServiceCollection AddAppSecurity(this IServiceCollection services, IConfiguration config)
         {
             services.Configure<SecurityOptions>(config.GetSection("Security"));
+            services.Configure<LandingPageOptions>(config.GetSection(LandingPageOptions.SectionName));
             services.AddSingleton<ILoginThrottleService, LoginThrottleService>();
             services.AddHttpClient<ITurnstileService, TurnstileService>(c => c.Timeout = TimeSpan.FromSeconds(10));
             services.Configure<ForwardedHeadersOptions>(o =>

@@ -52,7 +52,7 @@
                         <p>Tiếp tục hành trình luyện phỏng vấn của bạn.</p>
                     </div>
 
-                    <a class="auth-google" asp-controller="Auth" asp-action="LoginGoogle">
+                    <a class="auth-google" asp-controller="Auth" asp-action="LoginGoogle" asp-route-returnUrl="@ViewBag.ReturnUrl">
                         <i class="fa-brands fa-google" aria-hidden="true"></i>
                         <span>Tiếp tục với Google</span>
                     </a>
@@ -62,6 +62,10 @@
                     <form id="loginForm" class="auth-form" method="post" asp-controller="Auth" asp-action="LoginApp"
                           data-loading-text="Đang đăng nhập..." data-loading-overlay="Hệ thống đang xác thực tài khoản của bạn.">
                         @Html.AntiForgeryToken()
+                        @if (ViewBag.ReturnUrl is string landingReturnUrl)
+                        {
+                            <input type="hidden" name="returnUrl" value="@landingReturnUrl" />
+                        }
                         <div class="form-field">
                             <label class="form-field__label" for="email-login">Địa chỉ email</label>
                             <div class="form-control-wrap">
@@ -73,7 +77,7 @@
                         <div class="form-field">
                             <div class="auth-label-row">
                                 <label class="form-field__label" for="pass-login">Mật khẩu</label>
-                                <a class="text-link" asp-controller="Auth" asp-action="ForgotPassword">Quên mật khẩu?</a>
+                                <a class="text-link" asp-controller="Auth" asp-action="ForgotPassword" asp-route-returnUrl="@ViewBag.ReturnUrl">Quên mật khẩu?</a>
                             </div>
                             <div class="form-control-wrap auth-password-field">
                                 <i class="fa-solid fa-lock" aria-hidden="true"></i>
@@ -94,7 +98,7 @@
                         </button>
                     </form>
 
-                    <p class="auth-register">Chưa có tài khoản? <a class="text-link" asp-controller="Auth" asp-action="Register">Đăng ký ngay</a></p>
+                    <p class="auth-register">Chưa có tài khoản? <a class="text-link" asp-controller="Auth" asp-action="Register" asp-route-returnUrl="@ViewBag.ReturnUrl">Đăng ký ngay</a></p>
                     <p class="auth-panel__note"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Xác thực an toàn để bảo vệ tài khoản của bạn.</p>
                 </section>
             </div>

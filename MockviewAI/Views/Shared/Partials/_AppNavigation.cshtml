@@ -1,5 +1,10 @@
-﻿@{
+﻿@inject Microsoft.Extensions.Options.IOptions<MockviewAI.Models.Security.LandingPageOptions> LandingOptions
+@{
     var activeNav = ViewData["ActiveNav"] as string ?? "";
+
+    // Nút về landing page (bài viết, số liệu, nghiên cứu) — chỉ hiện khi đã cấu hình LandingPage:HomeUrl hợp lệ.
+    var hasLanding = MockviewAI.Services.Security.ReturnUrlPolicy.GetSafeLandingUrl(
+        LandingOptions.Value.HomeUrl, LandingOptions.Value.AllowedReturnOrigins) != null;
     var navUserName = User.Identity?.Name ?? "";
     var navInitial = string.IsNullOrWhiteSpace(navUserName)
         ? "?"
@@ -30,6 +35,13 @@
                    class="app-nav__link @(activeNav == "history" ? "is-active" : null)">
                     Lịch sử
                 </a>
+
+                @if (hasLanding)
+                {
+                    <a href="/Auth/ToLanding" class="app-nav__link">
+                        Tài liệu &amp; nghiên cứu
+                    </a>
+                }
             </div>
 
             <div class="app-nav__actions">
@@ -78,6 +90,16 @@
             </span>
             <span>Lịch sử</span>
         </a>
+
+        @if (hasLanding)
+        {
+            <a href="/Auth/ToLanding" class="app-nav__mobile-link">
+                <span class="app-nav__mobile-icon" aria-hidden="true">
+                    <i class="fa-solid fa-book-open"></i>
+                </span>
+                <span>Tài liệu</span>
+            </a>
+        }
 
         <a href="/Profile"
            class="app-nav__mobile-link @(activeNav == "profile" ? "is-active" : null)">

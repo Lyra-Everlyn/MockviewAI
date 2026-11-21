@@ -7,6 +7,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
+      "launchUrl": "Auth/ToLanding",
       "applicationUrl": "http://localhost:9090"
     },
     "https": {
@@ -16,6 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
+      "launchUrl": "Auth/ToLanding",
       "applicationUrl": "https://localhost:9091;http://localhost:9090"
     },
     "Container (Dockerfile)": {
