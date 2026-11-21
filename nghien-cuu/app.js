@@ -31,7 +31,23 @@
   set('.js-stages', m ? [['s-before', 'Trước', m[1], 'book'], ['s-during', 'Trong', m[2], 'mic'], ['s-after', 'Sau', m[3], 'rotate']]
     .map(([c, t, x, i]) => `<li class="${c}"><span class="st-ic">${ic(i)}</span><h2>${t} phỏng vấn</h2><p>${esc(cap(x))}</p></li>`).join('') : '');
   set('.js-meta', esc(['Unit 16 – Computing Research Project', R.meta.school, 'GV hướng dẫn ' + R.meta.tutor].join(' · ')));
-  set('.js-n-survey', S.collected.responses);
+  $$('.js-n-survey').forEach((el) => { el.textContent = S.collected.responses; });
+
+  /* ---- Tóm tắt 1 phút: ba phát hiện, mỗi giai đoạn một phát hiện (số lấy từ survey.json) ---- */
+  const stOf = (id) => S.statements.find((x) => x.id === id);
+  const SUMMARY = [
+    ['S1', 's-before', 'Gần một nửa lo kiến thức của mình chưa đủ.'],
+    ['S6', 's-during', 'Đa số tự tin hơn khi nói về dự án đã làm.'],
+    ['S9', 's-after', 'Phát biểu được đồng ý nhiều nhất trong 12 câu.']
+  ];
+  set('.js-summary', SUMMARY.map(([id, cls, take]) => {
+    const st = stOf(id); if (!st) return '';
+    return `<li class="${cls}"><p class="sum-stage">${esc(S.stage_labels[st.stage] || '')}</p>`
+      + `<p class="sum-pct"><b>${f1(st.agree_pct)}%</b><span>đồng ý</span></p>`
+      + `<p class="sum-take">${esc(take)}</p>`
+      + `<p class="sum-q"><span class="sum-id">${esc(id)}</span>${esc(st.text_vi)}</p></li>`;
+  }).join(''));
+  $$('.js-pct[data-id]').forEach((el) => { const st = stOf(el.dataset.id); if (st) el.textContent = f1(st.agree_pct) + '%'; });
   set('.js-n-experts', R.experts.used);
   set('.js-n-refs', REFS.length);
 
@@ -128,7 +144,7 @@
   /* a. Ai đã trả lời */
   const C = S.collected;
   set('.js-collected', `${C.responses} phản hồi / kế hoạch ${C.planned_min} · 07–12/10/2026 · ${esc(C.note)}`);
-  const ramp = ['#8f86ff', '#7266d8', '#5a50b0', '#453d8a', '#3a4152'];
+  const ramp = ['rgb(var(--c-ch-1))', 'rgb(var(--c-ch-2))', 'rgb(var(--c-ch-3))', 'rgb(var(--c-ch-4))', 'rgb(var(--c-slate-2))'];   // màu theo theme (assets/themes.css)
   const sampleBlock = (title, rows) => `<div class="sb"><h4>${title}</h4>
     <div class="stack100" role="img" aria-label="${esc(rows.map((r) => `${r[0]}: ${r[1]} người, ${f1(r[2])}%`).join('; '))}">${rows.map((r, i) => `<i style="width:${r[2]}%;background:${ramp[i]}"></i>`).join('')}</div>
     <ul>${rows.map((r, i) => `<li><i style="background:${ramp[i]}"></i><span>${esc(r[0])}</span><b>${r[1]} · ${f1(r[2])}%</b></li>`).join('')}</ul></div>`;

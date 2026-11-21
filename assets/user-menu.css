@@ -1,0 +1,28 @@
+/* MockViewAI — ảnh đại diện + menu tài khoản trên landing (assets/user-menu.js).
+   Dùng mã màu trực tiếp để chạy giống nhau ở trang chủ (1-nen-hero.css) và trang bài viết (bai-viet.css). */
+.mv-signed-in #auth-open{display:none!important}
+.mv-user{position:relative;display:inline-flex;flex:none}
+.mv-user__btn{display:grid;place-items:center;width:40px;height:40px;padding:0;border-radius:50%;overflow:hidden;cursor:pointer;
+  border:1px solid rgb(var(--c-muted) / .32);background:linear-gradient(135deg,rgb(var(--c-primary)),rgb(var(--c-violet)));
+  color:rgb(var(--c-on-primary));font:700 .95rem/1 'Space Grotesk','Be Vietnam Pro',system-ui,sans-serif;transition:border-color .2s,box-shadow .2s}
+.mv-user__btn img{width:100%;height:100%;object-fit:cover}
+.mv-user__btn:hover,.mv-user__btn[aria-expanded="true"]{border-color:rgb(var(--c-primary));box-shadow:0 0 0 3px rgb(var(--c-primary) / .18)}
+.mv-user__btn:focus-visible{outline:2px solid rgb(var(--c-primary));outline-offset:3px}
+.mv-user__menu{position:absolute;top:calc(100% + 10px);right:0;z-index:200;min-width:228px;padding:.35rem;border-radius:14px;
+  background:rgb(var(--c-bg-2) / .97);border:1px solid rgb(var(--c-muted) / .2);box-shadow:0 24px 60px -20px rgb(var(--c-shadow) / .75);
+  font:400 .9375rem/1.4 'Be Vietnam Pro',system-ui,sans-serif;white-space:normal}
+.mv-user__menu[hidden]{display:none}
+.mv-user__who{margin:0 0 .3rem;padding:.6rem .75rem .65rem;border-bottom:1px solid rgb(var(--c-muted) / .14);font-size:.8125rem;color:rgb(var(--c-muted))}
+.mv-user__who strong{display:block;margin-top:.15rem;color:rgb(var(--c-ink));font-size:.9375rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mv-user__menu a{display:flex;align-items:center;min-height:44px;padding:0 .75rem;border-radius:10px;color:rgb(var(--c-ink-2));text-decoration:none}
+.mv-user__menu a:hover,.mv-user__menu a:focus-visible{background:rgb(var(--c-primary) / .09);color:rgb(var(--c-hi));outline:none}
+.mv-user__menu a.mv-user__out{margin-top:.3rem;border-top:1px solid rgb(var(--c-muted) / .14);border-radius:0 0 10px 10px;color:rgb(var(--c-muted))}
+@media (prefers-reduced-motion:reduce){.mv-user__btn{transition:none}}
+/* Điện thoại / máy tính bảng (menu ba gạch): đặt ảnh đại diện sát nút ☰ ở bên phải */
+@media (max-width:1040px){
+  .auth-area.mv-signed-in{margin-left:auto}
+  .auth-area.mv-signed-in + .menu-btn{margin-left:0}
+}
+
+/* Chữ / nút theo trạng thái đăng nhập: khách thấy [data-auth="guest"], người đã đăng nhập thấy [data-auth="user"] */
+html.mv-auth-in [data-auth="guest"],html:not(.mv-auth-in) [data-auth="user"]{display:none!important}

@@ -1,0 +1,43 @@
+/* MockViewAI — nút + menu chọn giao diện (assets/theme-switcher.js). Màu lấy từ assets/themes.css. */
+.mv-theme{position:relative;display:inline-flex;flex:none}
+.mv-theme__btn{display:inline-flex;align-items:center;gap:.45rem;min-height:40px;padding:0 .8rem;border-radius:12px;cursor:pointer;
+  border:1px solid rgb(var(--c-muted) / .3);background:rgb(var(--c-hi) / .03);color:rgb(var(--c-ink-2));
+  font:500 .875rem/1 'Be Vietnam Pro',system-ui,sans-serif;transition:border-color .2s,color .2s}
+.mv-theme__btn:hover,.mv-theme__btn[aria-expanded="true"]{border-color:rgb(var(--c-primary));color:rgb(var(--c-ink))}
+.mv-theme__btn:focus-visible,.mv-theme__item:focus-visible{outline:2px solid rgb(var(--c-primary));outline-offset:2px}
+.mv-theme__icon svg{display:block;width:18px;height:18px}
+.mv-theme__menu{position:absolute;top:calc(100% + 10px);right:0;z-index:200;width:268px;padding:.35rem;border-radius:14px;
+  background:rgb(var(--c-bg-2) / .98);border:1px solid rgb(var(--c-muted) / .22);box-shadow:0 24px 60px -20px rgb(var(--c-shadow) / .55);
+  font:400 .9375rem/1.35 'Be Vietnam Pro',system-ui,sans-serif}
+.mv-theme__menu[hidden]{display:none}
+.mv-theme__item{display:flex;align-items:center;gap:.75rem;width:100%;min-height:52px;padding:.5rem .7rem;border:0;border-radius:10px;
+  background:transparent;color:rgb(var(--c-ink-2));text-align:left;cursor:pointer;font:inherit}
+.mv-theme__item:hover{background:rgb(var(--c-primary) / .09);color:rgb(var(--c-ink))}
+.mv-theme__item[aria-checked="true"]{background:rgb(var(--c-primary) / .13);color:rgb(var(--c-ink))}
+.mv-theme__item b{display:block;font-weight:600;font-size:.9375rem}
+.mv-theme__item small{display:block;margin-top:.1rem;font-size:.8125rem;color:rgb(var(--c-muted))}
+.mv-theme__dots{display:inline-flex;flex:none}
+.mv-theme__dots i{width:16px;height:16px;border-radius:50%;border:1.5px solid rgb(var(--c-bg-2));margin-left:-5px}
+.mv-theme__dots i:first-child{margin-left:0}
+/* Màn hình vừa (laptop nhỏ, trình duyệt phóng to): nút chỉ còn icon để thanh trên không bị chật */
+@media (max-width:1280px){
+  .mv-theme__label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .mv-theme__btn{padding:0;width:40px;justify-content:center}
+}
+[data-theme-slot]{display:inline-flex;margin-left:.6rem}
+.brand + [data-theme-slot]{margin-left:auto}   /* trang tài liệu: đẩy nhóm nút sang phải như trước */
+/* Trang Nghiên cứu, màn hình vừa: nút theme đứng sát nút Tìm nhanh */
+@media (max-width:1180px){ [data-theme-slot]{order:2;margin-left:auto} [data-theme-slot] + .search-btn{margin-left:.5rem} }
+/* Bản nằm trong menu ba gạch (trang chủ) / bảng Mục lục (trang Nghiên cứu): chỉ hiện trên màn hình hẹp */
+.mv-theme-inline{display:none}
+@media (max-width:760px){
+  .toc ~ [data-theme-slot]{display:none}   /* chỉ trang có bảng Mục lục; trang tài liệu vẫn giữ nút */
+  .toc .mv-theme-inline{display:block;padding:.9rem 0 .4rem}
+}
+@media (max-width:1040px){
+  .auth-area .mv-theme{display:none}
+  .nav .mv-theme-inline{display:block;padding:.9rem 0 .4rem}
+  .mv-theme-inline p{margin:0 0 .35rem;font-size:.8125rem;font-weight:600;color:rgb(var(--c-muted))}
+  .mv-theme-inline .mv-theme__item{padding:.5rem .4rem}
+}
+@media (prefers-reduced-motion:reduce){.mv-theme__btn{transition:none}}

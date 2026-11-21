@@ -15,12 +15,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <!-- Mỗi đợt thêm một file CSS -->
+<script>/* đặt theme trước khi vẽ trang (không nháy màu) — xem assets/theme-switcher.js */try{var t=localStorage.getItem('mv-theme');if(!/^(night|morning|waiting|original|dusk)$/.test(t))t=matchMedia('(prefers-color-scheme: light)').matches?'morning':'night';document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme='night'}</script>
+<script>/* đã đăng nhập? (chỉ để ẩn/hiện chữ, xem assets/user-menu.js) */try{var u=JSON.parse(localStorage.getItem('mv-auth')||'null');if(u&&u.exp*1000>Date.now())document.documentElement.classList.add('mv-auth-in')}catch(e){}</script>
+<link rel="stylesheet" href="assets/themes.css">
 <link rel="stylesheet" href="assets/home/1-nen-hero.css">
 <link rel="stylesheet" href="assets/home/2-so-lieu-hanh-trinh.css">
 <link rel="stylesheet" href="assets/home/3-san-pham.css">
 <link rel="stylesheet" href="assets/home/4-bai-tho.css">
 <link rel="stylesheet" href="assets/home/5-checklist.css">
 <link rel="stylesheet" href="assets/home/6-cuoi-trang.css">
+<link rel="stylesheet" href="assets/user-menu.css">
+<link rel="stylesheet" href="assets/theme-switcher.css">
 </head>
 <body class="no-js">
 <script>document.body.classList.remove('no-js')</script>
@@ -35,16 +40,16 @@
       <span translate="no">MockViewAI</span>
     </a>
     <nav class="nav" id="nav" aria-label="Menu chính">
-      <a href="#san-pham">Sản phẩm</a>
-      <a href="#hanh-trinh">Hành trình</a>
-      <a href="#so-lieu">Số liệu</a>
-      <a href="#tho">Bài thở</a>
       <a href="#checklist-sec">Checklist</a>
+      <a href="#tho">Bài thở</a>
+      <a href="#so-lieu">Số liệu</a>
+      <a href="#hanh-trinh">Hành trình</a>
+      <a href="#san-pham">Sản phẩm</a>
       <a href="#bai-viet">Bài viết</a>
       <a href="nghien-cuu/index.html">Nghiên cứu</a>
     </nav>
     <div class="auth-area">
-      <button type="button" id="auth-open" class="btn btn-ghost btn-sm inline-flex">Đăng nhập</button>
+      <a id="auth-open" class="btn btn-ghost btn-sm inline-flex" href="https://mockviewai.com/Auth/Login">Đăng nhập</a>
       <div id="auth-user" class="hidden">
         <span id="auth-email"></span>
         <button type="button" id="auth-logout" class="btn btn-ghost btn-sm">Đăng xuất</button>
@@ -67,13 +72,19 @@
       <span class="hero-tag"><i></i>Dự án học tập · dựa trên khảo sát 53 người</span>
       <h1>Bước vào phòng phỏng vấn <span class="grad">có lộ trình</span>, bớt run hơn.</h1>
       <p class="lead"><strong translate="no">MockViewAI</strong> giúp sinh viên sắp ra trường, mới ra trường và người đi làm 1–2 năm <strong>tự lập lộ trình chuẩn bị phỏng vấn</strong>: checklist lưu theo tài khoản, bài tập thở, và số liệu thật về điều người mới hay gặp.</p>
-      <div class="hero-cta">
-        <a class="btn btn-primary" href="#checklist">Bắt đầu chuẩn bị
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        <a class="btn btn-ghost" href="#so-lieu">Xem số liệu khảo sát</a>
+      <div class="when-ask" id="when-ask" role="group" aria-labelledby="when-q">
+        <p class="when-q" id="when-q">Buổi phỏng vấn của bạn khi nào?</p>
+        <div class="when-opts">
+          <button type="button" class="when-opt" data-when="tuan" aria-pressed="false"><b>Còn vài tuần</b><small>Luyện khung trả lời, tìm hiểu công ty</small></button>
+          <button type="button" class="when-opt" data-when="ngay" aria-pressed="false"><b>Vài ngày nữa</b><small>Tập thở, ôn điểm mạnh của mình</small></button>
+          <button type="button" class="when-opt" data-when="homnay" aria-pressed="false"><b>Hôm nay</b><small>Một phút thở chậm trước khi vào</small></button>
+          <button type="button" class="when-opt" data-when="xong" aria-pressed="false"><b>Vừa phỏng vấn xong</b><small>Nhìn lại mà không tự trách</small></button>
+        </div>
+        <p class="when-alt"><a data-auth="guest" href="https://mockviewai.com/Auth/Login">Đăng nhập để lưu tiến độ</a><a data-auth="user" href="#checklist-sec">Xem tiến độ checklist của bạn</a><span aria-hidden="true">hoặc</span><a href="#so-lieu">xem số liệu khảo sát</a></p>
       </div>
       <ul class="hero-notes">
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Cần tài khoản để lưu tiến độ</li>
+        <li data-auth="guest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Cần tài khoản để lưu tiến độ</li>
+        <li data-auth="user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Tiến độ đang lưu theo tài khoản của bạn</li>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg>Không thay thế tư vấn tâm lý</li>
       </ul>
     </div>
@@ -95,6 +106,79 @@
           <p class="ui-follow">↳ Linh hỏi thêm về câu trả lời vừa rồi</p><p class="ui-q">Bạn cho chị biết thêm bạn đang học gì và đang ở giai đoạn nào nhé?</p></div></div>
       </div>
       <p class="shot-label">Giao diện bản thử nghiệm · dữ liệu mẫu</p>
+    </div>
+  </div>
+</section>
+
+<!-- ▼ ĐỢT 5 -->
+<!-- ======================= CHECKLIST ======================= -->
+<section class="sec" id="checklist-sec">
+  <div class="wrap cl-grid">
+    <div class="cl-side reveal">
+      <span class="eyebrow">Checklist chuẩn bị</span>
+      <h2 style="font-size:clamp(2rem,4vw,3rem);margin:.9rem 0 1rem">Năm việc, <span class="grad">đúng thứ tự thời gian</span></h2>
+      <p>Mỗi việc lấy từ lộ trình trong bài “Điều gì giúp giảm lo âu — theo bằng chứng”, kèm link giải thích.</p>
+      <div class="cl-focus" id="cl-focus" role="status" hidden>
+        <p id="cl-focus-text"></p>
+        <ul id="cl-focus-list"></ul>
+        <button type="button" class="cl-focus-x" id="cl-focus-x">Bỏ chọn, xem cả 5 việc</button>
+      </div>
+      <ol>
+        <li data-auth="guest">Đăng nhập hoặc tạo tài khoản bằng email.</li>
+        <li data-auth="user">Bạn đã đăng nhập, bước này xong rồi.</li>
+        <li>Tích từng việc khi đã làm xong.</li>
+        <li>Quay lại bất cứ lúc nào, tiến độ vẫn còn.</li>
+      </ol>
+      <p class="note">Mỗi tài khoản có tiến độ riêng. Tiến độ lưu trên trình duyệt bạn đang dùng.</p>
+    </div>
+
+    <div class="glass cl-box reveal" id="checklist">
+      <div id="checklist-locked" class="flex">
+        <div class="lock" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="stroke:rgb(var(--c-primary-3))" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+        <p>Đăng nhập tài khoản MockviewAI để tích và lưu tiến độ chuẩn bị của riêng bạn.</p>
+        <a id="auth-open-2" class="btn btn-primary" href="https://mockviewai.com/Auth/Login">Đăng nhập / Tạo tài khoản</a>
+      </div>
+      <div id="checklist-owner" class="hidden"><span>Đang lưu cho</span> <b id="auth-email-2" style="color:rgb(var(--c-hi))"></b></div>
+      <div class="cl-head">
+        <h3>Trước buổi phỏng vấn</h3>
+        <div><span id="checklist-count">0 / 5 hoàn thành</span><span id="checklist-percent">0% tiến độ</span></div>
+      </div>
+      <div class="bar" id="checklist-bar" role="progressbar" aria-label="Tiến độ checklist" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="checklist-bar-fill"></div></div>
+      <ul id="checklist-items">
+        <li class="checklist-item" data-when="tuan"><label><input type="checkbox" data-key="truoc-01"><span><span class="when">Vài tuần trước</span><span class="t">Học một khung trả lời và tập theo khung đó</span><span class="d">Tình huống → hành động → kết quả. Luyện có khung hiệu quả hơn chỉ luyện thêm.</span><a class="why" href="bai-viet/4-dieu-gi-giup.html#cau-truc">Vì sao?</a></span></label></li>
+        <li class="checklist-item" data-when="tuan"><label><input type="checkbox" data-key="truoc-02"><span><span class="when">Vài tuần trước</span><span class="t">Tìm hiểu kỹ vị trí và công ty ứng tuyển</span><span class="d">Đọc kỹ mô tả công việc để thấy mình đã chuẩn bị đủ.</span><a class="why" href="bai-viet/4-dieu-gi-giup.html#lo-trinh">Vì sao?</a></span></label></li>
+        <li class="checklist-item" data-when="ngay"><label><input type="checkbox" data-key="truoc-03"><span><span class="when">Những ngày trước</span><span class="t">Tập thở chậm vài phút mỗi ngày</span><span class="d">Hít vào 4 giây, thở ra 6 giây. Có thể dùng bài thở ở trên.</span><a class="why" href="bai-viet/4-dieu-gi-giup.html#tho-cham">Vì sao?</a></span></label></li>
+        <li class="checklist-item" data-when="ngay"><label><input type="checkbox" data-key="truoc-04"><span><span class="when">Những ngày trước</span><span class="t">Liệt kê điểm mạnh, nói chuyện với người hỗ trợ mình</span><span class="d">Chuẩn bị sẵn 1–2 dự án thật để kể.</span><a class="why" href="bai-viet/4-dieu-gi-giup.html#nguon-luc">Vì sao?</a></span></label></li>
+        <li class="checklist-item" data-when="homnay"><label><input type="checkbox" data-key="truoc-05"><span><span class="when">Ngay trước khi vào</span><span class="t">Tự nói “mình đang hào hứng”, rồi đặt chú ý vào câu hỏi</span><span class="d">Thay vì cố ép mình bình tĩnh lại.</span><a class="why" href="bai-viet/4-dieu-gi-giup.html#hao-hung">Vì sao?</a></span></label></li>
+      </ul>
+      <div id="checklist-done" class="hidden" role="status">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:rgb(var(--c-teal))" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        Bạn đã sẵn sàng hơn rồi! Chúc buổi phỏng vấn suôn sẻ.
+      </div>
+      <p id="save-status" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ▼ ĐỢT 4 -->
+<!-- ======================= BÀI THỞ ======================= -->
+<section class="sec" id="tho">
+  <div class="wrap breath">
+    <div class="breath-stage reveal">
+      <div class="b-ring" aria-hidden="true"></div><div class="b-ring r2" aria-hidden="true"></div>
+      <div class="b-orb" id="b-orb" aria-hidden="true"></div>
+      <div class="b-text"><div><b id="b-phase">Sẵn sàng</b><span id="b-sec" aria-hidden="true"></span></div></div>
+    </div>
+    <div class="reveal">
+      <span class="eyebrow">Bài tập thở 4–6</span>
+      <h2 style="font-size:clamp(2rem,4vw,3rem);margin:.9rem 0 1rem">Một phút để <span class="grad">chậm lại</span> trước khi vào phòng</h2>
+      <p style="color:var(--ink-2)">Thở ra dài hơn hít vào. Bấm bắt đầu và theo quả cầu: phồng lên khi hít vào, thu lại khi thở ra.</p>
+      <div class="b-controls">
+        <button type="button" class="btn btn-primary" id="b-start">Bắt đầu thở</button>
+        <button type="button" class="btn btn-ghost" id="b-stop" disabled>Dừng</button>
+      </div>
+      <p class="b-count" id="b-count" aria-live="polite">6 nhịp · khoảng 1 phút</p>
+      <p class="evidence">Một phân tích gộp các thử nghiệm ngẫu nhiên cho thấy bài tập thở giảm lo âu ở mức nhỏ–vừa. Phần lớn nghiên cứu có nguy cơ sai lệch trung bình, nên đây là công cụ hỗ trợ chứ không phải cách chữa. <a href="bai-viet/4-dieu-gi-giup.html#tho-cham">Xem nguồn →</a></p>
     </div>
   </div>
 </section>
@@ -272,73 +356,6 @@
   </div>
 </section>
 
-<!-- ▼ ĐỢT 4 -->
-<!-- ======================= BÀI THỞ ======================= -->
-<section class="sec" id="tho">
-  <div class="wrap breath">
-    <div class="breath-stage reveal">
-      <div class="b-ring" aria-hidden="true"></div><div class="b-ring r2" aria-hidden="true"></div>
-      <div class="b-orb" id="b-orb" aria-hidden="true"></div>
-      <div class="b-text"><div><b id="b-phase">Sẵn sàng</b><span id="b-sec" aria-hidden="true"></span></div></div>
-    </div>
-    <div class="reveal">
-      <span class="eyebrow">Bài tập thở 4–6</span>
-      <h2 style="font-size:clamp(2rem,4vw,3rem);margin:.9rem 0 1rem">Một phút để <span class="grad">chậm lại</span> trước khi vào phòng</h2>
-      <p style="color:var(--ink-2)">Thở ra dài hơn hít vào. Bấm bắt đầu và theo quả cầu: phồng lên khi hít vào, thu lại khi thở ra.</p>
-      <div class="b-controls">
-        <button type="button" class="btn btn-primary" id="b-start">Bắt đầu thở</button>
-        <button type="button" class="btn btn-ghost" id="b-stop" disabled>Dừng</button>
-      </div>
-      <p class="b-count" id="b-count" aria-live="polite">6 nhịp · khoảng 1 phút</p>
-      <p class="evidence">Một phân tích gộp các thử nghiệm ngẫu nhiên cho thấy bài tập thở giảm lo âu ở mức nhỏ–vừa. Phần lớn nghiên cứu có nguy cơ sai lệch trung bình, nên đây là công cụ hỗ trợ chứ không phải cách chữa. <a href="bai-viet/4-dieu-gi-giup.html#tho-cham">Xem nguồn →</a></p>
-    </div>
-  </div>
-</section>
-
-<!-- ▼ ĐỢT 5 -->
-<!-- ======================= CHECKLIST ======================= -->
-<section class="sec" id="checklist-sec">
-  <div class="wrap cl-grid">
-    <div class="cl-side reveal">
-      <span class="eyebrow">Checklist chuẩn bị</span>
-      <h2 style="font-size:clamp(2rem,4vw,3rem);margin:.9rem 0 1rem">Năm việc, <span class="grad">đúng thứ tự thời gian</span></h2>
-      <p>Mỗi việc lấy từ lộ trình trong bài “Điều gì giúp giảm lo âu — theo bằng chứng”, kèm link giải thích.</p>
-      <ol>
-        <li>Đăng nhập hoặc tạo tài khoản bằng email.</li>
-        <li>Tích từng việc khi đã làm xong.</li>
-        <li>Quay lại bất cứ lúc nào, tiến độ vẫn còn.</li>
-      </ol>
-      <p class="note">Tiến độ lưu trên Supabase, mỗi tài khoản chỉ đọc được dòng của chính mình.</p>
-    </div>
-
-    <div class="glass cl-box reveal" id="checklist">
-      <div id="checklist-locked" class="flex">
-        <div class="lock" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a5f3fc" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
-        <p>Đăng nhập bằng email để tích và lưu tiến độ chuẩn bị của riêng bạn.</p>
-        <button type="button" id="auth-open-2" class="btn btn-primary">Đăng nhập / Tạo tài khoản</button>
-      </div>
-      <div id="checklist-owner" class="hidden"><span>Đang lưu cho</span> <b id="auth-email-2" style="color:#fff"></b></div>
-      <div class="cl-head">
-        <h3>Trước buổi phỏng vấn</h3>
-        <div><span id="checklist-count">0 / 5 hoàn thành</span><span id="checklist-percent">0% tiến độ</span></div>
-      </div>
-      <div class="bar" id="checklist-bar" role="progressbar" aria-label="Tiến độ checklist" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="checklist-bar-fill"></div></div>
-      <ul id="checklist-items">
-        <li class="checklist-item"><label><input type="checkbox" data-key="truoc-01"><span><span class="when">Vài tuần trước</span><span class="t">Học một khung trả lời và tập theo khung đó</span><span class="d">Tình huống → hành động → kết quả. Luyện có khung hiệu quả hơn chỉ luyện thêm.</span><a class="why" href="bai-viet/4-dieu-gi-giup.html#cau-truc">Vì sao?</a></span></label></li>
-        <li class="checklist-item"><label><input type="checkbox" data-key="truoc-02"><span><span class="when">Vài tuần trước</span><span class="t">Tìm hiểu kỹ vị trí và công ty ứng tuyển</span><span class="d">Đọc kỹ mô tả công việc để thấy mình đã chuẩn bị đủ.</span><a class="why" href="bai-viet/4-dieu-gi-giup.html#lo-trinh">Vì sao?</a></span></label></li>
-        <li class="checklist-item"><label><input type="checkbox" data-key="truoc-03"><span><span class="when">Những ngày trước</span><span class="t">Tập thở chậm vài phút mỗi ngày</span><span class="d">Hít vào 4 giây, thở ra 6 giây. Có thể dùng bài thở ở trên.</span><a class="why" href="bai-viet/4-dieu-gi-giup.html#tho-cham">Vì sao?</a></span></label></li>
-        <li class="checklist-item"><label><input type="checkbox" data-key="truoc-04"><span><span class="when">Những ngày trước</span><span class="t">Liệt kê điểm mạnh, nói chuyện với người hỗ trợ mình</span><span class="d">Chuẩn bị sẵn 1–2 dự án thật để kể.</span><a class="why" href="bai-viet/4-dieu-gi-giup.html#nguon-luc">Vì sao?</a></span></label></li>
-        <li class="checklist-item"><label><input type="checkbox" data-key="truoc-05"><span><span class="when">Ngay trước khi vào</span><span class="t">Tự nói “mình đang hào hứng”, rồi đặt chú ý vào câu hỏi</span><span class="d">Thay vì cố ép mình bình tĩnh lại.</span><a class="why" href="bai-viet/4-dieu-gi-giup.html#hao-hung">Vì sao?</a></span></label></li>
-      </ul>
-      <div id="checklist-done" class="hidden" role="status">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5eead4" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
-        Bạn đã sẵn sàng hơn rồi! Chúc buổi phỏng vấn suôn sẻ.
-      </div>
-      <p id="save-status" aria-live="polite"></p>
-    </div>
-  </div>
-</section>
-
 <!-- ▼ ĐỢT 6 -->
 <!-- ======================= 5 ĐIỀU HAY GẶP ======================= -->
 <section class="sec" id="dieu-hay-gap">
@@ -433,8 +450,11 @@
   <div class="wrap">
     <div class="final reveal">
       <h2>Sẵn sàng cho buổi phỏng vấn tiếp theo?</h2>
-      <p>Tạo tài khoản, đi qua 5 việc trong checklist, và quay lại bất cứ lúc nào để xem mình đã chuẩn bị tới đâu.</p>
-      <a class="btn btn-primary" href="#checklist">Bắt đầu chuẩn bị
+      <p data-auth="guest">Tạo tài khoản, đi qua 5 việc trong checklist, và quay lại bất cứ lúc nào để xem mình đã chuẩn bị tới đâu.</p>
+      <p data-auth="user">Đi tiếp các việc trong checklist và quay lại bất cứ lúc nào để xem mình đã chuẩn bị tới đâu.</p>
+      <a class="btn btn-primary" data-auth="user" href="#checklist-sec">Tiếp tục checklist
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a class="btn btn-primary" data-auth="guest" href="https://mockviewai.com/Auth/Login">Bắt đầu chuẩn bị
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     </div>
   </div>
@@ -475,7 +495,7 @@
   </div>
 </footer>
 
-<div class="mobile-cta" id="mobile-cta"><a class="btn btn-primary" href="#checklist">Bắt đầu chuẩn bị</a></div>
+<div class="mobile-cta" id="mobile-cta"><a class="btn btn-primary" data-auth="guest" href="https://mockviewai.com/Auth/Login">Bắt đầu chuẩn bị</a><a class="btn btn-primary" data-auth="user" href="#checklist-sec">Mở checklist của bạn</a></div>
 
 <!-- ======================= DEMO PHÒNG PHỎNG VẤN (bản lớn) ======================= -->
 <dialog id="demo-dialog" aria-label="Bản demo phòng phỏng vấn">
@@ -514,10 +534,15 @@
 <!-- Mỗi đợt thêm một file JS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="app.js"></script>
+<script src="assets/home/1-hero-models.js"></script>
 <script src="assets/home/1-hero.js"></script>
 <script src="assets/home/2-hanh-trinh.js"></script>
 <script src="assets/home/3-san-pham.js"></script>
 <script src="assets/home/4-bai-tho.js"></script>
 <script src="assets/home/6-cuoi-trang.js"></script>
+<script src="assets/home/7-khi-nao.js"></script>
+<script src="assets/login-return.js"></script>
+<script src="assets/user-menu.js"></script>
+<script src="assets/theme-switcher.js"></script>
 </body>
 </html>

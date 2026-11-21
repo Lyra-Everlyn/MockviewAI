@@ -152,12 +152,17 @@ function page(r, i) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2322d3ee'/%3E%3Cstop offset='1' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='%23070b16'/%3E%3Cpath d='M8 22V10l8 7 8-7v12' fill='none' stroke='url(%23g)' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>/* đặt theme trước khi vẽ trang (không nháy màu) — xem assets/theme-switcher.js */try{var t=localStorage.getItem('mv-theme');if(!/^(night|morning|waiting|original|dusk)$/.test(t))t=matchMedia('(prefers-color-scheme: light)').matches?'morning':'night';document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme='night'}</script>
+<link rel="stylesheet" href="../../assets/themes.css">
 <link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../../assets/theme-switcher.css">
 </head>
 <body>
 <a class="skip" href="#main">Bỏ qua, tới nội dung chính</a>
 <header class="topbar"><div class="wrap topbar-in">
   <a class="brand" href="../index.html#tai-lieu"><span class="brand-back" aria-hidden="true">←</span> Thư viện tài liệu</a>
+  <div data-theme-slot></div>
   <button class="search-btn js-open-palette" type="button" aria-label="Tìm nhanh trong nghiên cứu" aria-keyshortcuts="Control+K Meta+K"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="m14 14 4 4"/></svg><span class="search-lbl">Tìm nhanh</span><span class="keys" aria-hidden="true"><kbd class="js-mod">Ctrl</kbd><kbd>K</kbd></span></button>
 </div></header>
 <main class="detail" id="main">
@@ -204,6 +209,7 @@ function page(r, i) {
 <script src="../../assets/doi-check.js"></script>
 <script src="../data/data.bundle.js"></script>
 <script src="../palette.js" data-base="../"></script>
+<script src="../../assets/theme-switcher.js"></script>
 <script>
 document.querySelectorAll('.copy-btn').forEach(function (b) {
   b.addEventListener('click', function () {

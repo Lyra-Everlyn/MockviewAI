@@ -13,12 +13,14 @@
   const MOD = isMac ? '⌘' : 'Ctrl';
 
   const SECTIONS = [
+    ['tom-tat', 'Tóm tắt trong một phút', 'ba phát hiện chính: S1, S6, S9'],
+    ['ket-qua', 'Kết quả', 'biểu đồ 12 phát biểu, chuyên gia, đối chiếu'],
+    ['gia-thuyet', 'Giả thuyết đã đi tới đâu', 'H1–H4'],
+    ['voi-ban', 'Nghĩa là gì với bạn', 'gợi ý việc làm, bài thở, checklist'],
     ['vi-sao', 'Vì sao có nghiên cứu này', 'quan sát, bối cảnh, khoảng trống'],
     ['cau-hoi', 'Câu hỏi, mục tiêu và giả thuyết', 'Q1–Q4, O1–O4'],
     ['tai-lieu', 'Thư viện tài liệu', '18 tài liệu, bảng so sánh'],
     ['phuong-phap', 'Phương pháp và đạo đức', 'hỗn hợp hội tụ, khảo sát, phỏng vấn'],
-    ['ket-qua', 'Kết quả', 'biểu đồ 12 phát biểu, chuyên gia, đối chiếu'],
-    ['gia-thuyet', 'Giả thuyết đã đi tới đâu', 'H1–H4'],
     ['gioi-han', 'Giới hạn và bài học', 'mẫu nhỏ, thang đo'],
     ['cong-cu', 'Từ kết quả đến công cụ', 'MockViewAI, bước tiếp theo'],
     ['tham-khao', 'Tài liệu tham khảo', 'Harvard, DOI'],

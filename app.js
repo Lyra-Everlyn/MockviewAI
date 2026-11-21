@@ -33,6 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const setStatus = (text) => { if (statusEl) statusEl.textContent = text; };
   const db = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
   let currentUser = null;
+
+  // Tài khoản MockviewAI (đăng nhập ở ứng dụng, xem assets/user-menu.js). Khi có mà chưa đăng nhập Supabase:
+  // mở khoá checklist, lưu tiến độ trên trình duyệt này — mỗi tài khoản một khoá riêng (k = mã tài khoản).
+  const appUser = window.mvAppUser || null;
+  const localKey = appUser ? 'mv-checklist:' + (appUser.key || 'tai-khoan') : null;
+  let localMode = false;
+  const readLocal = () => { try { return JSON.parse(localStorage.getItem(localKey) || '{}'); } catch { return {}; } };
   let mode = 'login';
 
   // ---------- Step 1: hiển thị tiến độ ----------
@@ -115,7 +122,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function applyAppUser() {
+    localMode = true;
+    const owner = $('auth-email-2'); if (owner) owner.textContent = appUser.name || 'tài khoản MockviewAI của bạn';
+    show($('checklist-owner'), true, 'flex');
+    show(lockEl, false, 'flex');
+    const saved = readLocal();
+    boxes.forEach((b) => { b.disabled = false; b.checked = saved[b.dataset.key] === true; });
+    render();
+    setStatus('Tiến độ lưu tự động trên trình duyệt này.');
+  }
+
   function applyUser(user) {
+    if (!user && appUser) { currentUser = null; applyAppUser(); return; }
+    localMode = false;
     currentUser = user;
     show(auth.openBtn, !user, 'inline-flex');
     show(auth.userBox, !!user, 'flex');
@@ -152,6 +172,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function saveItem(box) {
     const previous = !box.checked;
+    if (localMode) {
+      try {
+        const saved = readLocal();
+        saved[box.dataset.key] = box.checked;
+        localStorage.setItem(localKey, JSON.stringify(saved));
+        setStatus('Đã lưu.');
+      } catch {
+        box.checked = previous; render();
+        setStatus('Trình duyệt đang chặn lưu dữ liệu (chế độ ẩn danh?). Chưa lưu được.');
+      }
+      return;
+    }
     if (!db || !currentUser) { box.checked = previous; render(); openAuth('login'); return; }
     box.disabled = true;
     setStatus('Đang lưu…');
@@ -167,29 +199,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ---------- Gắn sự kiện ----------
   boxes.forEach((b) => b.addEventListener('change', () => { render(); saveItem(b); }));
-  auth.openBtn && auth.openBtn.addEventListener('click', () => openAuth('login'));
-  auth.openBtn2 && auth.openBtn2.addEventListener('click', () => openAuth('login'));
+  // Nút "Đăng nhập" trên header là link thẳng tới trang đăng nhập của ứng dụng (mockviewai.com/Auth/Login), không mở hộp Supabase.
   auth.switchBtn && auth.switchBtn.addEventListener('click', () => setMode(mode === 'login' ? 'signup' : 'login'));
   auth.close && auth.close.addEventListener('click', () => auth.dialog.close());
   auth.form && auth.form.addEventListener('submit', handleSubmit);
   auth.logout && auth.logout.addEventListener('click', async () => { if (db) await db.auth.signOut(); });
 
 
-  // "Bắt đầu chuẩn bị": chưa đăng nhập → mở hộp đăng nhập; đã đăng nhập → tới checklist.
-  document.querySelectorAll('a[href="#checklist"]').forEach((link) => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      document.getElementById('checklist').scrollIntoView({ behavior: 'smooth' });
-      if (!currentUser) { setTimeout(() => openAuth('login'), 350); return; }
-      const target = boxes.find((b) => !b.checked) || boxes[0];
-      setTimeout(() => target.focus({ preventScroll: true }), 450);
-    });
-  });
+  // "Bắt đầu chuẩn bị" và "Đăng nhập / Tạo tài khoản" giờ là link tới mockviewai.com/Auth/Login (xem index.html).
 
   // Step 4 (Buổi 6) — nút "Kiểm tra DOI" nằm ở assets/doi-check.js (dùng chung với trang bài viết).
 
   render();
-  if (!db) { applyUser(null); setStatus('Chưa kết nối được máy chủ — tải lại trang để thử lại.'); return; }
+  if (!db) { applyUser(null); if (!localMode) setStatus('Chưa kết nối được máy chủ — tải lại trang để thử lại.'); return; }
   // Supabase tự giữ phiên trong trình duyệt; sự kiện INITIAL_SESSION báo phiên hiện có khi mở trang / F5.
   db.auth.onAuthStateChange((event, session) => {
     const user = session ? session.user : null;
