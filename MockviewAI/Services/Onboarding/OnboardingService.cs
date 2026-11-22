@@ -3,15 +3,24 @@ using MockviewAI.Repositories.Interfaces;
 
 namespace MockviewAI.Services.Onboarding
 {
-    /// [SETUP PROFILE]
-    // -- After login
+    /// <summary>
+    /// [ONBOARDING] 
+    /// Lưu hồ sơ ban đầu vào bảng Users.
+    /// </summary>
     public class OnboardingService : IOnboardingService
     {
+        #region Fields
         private readonly IUserRepository _userRepository;
+        #endregion
+
+        #region Constructor
         public OnboardingService(IUserRepository userRepository)
         {
             _userRepository = userRepository;
         }
+        #endregion
+
+        #region IOnboardingService
         public async Task SaveOnboardingInfoAsync(string email, OnboardingDto dto)
         {
             if (string.IsNullOrWhiteSpace(email))
@@ -43,5 +52,6 @@ namespace MockviewAI.Services.Onboarding
             var user = await _userRepository.GetByEmailAsync(email);
             return user?.IsOnboardingCompleted ?? false;
         }
+        #endregion
     }
 }

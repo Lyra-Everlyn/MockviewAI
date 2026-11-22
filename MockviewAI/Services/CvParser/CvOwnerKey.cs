@@ -4,7 +4,8 @@ using System.Text;
 namespace MockviewAI.Services.CvParser
 {
     /// <summary>
-    /// [USER CV] Mã tài khoản (băm email) làm khoá lưu CV trên trình duyệt, tránh ghi email thô.
+    /// [USER CV] 
+    /// Mã tài khoản (băm email) làm khoá lưu CV trên trình duyệt, tránh ghi email thô.
     /// </summary>
     public static class CvOwnerKey
     {

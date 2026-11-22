@@ -1,7 +1,8 @@
 namespace MockviewAI.Services.Interviews.Conversation
 {
     /// <summary>
-    /// [INTERVIEWER] Đăng ký nhà tuyển dụng trò chuyện. Dùng: builder.Services.AddInterviewerConversation(builder.Configuration);
+    /// [INTERVIEWER] 
+    /// Đăng ký nhà tuyển dụng trò chuyện. Dùng: builder.Services.AddInterviewerConversation(builder.Configuration);
     /// Cần đăng ký sau GeminiKeyProvider và HttpClient "GeminiClient".
     /// </summary>
     public static class InterviewerConversationExtensions

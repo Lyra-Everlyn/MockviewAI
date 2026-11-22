@@ -1,10 +1,7 @@
+/* [KHÔNG DÙNG] MockviewAI | Nút đổi giao diện (bản cũ)
+   Không trang nào nạp file này; bản đang dùng nằm trong components.css (#region Nút đổi giao diện). */
 
-/* ---------- Theme Toggle ---------- */
-/* #region Theme Toggle
-   [THEME] Nút chuyển giao diện sáng / tối (thay nhãn "VER 2.0.0").
-   Chỉ khai báo cấu trúc; màu lấy từ biến của theme-*.css. Icon / chữ đổi theo html[data-theme].
-*/
-
+/* #region Nút đổi giao diện */
 .theme-toggle {
     display: inline-flex;
     min-height: 30px;
@@ -48,7 +45,7 @@ html[data-theme="dark"] .theme-toggle__state--dark {
     display: inline-flex;
 }
 
-/* Trên nền gradient (cột giới thiệu Auth / Onboarding): giữ kiểu viền trắng mờ như nhãn 2.0.0 cũ */
+/* Trên nền gradient (cột giới thiệu Auth / Onboarding) */
 .auth-intro .theme-toggle,
 .onboarding-aside .theme-toggle {
     border-color: rgba(255, 255, 255, .32);
@@ -66,5 +63,4 @@ html[data-theme="dark"] .theme-toggle__state--dark {
     .onboarding-aside .theme-toggle:focus-visible {
         outline-color: #fff;
     }
-
 /* #endregion */

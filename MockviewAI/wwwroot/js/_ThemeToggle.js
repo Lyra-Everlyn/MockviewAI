@@ -1,6 +1,7 @@
 //#region _ThemeToggle
 /// <summary>
-/// [THEME] Điều khiển nút chuyển giao diện sáng / tối.
+/// [THEME] 
+/// Điều khiển nút chuyển giao diện sáng / tối.
 /// -- Lưu lựa chọn vào localStorage (khoá "mockview-theme") thông qua window.MockviewTheme (định nghĩa trong _ThemeHead).
 /// -- Đồng bộ giữa các tab đang mở cùng lúc (sự kiện storage).
 /// -- Cập nhật trạng thái trợ năng của nút (aria-pressed, aria-label) và theme của Cloudflare Turnstile.

@@ -7,23 +7,33 @@ using MockviewAI.Services.InterviewQuestions.Interfaces;
 namespace MockviewAI.Services.Ai.Implementations
 {
     /// <summary>
-    /// [AI-MODULE] 
-    /// ScoringPromptBuilder
-    /// -- Chỉ lo việc SOẠN PROMPT: lệnh hệ thống, nội dung buổi phỏng vấn, chống prompt injection (bỏ dấu < >, giới hạn độ dài).
+    /// [AI-SCORING] 
+    /// Chỉ lo SOẠN PROMPT chấm điểm: lệnh hệ thống, nội dung buổi phỏng vấn, bộ đáp án,
+    /// chống prompt injection (bỏ dấu &lt; &gt;, giới hạn độ dài). Muốn đổi cách AI chấm: chỉ sửa file này.
     /// </summary>
     public class ScoringPromptBuilder : IScoringPromptBuilder
     {
-        private const int MaxAnswers = 10;           // cost + abuse limit
-        private const int MaxCharsPerText = 2000;    // per question / per answer
-        private const int MaxRubricChars = 1500;     // bộ đáp án của 1 câu
+        #region Fields
+        /// <summary>Giới hạn chi phí và chống lạm dụng.</summary>
+        private const int MaxAnswers = 10;
+
+        /// <summary>Độ dài tối đa mỗi câu hỏi / câu trả lời.</summary>
+        private const int MaxCharsPerText = 2000;
+
+        /// <summary>Độ dài tối đa bộ đáp án của một câu.</summary>
+        private const int MaxRubricChars = 1500;
 
         private readonly IQuestionBankStore _bank;
+        #endregion
 
+        #region Constructor
         public ScoringPromptBuilder(IQuestionBankStore bank)
         {
             _bank = bank;
         }
+        #endregion
 
+        #region IScoringPromptBuilder
         public string SystemPrompt =>
             "Bạn là người phỏng vấn tuyển dụng giàu kinh nghiệm, chấm buổi phỏng vấn thử cho sinh viên mới ra trường. " +
             "Chấm công bằng, khích lệ, nói tiếng Việt. " +
@@ -50,7 +60,7 @@ namespace MockviewAI.Services.Ai.Implementations
                 }
                 sb.AppendLine($"[Câu {i}] Hỏi: {Clean(a.Question, MaxCharsPerText)}");
                 sb.AppendLine($"[Câu {i}] Trả lời: {Clean(a.Answer, MaxCharsPerText)}");
-                // [FOLLOW-UP] Đợt 8: người phỏng vấn hỏi thêm vì câu trả lời còn thiếu ý
+                // [FOLLOW-UP] Người phỏng vấn hỏi thêm vì câu trả lời còn thiếu ý
                 if (!string.IsNullOrWhiteSpace(a.FollowUpQuestion) && !string.IsNullOrWhiteSpace(a.FollowUpAnswer))
                 {
                     sb.AppendLine($"[Câu {i}] Hỏi thêm: {Clean(a.FollowUpQuestion, MaxCharsPerText)}");
@@ -79,8 +89,12 @@ namespace MockviewAI.Services.Ai.Implementations
                 "}");
             return sb.ToString();
         }
+        #endregion
 
-        // [QUESTION-BANK] Bộ đáp án ("nhiều đường đến điểm B") + quy tắc xếp loại 4 loại. Câu trả lời mẫu KHÔNG được gửi.
+        #region Helpers
+        /// <summary>
+        /// [QUESTION-BANK] Bộ đáp án ("nhiều đường đến điểm B") + quy tắc xếp loại 4 nhãn. Câu trả lời mẫu KHÔNG được gửi.
+        /// </summary>
         private static void AppendRubrics(StringBuilder sb, List<BankQuestion> rubrics)
         {
             sb.AppendLine("<rubric>");
@@ -110,11 +124,12 @@ namespace MockviewAI.Services.Ai.Implementations
                 "với hoi_dac_biet và dac_biet hãy ghi nhận điểm sáng tạo trong cách trả lời.\n");
         }
 
-        // Remove angle brackets so the candidate cannot close our <interview> tag, and cap length
+        /// <summary>Bỏ dấu &lt; &gt; để ứng viên không đóng được thẻ &lt;interview&gt;, và cắt độ dài.</summary>
         private static string Clean(string? text, int max)
         {
             var t = (text ?? string.Empty).Replace("<", " ").Replace(">", " ").Trim();
             return t.Length <= max ? t : t[..max];
         }
+        #endregion
     }
 }

@@ -4,7 +4,7 @@ namespace MockviewAI.Services.Speech.Interfaces
 {
     /// <summary>
     /// [SPEECH] 
-    /// Điều phối Whisper -> lọc ảo giác -> Gemini gộp với chữ trình duyệt. Whisper lỗi: ném SpeechException.
+    /// Điều phối Whisper -> lọc ảo giác -> Gemini gộp với chữ trình duyệt.
     /// </summary>
     public interface ISpeechToTextService
     {

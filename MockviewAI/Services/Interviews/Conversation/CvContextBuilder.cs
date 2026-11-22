@@ -7,7 +7,8 @@ using MockviewAI.Services.CvParser;
 namespace MockviewAI.Services.Interviews.Conversation
 {
     /// <summary>
-    /// [INTERVIEWER] Đọc CV trình duyệt gửi lên (JSON camelCase từ localStorage) và rút gọn thành đoạn văn ngắn cho prompt.
+    /// [INTERVIEWER] 
+    /// Đọc CV trình duyệt gửi lên (JSON camelCase từ localStorage) và rút gọn thành đoạn văn ngắn cho prompt.
     /// Dữ liệu từ trình duyệt không đáng tin: luôn làm sạch bằng CvDataSanitizer và giới hạn độ dài.
     /// </summary>
     public static class CvContextBuilder

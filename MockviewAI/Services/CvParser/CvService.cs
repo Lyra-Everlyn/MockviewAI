@@ -4,7 +4,8 @@ using MockviewAI.Services.Exceptions;
 namespace MockviewAI.Services.CvParser
 {
     /// <summary>
-    /// [USER CV] Phân tích CV và chốt CV sau khi người dùng kiểm tra.
+    /// [USER CV] 
+    /// Phân tích CV và chốt CV sau khi người dùng kiểm tra.
     /// </summary>
     public class CvService : ICvService
     {

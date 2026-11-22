@@ -4,7 +4,8 @@ using Microsoft.Extensions.Options;
 namespace MockviewAI.Services.Interviews.Conversation
 {
     /// <summary>
-    /// [INTERVIEWER] Lưu tóm tắt CV theo buổi trong Redis, khoá interview:cv:{sessionId}, tự hết hạn.
+    /// [INTERVIEWER] 
+    /// Lưu tóm tắt CV theo buổi trong Redis, khoá interview:cv:{sessionId}, tự hết hạn.
     /// Redis lỗi thì bỏ qua: buổi phỏng vấn vẫn chạy, chỉ không có câu hỏi theo CV.
     /// </summary>
     public class RedisCandidateCvStore : ICandidateCvStore

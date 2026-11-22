@@ -1,8 +1,9 @@
-﻿/* =========================================================
-   MockviewAI — Trang pháp lý (Điều khoản sử dụng + Chính sách quyền riêng tư)
-   Dùng chung cho Views/Home/Terms.cshtml và Privacy.cshtml.
-   ========================================================= */
-
+﻿//#region Legal
+/// <summary>
+/// Trang pháp lý dùng chung cho Views/Home/Terms.cshtml và Privacy.cshtml:
+/// thời gian đọc, thanh tiến độ, mục lục tự đánh dấu (scrollspy), nút lên đầu trang, in / lưu PDF.
+/// </summary>
+//#endregion
 (function () {
     'use strict';
 
@@ -19,13 +20,14 @@
     const printButton = document.querySelector('[data-legal-print]');
     const readTime = document.querySelector('[data-legal-read-time]');
 
-    /* ---------- Thời gian đọc (~200 từ/phút) ---------- */
+    //#region Thời gian đọc (~200 từ/phút)
     if (content && readTime) {
         const words = content.textContent.trim().split(/\s+/).length;
         readTime.textContent = '~' + Math.max(1, Math.round(words / 200)) + ' phút đọc';
     }
+    //#endregion
 
-    /* ---------- Tiến độ đọc + nút lên đầu trang ---------- */
+    //#region Tiến độ đọc + hiện nút lên đầu trang
     let ticking = false;
 
     function updateOnScroll() {
@@ -47,8 +49,9 @@
     }, { passive: true });
 
     updateOnScroll();
+    //#endregion
 
-    /* ---------- Scrollspy ---------- */
+    //#region Scrollspy
     function setActive(id) {
         tocLinks.forEach(function (link) {
             const isActive = link.getAttribute('href') === '#' + id;
@@ -73,7 +76,7 @@
                 }
             });
 
-            // Chọn section gần đỉnh màn hình nhất trong số đang hiển thị
+            // Chọn mục gần đỉnh màn hình nhất trong số đang hiển thị
             if (visible.size) {
                 const topMost = Array.from(visible.entries())
                     .sort(function (a, b) { return a[1] - b[1]; })[0][0];
@@ -86,8 +89,9 @@
 
         sections.forEach(function (section) { observer.observe(section); });
     }
+    //#endregion
 
-    /* ---------- Mục lục: cuộn mượt + đóng trên mobile ---------- */
+    //#region Mục lục: cuộn mượt + đóng trên mobile
     function setTocOpen(open) {
         if (!toc || !tocToggle) return;
         toc.classList.toggle('is-open', open);
@@ -130,18 +134,19 @@
             tocToggle.focus();
         }
     });
+    //#endregion
 
-    /* ---------- Nút lên đầu trang ---------- */
+    //#region Nút lên đầu trang và in
     if (topButton) {
         topButton.addEventListener('click', function () {
             window.scrollTo({ top: 0, behavior: scrollBehavior });
         });
     }
 
-    /* ---------- In / lưu PDF ---------- */
     if (printButton) {
         printButton.addEventListener('click', function () {
             window.print();
         });
     }
+    //#endregion
 })();

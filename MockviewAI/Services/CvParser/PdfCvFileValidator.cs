@@ -3,7 +3,8 @@ using Microsoft.Extensions.Options;
 namespace MockviewAI.Services.CvParser
 {
     /// <summary>
-    /// [USER CV] Chỉ nhận PDF: kiểm tra đuôi file và chữ ký "%PDF-" trong 1024 byte đầu.
+    /// [USER CV] 
+    /// Chỉ nhận PDF: kiểm tra đuôi file và chữ ký "%PDF-" trong 1024 byte đầu.
     /// </summary>
     public class PdfCvFileValidator : ICvFileValidator
     {

@@ -1,7 +1,3 @@
-// [AI-MODULE] DeliveryAnalyzer
-// Chấm CÁCH NÓI bằng code thuần (không dùng AI): tốc độ, từ đệm, độ dài, khoảng lặng.
-// Trọng số: tốc độ 30, từ đệm 30, độ dài 25, khoảng lặng 15. Muốn chỉnh ngưỡng thì sửa các số trong hàm Analyze.
-
 using System.Text.RegularExpressions;
 using MockviewAI.Models;
 using MockviewAI.Models.Ai;
@@ -10,20 +6,19 @@ using MockviewAI.Services.Ai.Interfaces;
 namespace MockviewAI.Services.Ai.Implementations
 {
     /// <summary>
-    /// [AI-MODULE] 
-    /// DeliveryAnalyzer
-    /// -- Chấm CÁCH NÓI bằng code thuần (không dùng AI): tốc độ, từ đệm, độ dài, khoảng lặng.
-    /// -- Trọng số: tốc độ 30, từ đệm 30, độ dài 25, khoảng lặng 15. Muốn chỉnh ngưỡng thì sửa các số trong hàm Analyze.
-    /// -- Scores HOW the candidate speaks, using plain code (fast, free, explainable).
-    /// 
-    /// [VOICE] Đợt 7: có số đo giọng nói (nói bằng micro) -> thêm ÂM LƯỢNG + NGỮ ĐIỆU:
-    ///   tốc độ 25, từ đệm 25, độ dài 20, khoảng lặng 10, âm lượng 12, ngữ điệu 8 (không đo được ngữ điệu: âm lượng 20).
-    ///   Không có số đo (gõ chữ, buổi cũ) -> chấm y như trước, không bị trừ.
+    /// [AI-SCORING] 
+    /// Chấm CÁCH NÓI bằng code thuần (không dùng AI: nhanh, miễn phí, giải thích được).
+    /// <list type="bullet">
+    /// <item>Không có số đo giọng (gõ chữ, buổi cũ): tốc độ 30 · từ đệm 30 · độ dài 25 · khoảng lặng 15.</item>
+    /// <item>[VOICE] Có số đo giọng (nói bằng micro): tốc độ 25 · từ đệm 25 · độ dài 20 · khoảng lặng 10 · âm lượng 12 · ngữ điệu 8
+    /// (không đo được ngữ điệu thì âm lượng 20).</item>
+    /// </list>
+    /// Muốn chỉnh ngưỡng thì sửa các số trong Analyze.
     /// </summary>
-    
     public class DeliveryAnalyzer : IDeliveryAnalyzer
     {
-        // Filler words/phrases (Vietnamese + English). Matched as whole words only.
+        #region Từ đệm
+        /// <summary>Từ / cụm từ đệm (tiếng Việt + tiếng Anh), chỉ khớp nguyên từ.</summary>
         private static readonly string[] Fillers =
         {
             "ờ", "ờm", "ừm", "ừ", "à", "ớ", "kiểu", "kiểu như", "thì là", "nói chung là",
@@ -34,13 +29,15 @@ namespace MockviewAI.Services.Ai.Implementations
 
         private static Regex BuildFillerRegex()
         {
-            // Longest phrases first so "kiểu như" wins over "kiểu"
+            // Cụm dài xét trước để "kiểu như" thắng "kiểu"
             var parts = Fillers.OrderByDescending(f => f.Length).Select(Regex.Escape);
-            // (?<!\p{L}) / (?!\p{L}) = word boundary that also works for Vietnamese letters
+            // (?<!\p{L}) / (?!\p{L}) = ranh giới từ dùng được cho cả chữ tiếng Việt
             return new Regex($@"(?<!\p{{L}})({string.Join("|", parts)})(?!\p{{L}})",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
         }
+        #endregion
 
+        #region IDeliveryAnalyzer
         public DeliveryScoreResult Analyze(IReadOnlyList<InterviewAnswer> answers)
         {
             var result = new DeliveryScoreResult();
@@ -70,23 +67,22 @@ namespace MockviewAI.Services.Ai.Implementations
             result.FillersPer100Words = totalWords == 0 ? 0 : totalFillers * 100.0 / totalWords;
             result.WordsPerMinute = totalSeconds > 0 ? timedWords / (totalSeconds / 60.0) : 0;
 
-            // --- Sub-scores, each 0-100 ---
-            // Pace: 110-160 words/minute is comfortable; drops linearly outside that range.
-            // When the answer was typed (no duration) we skip pace and pause instead of punishing.
+            // --- Điểm thành phần, mỗi điểm 0-100 ---
+            // Tốc độ: 110-160 từ/phút là thoải mái, ra ngoài giảm dần. Gõ chữ (không có thời lượng) thì không trừ.
             bool hasPace = result.WordsPerMinute > 0;
             result.PaceScore = hasPace ? RangeScore(result.WordsPerMinute, 110, 160, 60) : 100;
 
-            // Fillers: <=2 per 100 words is fine, >=10 is poor.
+            // Từ đệm: <= 2 / 100 từ là ổn, >= 10 là kém
             result.FillerScore = Linear(result.FillersPer100Words, good: 2, bad: 10);
 
-            // Answer length: 40-150 words is a solid answer.
+            // Độ dài: 40-150 từ là câu trả lời tốt
             result.LengthScore = RangeScore(result.AverageAnswerWords, 40, 150, 40);
 
-            // Longest silence: <=2s fine, >=8s poor. Unknown pauses -> no penalty.
+            // Khoảng lặng dài nhất: <= 2 giây ổn, >= 8 giây kém. Không đo được thì không trừ.
             result.PauseScore = Linear(result.LongestPauseSeconds, good: 2, bad: 8);
 
             // [VOICE] Âm lượng: nói nhỏ <= 15% thời gian là ổn, >= 60% là kém; to quá (dễ rè) tối đa 60.
-            // Ngữ điệu: độ lên xuống giọng >= 2 nửa cung là tự nhiên, <= 0.5 là đều đều.
+            // Ngữ điệu: lên xuống giọng >= 2 nửa cung là tự nhiên, <= 0.5 là đều đều.
             var withVoice = answers.Where(a => a.QuietRatio != null).ToList();
             if (withVoice.Count > 0)
             {
@@ -105,7 +101,6 @@ namespace MockviewAI.Services.Ai.Implementations
 
             if (!result.HasVoiceData)
             {
-                // Weights: pace 30, fillers 30, length 25, pauses 15
                 result.Total = (int)Math.Round(
                     result.PaceScore * 0.30 + result.FillerScore * 0.30 +
                     result.LengthScore * 0.25 + result.PauseScore * 0.15);
@@ -121,7 +116,9 @@ namespace MockviewAI.Services.Ai.Implementations
             AddTips(result, hasPace);
             return result;
         }
+        #endregion
 
+        #region Lời khuyên
         private static void AddTips(DeliveryScoreResult r, bool hasPace)
         {
             if (hasPace && r.WordsPerMinute > 160)
@@ -144,11 +141,13 @@ namespace MockviewAI.Services.Ai.Implementations
             if (r.PitchVariation < VoiceMetrics.MonotoneSt)
                 r.Tips.Add("Giọng khá đều đều. Hãy nhấn giọng ở ý chính và ví dụ để người nghe dễ theo dõi.");
         }
+        #endregion
 
+        #region Helpers
         private static int CountWords(string? text) =>
             string.IsNullOrWhiteSpace(text) ? 0 : text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
 
-        // 100 inside [low, high]; outside it the score drops to 0 once the value is `slack` away from the range
+        /// <summary>100 trong [low, high]; ra ngoài thì giảm dần, về 0 khi cách khoảng một đoạn <paramref name="slack"/>.</summary>
         private static int RangeScore(double value, double low, double high, double slack)
         {
             if (value >= low && value <= high) return 100;
@@ -156,7 +155,7 @@ namespace MockviewAI.Services.Ai.Implementations
             return (int)Math.Round(Math.Clamp(100 - distance / slack * 100, 0, 100));
         }
 
-        // 0 at <= bad, 100 at >= good (giá trị càng lớn càng tốt)
+        /// <summary>0 khi &lt;= bad, 100 khi &gt;= good (giá trị càng lớn càng tốt).</summary>
         private static int Rising(double value, double bad, double good)
         {
             if (value >= good) return 100;
@@ -164,12 +163,13 @@ namespace MockviewAI.Services.Ai.Implementations
             return (int)Math.Round(100 * (value - bad) / (good - bad));
         }
 
-        // 100 at <= good, 0 at >= bad, straight line in between
+        /// <summary>100 khi &lt;= good, 0 khi &gt;= bad, đường thẳng ở giữa (giá trị càng nhỏ càng tốt).</summary>
         private static int Linear(double value, double good, double bad)
         {
             if (value <= good) return 100;
             if (value >= bad) return 0;
             return (int)Math.Round(100 * (bad - value) / (bad - good));
         }
+        #endregion
     }
 }

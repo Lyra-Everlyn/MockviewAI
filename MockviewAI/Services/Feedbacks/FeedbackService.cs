@@ -4,17 +4,26 @@ using MockviewAI.Repositories.Interfaces;
 
 namespace MockviewAI.Services.Feedbacks
 {
+    /// <summary>
+    /// [FEEDBACK] 
+    /// Lưu góp ý vào bảng Feedback, gắn với tài khoản đang đăng nhập.
+    /// </summary>
     public class FeedbackService : IFeedbackService
     {
+        #region Fields
         private readonly IRepository<Feedback> _feedbackRepository;
         private readonly IUserRepository _userRepository;
+        #endregion
 
+        #region Constructor
         public FeedbackService(IRepository<Feedback> feedbackRepository, IUserRepository userRepository)
         {
             _feedbackRepository = feedbackRepository;
             _userRepository = userRepository;
         }
+        #endregion
 
+        #region IFeedbackService
         public async Task<bool> SubmitAsync(string email, FeedbackDto dto)
         {
             if (string.IsNullOrWhiteSpace(email)) return false;
@@ -31,5 +40,6 @@ namespace MockviewAI.Services.Feedbacks
             });
             return true;
         }
+        #endregion
     }
 }

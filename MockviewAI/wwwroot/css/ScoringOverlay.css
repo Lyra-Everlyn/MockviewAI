@@ -1,8 +1,7 @@
-﻿/* [AI-INTERVIEW] 
-    Màn hình chờ chấm điểm
-*/
+﻿/* MockviewAI | Màn hình chờ chấm điểm
+   Hiện khi kết thúc buổi và chờ AI chấm (ScoringOverlay.js). */
 
-/* #region Overlay */
+/* #region Hộp chờ */
 .scoring-overlay {
     position: fixed;
     inset: 0;
@@ -52,7 +51,7 @@
 }
 /* #endregion */
 
-/* #region Steps */
+/* #region Các bước */
 .scoring-overlay__steps {
     display: grid;
     gap: 10px;
@@ -101,7 +100,7 @@ body.is-scoring {
 }
 /* #endregion */
 
-/* #region Animation */
+/* #region Hiệu ứng */
 @keyframes scoring-spin {
     to {
         transform: rotate(360deg)

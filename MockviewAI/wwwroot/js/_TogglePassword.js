@@ -1,4 +1,10 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+﻿//#region _TogglePassword
+/// <summary>
+/// [AUTH] 
+/// Nút ẩn / hiện mật khẩu. Dùng: &lt;button data-password-toggle="idOCuaInput"&gt;&lt;i class="fa-regular fa-eye"&gt;&lt;/i&gt;&lt;/button&gt;.
+/// </summary>
+//#endregion
+document.addEventListener("DOMContentLoaded", () => {
     const toggleButtons = document.querySelectorAll(
         "[data-password-toggle]"
     );
@@ -13,14 +19,13 @@
         button.addEventListener("click", () => {
             const isPassword = input.type === "password";
 
-            // Toggle password visibility
             input.type = isPassword ? "text" : "password";
 
-            // Update Font Awesome icon
+            // Icon Font Awesome
             icon.classList.toggle("fa-eye", !isPassword);
             icon.classList.toggle("fa-eye-slash", isPassword);
 
-            // Update accessibility attributes
+            // Trợ năng cho trình đọc màn hình
             button.setAttribute(
                 "aria-label",
                 isPassword ? "Ẩn mật khẩu" : "Hiển thị mật khẩu"

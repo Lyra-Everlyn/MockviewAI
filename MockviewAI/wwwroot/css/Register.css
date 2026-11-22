@@ -1,6 +1,5 @@
-﻿/* Register — page-specific adjustments.
-   All shared auth styling is inherited from Login.css;
-   colors are controlled by theme-indigo.css. */
+﻿/* MockviewAI | Đăng ký
+   Chỉnh riêng cho Register.cshtml; phần dùng chung nằm trong Login.css. */
 
 .register-shell {
     grid-template-columns: minmax(0, .93fr) minmax(0, 1.07fr);

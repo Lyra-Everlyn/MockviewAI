@@ -5,12 +5,19 @@ using MockviewAI.Repositories.Interfaces;
 
 namespace MockviewAI.Repositories.Implementations
 {
+    /// <summary>
+    /// [DATA] 
+    /// Cài đặt IUserRepository: tra cứu tài khoản theo email.
+    /// </summary>
     public class UserRepository : Repository<User>, IUserRepository
     {
+        #region Constructor
         public UserRepository(ApplicationDbContext context) : base(context)
         {
         }
+        #endregion
 
+        #region IUserRepository
         public async Task<bool> EmailExistsAsync(string email)
         {
             if (string.IsNullOrWhiteSpace(email)) return false;
@@ -22,5 +29,6 @@ namespace MockviewAI.Repositories.Implementations
             if (string.IsNullOrWhiteSpace(email)) return null;
             return await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
         }
+        #endregion
     }
 }

@@ -5,16 +5,13 @@ using MockviewAI.Services.InterviewQuestions.Interfaces;
 namespace MockviewAI.Services.Ai.Implementations
 {
     /// <summary>
-    /// [AI-MODULE] 
-    /// InterviewScoringService
-    /// -- Điểm vào chính của module AI: gộp điểm nội dung (60%) + cách nói (40%).
-    /// -- Nhóm bạn chỉ cần gọi ScoreAsync(ScoreRequest) từ phòng phỏng vấn. Điểm luôn hiển thị là 'Điểm tham khảo'.
-    /// -- Khi AI lỗi: gọi ScoreDeliveryOnly (chấm dự phòng, chỉ tính cách nói).
-    /// -- Combines AI content score (60%) + code-based delivery score (40%)
+    /// [AI-SCORING] 
+    /// Điểm vào chính của module chấm: gộp điểm nội dung (60%, AI) + cách nói (40%, code).
+    /// Điểm luôn hiển thị là "Điểm tham khảo". AI lỗi thì gọi ScoreWithoutAi (chấm sơ bộ theo bộ đề).
     /// </summary>
-
     public class InterviewScoringService : IInterviewScoringService
     {
+        #region Fields
         private const double ContentWeight = 0.6;
         private const double DeliveryWeight = 0.4;
 
@@ -24,7 +21,9 @@ namespace MockviewAI.Services.Ai.Implementations
         private readonly IAnswerVerdictValidator _verdicts;
         private readonly IQuestionBankStore _bank;
         private readonly IOfflineAnswerScorer _offline;
+        #endregion
 
+        #region Constructor
         public InterviewScoringService(IAiScoringService ai, IDeliveryAnalyzer delivery, IAnxietyEstimator anxiety,
                                        IAnswerVerdictValidator verdicts, IQuestionBankStore bank, IOfflineAnswerScorer offline)
         {
@@ -35,7 +34,9 @@ namespace MockviewAI.Services.Ai.Implementations
             _bank = bank;
             _offline = offline;
         }
+        #endregion
 
+        #region Chấm bằng AI
         public async Task<InterviewScoreResult> ScoreAsync(ScoreRequest request, CancellationToken ct = default)
         {
             var delivery = _delivery.Analyze(AllAnswers(request));
@@ -70,29 +71,14 @@ namespace MockviewAI.Services.Ai.Implementations
                 content.Improvements.Insert(0,
                     $"{request.InvalidAnswers.Count} câu trả lời chưa có ý nghĩa nên được tính 0 điểm. Hãy trả lời đúng trọng tâm câu hỏi.");
 
-            // content.Total is already 0-100 (4 criteria x 25)
+            // content.Total đã là 0-100 (4 tiêu chí × 25)
             int total = (int)Math.Round(content.Total * ContentWeight + delivery.Total * DeliveryWeight);
 
             return Build(request, content, delivery, total, contentAvailable: true);
         }
+        #endregion
 
-        // [LIVE-MODE] Câu bỏ qua ở Thực chiến -> nhãn SAI (chỉ câu thuộc bộ đề mới có nhãn; câu kiểu cũ chỉ tính vào tỉ lệ)
-        private void AddSkippedAsWrong(ScoreRequest request, List<AnswerVerdict> verdicts, bool inBankOnly)
-        {
-            foreach (var id in request.SkippedAsWrong)
-            {
-                if (id == null || (inBankOnly && _bank.Find(id) == null)) continue;
-                if (verdicts.Any(v => v.QuestionId == id)) continue;
-                verdicts.Add(new AnswerVerdict
-                {
-                    QuestionId = id,
-                    Category = AnswerCategory.Wrong,
-                    MatchedPath = AnswerCategory.OutOfBank,
-                    Feedback = "Bạn bỏ qua câu này ở chế độ Thực chiến nên được tính là sai."
-                });
-            }
-        }
-
+        #region Chấm không cần AI
         public InterviewScoreResult ScoreWithoutAi(ScoreRequest request)
         {
             var delivery = _delivery.Analyze(AllAnswers(request));
@@ -101,7 +87,7 @@ namespace MockviewAI.Services.Ai.Implementations
 
             if (!hasBankQuestions)
             {
-                // Câu hỏi kiểu cũ: không có bộ đề để so -> chỉ tính cách nói như trước
+                // Câu hỏi kiểu cũ: không có bộ đề để so -> chỉ tính cách nói
                 var deliveryOnly = new ContentScoreResult
                 {
                     Summary = "AI đang bận nên chưa nhận xét được nội dung. Điểm này chỉ tính phần cách nói. Hãy luyện lại sau để có nhận xét đầy đủ."
@@ -163,8 +149,27 @@ namespace MockviewAI.Services.Ai.Implementations
             result.ScoringMode = ScoringModes.BankRules;
             return result;
         }
+        #endregion
 
-        // Cách nói đo trên mọi câu đã nói (kể cả câu không có ý nghĩa và câu trả lời cho câu hỏi thêm)
+        #region Helpers
+        /// <summary>[LIVE-MODE] Câu bỏ qua ở Thực chiến -> nhãn SAI (chỉ câu thuộc bộ đề mới có nhãn; câu kiểu cũ chỉ tính vào tỉ lệ).</summary>
+        private void AddSkippedAsWrong(ScoreRequest request, List<AnswerVerdict> verdicts, bool inBankOnly)
+        {
+            foreach (var id in request.SkippedAsWrong)
+            {
+                if (id == null || (inBankOnly && _bank.Find(id) == null)) continue;
+                if (verdicts.Any(v => v.QuestionId == id)) continue;
+                verdicts.Add(new AnswerVerdict
+                {
+                    QuestionId = id,
+                    Category = AnswerCategory.Wrong,
+                    MatchedPath = AnswerCategory.OutOfBank,
+                    Feedback = "Bạn bỏ qua câu này ở chế độ Thực chiến nên được tính là sai."
+                });
+            }
+        }
+
+        /// <summary>Cách nói đo trên mọi câu đã nói (kể cả câu không có ý nghĩa và câu trả lời cho câu hỏi thêm).</summary>
         private static List<InterviewAnswer> AllAnswers(ScoreRequest request) =>
             request.Answers.Concat(request.InvalidAnswers).Concat(request.FollowUpAnswers).ToList();
 
@@ -181,5 +186,6 @@ namespace MockviewAI.Services.Ai.Implementations
                 AnxietyReasons = reasons
             };
         }
+        #endregion
     }
 }

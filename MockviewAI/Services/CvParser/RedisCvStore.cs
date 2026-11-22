@@ -6,7 +6,8 @@ using MockviewAI.Models.DTOs;
 namespace MockviewAI.Services.CvParser
 {
     /// <summary>
-    /// [USER CV] Lưu bản chờ xác nhận trong Redis, khoá cv:pending:{email}, tự hết hạn.
+    /// [USER CV] 
+    /// Lưu bản chờ xác nhận trong Redis, khoá cv:pending:{email}, tự hết hạn.
     /// </summary>
     public class RedisCvStore : ICvStore
     {

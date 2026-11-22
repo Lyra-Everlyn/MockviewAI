@@ -1,6 +1,7 @@
-/* [USER CV] Trang "CV của tôi" — màu chỉ dùng biến của themes */
+/* MockviewAI | CV của tôi
+   Danh sách CV lưu trên trình duyệt (Views/CV/Index.cshtml); dùng thêm UploadCV.css. */
 
-/* #region Header */
+/* #region Tiêu đề */
 .cv-library__head-actions {
     display: flex;
     flex-wrap: wrap;
@@ -15,7 +16,7 @@
     }
 /* #endregion */
 
-/* #region List */
+/* #region Danh sách */
 .cv-library__list {
     display: grid;
     gap: 16px
@@ -53,7 +54,7 @@
 }
 /* #endregion */
 
-/* #region Card */
+/* #region Thẻ CV */
 .cv-library__item .cv-card__heading {
     margin-bottom: 0
 }
@@ -83,7 +84,7 @@
 }
 /* #endregion */
 
-/* #region Details */
+/* #region Chi tiết CV */
 .cv-library__details {
     display: grid;
     gap: 16px;
@@ -154,7 +155,7 @@
 }
 /* #endregion */
 
-/* #region States */
+/* #region Trạng thái */
 .button.is-disabled {
     opacity: .55;
     pointer-events: none;

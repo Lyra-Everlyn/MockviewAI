@@ -13,7 +13,7 @@ namespace MockviewAI.Services.Speech.Implementations
     /// <summary>
     /// [SPEECH] 
     /// Gửi file ghi âm lên Groq Whisper (audio/transcriptions, verbose_json) qua HttpClient "GroqClient".
-    /// Key do GroqKeyHandler gắn và xoay vòng. Language = auto thì không gửi language, đọc ngôn ngữ Whisper nhận ra.
+    /// Key do GroqKeyHandler gắn và xoay. Language = auto thì không gửi language, đọc ngôn ngữ Whisper nhận ra.
     /// </summary>
     public class GroqWhisperTranscriber : ISpeechTranscriber
     {

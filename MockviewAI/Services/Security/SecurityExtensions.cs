@@ -7,17 +7,18 @@ namespace MockviewAI.Services.Security
 {
     /// <summary>
     /// [SECURITY] 
-    /// Đóng gói cấu hình bảo mật: dịch vụ chống dò mật khẩu, CAPTCHA, proxy, khoá mã hoá, cookie, HTTP header.
+    /// Đóng gói cấu hình bảo mật: chống dò mật khẩu, CAPTCHA, proxy (Traefik), khoá mã hoá cookie, HTTP header.
     /// </summary>
     public static class SecurityExtensions
     {
         #region Content Security Policy
         /// <summary>
-        /// Nguồn được phép nạp tài nguyên. Đang chạy chế độ Report-Only: trình duyệt chỉ báo vi phạm ở Console, chưa chặn.
-        /// Kiểm tra mọi trang không còn cảnh báo thì đổi CspEnforce = true.
+        /// Đang chạy chế độ Report-Only: trình duyệt chỉ báo vi phạm ở Console, chưa chặn.
+        /// Kiểm tra mọi trang không còn cảnh báo thì đổi thành true.
         /// </summary>
         private const bool CspEnforce = false;
 
+        /// <summary>Các nguồn được phép nạp script, style, font, ảnh, khung (CDN, Cloudflare Turnstile).</summary>
         private static readonly string ContentSecurityPolicy = string.Join("; ",
             "default-src 'self'",
             "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com",
@@ -33,13 +34,15 @@ namespace MockviewAI.Services.Security
             "frame-ancestors 'none'");
         #endregion
 
-        #region Services
+        #region Đăng ký dịch vụ
         /// <summary>Dùng: builder.Services.AddAppSecurity(builder.Configuration);</summary>
         public static IServiceCollection AddAppSecurity(this IServiceCollection services, IConfiguration config)
         {
             services.Configure<SecurityOptions>(config.GetSection("Security"));
             services.AddSingleton<ILoginThrottleService, LoginThrottleService>();
             services.AddHttpClient<ITurnstileService, TurnstileService>(c => c.Timeout = TimeSpan.FromSeconds(10));
+
+            // Tin header X-Forwarded-* chỉ khi đến từ mạng nội bộ Docker (Traefik), để lấy đúng IP và https của người dùng
             services.Configure<ForwardedHeadersOptions>(o =>
             {
                 o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -49,6 +52,7 @@ namespace MockviewAI.Services.Security
                 o.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("192.168.0.0/16"));
             });
 
+            // Khoá mã hoá cookie lưu ra đĩa để không bị đăng xuất hàng loạt mỗi lần container khởi động lại
             var keysPath = config["DataProtection:KeysPath"];
             if (string.IsNullOrWhiteSpace(keysPath))
                 keysPath = Path.Combine(AppContext.BaseDirectory, "keys");
@@ -59,7 +63,7 @@ namespace MockviewAI.Services.Security
             return services;
         }
 
-        /// <summary>Dùng trong AddCookie: options.HardenCookie();</summary>
+        /// <summary>Cookie đăng nhập: HttpOnly, SameSite=Lax, sống 8 giờ (trượt). Dùng trong AddCookie: options.HardenCookie();</summary>
         public static void HardenCookie(this CookieAuthenticationOptions options)
         {
             options.Cookie.HttpOnly = true;
@@ -71,7 +75,7 @@ namespace MockviewAI.Services.Security
         #endregion
 
         #region Pipeline
-        /// <summary>Dùng ngay sau app.Build(): app.UseAppSecurity();</summary>
+        /// <summary>Đọc header proxy rồi gắn header bảo mật cho mọi phản hồi. Dùng ngay sau ErrorHandlingMiddleware.</summary>
         public static IApplicationBuilder UseAppSecurity(this IApplicationBuilder app)
         {
             app.UseForwardedHeaders();

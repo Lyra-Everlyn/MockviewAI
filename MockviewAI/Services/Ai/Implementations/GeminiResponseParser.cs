@@ -7,34 +7,43 @@ using MockviewAI.Services.Exceptions;
 namespace MockviewAI.Services.Ai.Implementations
 {
     /// <summary>
-    /// [AI-MODULE] 
-    /// GeminiResponseParser
-    /// -- Chỉ lo việc ĐỌC phản hồi của Gemini: lấy JSON điểm, ép mỗi điểm về 0..25 (không tin model).
+    /// [AI-SCORING] 
+    /// Đọc phản hồi chấm điểm của Gemini: lấy JSON, ép mỗi điểm về 0..25 (không tin model),
+    /// đọc thô phần xếp loại từng câu (AnswerVerdictValidator kiểm tra lại sau).
     /// </summary>
-
     public class GeminiResponseParser : IAiResponseParser
     {
-        private const int MaxVerdicts = 10;   // tối đa 10 câu / buổi
+        #region Fields
+        /// <summary>Tối đa 10 câu / buổi.</summary>
+        private const int MaxVerdicts = 10;
+
         private const int MaxIds = 10;
 
-        private readonly ILogger<GeminiResponseParser> _logger;
+        /// <summary>Số điểm mạnh / điều cần cải thiện tối đa giữ lại.</summary>
+        private const int MaxListItems = 3;
 
+        private readonly ILogger<GeminiResponseParser> _logger;
+        #endregion
+
+        #region Constructor
         public GeminiResponseParser(ILogger<GeminiResponseParser> logger)
         {
             _logger = logger;
         }
+        #endregion
 
+        #region IAiResponseParser
         public ContentScoreResult Parse(string apiResponseJson)
         {
             try
             {
                 using var doc = JsonDocument.Parse(apiResponseJson);
-                // Gemini reply: candidates[0].content.parts[*].text (missing when the prompt was blocked)
+                // candidates[0].content.parts[*].text (không có khi prompt bị chặn)
                 var parts = doc.RootElement.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts");
                 var text = string.Concat(parts.EnumerateArray()
                     .Select(x => x.TryGetProperty("text", out var t) ? t.GetString() : null));
 
-                // Gemini should return pure JSON, but tolerate ```json fences or extra words
+                // Gemini lẽ ra trả JSON thuần, nhưng vẫn chịu được khung ```json hoặc chữ thừa
                 int start = text.IndexOf('{'), end = text.LastIndexOf('}');
                 if (start < 0 || end <= start) throw new FormatException("No JSON object in AI reply");
 
@@ -50,7 +59,7 @@ namespace MockviewAI.Services.Ai.Implementations
                     Summary = Str(r, "summary"),
                     Strengths = StrList(r, "strengths"),
                     Improvements = StrList(r, "improvements"),
-                    // [QUESTION-BANK] Phần xếp loại từng câu: thiếu / hỏng thì để trống, KHÔNG làm mất điểm 4 tiêu chí
+                    // [QUESTION-BANK] Phần xếp loại thiếu / hỏng thì để trống, KHÔNG làm mất điểm 4 tiêu chí
                     Verdicts = Verdicts(r)
                 };
             }
@@ -61,8 +70,10 @@ namespace MockviewAI.Services.Ai.Implementations
                 throw new AiScoringException("AI trả về kết quả không đọc được. Vui lòng thử lại.", ex);
             }
         }
+        #endregion
 
-        // Never trust the model: force every score into 0..25
+        #region Helpers
+        /// <summary>Không tin model: ép mọi điểm về 0..25.</summary>
         private static int Clamp25(JsonElement e, string name) =>
             e.TryGetProperty(name, out var v) && v.TryGetDouble(out var d)
                 ? (int)Math.Clamp(Math.Round(d), 0, 25) : 0;
@@ -70,8 +81,7 @@ namespace MockviewAI.Services.Ai.Implementations
         private static string Str(JsonElement e, string name) =>
             e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String ? (v.GetString() ?? "") : "";
 
-        // Đọc "answers":[{questionId, category, matchedPath, metCorePoints, missingCorePoints, feedback}].
-        // Chỉ đọc thô ở đây; AnswerVerdictValidator kiểm tra lại theo bộ đề.
+        /// <summary>Đọc "answers":[{questionId, category, matchedPath, metCorePoints, missingCorePoints, feedback}].</summary>
         private static List<AnswerVerdict> Verdicts(JsonElement e)
         {
             var list = new List<AnswerVerdict>();
@@ -106,10 +116,11 @@ namespace MockviewAI.Services.Ai.Implementations
         {
             var list = new List<string>();
             if (e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.Array)
-                foreach (var item in v.EnumerateArray().Take(3))
+                foreach (var item in v.EnumerateArray().Take(MaxListItems))
                     if (item.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(item.GetString()))
                         list.Add(item.GetString()!);
             return list;
         }
+        #endregion
     }
 }

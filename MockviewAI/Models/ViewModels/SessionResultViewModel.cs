@@ -1,26 +1,53 @@
 namespace MockviewAI.Models.ViewModels
 {
-    /// [AI-INTERVIEW]
-    // -- Dữ liệu trang kết quả (Result.cshtml).
+    /// <summary>
+    /// [AI-INTERVIEW] 
+    /// Dữ liệu trang Kết quả (Views/Interview/Result.cshtml).
+    /// </summary>
     public class SessionResultViewModel
     {
+        #region Thông tin buổi
         public int SessionId { get; set; }
-        // Số câu trả lời không có ý nghĩa (tính sai, 0 điểm)
-        public int InvalidAnswerCount { get; set; }
         public string Position { get; set; } = string.Empty;
         public string InterviewerName { get; set; } = string.Empty;
         public DateTime StartedAt { get; set; }
+
+        /// <summary>Số câu chính của buổi.</summary>
         public int QuestionCount { get; set; }
 
+        /// <summary>[LIVE-MODE] Buổi chạy ở chế độ Thực chiến.</summary>
+        public bool IsLive { get; set; }
+
+        /// <summary>Người dùng đã yêu cầu gửi kết quả qua email.</summary>
+        public bool EmailRequested { get; set; }
+        #endregion
+
+        #region Điểm
+        /// <summary>false = buổi chưa có điểm.</summary>
         public bool HasScore { get; set; }
-        public bool HasContentScore { get; set; }    // false: AI lỗi, đây là kết quả dự phòng chỉ tính cách nói
+
+        /// <summary>false = AI lỗi, kết quả dự phòng chỉ tính cách nói.</summary>
+        public bool HasContentScore { get; set; }
+
+        /// <summary>[QUESTION-BANK] true = AI lỗi, phần nội dung được chấm sơ bộ theo bộ đề.</summary>
+        public bool IsPreliminaryScore { get; set; }
+
         public int TotalScore { get; set; }
         public int ContentScore { get; set; }
         public int DeliveryScore { get; set; }
 
-        // Dấu hiệu lo lắng 1-10 do hệ thống ước tính từ cách nói. 0 = chưa đủ dữ liệu.
+        /// <summary>Số câu trả lời vô nghĩa (tính sai, 0 điểm).</summary>
+        public int InvalidAnswerCount { get; set; }
+        #endregion
+
+        #region Dấu hiệu lo lắng
+        /// <summary>1–10 do hệ thống ước tính từ cách nói; 0 = chưa đủ dữ liệu.</summary>
         public int AnxietyIndicator { get; set; }
-        public int PreviousAnxietyIndicator { get; set; }   // buổi trước (0 = chưa có)
+
+        /// <summary>Chỉ số của buổi trước để so sánh; 0 = chưa có.</summary>
+        public int PreviousAnxietyIndicator { get; set; }
+
+        /// <summary>Thấp (1–3) / Trung bình (4–6) / Cao (7–10); rỗng nếu chưa có.</summary>
         public string AnxietyLevelText => AnxietyIndicator switch
         {
             <= 0 => string.Empty,
@@ -28,34 +55,41 @@ namespace MockviewAI.Models.ViewModels
             <= 6 => "Trung bình",
             _ => "Cao"
         };
+        #endregion
 
-        public bool EmailRequested { get; set; }
-
-        // [QUESTION-BANK] Số câu theo 4 loại (chỉ có với buổi dùng bộ đề)
+        #region [QUESTION-BANK] Xếp loại (chỉ có với buổi dùng bộ đề)
         public int CorrectCount { get; set; }
         public int AlternativePathCount { get; set; }
         public int SpecialCount { get; set; }
         public int WrongCount { get; set; }
+
         public bool HasCategories => CorrectCount + AlternativePathCount + SpecialCount + WrongCount > 0;
-        // [UI-DARK] Nhãn từng câu theo thứ tự câu hỏi (null = câu bỏ qua / chưa xếp loại) -> vẽ "dải băng" ở trang Kết quả
+
+        /// <summary>Nhãn từng câu theo thứ tự (null = bỏ qua / chưa xếp loại), dùng vẽ dải băng.</summary>
         public List<string?> AnswerCategories { get; set; } = new();
-        public int FollowUpCount { get; set; }   // [FOLLOW-UP] số câu hỏi thêm đã trả lời trong buổi
 
-        // [QUESTION-BANK] true = AI lỗi nên phần nội dung được chấm sơ bộ theo bộ đề (không dùng AI)
-        public bool IsPreliminaryScore { get; set; }
+        /// <summary>[FOLLOW-UP] Số câu hỏi thêm đã trả lời trong buổi.</summary>
+        public int FollowUpCount { get; set; }
+        #endregion
 
-        // [LIVE-MODE] Buổi chạy ở chế độ Thực chiến
-        public bool IsLive { get; set; }
-
-        // [VOICE] Đợt 7: giọng nói cả buổi (trung bình các câu nói bằng micro)
+        #region [VOICE] Giọng nói cả buổi (trung bình các câu nói bằng micro)
         public bool HasVoice { get; set; }
-        public string VoiceLevelLabel { get; set; } = "—";
-        public int? QuietPercent { get; set; }
-        public string ToneLabel { get; set; } = "—";
 
+        /// <summary>Nhỏ / Vừa / Quá to; "—" nếu không có số đo.</summary>
+        public string VoiceLevelLabel { get; set; } = "—";
+
+        /// <summary>Phần trăm thời gian nói nhỏ.</summary>
+        public int? QuietPercent { get; set; }
+
+        /// <summary>Đều đều / Tự nhiên / Nhấn nhá nhiều; "—" nếu không có số đo.</summary>
+        public string ToneLabel { get; set; } = "—";
+        #endregion
+
+        #region Nhận xét
         public string AiSummary { get; set; } = string.Empty;
         public List<string> Strengths { get; set; } = new();
         public List<string> Improvements { get; set; } = new();
         public List<string> DeliveryTips { get; set; } = new();
+        #endregion
     }
 }

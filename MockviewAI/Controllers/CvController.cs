@@ -12,7 +12,8 @@ using MockviewAI.Services.Exceptions;
 namespace MockviewAI.Controllers
 {
     /// <summary>
-    /// [USER CV] /CV (danh sách) -> /CV/UploadCv (tải lên, kiểm tra) -> /CV/SaveCv (chốt, trình duyệt lưu).
+    /// [USER CV] 
+    /// /CV (danh sách) -> /CV/UploadCv (tải lên, kiểm tra) -> /CV/SaveCv (chốt, trình duyệt lưu).
     /// Server không lưu CV lâu dài.
     /// </summary>
     [Authorize]
@@ -43,16 +44,17 @@ namespace MockviewAI.Controllers
 
         private string CurrentEmail => User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
 
-        #region Library
+        #region Thư viện CV
         /// <summary>GET /CV: danh sách CV, do CvLibrary.js dựng từ trình duyệt.</summary>
         [HttpGet("")]
         public IActionResult Index() => View(ViewFolder + "Index.cshtml", Fill(new CvPageViewModel()));
         #endregion
 
-        #region Upload
+        #region Tải lên và phân tích
         [HttpGet("UploadCv")]
         public IActionResult UploadCv() => View(ViewFolder + "UploadCV.cshtml", Fill(new CvUploadViewModel()));
 
+        /// <summary>POST /CV/UploadCv: kiểm tra file rồi AI trích xuất; hiện lại trang để người dùng sửa trước khi chốt.</summary>
         [HttpPost("UploadCv")]
         [ValidateAntiForgeryToken]
         [EnableRateLimiting(CvServiceExtensions.RateLimitPolicy)]
@@ -88,7 +90,7 @@ namespace MockviewAI.Controllers
         }
         #endregion
 
-        #region Save
+        #region Chốt CV
         /// <summary>POST /CV/SaveCv: chốt CV rồi mở trang Saved để trình duyệt lưu.</summary>
         [HttpPost("SaveCv")]
         [ValidateAntiForgeryToken]
@@ -121,6 +123,7 @@ namespace MockviewAI.Controllers
         #endregion
 
         #region Helpers
+        /// <summary>Gắn khoá chủ sở hữu và giới hạn lưu trữ trên trình duyệt (đã kẹp về khoảng an toàn) cho view.</summary>
         private T Fill<T>(T model) where T : CvPageViewModel
         {
             model.OwnerKey = CvOwnerKey.For(CurrentEmail);

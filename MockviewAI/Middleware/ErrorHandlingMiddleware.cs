@@ -2,25 +2,29 @@ using System.Net;
 
 namespace MockviewAI.Middleware
 {
+    /// <summary>
+    /// [SYSTEM] 
+    /// Chốt chặn lỗi toàn ứng dụng, đăng ký đầu tiên trong pipeline (Program.cs).
+    /// Bắt mọi lỗi chưa được xử lý, ghi log, rồi trả JSON (request từ fetch) hoặc trang HTML thân thiện.
+    /// </summary>
     public class ErrorHandlingMiddleware
     {
-        /// <summary>
-        /// [BẢN TEST] 
-        /// -- Chốt chặn lỗi toàn ứng dụng: bắt mọi lỗi không lường trước ở MỘT chỗ,
-        /// -- Ghi log, rồi trả trang/JSON thân thiện cho người dùng. Không để lỗi "văng" ra ngoài.
-        /// </summary>
-
+        #region Fields
         private const string FriendlyMessage = "Có lỗi xảy ra. Vui lòng thử lại.";
 
         private readonly RequestDelegate _next;
         private readonly ILogger<ErrorHandlingMiddleware> _logger;
+        #endregion
 
+        #region Constructor
         public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
         {
             _next = next;
             _logger = logger;
         }
+        #endregion
 
+        #region Pipeline
         public async Task InvokeAsync(HttpContext context)
         {
             try
@@ -35,6 +39,7 @@ namespace MockviewAI.Middleware
             {
                 _logger.LogError(ex, "Lỗi không mong đợi tại {Method} {Path}", context.Request.Method, context.Request.Path);
 
+                // Đã gửi một phần phản hồi thì không ghi đè được, chỉ còn cách cắt kết nối
                 if (context.Response.HasStarted)
                 {
                     context.Abort();
@@ -56,8 +61,10 @@ namespace MockviewAI.Middleware
                 }
             }
         }
+        #endregion
 
-        // Các request gọi bằng JavaScript (fetch) cần JSON để hiện thông báo trong trang, không cần cả trang HTML
+        #region Helpers
+        /// <summary>Request gọi bằng fetch cần JSON để hiện thông báo trong trang, không cần cả trang HTML.</summary>
         private static bool WantsJson(HttpRequest request)
         {
             string contentType = request.ContentType ?? string.Empty;
@@ -66,6 +73,10 @@ namespace MockviewAI.Middleware
                    || accept.Contains("application/json", StringComparison.OrdinalIgnoreCase);
         }
 
+        /// <summary>
+        /// Trang lỗi tự chứa (CSS nội tuyến, màu cố định) vì lúc này có thể không tải được layout hay file theme.
+        /// </summary>
+        /// <param name="requestId">Mã tra cứu để đối chiếu với log.</param>
         private static string BuildHtml(string requestId)
         {
             return "<!DOCTYPE html><html lang=\"vi\"><head><meta charset=\"utf-8\">"
@@ -80,5 +91,6 @@ namespace MockviewAI.Middleware
                  + "<p>Vui lòng thử lại sau ít phút.</p><a href=\"/Home\">Về trang chủ</a>"
                  + "<small>Mã tra cứu: " + WebUtility.HtmlEncode(requestId) + "</small></div></body></html>";
         }
+        #endregion
     }
 }

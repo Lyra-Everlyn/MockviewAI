@@ -1,37 +1,51 @@
-// [QUESTION-BANK] Không tin AI hoàn toàn (giống cách ép điểm 0..25 ở GeminiResponseParser).
-// 4 nhãn GHI NHẬN CÁCH TIẾP CẬN (không phải thang điểm):
-//   dung          = đi đúng công thức thông thường (đường chuẩn), trình bày bình thường
-//   hoi_dac_biet  = CÙNG công thức nhưng cách làm / giải thích khác thường (đường chuẩn trình bày lạ, hoặc đường vòng đã biết)
-//   dac_biet      = KHÔNG dùng công thức trong bộ đề, có hướng đi riêng nhưng vẫn đúng bản chất (ngoai_bo)
-//   sai           = không đúng bản chất
-// Quy tắc an toàn:
-//   - Câu không có trong buổi / không có trong bộ đề / bị trùng -> bỏ. Mã ý cốt lõi lạ -> bỏ.
-//   - AI nói "sai" hoặc khớp một lỗi hay gặp -> "sai" (thà khắt khe còn hơn chấm đúng nhầm).
-//   - Đường chuẩn: giữ "dung" hoặc "hoi_dac_biet" theo AI ("dac_biet" -> "hoi_dac_biet" vì vẫn cùng công thức).
-//   - Đường vòng đã biết -> "hoi_dac_biet".
-//   - Mã đường lạ / ngoai_bo -> "dac_biet".
-//   - Không phải "sai" mà đạt ít hơn MinCorePoints ý -> "sai".
-
 using Microsoft.Extensions.Logging;
 using MockviewAI.Models.Ai;
 using MockviewAI.Services.InterviewQuestions.Interfaces;
 
 namespace MockviewAI.Services.InterviewQuestions.Implementations
 {
+    /// <summary>
+    /// [QUESTION-BANK] 
+    /// Không tin AI hoàn toàn: sửa lại nhãn AI trả về theo bộ đề (giống cách ép điểm 0..25 ở GeminiResponseParser).
+    /// </summary>
+    /// <remarks>
+    /// 4 nhãn ghi nhận CÁCH TIẾP CẬN, không phải thang điểm:
+    /// <list type="bullet">
+    /// <item>dung: đi đường chuẩn, trình bày bình thường.</item>
+    /// <item>hoi_dac_biet: cùng công thức nhưng cách làm / giải thích khác thường (đường chuẩn trình bày lạ, hoặc đường vòng đã biết).</item>
+    /// <item>dac_biet: không dùng công thức trong bộ đề, có hướng đi riêng nhưng vẫn đúng bản chất (ngoai_bo).</item>
+    /// <item>sai: không đúng bản chất.</item>
+    /// </list>
+    /// Quy tắc an toàn:
+    /// <list type="bullet">
+    /// <item>Câu không có trong buổi / không có trong bộ đề / bị trùng -> bỏ. Mã ý cốt lõi lạ -> bỏ.</item>
+    /// <item>AI nói "sai" hoặc khớp một lỗi hay gặp -> sai (thà khắt khe còn hơn chấm đúng nhầm).</item>
+    /// <item>Đường chuẩn: giữ dung hoặc hoi_dac_biet theo AI (dac_biet -> hoi_dac_biet vì vẫn cùng công thức).</item>
+    /// <item>Đường vòng đã biết -> hoi_dac_biet. Mã đường lạ / ngoai_bo -> dac_biet.</item>
+    /// <item>Không phải sai mà đạt ít hơn MinCorePoints ý -> sai.</item>
+    /// </list>
+    /// </remarks>
     public class AnswerVerdictValidator : IAnswerVerdictValidator
     {
+        #region Fields
         private const int MaxFeedbackLength = 500;
-        private const string StandardPathCategory = AnswerCategory.Correct;   // đường chuẩn trong bộ đề có Category = dung
+
+        /// <summary>Đường chuẩn trong bộ đề có Category = dung.</summary>
+        private const string StandardPathCategory = AnswerCategory.Correct;
 
         private readonly IQuestionBankStore _store;
         private readonly ILogger<AnswerVerdictValidator> _logger;
+        #endregion
 
+        #region Constructor
         public AnswerVerdictValidator(IQuestionBankStore store, ILogger<AnswerVerdictValidator> logger)
         {
             _store = store;
             _logger = logger;
         }
+        #endregion
 
+        #region IAnswerVerdictValidator
         public List<AnswerVerdict> Normalize(IEnumerable<AnswerVerdict> rawVerdicts, IReadOnlyCollection<string> askedQuestionIds)
         {
             var result = new List<AnswerVerdict>();
@@ -94,5 +108,6 @@ namespace MockviewAI.Services.InterviewQuestions.Implementations
             }
             return result;
         }
+        #endregion
     }
 }

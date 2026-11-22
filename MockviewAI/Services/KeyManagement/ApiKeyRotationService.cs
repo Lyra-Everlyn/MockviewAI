@@ -1,26 +1,27 @@
 ﻿namespace MockviewAI.Services.KeyManagement
 {
     /// <summary>
-    /// [SWITCH API]
-    /// -- Dịch vụ quản lý vòng đời API Key bằng thuật toán Round-Robin.
-    /// -- Đảm bảo an toàn đa luồng và tự động cách ly các Key bị lỗi quota (cooldown 1 phút).
-    /// -- Nguồn key: danh sách "{Provider}:ApiKeys" (biến môi trường {Provider}__ApiKeys__0..N);
-    ///    nếu danh sách trống thì dùng key đơn "{Provider}:ApiKey" (biến môi trường {Provider}__ApiKey).
+    /// [KEY-ROTATION] 
+    /// Luân phiên key kiểu vòng tròn (round-robin), an toàn đa luồng, phạt key lỗi 1 phút.
+    /// Nguồn key: danh sách "{Provider}:ApiKeys" (biến môi trường {Provider}__ApiKeys__0..N);
+    /// danh sách trống thì dùng key đơn "{Provider}:ApiKey".
+    /// Đăng ký Singleton qua lớp con (GeminiKeyProvider, GroqKeyProvider).
     /// </summary>
     public class ApiKeyRotationService : IApiKeyProvider
     {
-        private readonly string[] _keys;
-        private int _currentIndex = 0;
+        #region Fields
+        private readonly TimeSpan _cooldownPeriod = TimeSpan.FromMinutes(1);
         private readonly object _lock = new object();
 
+        private readonly string[] _keys;
+        private int _currentIndex = 0;
+
+        /// <summary>Key đang bị phạt -> thời điểm hết phạt (UTC).</summary>
         private readonly Dictionary<string, DateTime> _exhaustedKeys = new();
-        private readonly TimeSpan _cooldownPeriod = TimeSpan.FromMinutes(1);
+        #endregion
 
         #region Constructor
-        /// <summary>
-        /// Đọc danh sách key của một nhà cung cấp (vd: "Gemini", "Groq") từ cấu hình.
-        /// Bỏ các giá trị rỗng và trùng lặp.
-        /// </summary>
+        /// <summary>Đọc key của một nhà cung cấp ("Gemini", "Groq"), bỏ giá trị rỗng và trùng lặp.</summary>
         public ApiKeyRotationService(IConfiguration configuration, string providerName)
         {
             var list = configuration.GetSection($"{providerName}:ApiKeys").Get<string[]>() ?? Array.Empty<string>();
@@ -67,7 +68,7 @@
                     return key;
                 }
 
-                // Mọi key đều đang bị phạt: vẫn trả về key kế tiếp để request được thử (provider sẽ báo lỗi rõ ràng)
+                // Mọi key đều đang bị phạt: vẫn trả key kế tiếp để request được thử (nhà cung cấp sẽ báo lỗi rõ ràng)
                 var fallbackKey = _keys[_currentIndex];
                 _currentIndex = (_currentIndex + 1) % _keys.Length;
                 return fallbackKey;

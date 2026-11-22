@@ -1,9 +1,9 @@
-﻿/* =========================================================
-   MockviewAI — Theme: Midnight Indigo (Dark 1)
-   Dark replacement for theme-indigo.css; keep base.css and components.css.
-   ========================================================= */
+﻿/* MockviewAI | Theme tối (Midnight Indigo)
+   Thay cho theme-indigo.css khi bật giao diện tối; dùng chung base.css và components.css. */
 
+/* #region Biến màu */
 :root {
+    color-scheme: dark;
     --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --layout-max-width: 1040px;
     --color-page: #0c1220;
@@ -27,10 +27,8 @@
     --color-warning-soft: #463520;
     --color-danger: #ff8c99;
     --color-danger-soft: #4b2737;
-    /*
-       Navigation belongs to the same midnight-indigo system as the page.
-       Dimensions are controlled by components.css, not by the theme.
-    */
+
+    /* Thanh điều hướng */
     --color-nav: rgba(18, 26, 42, .97);
     --color-nav-text: #a6b3cc;
     --color-nav-text-active: #f0f3fd;
@@ -47,6 +45,7 @@
     --shadow-control: 0 8px 18px rgba(115, 98, 249, .20);
     --shadow-mobile-nav: 0 -7px 24px rgba(0, 0, 0, .28);
 
+    /* Chữ / viền trên nền gradient */
     --color-on-gradient: #f4f2ff;
     --color-on-gradient-muted: rgba(244, 242, 255, .82);
     --color-on-gradient-accent: #c9c2ff;
@@ -61,7 +60,7 @@
     /* Nền nhấn đậm hơn --color-primary-soft (hover của nút nền nhạt) */
     --color-primary-soft-strong: #34315e;
 
-    /* Viền và trạng thái đậm của các màu ngữ nghĩa sẵn có */
+    /* Viền và trạng thái đậm của các màu ngữ nghĩa */
     --color-success-border: #2c6a52;
     --color-warning-border: #6b5226;
     --color-danger-border: #6e3442;
@@ -101,10 +100,7 @@
     --color-persona-an: #cfa6f5;
     --color-persona-an-soft: #33244a;
 
-    /* #region Verdict tokens
-        Màu 4 loại đánh giá câu trả lời: Đúng / Hơi đặc biệt / Đặc biệt / Sai.
-        Dùng ở trang Kết quả và Chi tiết buổi phỏng vấn.
-    */
+    /* 4 loại đánh giá câu trả lời: Đúng / Hơi đặc biệt / Đặc biệt / Sai (trang Kết quả, Chi tiết) */
     --color-verdict-correct: #6fdbac;
     --color-verdict-correct-soft: #163c35;
     --color-verdict-correct-border: #2c6a52;
@@ -118,11 +114,13 @@
     --color-verdict-wrong-soft: #4b2737;
     --color-verdict-wrong-border: #6e3442;
 
-    
+    /* Màn hình chờ khi gửi form */
+    --color-loading-backdrop: rgba(2, 5, 12, .82);
+    --shadow-loading-dialog: 0 24px 72px rgba(0, 0, 0, .48);
 }
+/* #endregion */
 
-/* ---------- Global text ---------- */
-
+/* #region Chữ chung */
 .page-header__eyebrow,
 .section-header__eyebrow,
 .panel__eyebrow,
@@ -144,9 +142,9 @@
 .section-header__action {
     color: var(--color-primary);
 }
+/* #endregion */
 
-/* ---------- Navigation ---------- */
-
+/* #region Thanh điều hướng */
 .app-nav__desktop {
     background: var(--color-nav);
     border-bottom-color: var(--color-nav-border);
@@ -196,9 +194,9 @@
     .app-nav__mobile-link.is-active {
         color: var(--color-primary);
     }
+/* #endregion */
 
-/* ---------- Buttons ---------- */
-
+/* #region Nút */
 .button--primary {
     background: var(--color-primary);
     color: var(--color-primary-text);
@@ -217,9 +215,9 @@
         border-color: #7b73d0;
         background: var(--color-primary-soft);
     }
+/* #endregion */
 
-/* ---------- Hero ---------- */
-
+/* #region Panel chính (Trang chủ) */
 .panel--primary {
     position: relative;
     border-color: transparent;
@@ -253,9 +251,9 @@
         .panel--primary .button--primary:hover {
             background: #dfe5ff;
         }
+/* #endregion */
 
-/* ---------- Generic cards ---------- */
-
+/* #region Thẻ dùng chung */
 .action-card__icon,
 .info-card__icon,
 .empty-state__icon {
@@ -299,8 +297,18 @@
     color: var(--color-primary);
 }
 
-/* ---------- Feedback card ---------- */
+.status-chip--success {
+    background: var(--color-success-soft);
+    color: var(--color-success);
+}
 
+.status-chip--warning {
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+}
+/* #endregion */
+
+/* #region Thẻ Góp ý */
 .feedback-action-card {
     border-color: #66502a;
     background: #30271e;
@@ -324,6 +332,7 @@
     .feedback-action-card .action-card__chevron {
         color: #ffd185;
     }
+/* #endregion */
 
 @media (prefers-reduced-motion: reduce) {
     *,
@@ -334,35 +343,13 @@
     }
 }
 
-/* Shared semantic status chips. */
-.status-chip--success {
-    background: var(--color-success-soft);
-    color: var(--color-success);
-}
-
-.status-chip--warning {
-    background: var(--color-warning-soft);
-    color: var(--color-warning);
-}
-
-/* Submission overlay theme tokens */
-:root {
-    --color-loading-backdrop: rgba(2, 5, 12, .82);
-    --shadow-loading-dialog: 0 24px 72px rgba(0, 0, 0, .48);
-}
-
-
-/* ---------- Dark surfaces omitted from legacy Indigo selectors ---------- */
-:root {
-    color-scheme: dark;
-}
-
+/* #region Bổ sung riêng cho nền tối
+   Phủ màu cho các phần tử trang tự đặt nền sáng hoặc dùng mặc định của trình duyệt. */
 html, body {
     background-color: var(--color-page);
     color: var(--color-text);
 }
 
-/* A few page templates use surface-card or panel without a variant. */
 .surface-card, .panel:not(.panel--primary),
 .history-panel, .app-footer,
 .form-control, .form-control-wrap,
@@ -387,7 +374,6 @@ input[type="checkbox"], input[type="radio"] {
     accent-color: var(--color-primary);
 }
 
-/* Match mobile navigation to desktop. */
 .app-nav__mobile {
     background: var(--color-nav-mobile);
     border-top-color: var(--color-nav-border);
@@ -396,18 +382,13 @@ input[type="checkbox"], input[type="radio"] {
     -webkit-backdrop-filter: blur(12px);
 }
 
-/* Avoid dark-on-dark primary buttons inside the hero. */
+/* Chữ trắng trên panel gradient, tránh chữ tối trên nền tối */
 .panel--primary .panel__title,
 .panel--primary .panel__eyebrow,
 .panel--primary .panel__description {
     color: #fff;
 }
 
-.panel--primary .button--primary {
-    color: #342e82;
-}
-
-/* Cards and small control surfaces. */
 .status-chip, .status-badge {
     border-color: var(--color-nav-control-border);
 }
@@ -417,25 +398,14 @@ input[type="checkbox"], input[type="radio"] {
     border-color: var(--color-border);
 }
 
-/* Semantic accents keep their meaning on dark surfaces. */
-.status-chip--success {
-    background: var(--color-success-soft);
-    color: var(--color-success);
-}
-
-.status-chip--warning {
-    background: var(--color-warning-soft);
-    color: var(--color-warning);
-}
-
-/* Scrollbars match the dark palette when they are enabled. */
 html {
     scrollbar-color: #485573 var(--color-page);
 }
 
-/* Browser default autofill can otherwise paint inputs white. */
+/* Trình duyệt tự điền sẽ tô nền trắng cho ô nhập nếu không ghi đè */
 input:-webkit-autofill {
     -webkit-text-fill-color: var(--color-text);
     -webkit-box-shadow: 0 0 0 1000px #161f31 inset;
     caret-color: var(--color-text);
 }
+/* #endregion */
