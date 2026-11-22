@@ -1,4 +1,5 @@
-﻿@{
+﻿@inject MockviewAI.Services.Admin.IAdminAccess AdminAccess
+@{
     var activeNav = ViewData["ActiveNav"] as string ?? "";
     var navUserName = User.Identity?.Name ?? "";
     var navInitial = string.IsNullOrWhiteSpace(navUserName)
@@ -6,6 +7,9 @@
         : navUserName.Substring(0, 1).ToUpper();
 
     var navAvatarUrl = User.FindFirst("AvatarUrl")?.Value;
+
+    // [ADMIN] Chỉ email trong Admin__Emails__N thấy link; quyền thật kiểm tra ở AdminController
+    var isAdmin = AdminAccess.IsAdmin(User);
 }
 
 <nav class="app-nav" aria-label="Điều hướng chính">
@@ -30,6 +34,14 @@
                    class="app-nav__link @(activeNav == "history" ? "is-active" : null)">
                     Lịch sử
                 </a>
+
+                @if (isAdmin)
+                {
+                    <a href="/Admin"
+                       class="app-nav__link @(activeNav == "admin" ? "is-active" : null)">
+                        Quản trị
+                    </a>
+                }
             </div>
 
             <div class="app-nav__actions">
@@ -54,7 +66,8 @@
         </div>
     </div>
 
-    <div class="app-nav__mobile">
+    @* components.css chia 4 cột; admin có thêm mục Quản trị nên chia 5 *@
+    <div class="app-nav__mobile" style="@(isAdmin ? "grid-template-columns: repeat(5, 1fr)" : null)">
         <a href="/Home"
            class="app-nav__mobile-link @(activeNav == "home" ? "is-active" : null)">
             <span class="app-nav__mobile-icon" aria-hidden="true">
@@ -78,6 +91,17 @@
             </span>
             <span>Lịch sử</span>
         </a>
+
+        @if (isAdmin)
+        {
+            <a href="/Admin"
+               class="app-nav__mobile-link @(activeNav == "admin" ? "is-active" : null)">
+                <span class="app-nav__mobile-icon" aria-hidden="true">
+                    <i class="fa-solid fa-user-shield"></i>
+                </span>
+                <span>Quản trị</span>
+            </a>
+        }
 
         <a href="/Profile"
            class="app-nav__mobile-link @(activeNav == "profile" ? "is-active" : null)">

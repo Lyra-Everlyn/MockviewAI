@@ -20,6 +20,7 @@ MockviewAI is an AI-powered mock interview platform for IT students, upcoming gr
 | **Delivery & anxiety** | Volume, pauses and pitch variation are measured in the browser; an anxiety indicator is estimated per session and compared with the previous one. |
 | **History & results** | Session history, transcript review, optional result email. |
 | **Light / dark theme** | User-selected theme stored in `localStorage`, toggle in the desktop nav and on the Profile page. |
+| **Admin (read-only)** | `/Admin` shows user / session / feedback statistics, the user list and all feedback. No edit or delete actions. Access is granted by email list in configuration (`Admin__Emails__N`), not stored in the database. |
 | **Secure authentication** | Email + password with OTP verification, Google OAuth 2.0, password recovery, login throttling, Cloudflare Turnstile CAPTCHA, IP rate limiting. |
 
 ---
@@ -149,6 +150,10 @@ REDIS_PORT=6379
 
 ConnectionStrings__DefaultConnection=Server=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};Uid=${DB_USER};Pwd=${MYSQL_USER_PASSWORD};
 ConnectionStrings__RedisConnection=${REDIS_HOST}:${REDIS_PORT}
+
+
+# --- Admin
+Admin__Emails__0=
 
 
 # --- Cloudflare Turnstile

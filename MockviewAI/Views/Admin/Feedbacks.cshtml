@@ -1,0 +1,107 @@
+@model MockviewAI.Models.ViewModels.Admin.AdminFeedbackListViewModel
+@*
+    #region Admin/Feedbacks
+    <summary>[ADMIN] Danh sách góp ý (chỉ xem): lọc số sao, chỉ góp ý có nội dung, phân trang.</summary>
+    #endregion
+*@
+@{
+    ViewData["Title"] = "Quản trị - Góp ý";
+
+    // Giữ bộ lọc khi chuyển trang
+    string PageUrl(int p) => Url.Action("Feedbacks", "Admin", new { rating = Model.Rating, withComment = Model.OnlyWithComment, page = p }) ?? "/Admin/Feedbacks";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Admin.css" asp-append-version="true" />
+}
+
+<main class="page-shell admin-page">
+    <header class="page-header">
+        <div class="page-header__content">
+            <span class="page-header__eyebrow">KHU QUẢN TRỊ</span>
+            <h1 class="page-header__title">Góp ý của người dùng</h1>
+            <p class="page-header__description">Đánh giá độ dễ dùng, mức giúp bớt lo lắng và đề xuất cải thiện.</p>
+        </div>
+    </header>
+
+    <partial name="_AdminTabs" />
+
+    <section class="surface-card admin-panel" aria-labelledby="feedback-title">
+        <form class="admin-filters" method="get" action="/Admin/Feedbacks">
+            <div class="form-field">
+                <label class="form-field__label" for="rating">Số sao</label>
+                <select class="form-control" id="rating" name="rating">
+                    <option value="">Tất cả</option>
+                    @for (int star = 5; star >= 1; star--)
+                    {
+                        <option value="@star" selected="@(Model.Rating == star)">@star sao</option>
+                    }
+                </select>
+            </div>
+            <label class="admin-check">
+                <input type="checkbox" name="withComment" value="true" checked="@Model.OnlyWithComment" />
+                Chỉ góp ý có nội dung
+            </label>
+            <div class="admin-filters__actions">
+                <button type="submit" class="button button--primary">Lọc</button>
+                <a class="button button--secondary" href="/Admin/Feedbacks">Xoá lọc</a>
+            </div>
+        </form>
+
+        <h2 id="feedback-title" class="admin-count" aria-live="polite">
+            @Model.TotalCount góp ý · Trang @Model.Page/@Model.TotalPages
+        </h2>
+
+        @if (!Model.Feedbacks.Any())
+        {
+            <div class="empty-state">
+                <span class="empty-state__icon" aria-hidden="true"><i class="fa-regular fa-comment"></i></span>
+                <div class="empty-state__content">
+                    <h3 class="empty-state__title">Chưa có góp ý phù hợp</h3>
+                    <p class="empty-state__description">Góp ý gửi từ trang Góp ý sẽ xuất hiện tại đây.</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <ul class="admin-feedback-list">
+                @foreach (var f in Model.Feedbacks)
+                {
+                    <li class="admin-feedback">
+                        <div class="admin-feedback__head">
+                            <partial name="_AdminStars" model="f.EaseRating" />
+                            <span class="status-chip">Bớt lo lắng: @f.AnxietyHelp</span>
+                            <span class="admin-muted admin-feedback__meta">
+                                @(string.IsNullOrWhiteSpace(f.UserName) ? f.UserEmail : $"{f.UserName} · {f.UserEmail}")
+                                · @f.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                            </span>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(f.Comment))
+                        {
+                            <p class="admin-feedback__comment">@f.Comment</p>
+                        }
+                        else
+                        {
+                            <p class="admin-muted">(Không có nội dung)</p>
+                        }
+                    </li>
+                }
+            </ul>
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav class="admin-pager" aria-label="Phân trang">
+                    @if (Model.Page > 1)
+                    {
+                        <a class="button button--secondary" href="@PageUrl(Model.Page - 1)"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i> Trước</a>
+                    }
+                    <span class="admin-muted">Trang @Model.Page / @Model.TotalPages</span>
+                    @if (Model.Page < Model.TotalPages)
+                    {
+                        <a class="button button--secondary" href="@PageUrl(Model.Page + 1)">Sau <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+                    }
+                </nav>
+            }
+        }
+    </section>
+</main>
