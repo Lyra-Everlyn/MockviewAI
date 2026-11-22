@@ -108,40 +108,114 @@ This project uses **DotNetEnv** — no `secrets.json`. Create a `.env` in the so
 > ⚠️ Never commit `.env`. Make sure it is listed in `.gitignore`.
 
 ```env
-# Database & Redis (local Docker)
-ConnectionStrings__DefaultConnection=Server=127.0.0.1;Port=3306;Database=mockview_database;Uid=root;Pwd=your_local_password
-ConnectionStrings__RedisConnection=127.0.0.1:6379
+# Template .env
 
-# Cloudflare Turnstile
-Turnstile__SiteKey=YOUR_TURNSTILE_SITE_KEY
-Turnstile__SecretKey=YOUR_TURNSTILE_SECRET_KEY
+# --- Database
+MYSQL_ROOT_PASSWORD=
+MYSQL_USER_PASSWORD=
 
-# Email (SMTP)
+DB_HOST=localhost # localhost/mysql_mockview_container
+DB_PORT=3306
+DB_NAME=mockview_database
+DB_USER=root # root/mockview_user
+
+REDIS_HOST=redis_mockview_container # localhost/redis_mockview_container
+REDIS_PORT=6379
+
+ConnectionStrings__DefaultConnection=Server=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};Uid=${DB_USER};Pwd=${MYSQL_USER_PASSWORD};
+ConnectionStrings__RedisConnection=${REDIS_HOST}:${REDIS_PORT}
+
+
+# --- Cloudflare Turnstile
+Turnstile__SiteKey=
+Turnstile__SecretKey=
+
+# --- Bảo mật đăng nhập - option
+Security__MaxFailedLogins=5
+Security__LockoutMinutes=15
+
+# --- Email (SMTP)
 SmtpSettings__Server=smtp.gmail.com
 SmtpSettings__Port=587
-SmtpSettings__Username=your_email@gmail.com
-SmtpSettings__SenderName=MockviewAI
-SmtpSettings__SenderEmail=your_email@gmail.com
-SmtpSettings__Password=your_gmail_app_password
+SmtpSettings__Username=
+SmtpSettings__SenderName=
+SmtpSettings__SenderEmail=
+SmtpSettings__Password=
 
-# Google Authentication
-Authentication__Google__ClientId=YOUR_GOOGLE_CLIENT_ID
-Authentication__Google__ClientSecret=YOUR_GOOGLE_CLIENT_SECRET
+# --- Google Authentication
+Authentication__Google__ClientId=
+Authentication__Google__ClientSecret=
 
-# Cloudinary
-CloudinarySettings__CloudName=YOUR_CLOUD_NAME
-CloudinarySettings__ApiKey=YOUR_API_KEY
-CloudinarySettings__ApiSecret=YOUR_API_SECRET
+# --- Cloudinary
+CloudinarySettings__CloudName=
+CloudinarySettings__ApiSecret=
+CloudinarySettings__ApiKey=
 
-# AI — set Ai__Provider=Gemini to use real AI; any other value uses the mock scorer
+# --- AI Score calculator (Gemini)
 Ai__Provider=Gemini
-Gemini__Model=YOUR_GEMINI_TEXT_MODEL      # must be a text model (not -tts / -live / image)
-Gemini__ApiKey=YOUR_MAIN_GEMINI_KEY
+Gemini__Model=gemini-3.6-flash
+Gemini__FallbackModels__0=gemini-3.5-flash-lite
+Gemini__MaxTokens=5000
+Gemini__ThinkingLevel=low # (minimal / low / medium / high)
 
-# Optional: key rotation (being integrated)
-Gemini__ApiKeys__0=KEY_1
-Gemini__ApiKeys__1=KEY_2
-Groq__ApiKeys__0=KEY_1
+
+# --- AI Interview (Gemini) - option
+Interviewer__Enabled=true # false = available question only
+Interviewer__Model=gemini-3.5-flash-lite
+Interviewer__ThinkingLevel=minimal
+Interviewer__TimeoutSeconds=8
+Interviewer__CvContextHours=6
+
+# --- Gemini API
+Gemini__ApiKeys__0=
+Gemini__ApiKeys__1=
+Gemini__ApiKeys__2=
+Gemini__ApiKeys__3=
+Gemini__ApiKeys__4=
+Gemini__ApiKeys__5=
+
+# --- Groq API
+Groq__ApiKeys__0=
+Groq__ApiKeys__1=
+Groq__ApiKeys__2=
+Groq__ApiKeys__3=
+Groq__ApiKeys__4=
+Groq__ApiKeys__5=
+
+# --- Speech Settings - option
+Speech__WhisperModel=whisper-large-v3
+Speech__WhisperFallbackModel=
+Speech__Language=auto
+Speech__AllowedLanguages=vi,en
+Speech__FallbackLanguage=vi
+Speech__MaxAudioBytes=10485760
+Speech__TranscribeTimeoutSeconds=30
+Speech__NoSpeechThreshold=0.6
+Speech__LogprobThreshold=-1.0
+Speech__CompressionRatioThreshold=2.4
+Speech__UseQuestionAsWhisperPrompt=false
+Speech__WhisperStylePrompt="Dạ, em làm backend với C#, .NET Core, Docker, Redis cache, PostgreSQL và REST API."
+
+Speech__NormalizeTranscript=true
+Speech__NormalizerModel=gemini-3.5-flash-lite
+Speech__NormalizerFallbackModel=
+Speech__NormalizerThinkingLevel=minimal
+Speech__NormalizeAttemptTimeoutSeconds=8
+Speech__NormalizeTimeoutSeconds=14
+Speech__MaxLengthChangeRatio=0.3
+
+# --- CV - option
+Cv__Model=gemini-3.5-flash-lite
+Cv__ThinkingLevel=minimal
+Cv__AttemptTimeoutSeconds=30
+Cv__ParseTimeoutSeconds=90
+Cv__MaxFileBytes=10485760
+Cv__MaxPages=6
+Cv__MaxTextChars=15000
+Cv__MinTextLetters=200
+Cv__PendingMinutes=30
+Cv__MaxCvsPerUser=3
+Cv__BrowserKeepDays=30
 ```
 
 ### 3. Run
