@@ -148,7 +148,7 @@ namespace MockviewAI.Controllers
         [EnableRateLimiting("SpeechRateLimit")]
         [RequestSizeLimit(12 * 1024 * 1024)]
         [RequestFormLimits(MultipartBodyLengthLimit = 12 * 1024 * 1024)]
-        public async Task<IActionResult> Transcribe([FromForm] int sessionId, IFormFile? audio, CancellationToken ct)
+        public async Task<IActionResult> Transcribe([FromForm] int sessionId, IFormFile? audio, [FromForm] string? browserText, CancellationToken ct)
         {
             if (audio == null || audio.Length == 0)
                 return BadRequest(new { message = "Không nhận được file ghi âm. Vui lòng thử lại.", retry = true });
@@ -170,7 +170,8 @@ namespace MockviewAI.Controllers
                 }
 
                 var clip = new AudioClip(data, "answer" + extension, mediaType);
-                var result = await _speechToText.TranscribeAnswerAsync(clip, question, ct);
+                var result = await _speechToText.TranscribeAnswerAsync(clip, question, Truncate(browserText, 4000), ct);
+
 
                 return Json(new
                 {
@@ -264,5 +265,9 @@ namespace MockviewAI.Controllers
             return View(result);
         }
         #endregion
+
+        private static string? Truncate(string? text, int max) =>
+            string.IsNullOrWhiteSpace(text) ? null : text.Length <= max ? text : text[..max];
+
     }
 }

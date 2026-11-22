@@ -7,7 +7,7 @@ namespace MockviewAI.Services.Ai
     public class GeminiOptions
     {
         /// <summary>Model văn bản; không dùng bản -tts / -live / -image.</summary>
-        public string Model { get; set; } = "gemini-3.8-flash";
+        public string Model { get; set; } = "gemini-3.6-flash";
 
         /// <summary>
         /// Model thử tiếp khi model chính quá tải / hết lượt / quá giờ. null = gemini-3.5-flash-lite.
@@ -15,7 +15,7 @@ namespace MockviewAI.Services.Ai
         /// </summary>
         public string[]? FallbackModels { get; set; }
 
-        public int MaxTokens { get; set; } = 2048;
+        public int MaxTokens { get; set; } = 5000;
 
         /// <summary>Mức "suy nghĩ" khi chấm (minimal / low / medium / high). Thấp hơn = nhanh hơn. Trống = không gửi.</summary>
         public string ThinkingLevel { get; set; } = "low";

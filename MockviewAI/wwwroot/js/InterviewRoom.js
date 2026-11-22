@@ -568,7 +568,7 @@
         setStatus('Chờ bạn trả lời', 'is-waiting');
         logEvent('listen_stop', speakSeconds.toFixed(1) + 's ' + (reason || 'other'));
         if (recognition) { try { recognition.stop(); } catch (e) { } }
-        finishRecording();   // [SPEECH] gửi bản ghi lên server (chạy nền, xem runTranscription)
+        finishRecording();
         stopMeter();
         roomWave.hidden = true;
         if (VA && voiceFrames.length) lastVoice = VA.summarize(voiceFrames, FRAME_SECONDS);
@@ -628,7 +628,9 @@
                 return;
             }
 
-            const result = await REC.transcribe(TRANSCRIBE_URL, token, sessionId, recorded);
+            console.info('[STT] browserText gửi lên:', spokenText);
+            const result = await REC.transcribe(TRANSCRIBE_URL, token, sessionId, recorded, spokenText);
+
             if (myToken !== transcribeToken) return;
             logEvent('stt_server', result.normalized ? 'normalized' : 'raw');
             console.info('[STT] normalized=' + result.normalized, { raw: result.rawText, text: result.text });

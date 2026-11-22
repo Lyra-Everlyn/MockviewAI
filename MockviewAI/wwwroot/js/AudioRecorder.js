@@ -114,10 +114,11 @@
     /// Gửi bản ghi lên server. Trả về { rawText, text, normalized, empty }.
     /// Lỗi: ném Error có thuộc tính body = { message, retry, configError } (giống postJson của InterviewRoom).
     /// </summary>
-    async function transcribe(url, antiForgeryToken, sessionId, recording) {
+    async function transcribe(url, antiForgeryToken, sessionId, recording, browserText) {
         const form = new FormData();
         form.append('sessionId', String(sessionId));
         form.append('audio', recording.blob, 'answer' + recording.extension);
+        if (browserText) form.append('browserText', browserText.slice(0, 4000));
 
         const response = await fetch(url, {
             method: 'POST',

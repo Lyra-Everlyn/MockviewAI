@@ -1,15 +1,13 @@
 ﻿namespace MockviewAI.Services.Speech.Interfaces
 {
     /// <summary>
-    /// [SPEECH]
-    /// -- Sửa lỗi bản chép giọng nói (đồng âm, thuật ngữ IT bị nghe sai, dấu câu) mà KHÔNG thay đổi ý người nói.
-    /// -- Lỗi được ném ra để <see cref="ISpeechToTextService"/> quyết định dùng lại bản thô.
+    /// [SPEECH] Sửa lỗi bản chép giọng nói (thuật ngữ nghe sai, dấu câu) mà không đổi ý người nói. Lỗi ném ra để dùng lại bản thô.
     /// </summary>
     public interface ITranscriptNormalizer
     {
-        /// <param name="rawText">Bản chép thô từ Whisper.</param>
-        /// <param name="question">Câu hỏi phỏng vấn đang trả lời (ngữ cảnh để sửa đúng thuật ngữ). Có thể null.</param>
-        /// <returns>Bản đã chuẩn hoá.</returns>
-        Task<string> NormalizeAsync(string rawText, string? question, CancellationToken ct = default);
+        /// <param name="rawText">Bản chép của Whisper.</param>
+        /// <param name="browserText">Bản nhận dạng của trình duyệt để đối chiếu; null = chỉ sửa bản Whisper.</param>
+        /// <param name="question">Câu hỏi đang trả lời (ngữ cảnh). Có thể null.</param>
+        Task<string> NormalizeAsync(string rawText, string? browserText, string? question, CancellationToken ct = default);
     }
 }

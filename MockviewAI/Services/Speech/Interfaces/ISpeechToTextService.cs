@@ -3,13 +3,12 @@
 namespace MockviewAI.Services.Speech.Interfaces
 {
     /// <summary>
-    /// [SPEECH]
-    /// -- Điều phối toàn bộ quy trình: Whisper -> lọc câu ảo giác -> Gemini chuẩn hoá -> kiểm tra an toàn.
-    /// -- Whisper lỗi: ném <see cref="MockviewAI.Services.Exceptions.SpeechException"/>.
-    /// -- Gemini lỗi hoặc sửa quá tay: dùng lại bản thô (không làm hỏng câu trả lời của người dùng).
+    /// [SPEECH] 
+    /// Điều phối Whisper -> lọc ảo giác -> Gemini gộp với chữ trình duyệt. Whisper lỗi: ném SpeechException.
     /// </summary>
     public interface ISpeechToTextService
     {
-        Task<SpeechToTextResult> TranscribeAnswerAsync(AudioClip clip, string? question, CancellationToken ct = default);
+        /// <param name="browserText">Chữ trình duyệt tự nhận dạng trong lúc nói; null nếu không có.</param>
+        Task<SpeechToTextResult> TranscribeAnswerAsync(AudioClip clip, string? question, string? browserText = null, CancellationToken ct = default);
     }
 }

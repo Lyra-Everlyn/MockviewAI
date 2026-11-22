@@ -1,18 +1,20 @@
 ﻿namespace MockviewAI.Services.Speech.Interfaces
 {
     /// <summary>
-    /// [SPEECH]
-    /// -- Soạn nội dung gợi ý cho Whisper và prompt cho bước chuẩn hoá (tách riêng để dễ chỉnh mà không đụng code gọi API).
+    /// [SPEECH] 
+    /// Soạn gợi ý cho Whisper và prompt cho bước chuẩn hoá (tách riêng để chỉnh không đụng code gọi API).
     /// </summary>
     public interface ISpeechPromptBuilder
     {
-        /// <summary>Gợi ý ngắn cho Whisper: câu hỏi + danh sách thuật ngữ IT (giới hạn độ dài theo quy định của Whisper).</summary>
+        /// <summary>Gợi ý ngắn từ câu hỏi (giới hạn độ dài của Whisper).</summary>
         string BuildWhisperPrompt(string? question);
 
-        /// <summary>System prompt cố định cho bước chuẩn hoá.</summary>
+        /// <summary>Danh sách thuật ngữ ngắn, không thuộc ngôn ngữ nào; dùng khi Whisper tự nhận ngôn ngữ.</summary>
+        string WhisperTermsPrompt { get; }
+
         string NormalizerSystemPrompt { get; }
 
-        /// <summary>Nội dung gửi kèm cho bước chuẩn hoá: câu hỏi (chỉ để tham khảo) + bản chép thô.</summary>
-        string BuildNormalizerUserPrompt(string rawText, string? question);
+        /// <summary>Câu hỏi (tham khảo) + bản Whisper + bản trình duyệt (nếu có).</summary>
+        string BuildNormalizerUserPrompt(string rawText, string? browserText, string? question);
     }
 }
