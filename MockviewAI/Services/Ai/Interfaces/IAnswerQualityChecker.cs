@@ -1,11 +1,12 @@
-// [AI-MODULE] IAnswerQualityChecker
-// Kiểm tra nhanh câu trả lời TRƯỚC khi nhận: quá ngắn, lặp chữ, vô nghĩa, chửi thề, cố gài lệnh cho AI.
-
 namespace MockviewAI.Services.Ai.Interfaces
 {
+    /// <summary>
+    /// [AI-INTERVIEW] 
+    /// Kiểm tra nhanh câu trả lời trước khi nhận: lặp chữ, vô nghĩa, thô tục, cố gài lệnh cho AI.
+    /// </summary>
     public interface IAnswerQualityChecker
     {
-        // Trả về null nếu câu trả lời tạm ổn; ngược lại trả về lý do (tiếng Việt) để nhắc người dùng nói lại
+        /// <returns>null = tạm ổn; ngược lại là lý do (tiếng Việt) để nhắc người dùng trả lời lại.</returns>
         string? FindProblem(string answer);
     }
 }

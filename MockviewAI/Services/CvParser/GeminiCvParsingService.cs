@@ -13,7 +13,8 @@ using MockviewAI.Services.KeyManagement.ProviderExtensions;
 namespace MockviewAI.Services.CvParser
 {
     /// <summary>
-    /// [USER CV] Phân tích CV bằng Gemini (chế độ JSON) qua HttpClient "GeminiClient" (xoay vòng key).
+    /// [USER CV] 
+    /// Phân tích CV bằng Gemini (chế độ JSON) qua HttpClient "GeminiClient" (xoay vòng key).
     /// Mỗi model có giới hạn thời gian riêng; lỗi tạm thời thì thử model kế tiếp.
     /// </summary>
     public class GeminiCvParsingService : ICvParsingService

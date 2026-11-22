@@ -1,21 +1,33 @@
 using MockviewAI.Models;
+using MockviewAI.Models.Ai;
 using MockviewAI.Models.Entities;
+using MockviewAI.Models.InterviewQuestions;
 using MockviewAI.Models.ViewModels;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Ai;
-using MockviewAI.Models.Ai;
 using MockviewAI.Services.Ai.Interfaces;
 using MockviewAI.Services.InterviewQuestions.Interfaces;
 
 namespace MockviewAI.Services.SessionHistory
 {
+    /// <summary>
+    /// [HISTORY] 
+    /// Dựng thẻ buổi luyện (Trang chủ, Lịch sử, Hồ sơ) và trang Xem lại hội thoại.
+    /// Mã ý / con đường lưu trong DB (c1, chuan, loi1...) được đổi thành nội dung đọc được nhờ bộ đề.
+    /// </summary>
     public class SessionHistoryService : ISessionHistoryService
     {
+        #region Fields
+        /// <summary>Dấu hiệu lo lắng từ mức này trở xuống hiện badge xanh.</summary>
+        private const int LowAnxietyMax = 3;
+
         private readonly IRepository<InterviewSession> _sessionRepository;
         private readonly IUserRepository _userRepository;
         private readonly IAnswerQualityChecker _quality;
         private readonly IQuestionBankStore _bank;
+        #endregion
 
+        #region Constructor
         public SessionHistoryService(IRepository<InterviewSession> sessionRepository, IUserRepository userRepository,
                                      IAnswerQualityChecker quality, IQuestionBankStore bank)
         {
@@ -24,7 +36,9 @@ namespace MockviewAI.Services.SessionHistory
             _quality = quality;
             _bank = bank;
         }
+        #endregion
 
+        #region Lịch sử
         public async Task<List<RecentSessionViewModel>> GetHistoryAsync(string email, int? take = null)
         {
             var user = await FindUserAsync(email);
@@ -39,6 +53,17 @@ namespace MockviewAI.Services.SessionHistory
             return sessions.Select(ToCard).ToList();
         }
 
+        public async Task<bool> DeleteAsync(string email, int sessionId)
+        {
+            var session = await FindSessionAsync(email, sessionId);
+            if (session == null) return false;
+
+            await _sessionRepository.DeleteAsync(session.Id);
+            return true;
+        }
+        #endregion
+
+        #region Xem lại hội thoại
         public async Task<InterviewDetailViewModel?> GetDetailAsync(string email, int sessionId)
         {
             var session = await FindSessionAsync(email, sessionId);
@@ -70,6 +95,7 @@ namespace MockviewAI.Services.SessionHistory
             };
         }
 
+        /// <summary>Lượt của câu chính, gắn thêm lượt hỏi thêm nếu có.</summary>
         private ConversationTurnViewModel ToTurnWithFollowUp(SessionAnswer main, IEnumerable<SessionAnswer> all)
         {
             var turn = ToTurn(main);
@@ -90,7 +116,7 @@ namespace MockviewAI.Services.SessionHistory
             return turn;
         }
 
-        // Một lượt hỏi - đáp + kết quả xếp loại 4 loại (đổi mã c1, loi1... thành nội dung để người dùng đọc được)
+        /// <summary>Một lượt hỏi – đáp kèm xếp loại 4 nhãn, mã ý / con đường đổi thành nội dung.</summary>
         private ConversationTurnViewModel ToTurn(SessionAnswer a)
         {
             var turn = new ConversationTurnViewModel
@@ -105,7 +131,7 @@ namespace MockviewAI.Services.SessionHistory
                 CategoryIcon = AnswerCategory.Icon(a.Category),
                 CategoryDescription = AnswerCategory.Description(a.Category),
                 Feedback = a.Feedback,
-                VoiceText = VoiceMetrics.Describe(a.VoiceLevelDb, a.QuietRatio, a.PitchVariation)   // [VOICE]
+                VoiceText = VoiceMetrics.Describe(a.VoiceLevelDb, a.QuietRatio, a.PitchVariation)
             };
 
             var question = _bank.Find(a.QuestionId);
@@ -121,20 +147,13 @@ namespace MockviewAI.Services.SessionHistory
             return turn;
         }
 
-        private static List<string> PointTexts(List<Models.InterviewQuestions.CorePoint> points, string? ids)
+        /// <summary>"c1,c3" -> nội dung các ý tương ứng.</summary>
+        private static List<string> PointTexts(List<CorePoint> points, string? ids)
         {
             var wanted = (ids ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             return points.Where(p => wanted.Contains(p.Id)).Select(p => p.Text).ToList();
         }
-
-        public async Task<bool> DeleteAsync(string email, int sessionId)
-        {
-            var session = await FindSessionAsync(email, sessionId);
-            if (session == null) return false;
-
-            await _sessionRepository.DeleteAsync(session.Id);
-            return true;
-        }
+        #endregion
 
         #region Helpers
         private async Task<User?> FindUserAsync(string email)
@@ -143,6 +162,7 @@ namespace MockviewAI.Services.SessionHistory
             return await _userRepository.GetByEmailAsync(email.Trim().ToLowerInvariant());
         }
 
+        /// <summary>Chỉ trả buổi thuộc tài khoản này (kèm danh sách câu hỏi).</summary>
         private async Task<InterviewSession?> FindSessionAsync(string email, int sessionId)
         {
             var user = await FindUserAsync(email);
@@ -165,7 +185,7 @@ namespace MockviewAI.Services.SessionHistory
                 QuestionCount = s.QuestionCount,
                 Score = s.TotalScore ?? 0,
                 AnxietyText = hasAnxiety ? $"Dấu hiệu lo lắng {s.AnxietyIndicator}/10" : string.Empty,
-                AnxietyImproved = hasAnxiety && s.AnxietyIndicator <= 3,   // badge xanh khi thấp
+                AnxietyImproved = hasAnxiety && s.AnxietyIndicator <= LowAnxietyMax,
                 HasScore = s.TotalScore != null,
                 IsInProgress = s.Status == SessionStatus.InProgress,
                 StatusText = s.Status == SessionStatus.InProgress ? "Chưa xong" : s.TotalScore == null ? "Đã dừng" : string.Empty,
@@ -173,6 +193,7 @@ namespace MockviewAI.Services.SessionHistory
             };
         }
 
+        /// <summary>Mã người phỏng vấn -> tên; mã lạ thì hiện nguyên mã.</summary>
         private static string InterviewerName(string key) =>
             QuestionBank.Interviewers.TryGetValue(key ?? "", out var info) ? info.Name : (key ?? "Unknown");
 

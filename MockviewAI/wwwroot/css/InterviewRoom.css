@@ -1,10 +1,11 @@
-﻿/* MockviewAI — Interview Room */
+﻿/* MockviewAI | Phòng phỏng vấn
+   Câu hỏi, câu trả lời, đồng hồ Thực chiến, nút điều khiển và hộp thoại của Views/Home/InterviewRoom.cshtml. */
 
 .interview-room-page [hidden] {
     display: none !important;
 }
 
-/* #region Header */
+/* #region Tiêu đề trang */
 .interview-room-shell {
     width: min(var(--layout-max-width),calc(100% - 48px));
     margin-inline: auto;
@@ -72,7 +73,7 @@
     }
 /* #endregion */
 
-/* #region Progress */
+/* #region Tiến độ */
 .interview-room-progress {
     padding: 19px 22px;
     margin-bottom: 18px;
@@ -147,7 +148,7 @@
 }
 /* #endregion */
 
-/* #region Stage: người phỏng vấn + câu hỏi */
+/* #region Người phỏng vấn và câu hỏi */
 .interview-room-stage {
     position: relative;
     background: var(--color-surface);
@@ -256,6 +257,24 @@
             cursor: not-allowed;
         }
 
+    /* Lời phản hồi của người phỏng vấn trước câu tiếp theo */
+    .interview-room-stage .interviewer-reaction {
+        width: fit-content;
+        max-width: 100%;
+        margin: 0 0 11px;
+        padding: 10px 14px;
+        border: 1px solid var(--color-border);
+        border-radius: 12px 12px 12px 4px;
+        background: var(--color-primary-soft);
+        color: var(--color-text);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+        .interview-room-stage .interviewer-reaction strong {
+            color: var(--color-primary);
+        }
+
     .interview-room-stage .followup-note {
         width: fit-content;
         margin: 0 0 11px;
@@ -282,24 +301,6 @@
         font-size: 12px;
         margin: -9px 0 17px;
     }
-
-        .interview-room-stage .interviewer-reaction {
-        width: fit-content;
-        max-width: 100%;
-        margin: 0 0 11px;
-        padding: 10px 14px;
-        border: 1px solid var(--color-border);
-        border-radius: 12px 12px 12px 4px;
-        background: var(--color-primary-soft);
-        color: var(--color-text);
-        font-size: 14px;
-        line-height: 1.6;
-    }
-
-        .interview-room-stage .interviewer-reaction strong {
-            color: var(--color-primary);
-        }
-
 /* #endregion */
 
 /* #region Đồng hồ Thực chiến */
@@ -344,6 +345,7 @@
             transition: width .2s;
         }
 
+    /* Còn dưới 20 giây trả lời */
     .interview-room-stage .live-timer[data-low="1"] {
         background: var(--color-danger-soft);
         border-color: var(--color-danger-border);
@@ -425,6 +427,16 @@
     }
 
         .interview-room-stage .transcript-text .interim {
+            color: var(--color-subtle);
+        }
+
+    /* Bản nháp của trình duyệt, chờ bản chuẩn hoá từ server */
+    .interview-room-stage .transcript-text.is-draft {
+        color: var(--color-muted);
+        font-style: italic;
+    }
+
+        .interview-room-stage .transcript-text.is-draft .interim {
             color: var(--color-subtle);
         }
 
@@ -531,7 +543,7 @@
     }
 /* #endregion */
 
-/* #region Buttons */
+/* #region Nút và thông báo */
 .interview-room-page .room-btn {
     display: inline-flex;
     align-items: center;
@@ -654,7 +666,7 @@
 }
 /* #endregion */
 
-/* #region Modal (dừng phiên, kiểm tra micro) */
+/* #region Hộp thoại (dừng buổi, kiểm tra micro) */
 .interview-room-page .modal-overlay {
     position: fixed;
     inset: 0;
@@ -767,17 +779,7 @@
 }
 /* #endregion */
 
-
-.interview-room-stage .transcript-text.is-draft {
-    color: var(--color-muted);
-    font-style: italic;
-}
-
-    .interview-room-stage .transcript-text.is-draft .interim {
-        color: var(--color-subtle);
-    }
-
-
+/* #region Responsive */
 @media (max-width:768px) {
     .interview-room-shell {
         width: calc(100% - 30px);
@@ -874,3 +876,4 @@
         animation: none !important;
     }
 }
+/* #endregion */

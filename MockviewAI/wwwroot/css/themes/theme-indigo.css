@@ -1,8 +1,7 @@
-/* =========================================================
-   MockviewAI — Theme: Indigo
-   Theme = color, surface, border and shadow only.
-   ========================================================= */
+/* MockviewAI | Theme sáng (Indigo)
+   Chỉ khai báo màu, nền, viền và bóng đổ. Kích thước nằm trong base.css / components.css. */
 
+/* #region Biến màu */
 :root {
     --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --layout-max-width: 1040px;
@@ -27,10 +26,8 @@
     --color-warning-soft: #fff7df;
     --color-danger: #d34d5b;
     --color-danger-soft: #fff0f1;
-    /*
-       Navigation belongs to the same light-indigo system as the page.
-       Dimensions are controlled by components.css, not by the theme.
-    */
+
+    /* Thanh điều hướng */
     --color-nav: rgba(255, 255, 255, .96);
     --color-nav-text: #667187;
     --color-nav-text-active: #172033;
@@ -47,6 +44,7 @@
     --shadow-control: 0 8px 18px rgba(79, 99, 232, .16);
     --shadow-mobile-nav: 0 -7px 24px rgba(30, 42, 68, .06);
 
+    /* Chữ / viền trên nền gradient */
     --color-on-gradient: #ffffff;
     --color-on-gradient-muted: rgba(255, 255, 255, .86);
     --color-on-gradient-accent: #d5e6ff;
@@ -61,7 +59,7 @@
     /* Nền nhấn đậm hơn --color-primary-soft (hover của nút nền nhạt) */
     --color-primary-soft-strong: #e4e9ff;
 
-    /* Viền và trạng thái đậm của các màu ngữ nghĩa sẵn có */
+    /* Viền và trạng thái đậm của các màu ngữ nghĩa */
     --color-success-border: #b4e0c8;
     --color-warning-border: #f0dcaa;
     --color-danger-border: #f4c9d0;
@@ -101,10 +99,7 @@
     --color-persona-an: #8b56bc;
     --color-persona-an-soft: #f3eaff;
 
-    /* #region Verdict tokens
-        Màu 4 loại đánh giá câu trả lời: Đúng / Hơi đặc biệt / Đặc biệt / Sai.
-        Dùng ở trang Kết quả và Chi tiết buổi phỏng vấn.
-    */
+    /* 4 loại đánh giá câu trả lời: Đúng / Hơi đặc biệt / Đặc biệt / Sai (trang Kết quả, Chi tiết) */
     --color-verdict-correct: #20845a;
     --color-verdict-correct-soft: #ecfdf5;
     --color-verdict-correct-border: #bce7d0;
@@ -117,10 +112,14 @@
     --color-verdict-wrong: #bb4050;
     --color-verdict-wrong-soft: #fff0f1;
     --color-verdict-wrong-border: #f4ccd0;
+
+    /* Màn hình chờ khi gửi form */
+    --color-loading-backdrop: rgba(13, 20, 38, .76);
+    --shadow-loading-dialog: 0 24px 72px rgba(10, 18, 38, .26);
 }
+/* #endregion */
 
-/* ---------- Global text ---------- */
-
+/* #region Chữ chung */
 .page-header__eyebrow,
 .section-header__eyebrow,
 .panel__eyebrow,
@@ -142,9 +141,9 @@
 .section-header__action {
     color: var(--color-primary);
 }
+/* #endregion */
 
-/* ---------- Navigation ---------- */
-
+/* #region Thanh điều hướng */
 .app-nav__desktop {
     background: var(--color-nav);
     border-bottom-color: var(--color-nav-border);
@@ -194,9 +193,9 @@
     .app-nav__mobile-link.is-active {
         color: var(--color-primary);
     }
+/* #endregion */
 
-/* ---------- Buttons ---------- */
-
+/* #region Nút */
 .button--primary {
     background: var(--color-primary);
     color: var(--color-primary-text);
@@ -215,9 +214,9 @@
         border-color: #c8d0ff;
         background: var(--color-primary-soft);
     }
+/* #endregion */
 
-/* ---------- Hero ---------- */
-
+/* #region Panel chính (Trang chủ) */
 .panel--primary {
     position: relative;
     border-color: transparent;
@@ -251,9 +250,9 @@
         .panel--primary .button--primary:hover {
             background: #f8f9ff;
         }
+/* #endregion */
 
-/* ---------- Generic cards ---------- */
-
+/* #region Thẻ dùng chung */
 .action-card__icon,
 .info-card__icon,
 .empty-state__icon {
@@ -297,8 +296,18 @@
     color: var(--color-primary);
 }
 
-/* ---------- Feedback card ---------- */
+.status-chip--success {
+    background: var(--color-success-soft);
+    color: var(--color-success);
+}
 
+.status-chip--warning {
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+}
+/* #endregion */
+
+/* #region Thẻ Góp ý */
 .feedback-action-card {
     border-color: #f0dfb6;
     background: #fffaf0;
@@ -322,6 +331,7 @@
     .feedback-action-card .action-card__chevron {
         color: #a66a13;
     }
+/* #endregion */
 
 @media (prefers-reduced-motion: reduce) {
     *,
@@ -330,21 +340,4 @@
         scroll-behavior: auto !important;
         transition-duration: .01ms !important;
     }
-}
-
-/* Shared semantic status chips. */
-.status-chip--success {
-    background: var(--color-success-soft);
-    color: var(--color-success);
-}
-
-.status-chip--warning {
-    background: var(--color-warning-soft);
-    color: var(--color-warning);
-}
-
-/* Submission overlay theme tokens */
-:root {
-    --color-loading-backdrop: rgba(13, 20, 38, .76);
-    --shadow-loading-dialog: 0 24px 72px rgba(10, 18, 38, .26);
 }

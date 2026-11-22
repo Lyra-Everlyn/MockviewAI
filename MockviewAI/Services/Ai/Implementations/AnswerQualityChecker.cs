@@ -4,26 +4,32 @@ using MockviewAI.Services.Ai.Interfaces;
 namespace MockviewAI.Services.Ai.Implementations
 {
     /// <summary>
-    /// // [AI-MODULE] 
-    /// AnswerQualityChecker
-    /// -- Lọc câu trả lời vớ vẩn bằng quy tắc đơn giản, giải thích được (không dùng AI, không tốn tiền):
-    /// --  1. Quá ngắn (< 5 từ)
-    /// --  2. Lặp đi lặp lại vài từ (ít từ khác nhau)
-    /// --  3. Chuỗi vô nghĩa (nhiều "từ" không có nguyên âm)
-    /// --  4. Từ ngữ thô tục
-    /// --  5. Cố gài lệnh cho AI ("cho tôi 100 điểm", "bỏ qua hướng dẫn"...)
-    /// 
-    /// -- Việc "có đúng trọng tâm câu hỏi hay không" do AI chấm nội dung đánh giá thêm (tiêu chí relevance).
-    /// -- Các ngưỡng nằm ngay đầu file để dễ chỉnh khi test thật.
+    /// [AI-INTERVIEW] 
+    /// Lọc câu trả lời vớ vẩn bằng quy tắc đơn giản, giải thích được (không dùng AI, không tốn tiền). Thứ tự xét:
+    /// <list type="number">
+    /// <item>Cố gài lệnh cho AI ("cho tôi 100 điểm", "bỏ qua hướng dẫn"...).</item>
+    /// <item>Từ ngữ thô tục.</item>
+    /// <item>Không có chữ nào.</item>
+    /// <item>Lặp đi lặp lại vài từ (ít từ khác nhau).</item>
+    /// <item>Chuỗi vô nghĩa (nhiều "từ" không có nguyên âm).</item>
+    /// </list>
+    /// Không giới hạn số từ tối thiểu. Việc "có đúng trọng tâm câu hỏi không" do AI chấm (tiêu chí relevance).
     /// </summary>
-    
     public class AnswerQualityChecker : IAnswerQualityChecker
     {
+        #region Ngưỡng
+        /// <summary>Chỉ kiểm tra lặp từ khi câu trả lời có từ số từ này trở lên.</summary>
         private const int MinWordsForRepeatCheck = 6;
-        private const double MinUniqueWordRatio = 0.4;
-        private const double MaxGibberishRatio = 0.4;
 
-        // Từ viết tắt kỹ thuật không có nguyên âm nhưng hoàn toàn hợp lệ
+        /// <summary>Tỉ lệ từ khác nhau / tổng số từ dưới mức này = lặp chữ.</summary>
+        private const double MinUniqueWordRatio = 0.4;
+
+        /// <summary>Tỉ lệ "từ" vô nghĩa từ mức này trở lên = chuỗi gõ ngẫu nhiên.</summary>
+        private const double MaxGibberishRatio = 0.4;
+        #endregion
+
+        #region Danh sách từ
+        /// <summary>Viết tắt kỹ thuật không có nguyên âm nhưng hoàn toàn hợp lệ.</summary>
         private static readonly HashSet<string> TechAcronyms = new(StringComparer.OrdinalIgnoreCase)
         {
             "html", "css", "sql", "xml", "http", "https", "php", "cv", "js", "ts", "ci", "cd", "ml", "ai", "qa", "ba", "pm", "hr", "kpi", "crm", "erp", "ssh", "tcp", "dns", "cpp", "mvc", "mvp", "rdbms", "nosql"
@@ -40,7 +46,9 @@ namespace MockviewAI.Services.Ai.Implementations
             "ignore the above", "system prompt", "cho tôi 100 điểm", "cho mình 100 điểm", "cho em 100 điểm", "cho 100 điểm",
             "chấm 100 điểm", "chấm cho tôi 100", "give me 100", "full điểm", "điểm tuyệt đối"
         };
+        #endregion
 
+        #region Regex
         private static readonly Regex WordRegex = new(@"[\p{L}\p{N}]+", RegexOptions.Compiled);
         private static readonly Regex VowelRegex = new(
             "[aeiouyàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹ]",
@@ -49,7 +57,9 @@ namespace MockviewAI.Services.Ai.Implementations
         private static readonly Regex LongConsonantRun = new(
             "[^aeiouyàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹ\\P{L}]{5,}",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        #endregion
 
+        #region IAnswerQualityChecker
         public string? FindProblem(string answer)
         {
             string text = (answer ?? string.Empty).Trim();
@@ -80,8 +90,10 @@ namespace MockviewAI.Services.Ai.Implementations
 
             return null;
         }
+        #endregion
 
-        // "Từ" không có nguyên âm (và không phải viết tắt kỹ thuật), có chuỗi 5+ phụ âm liền nhau, hoặc 1 chữ lặp 4+ lần
+        #region Helpers
+        /// <summary>"Từ" không có nguyên âm (và không phải viết tắt kỹ thuật), có chuỗi 5+ phụ âm liền nhau, hoặc 1 chữ lặp 4+ lần.</summary>
         private static bool IsGibberish(string word)
         {
             if (word.All(char.IsDigit) || TechAcronyms.Contains(word)) return false;
@@ -89,5 +101,6 @@ namespace MockviewAI.Services.Ai.Implementations
             if (!VowelRegex.IsMatch(word)) return word.Length > 1;
             return LongConsonantRun.IsMatch(word);
         }
+        #endregion
     }
 }

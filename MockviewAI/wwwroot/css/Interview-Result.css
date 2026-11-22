@@ -1,9 +1,10 @@
-﻿/* InterviewResult.css */
+﻿/* MockviewAI | Kết quả phỏng vấn
+   Views/Interview/Result.cshtml: điểm, xếp loại từng câu, nhận xét, chỉ số lo lắng. */
 .interview-result-page {
     min-width: 0;
 }
 
-/* #region Header */
+/* #region Tiêu đề trang */
 .interview-result-header {
     display: flex;
     align-items: flex-start;
@@ -63,7 +64,7 @@
 }
 /* #endregion */
 
-/* #region Card chung */
+/* #region Thẻ chung */
 .interview-result-card {
     min-width: 0;
     padding: 23px;
@@ -137,7 +138,7 @@
     font-size: 13px;
     line-height: 1.7;
 }
-/* Space between the follow-up notice and the question classification grid. */
+/* Khoảng cách giữa thông báo hỏi thêm và dải xếp loại */
 .interview-result-record .interview-result-notice + .interview-result-tape {
     margin-top: 16px;
 }
@@ -589,6 +590,7 @@
     }
 /* #endregion */
 
+/* #region Responsive */
 @media (max-width: 950px) {
     .interview-result-header {
         flex-direction: column;
@@ -659,3 +661,4 @@
         flex-wrap: wrap;
     }
 }
+/* #endregion */

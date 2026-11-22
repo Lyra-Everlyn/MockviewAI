@@ -4,7 +4,7 @@ namespace MockviewAI.Services.Speech.Interfaces
 {
     /// <summary>
     /// [SPEECH] 
-    /// Chuyển một đoạn ghi âm thành văn bản thô (hiện dùng Groq Whisper). Lỗi ném SpeechException.
+    /// Chuyển một đoạn ghi âm thành văn bản thô (hiện dùng Groq Whisper)
     /// </summary>
     public interface ISpeechTranscriber
     {

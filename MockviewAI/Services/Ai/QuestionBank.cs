@@ -1,11 +1,14 @@
 namespace MockviewAI.Services.Ai
 {
+    /// <summary>
     /// [AI-INTERVIEW] 
-    /// Ngân hàng câu hỏi mẫu và thông tin 3 người phỏng vấn.
-    // Nhóm có thể sửa/thêm câu hỏi ngay trong file này. {position} sẽ được thay bằng vị trí ứng tuyển.
+    /// Danh mục vị trí ứng tuyển và 3 người phỏng vấn (khoá gửi từ form -> tên hiển thị).
+    /// Phần câu hỏi kiểu cũ bên dưới đã được thay bằng bộ đề JSON.
+    /// </summary>
     public static class QuestionBank
     {
-        // Vị trí ứng tuyển cho phép (khóa gửi từ form -> tên hiển thị)
+        #region Danh mục (đang dùng)
+        /// <summary>Vị trí ứng tuyển cho phép: khoá -> tên hiển thị.</summary>
         public static readonly Dictionary<string, string> Positions = new()
         {
             ["developer"] = "Lập trình viên",
@@ -13,15 +16,20 @@ namespace MockviewAI.Services.Ai
             ["ba"] = "Chuyên viên Phân tích (BA)"
         };
 
-        // Người phỏng vấn: khóa -> (tên, vai trò)
+        /// <summary>Người phỏng vấn: khoá -> (tên, vai trò).</summary>
         public static readonly Dictionary<string, (string Name, string Role)> Interviewers = new()
         {
             ["linh"] = ("Linh", "Chuyên viên tuyển dụng (HR)"),
             ["nam"] = ("Nam", "Trưởng nhóm kỹ thuật (Tech Lead)"),
             ["an"] = ("An", "Quản lý dự án (Project Manager)")
         };
+        #endregion
 
-        // Mỗi người phỏng vấn có 10 câu. Câu 1 luôn là "giới thiệu bản thân".
+        #region [KHÔNG DÙNG] Câu hỏi kiểu cũ
+        /// <summary>
+        /// [KHÔNG DÙNG] 10 câu cố định mỗi người phỏng vấn ({position} = tên vị trí).
+        /// Bộ đề JSON đã có ít nhất 10 câu cho cả 9 cặp người phỏng vấn × vị trí, nên InterviewService không còn rơi vào nhánh này.
+        /// </summary>
         private static readonly Dictionary<string, string[]> Questions = new()
         {
             ["linh"] = new[]
@@ -65,7 +73,7 @@ namespace MockviewAI.Services.Ai
             }
         };
 
-        // Lấy N câu đầu tiên của người phỏng vấn, thay {position} bằng tên vị trí
+        /// <summary>[KHÔNG DÙNG] N câu đầu của người phỏng vấn, thay {position} bằng tên vị trí. Chỉ còn là nhánh dự phòng trong InterviewService.StartAsync.</summary>
         public static List<string> GetQuestions(string interviewerKey, string positionName, int count)
         {
             var all = Questions.TryGetValue(interviewerKey, out var list) ? list : Questions["linh"];
@@ -73,5 +81,6 @@ namespace MockviewAI.Services.Ai
                       .Select(q => q.Replace("{position}", positionName))
                       .ToList();
         }
+        #endregion
     }
 }

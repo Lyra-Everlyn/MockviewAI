@@ -5,53 +5,45 @@ using MockviewAI.Services.FileStorage.Interfaces;
 
 namespace MockviewAI.Services.FileStorage.Implementations
 {
+    /// <summary>
+    /// [FILE-STORAGE] 
+    /// Lưu file trên Cloudinary. Tài khoản Cloudinary đăng ký ở Program.cs (CloudinarySettings__*).
+    /// </summary>
     public class CloudinaryStorageService : IFileStorageService
     {
+        #region Fields
         private readonly Cloudinary _cloudinary;
+        #endregion
 
+        #region Constructor
         public CloudinaryStorageService(Cloudinary cloudinary)
         {
             _cloudinary = cloudinary;
         }
+        #endregion
 
-        // Upload file to Cloudinary and return the URL and publicId
+        #region IFileStorageService
         public async Task<(string Url, string PublicId)> UploadFileAsync(IFormFile file, string folderName = "uploads", UploadType type = UploadType.General)
         {
             if (file == null || file.Length == 0) return (string.Empty, string.Empty);
 
             using var stream = file.OpenReadStream();
 
-            // 1. Only process image files
             if (file.ContentType.StartsWith("image/"))
             {
                 var imageParams = new ImageUploadParams
                 {
                     File = new FileDescription(file.FileName, stream),
-                    Folder = folderName
+                    Folder = folderName,
+                    Transformation = CropFor(type)
                 };
-
-                switch (type)
-                {
-                    case UploadType.Avatar:
-                        imageParams.Transformation = new Transformation().Height(500).Width(500).Crop("fill").Gravity("face");
-                        break;
-                    case UploadType.Banner:
-                        imageParams.Transformation = new Transformation().Height(400).Width(1200).Crop("fill");
-                        break;
-                    case UploadType.Thumbnail:
-                        imageParams.Transformation = new Transformation().Height(250).Width(250).Crop("fill");
-                        break;
-                    case UploadType.General:
-                    default:
-                        break;
-                }
 
                 var imageResult = await _cloudinary.UploadAsync(imageParams);
                 if (imageResult.Error != null) throw new Exception(imageResult.Error.Message);
                 return (imageResult.SecureUrl.ToString(), imageResult.PublicId);
             }
 
-            // 2. Other file type 
+            // File không phải ảnh: lưu nguyên dạng (raw)
             var rawParams = new RawUploadParams
             {
                 File = new FileDescription(file.FileName, stream),
@@ -64,17 +56,22 @@ namespace MockviewAI.Services.FileStorage.Implementations
             return (rawResult.SecureUrl.ToString(), rawResult.PublicId);
         }
 
-        // Delete file from Cloudinary by publicId
         public async Task<bool> DeleteFileAsync(string publicId)
         {
-            var deleteParams = new DeletionParams(publicId);
-            var result = await _cloudinary.DestroyAsync(deleteParams);
-
+            var result = await _cloudinary.DestroyAsync(new DeletionParams(publicId));
             return result.Result == "ok";
         }
+        #endregion
 
-        // Usage
-        // var (url, publicId) = await _fileStorageService.UploadFileAsync(file, "avatars", UploadType.Avatar);
-        // var isDeleted = await _fileStorageService.DeleteFileAsync(publicId);
+        #region Helpers
+        /// <summary>Kiểu cắt ảnh theo mục đích; null = giữ nguyên.</summary>
+        private static Transformation? CropFor(UploadType type) => type switch
+        {
+            UploadType.Avatar => new Transformation().Height(500).Width(500).Crop("fill").Gravity("face"),
+            UploadType.Banner => new Transformation().Height(400).Width(1200).Crop("fill"),
+            UploadType.Thumbnail => new Transformation().Height(250).Width(250).Crop("fill"),
+            _ => null
+        };
+        #endregion
     }
 }

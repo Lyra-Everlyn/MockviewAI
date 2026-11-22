@@ -1,18 +1,21 @@
 ﻿namespace MockviewAI.Services.KeyManagement
 {
     /// <summary>
-    /// [SWITCH API] 
-    /// Handler gắn API key cho mọi request của một HttpClient và xử lý thử lại:
-    /// lỗi do key (401, 402, 403, 429) -> phạt key, đổi key gửi lại 1 lần; lỗi máy chủ (5xx) -> chờ 1,5 giây gửi lại 1 lần.
-    /// 403 do bị chặn mạng / vùng không phải lỗi key: trả về ngay, không phạt key.
-    /// Nội dung request phải đọc lại được (ByteArrayContent, StringContent, JsonContent)
+    /// [KEY-ROTATION] 
+    /// Handler gắn API key cho mọi request của một HttpClient và thử lại một lần:
+    /// <list type="bullet">
+    /// <item>Lỗi do key (401, 402, 403, 429): phạt key, đổi key rồi gửi lại.</item>
+    /// <item>Lỗi máy chủ (5xx): chờ 1,5 giây rồi gửi lại.</item>
+    /// <item>403 do bị chặn mạng / vùng: trả về ngay, không phạt key.</item>
+    /// </list>
+    /// Nội dung request phải đọc lại được (ByteArrayContent, StringContent, JsonContent).
     /// </summary>
     public abstract class ApiKeyRotationHandler : DelegatingHandler
     {
         #region Fields
         private const int ServerErrorRetryDelayMs = 1500;
 
-        // Groq / Cloudflare trả 403 với câu này khi chặn theo mạng, VPN hoặc quốc gia
+        /// <summary>Câu Groq / Cloudflare trả kèm 403 khi chặn theo mạng, VPN hoặc quốc gia.</summary>
         private static readonly string[] NetworkBlockMarkers = { "network settings", "access denied", "unsupported_country", "not available in your", "location is not supported" };
 
         private readonly IApiKeyProvider _keyProvider;
@@ -25,7 +28,7 @@
         }
         #endregion
 
-        #region Key strategy
+        #region Cách gắn key (lớp con quyết định)
         /// <summary>Gắn key theo chuẩn của nhà cung cấp; phải xoá key cũ trước vì request có thể được gửi lại.</summary>
         protected abstract void ApplyKey(HttpRequestMessage request, string key);
         #endregion

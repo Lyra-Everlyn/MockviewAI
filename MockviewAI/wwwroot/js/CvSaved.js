@@ -1,6 +1,7 @@
 //#region CvSaved
 /// <summary>
-/// [USER CV] Lưu CV vừa chốt vào trình duyệt rồi chuyển về /CV. Đủ số CV thì báo lỗi, không ghi đè.
+/// [USER CV] 
+// Lưu CV vừa chốt vào trình duyệt rồi chuyển về /CV. Đủ số CV thì báo lỗi, không ghi đè.
 /// </summary>
 //#endregion
 document.addEventListener('DOMContentLoaded', () => {

@@ -1,7 +1,8 @@
 namespace MockviewAI.Services.Interviews.Conversation
 {
     /// <summary>
-    /// [INTERVIEWER] Câu chuyển tiếp có sẵn khi không gọi AI (tắt, lỗi, quá giờ, câu bị bỏ qua).
+    /// [INTERVIEWER] 
+    /// Câu chuyển tiếp có sẵn khi không gọi AI (tắt, lỗi, quá giờ, câu bị bỏ qua).
     /// </summary>
     public static class InterviewerFallback
     {

@@ -1,7 +1,8 @@
 namespace MockviewAI.Services.Interviews.Conversation
 {
     /// <summary>
-    /// [INTERVIEWER] Dữ liệu cho một lượt phản hồi của nhà tuyển dụng sau câu trả lời.
+    /// [INTERVIEWER] 
+    /// Dữ liệu cho một lượt phản hồi của nhà tuyển dụng sau câu trả lời.
     /// </summary>
     public class InterviewerTurnRequest
     {
@@ -22,7 +23,7 @@ namespace MockviewAI.Services.Interviews.Conversation
     }
 
     /// <summary>
-    /// [INTERVIEWER] Kết quả: lời phản hồi ngắn và (tuỳ chọn) câu hỏi đào sâu.
+    /// [INTERVIEWER]Kết quả: lời phản hồi ngắn và (tuỳ chọn) câu hỏi đào sâu.
     /// </summary>
     /// <param name="Reaction">1–2 câu ghi nhận, không chấm điểm, không đặt câu hỏi.</param>
     /// <param name="FollowUp">Câu hỏi đào sâu; null = sang câu tiếp theo.</param>

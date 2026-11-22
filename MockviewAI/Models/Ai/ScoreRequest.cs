@@ -1,25 +1,30 @@
 namespace MockviewAI.Models.Ai
 {
     /// <summary>
-    /// [AI-MODULE] 
-    /// -- Lớp dữ liệu vào/ra của module AI
-    /// -- Input for scoring a whole practice session
+    /// [AI-SCORING] 
+    /// Dữ liệu đầu vào để chấm cả một buổi luyện.
     /// </summary>
-    
     public class ScoreRequest
     {
-        public string Position { get; set; } = string.Empty;   // e.g. "Lập trình viên"
-        public List<InterviewAnswer> Answers { get; set; } = new();            // câu hợp lệ -> gửi AI chấm nội dung
-        // Câu không có ý nghĩa (tính SAI): không gửi AI, chỉ dùng để đo cách nói và hạ điểm nội dung theo tỉ lệ
+        /// <summary>Tên vị trí, vd "Lập trình viên".</summary>
+        public string Position { get; set; } = string.Empty;
+
+        /// <summary>Câu trả lời hợp lệ, gửi AI chấm nội dung.</summary>
+        public List<InterviewAnswer> Answers { get; set; } = new();
+
+        /// <summary>Câu vô nghĩa (tính SAI): không gửi AI, chỉ dùng đo cách nói và hạ điểm nội dung theo tỉ lệ.</summary>
         public List<InterviewAnswer> InvalidAnswers { get; set; } = new();
 
-        // Dùng để ước tính dấu hiệu lo lắng: tổng số câu của buổi và số câu bị bỏ qua
-        public int QuestionCount { get; set; }
-        public int SkippedCount { get; set; }
-        // [LIVE-MODE] Câu BỎ QUA ở chế độ Thực chiến: tính là SAI (mã câu bộ đề; null = câu kiểu cũ). Luyện tập: để trống.
-        public List<string?> SkippedAsWrong { get; set; } = new();
-
-        // [FOLLOW-UP] Đợt 8: các câu trả lời cho câu hỏi thêm - CHỈ dùng đo cách nói (nội dung đã gộp vào câu chính)
+        /// <summary>[FOLLOW-UP] Câu trả lời cho câu hỏi thêm, chỉ dùng đo cách nói (nội dung đã gộp vào câu chính).</summary>
         public List<InterviewAnswer> FollowUpAnswers { get; set; } = new();
+
+        /// <summary>Tổng số câu của buổi, dùng ước tính dấu hiệu lo lắng.</summary>
+        public int QuestionCount { get; set; }
+
+        /// <summary>Số câu bị bỏ qua, dùng ước tính dấu hiệu lo lắng.</summary>
+        public int SkippedCount { get; set; }
+
+        /// <summary>[LIVE-MODE] Mã câu bộ đề bị bỏ qua ở chế độ Thực chiến, tính là SAI (null = câu kiểu cũ). Luyện tập: rỗng.</summary>
+        public List<string?> SkippedAsWrong { get; set; } = new();
     }
 }

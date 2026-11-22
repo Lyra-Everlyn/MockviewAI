@@ -6,7 +6,7 @@ namespace MockviewAI.Services.Speech.Interfaces
     /// [SPEECH]
     /// -- Loại các đoạn Whisper tự "bịa" khi đoạn ghi âm im lặng, nói quá nhỏ hoặc chỉ có tiếng ồn
     ///    (vd: "Các bạn hãy đăng kí cho kênh ... để không bỏ lỡ những video hấp dẫn"),
-    ///    hoặc chép lại nguyên văn gợi ý (câu hỏi) đã gửi kèm.
+    ///    hoặc chép lại nguyên văn gợi ý đã gửi kèm.
     /// </summary>
     public interface IHallucinationFilter
     {

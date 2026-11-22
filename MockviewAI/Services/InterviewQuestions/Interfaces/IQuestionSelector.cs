@@ -1,12 +1,14 @@
-// [QUESTION-BANK] Chọn câu hỏi cho một buổi luyện từ bộ đề.
-
 using MockviewAI.Models.InterviewQuestions;
 
 namespace MockviewAI.Services.InterviewQuestions.Interfaces
 {
+    /// <summary>
+    /// [QUESTION-BANK] 
+    /// Chọn câu hỏi cho một buổi luyện từ bộ đề.
+    /// </summary>
     public interface IQuestionSelector
     {
-        // Trả về tối đa `count` câu của người phỏng vấn + vị trí; rỗng nếu bộ đề chưa có câu cho cặp này
+        /// <returns>Tối đa <paramref name="count"/> câu; rỗng nếu bộ đề chưa có câu cho cặp người phỏng vấn + vị trí này.</returns>
         List<BankQuestion> Select(string interviewerKey, string positionKey, int count);
     }
 }

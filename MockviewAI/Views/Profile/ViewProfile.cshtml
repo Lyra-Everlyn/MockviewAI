@@ -1,4 +1,14 @@
 ﻿@model MockviewAI.Models.ViewModels.ProfileViewModel
+@*
+    #region ViewProfile
+    <summary>
+    [PROFILE] 
+    Trang hồ sơ: thẻ thông tin, nút góp ý, quản lý tài khoản, các buổi luyện gần đây.
+    - Không có mục "Xoá ghi âm": hệ thống không lưu file ghi âm (chỉ gửi sang Groq / Gemini để chép lời rồi bỏ).
+    - "Xoá tài khoản" đang tắt cho tới khi có luồng xoá dữ liệu người dùng.
+    </summary>
+    #endregion
+*@
 @{
     Layout = null;
     ViewData["ActiveNav"] = "profile";
@@ -18,7 +28,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="~/css/base.css">
     <link rel="stylesheet" href="~/css/components.css">
-    <link rel="stylesheet" href="~/css/ViewProfile.css">
+    <link rel="stylesheet" href="~/css/ViewProfile.css" asp-append-version="true">
     <partial name="Partials/_ThemeHead" />
 </head>
 <body>
@@ -117,7 +127,7 @@
                     </div>
 
                     <div class="action-card__content">
-                        <span class="action-card__eyebrow">2.0.0</span>
+                        <span class="action-card__eyebrow">GÓP Ý</span>
                         <h3 class="action-card__title">Đóng góp ý kiến</h3>
                         <p class="action-card__description">
                             Chia sẻ trải nghiệm để MockviewAI cải thiện tốt hơn.
@@ -161,25 +171,8 @@
 
                             <span class="settings-switch" aria-hidden="true"></span>
                         </button>
-                        
-                        <a href="#" class="settings-item">
-                            <span class="settings-item__icon" aria-hidden="true">
-                                <i class="fa-solid fa-microphone-slash"></i>
-                            </span>
 
-                            <span class="settings-item__content">
-                                <strong class="settings-item__title">Xoá ghi âm</strong>
-                                <span class="settings-item__description">
-                                    Xoá dữ liệu ghi âm đã lưu
-                                </span>
-                            </span>
-
-                            <span class="settings-item__chevron" aria-hidden="true">
-                                <i class="fa-solid fa-chevron-right"></i>
-                            </span>
-                        </a>
-
-                        <a href="#" class="settings-item settings-item--danger">
+                        <button type="button" class="settings-item settings-item--button settings-item--danger" disabled>
                             <span class="settings-item__icon" aria-hidden="true">
                                 <i class="fa-solid fa-user-xmark"></i>
                             </span>
@@ -187,16 +180,12 @@
                             <span class="settings-item__content">
                                 <strong class="settings-item__title">Xoá tài khoản</strong>
                                 <span class="settings-item__description">
-                                    Xoá vĩnh viễn tài khoản của bạn
+                                    Chức năng đang được phát triển
                                 </span>
                             </span>
+                        </button>
 
-                            <span class="settings-item__chevron" aria-hidden="true">
-                                <i class="fa-solid fa-chevron-right"></i>
-                            </span>
-                        </a>
-
-                        <a href="#" class="settings-item" onclick="onClickLogout(event)">
+                        <button type="button" class="settings-item settings-item--button" onclick="onClickLogout(event)">
                             <span class="settings-item__icon" aria-hidden="true">
                                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                             </span>
@@ -211,7 +200,7 @@
                             <span class="settings-item__chevron" aria-hidden="true">
                                 <i class="fa-solid fa-chevron-right"></i>
                             </span>
-                        </a>
+                        </button>
                     </div>
                 </section>
             </aside>
@@ -273,6 +262,5 @@
     <partial name="Partials/_Notify" />
     <partial name="Partials/_LogoutPartial" />
     <script src="~/js/_Logout.js"></script>
-    
 </body>
 </html>

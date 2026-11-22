@@ -1,7 +1,8 @@
 namespace MockviewAI.Services.CvParser
 {
     /// <summary>
-    /// [USER CV] Tách chữ có sẵn trong file PDF (không OCR).
+    /// [USER CV] 
+    /// Tách chữ có sẵn trong file PDF (không OCR).
     /// </summary>
     public interface ICvExtractionService
     {

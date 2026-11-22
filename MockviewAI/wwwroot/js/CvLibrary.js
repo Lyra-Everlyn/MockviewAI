@@ -1,6 +1,7 @@
 //#region CvLibrary
 /// <summary>
-/// [USER CV] Trang "CV của tôi": hiển thị, chọn mặc định, xoá CV lưu trên trình duyệt.
+/// [USER CV] 
+/// Trang "CV của tôi": hiển thị, chọn mặc định, xoá CV lưu trên trình duyệt.
 /// Dữ liệu CV chỉ được đưa ra bằng textContent.
 /// </summary>
 //#endregion

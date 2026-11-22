@@ -1,10 +1,21 @@
 ﻿namespace MockviewAI.Services.FileStorage.Interfaces
 {
+    /// <summary>
+    /// [FILE-STORAGE] 
+    /// Kiểu cắt ảnh khi tải lên.
+    /// </summary>
     public enum UploadType
     {
-        General,    // Giữ nguyên bản gốc (dùng cho file thường, ảnh không cần crop)
-        Avatar,     // Cắt vuông, tập trung vào khuôn mặt
-        Banner,     // Cắt hình chữ nhật dài (tính năng tương lai)
-        Thumbnail   // Cắt thu nhỏ (tính năng tương lai)
+        /// <summary>Giữ nguyên bản gốc.</summary>
+        General,
+
+        /// <summary>Vuông 500×500, tập trung vào khuôn mặt (ảnh đại diện).</summary>
+        Avatar,
+
+        /// <summary>Chưa dùng: chữ nhật 1200×400.</summary>
+        Banner,
+
+        /// <summary>Chưa dùng: vuông 250×250.</summary>
+        Thumbnail
     }
 }

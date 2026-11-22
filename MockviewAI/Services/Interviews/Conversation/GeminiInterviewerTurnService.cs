@@ -10,7 +10,8 @@ using MockviewAI.Services.KeyManagement.ProviderExtensions;
 namespace MockviewAI.Services.Interviews.Conversation
 {
     /// <summary>
-    /// [INTERVIEWER] Gọi Gemini (HttpClient "GeminiClient") để soạn phản hồi + câu hỏi đào sâu.
+    /// [INTERVIEWER] 
+    /// Gọi Gemini (HttpClient "GeminiClient") để soạn phản hồi + câu hỏi đào sâu.
     /// Tắt, thiếu key, lỗi, quá giờ hoặc kết quả không hợp lệ: trả phản hồi có sẵn, câu hỏi thêm theo bộ đề.
     /// </summary>
     public class GeminiInterviewerTurnService : IInterviewerTurnService

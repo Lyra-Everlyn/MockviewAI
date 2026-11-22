@@ -1,26 +1,37 @@
-// [QUESTION-BANK] Chấm SƠ BỘ theo bộ đề bằng từ khoá - giúp hệ thống KHÔNG phụ thuộc hoàn toàn vào AI.
-// Thứ tự xét (giống thứ tự AI được dặn):
-//   1. Có dấu hiệu một LỖI HAY GẶP (không bị phủ định bởi "không / tránh / never...") -> sai.
-//   2. Đếm ý cốt lõi đạt: ý đạt khi gặp >= MinHits từ khoá khác nhau của ý đó.
-//   3. Đạt ít hơn MinCorePoints ý -> sai (chưa tới điểm B).
-//   4. Có dấu hiệu một ĐƯỜNG VÒNG (cùng công thức nhưng cách khác) -> hoi_dac_biet; còn lại -> dung.
-// Giới hạn (ghi rõ trong báo cáo): không nhận ra được "dac_biet" (hướng đi hoàn toàn mới) và "hơi đặc biệt do cách
-// giải thích khác thường" - hai loại này cần AI hiểu nghĩa. Đo trên 140 câu mẫu + 16 câu mới: 0 câu Sai bị chấm thành đúng.
-
 using MockviewAI.Models.Ai;
 using MockviewAI.Models.InterviewQuestions;
 using MockviewAI.Services.InterviewQuestions.Interfaces;
 
 namespace MockviewAI.Services.InterviewQuestions.Implementations
 {
+    /// <summary>
+    /// [QUESTION-BANK] 
+    /// Chấm sơ bộ theo bộ đề bằng từ khoá, để hệ thống không phụ thuộc hoàn toàn vào AI.
+    /// Thứ tự xét (giống thứ tự AI được dặn trong prompt):
+    /// <list type="number">
+    /// <item>Có dấu hiệu một LỖI HAY GẶP (không bị phủ định bởi "không / tránh / never...") -> sai.</item>
+    /// <item>Đếm ý cốt lõi đạt: ý đạt khi gặp ít nhất MinHits từ khoá khác nhau của ý đó.</item>
+    /// <item>Đạt ít hơn MinCorePoints ý -> sai (chưa tới điểm B).</item>
+    /// <item>Có dấu hiệu một ĐƯỜNG VÒNG -> hoi_dac_biet; còn lại -> dung.</item>
+    /// </list>
+    /// </summary>
+    /// <remarks>
+    /// Giới hạn (ghi trong báo cáo): không nhận ra "dac_biet" (hướng đi hoàn toàn mới) và "hơi đặc biệt do cách giải thích
+    /// khác thường"; hai loại này cần AI hiểu nghĩa. Đo trên 140 câu mẫu + 16 câu mới: 0 câu Sai bị chấm thành đúng.
+    /// </remarks>
     public class BankKeywordScorer : IOfflineAnswerScorer
     {
-        // Từ phủ định (đã bỏ dấu). KHÔNG có "dung" vì "dùng" và "đừng" bỏ dấu đều thành "dung".
-        private static readonly HashSet<string> Negators = new() { "khong", "tranh", "chang", "cam", "chua", "not", "never", "dont" };
-        private const int NegationWindow = 3;   // xét 3 từ đứng trước
-
+        #region Fields
         public const string FeedbackPrefix = "Chấm sơ bộ theo bộ đề (không dùng AI). ";
 
+        /// <summary>Từ phủ định (đã bỏ dấu). KHÔNG có "dung" vì "dùng" và "đừng" bỏ dấu đều thành "dung".</summary>
+        private static readonly HashSet<string> Negators = new() { "khong", "tranh", "chang", "cam", "chua", "not", "never", "dont" };
+
+        /// <summary>Số từ đứng trước cụm từ được xét để tìm từ phủ định.</summary>
+        private const int NegationWindow = 3;
+        #endregion
+
+        #region IOfflineAnswerScorer
         public AnswerVerdict Score(BankQuestion question, string answer)
         {
             var tokens = VietnameseTextNormalizer.Tokenize(answer);
@@ -75,15 +86,17 @@ namespace MockviewAI.Services.InterviewQuestions.Implementations
 
         public IReadOnlyList<string> FindMetCorePoints(BankQuestion question, string answer) =>
             MetCorePoints(question, VietnameseTextNormalizer.Tokenize(answer));
+        #endregion
 
-        // Ý đạt khi gặp >= MinHits từ khoá khác nhau của ý đó
+        #region Helpers
+        /// <summary>Ý đạt khi gặp ít nhất MinHits từ khoá khác nhau của ý đó.</summary>
         private static List<string> MetCorePoints(BankQuestion question, string[] tokens) =>
             question.CorePoints
                 .Where(c => c.Keywords.Distinct().Count(k => Contains(tokens, k, checkNegation: false)) >= Math.Max(1, c.MinHits))
                 .Select(c => c.Id)
                 .ToList();
 
-        // Cụm từ (đã chuẩn hoá) có xuất hiện liền nhau trong câu trả lời không; có thể bỏ qua lần xuất hiện bị phủ định
+        /// <summary>Cụm từ (đã chuẩn hoá) có xuất hiện liền nhau trong câu trả lời không; có thể bỏ qua lần xuất hiện bị phủ định.</summary>
         private static bool Contains(string[] tokens, string phrase, bool checkNegation)
         {
             var words = VietnameseTextNormalizer.Tokenize(phrase);
@@ -105,5 +118,6 @@ namespace MockviewAI.Services.InterviewQuestions.Implementations
                 if (Negators.Contains(tokens[k])) return true;
             return false;
         }
+        #endregion
     }
 }

@@ -1,4 +1,5 @@
-/* OTP registration */
+/* MockviewAI | Xác thực email đăng ký
+   Chỉnh riêng cho VerifyRegistrationCode.cshtml; phần dùng chung nằm trong Login.css. */
 .otp-shell {
     min-height: 565px;
 }

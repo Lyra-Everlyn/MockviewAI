@@ -8,22 +8,23 @@ using MockviewAI.Services.Speech.Interfaces;
 namespace MockviewAI.Services.Speech.Implementations
 {
     /// <summary>
-    /// [SPEECH]
-    /// WhisperHallucinationFilter
-    /// -- Lọc 3 lớp cho TỪNG ĐOẠN (segment), không phải cả bài — nên câu ảo giác chèn cuối câu trả lời thật cũng bị bỏ:
-    ///    1. Độ tin cậy của Whisper: không có lời nói (no_speech_prob) cao + không chắc chắn (avg_logprob) thấp,
-    ///       hoặc lặp bất thường (compression_ratio) — cùng ngưỡng mặc định mà Whisper gốc dùng.
-    ///    2. Mẫu câu kết video YouTube tiếng Việt mà Whisper học từ phụ đề (đăng ký kênh, cảm ơn đã xem...).
-    ///    3. Đoạn trùng lặp liên tiếp (Whisper hay lặp lại nguyên câu khi bị "kẹt").
-    ///    4. Đoạn chỉ chép lại gợi ý (câu hỏi) — Whisper hay làm vậy ở đoạn im lặng cuối bản ghi.
-    /// -- Cuối cùng bỏ ký tự thuộc hệ chữ khác (Devanagari, Hán, Thái...) mà Whisper đôi khi chèn vào (vd "C#ख्ती").
-    /// -- Mỗi đoạn được ghi log (thời điểm, độ tin cậy, giữ/bỏ, lý do) để chẩn đoán khi bản chép thiếu chữ.
-    /// -- So khớp mẫu trên chữ đã BỎ DẤU, nên "đăng kí" / "đăng ký" / "dang ky" đều bị bắt.
+    /// [SPEECH] 
+    /// Lọc câu "ảo giác" của Whisper theo TỪNG ĐOẠN (segment), không phải cả bài,
+    /// nên câu ảo giác chèn cuối câu trả lời thật cũng bị bỏ. 4 lớp:
+    /// <list type="number">
+    /// <item>Độ tin cậy: không có lời nói (no_speech_prob) cao + không chắc chắn (avg_logprob) thấp, hoặc lặp bất thường (compression_ratio); cùng ngưỡng Whisper gốc.</item>
+    /// <item>Mẫu câu kết video YouTube tiếng Việt mà Whisper học từ phụ đề (đăng ký kênh, cảm ơn đã xem...).</item>
+    /// <item>Đoạn trùng lặp liên tiếp (Whisper hay lặp nguyên câu khi bị "kẹt").</item>
+    /// <item>Đoạn chỉ chép lại gợi ý (câu hỏi), thường ở đoạn im lặng cuối bản ghi.</item>
+    /// </list>
+    /// Cuối cùng bỏ ký tự thuộc hệ chữ khác (Devanagari, Hán, Thái...) mà Whisper đôi khi chèn vào (vd "C#ख्ती").
+    /// Mỗi đoạn được ghi log (thời điểm, độ tin cậy, giữ/bỏ, lý do) để chẩn đoán khi bản chép thiếu chữ.
+    /// So khớp trên chữ đã bỏ dấu nên "đăng kí" / "đăng ký" / "dang ky" đều bị bắt.
     /// </summary>
     public class WhisperHallucinationFilter : IHallucinationFilter
     {
-        #region Patterns
-        // Viết trên chữ KHÔNG dấu, chữ thường (xem Fold)
+        #region Mẫu câu ảo giác
+        /// <summary>Viết trên chữ KHÔNG dấu, chữ thường (xem Fold).</summary>
         private static readonly Regex[] Patterns =
         {
             new(@"\bdang\s*k[iy]\b.{0,20}\bkenh\b", RegexOptions.Compiled),                 // đăng ký (cho) kênh
@@ -38,10 +39,13 @@ namespace MockviewAI.Services.Speech.Implementations
         #endregion
 
         #region Fields
-        // Đoạn ngắn hơn số từ này không bị coi là "chép lại gợi ý" (tránh bỏ nhầm câu ngắn như "Dạ vâng")
+        /// <summary>Đoạn ngắn hơn số từ này không bị coi là chép lại gợi ý (tránh bỏ nhầm câu ngắn như "Dạ vâng").</summary>
         private const int PromptEchoMinWords = 4;
-        // Đoạn phải trùng ít nhất tỉ lệ này số từ của một câu gợi ý mới bị coi là chép lại
-        // (vd ứng viên nói "em làm backend với C#" — trùng một phần câu mẫu — vẫn được giữ)
+
+        /// <summary>
+        /// Đoạn phải trùng ít nhất tỉ lệ này số từ của một câu gợi ý mới bị coi là chép lại
+        /// (vd ứng viên nói "em làm backend với C#", trùng một phần câu mẫu, vẫn được giữ).
+        /// </summary>
         private const double PromptEchoMinCoverage = 0.6;
 
         private readonly SpeechOptions _options;
@@ -98,7 +102,7 @@ namespace MockviewAI.Services.Speech.Implementations
         }
         #endregion
 
-        #region Rules
+        #region Luật lọc
         /// <summary>Lý do bỏ đoạn (null = giữ). Thứ tự: độ tin cậy, mẫu câu YouTube, lặp liên tiếp, chép lại gợi ý.</summary>
         private string? DropReason(WhisperSegment segment, string key, string? previousKey, IReadOnlyList<string> promptKeys)
         {
@@ -111,8 +115,7 @@ namespace MockviewAI.Services.Speech.Implementations
 
         /// <summary>
         /// Lớp 4: đoạn nằm trọn trong một câu gợi ý và chiếm phần lớn câu đó (vd gợi ý "Chào bạn, hãy giới thiệu ngắn về bản thân bạn."
-        /// và đoạn "Hãy giới thiệu ngắn về bản thân bạn."). Câu trả lời thật có nhắc lại câu hỏi
-        /// thì luôn dài hơn / khác gợi ý nên không bị bỏ.
+        /// và đoạn "Hãy giới thiệu ngắn về bản thân bạn."). Câu trả lời thật có nhắc lại câu hỏi thì luôn dài hơn / khác gợi ý nên không bị bỏ.
         /// </summary>
         private static bool IsPromptEcho(string key, string promptKey)
         {
@@ -123,14 +126,16 @@ namespace MockviewAI.Services.Speech.Implementations
             return promptKey.Contains(key, StringComparison.Ordinal);
         }
 
-        /// <summary>Lớp 1: luật của Whisper gốc — im lặng mà vẫn "nghe" ra chữ, hoặc lặp bất thường.</summary>
+        /// <summary>Lớp 1: luật của Whisper gốc, im lặng mà vẫn "nghe" ra chữ, hoặc lặp bất thường.</summary>
         private bool IsLowConfidence(WhisperSegment s) =>
             (s.NoSpeechProb > _options.NoSpeechThreshold && s.AvgLogprob < _options.LogprobThreshold)
             || s.CompressionRatio > _options.CompressionRatioThreshold;
 
         /// <summary>Lớp 2: mẫu câu kết video YouTube.</summary>
         private static bool IsKnownHallucination(string folded) => Patterns.Any(p => p.IsMatch(folded));
+        #endregion
 
+        #region Helpers
         /// <summary>
         /// Bỏ chữ cái / dấu thuộc hệ chữ không phải Latin (tiếng Việt và tiếng Anh đều là Latin).
         /// Giữ nguyên số, dấu câu, ký hiệu (#, +, ., @...) và khoảng trắng.
@@ -153,9 +158,7 @@ namespace MockviewAI.Services.Speech.Implementations
         private static bool IsLatin(char c) =>
             c <= '\u024F' || (c >= '\u0300' && c <= '\u036F') || (c >= '\u1E00' && c <= '\u1EFF');
 
-        /// <summary>
-        /// Bỏ dấu tiếng Việt, đưa về chữ thường và gộp khoảng trắng để so khớp mẫu / so trùng.
-        /// </summary>
+        /// <summary>Bỏ dấu tiếng Việt, đưa về chữ thường và gộp khoảng trắng để so khớp mẫu / so trùng.</summary>
         private static string Fold(string text)
         {
             var normalized = text.ToLowerInvariant().Replace('đ', 'd').Normalize(NormalizationForm.FormD);

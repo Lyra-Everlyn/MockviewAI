@@ -9,7 +9,8 @@ using UglyToad.PdfPig.Exceptions;
 namespace MockviewAI.Services.CvParser
 {
     /// <summary>
-    /// [USER CV] Đọc chữ trong PDF bằng PdfPig (không cần thư viện native, chạy được trên Docker Linux).
+    /// [USER CV] 
+    /// Đọc chữ trong PDF bằng PdfPig (không cần thư viện native, chạy được trên Docker Linux).
     /// </summary>
     public class CvExtractionService : ICvExtractionService
     {

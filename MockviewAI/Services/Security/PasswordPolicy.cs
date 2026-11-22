@@ -1,15 +1,16 @@
 namespace MockviewAI.Services.Security
 {
     /// <summary>
-    /// [AUTH]
+    /// [AUTH] 
     /// Quy tắc mật khẩu: 8–72 ký tự (BCrypt chỉ đọc 72 byte đầu), có chữ hoa, chữ thường và chữ số.
+    /// Dùng cho Đăng ký và Đặt lại mật khẩu.
     /// </summary>
     public static class PasswordPolicy
     {
         public const int MinLength = 8;
         public const int MaxLength = 72;
 
-        /// <summary>Trả về thông báo lỗi, hoặc null nếu mật khẩu hợp lệ.</summary>
+        /// <returns>Thông báo lỗi tiếng Việt, hoặc null nếu mật khẩu hợp lệ.</returns>
         public static string? Validate(string? password)
         {
             if (string.IsNullOrEmpty(password) || password.Length < MinLength)

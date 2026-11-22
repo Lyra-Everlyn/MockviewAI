@@ -44,10 +44,11 @@ namespace MockviewAI.Controllers
 
         private string ClientIp => HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
-        #region Login
+        #region Đăng nhập
         [HttpGet]
         public IActionResult Login() => View();
 
+        /// <summary>POST /Auth/Login: CAPTCHA -> kiểm tra khoá tạm -> xác thực; sai mật khẩu được tính vào ngưỡng khoá.</summary>
         [HttpPost]
         [Route("Auth/Login")]
         [ValidateAntiForgeryToken]
@@ -92,6 +93,7 @@ namespace MockviewAI.Controllers
             }
         }
 
+        /// <summary>GET /Auth/LoginGoogle: chuyển sang Google OAuth, quay về GoogleResponse.</summary>
         [HttpGet]
         [Route("Auth/LoginGoogle")]
         public IActionResult LoginGoogle()
@@ -100,6 +102,7 @@ namespace MockviewAI.Controllers
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
 
+        /// <summary>Callback Google: chỉ nhận email đã xác thực, tạo tài khoản nếu chưa có rồi đăng nhập.</summary>
         [HttpGet]
         public async Task<IActionResult> GoogleResponse()
         {
@@ -118,6 +121,7 @@ namespace MockviewAI.Controllers
             if (email == null || string.Equals(emailVerified, "false", StringComparison.OrdinalIgnoreCase))
                 return LoginFailed("Không thể lấy email đã xác thực từ tài khoản Google của bạn.");
 
+            // Google không trả tên riêng: tách từ tên hiển thị
             if (string.IsNullOrEmpty(givenName))
             {
                 var names = name?.Split(' ') ?? new[] { "User" };
@@ -143,7 +147,7 @@ namespace MockviewAI.Controllers
         }
         #endregion
 
-        #region Logout and Register
+        #region Đăng xuất và đăng ký
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
@@ -155,6 +159,7 @@ namespace MockviewAI.Controllers
         [HttpGet]
         public IActionResult Register() => View();
 
+        /// <summary>POST /Auth/Register: kiểm tra form rồi gửi OTP 6 số; tài khoản chỉ được tạo sau khi xác thực mã.</summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         [EnableRateLimiting("OtpRateLimit")]
@@ -194,6 +199,7 @@ namespace MockviewAI.Controllers
             return View();
         }
 
+        /// <summary>Xác thực OTP đăng ký rồi tạo tài khoản; nhập sai nhiều lần sẽ khoá IP tạm thời.</summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> VerifyRegistrationCode(string email, string code)
@@ -216,10 +222,11 @@ namespace MockviewAI.Controllers
         }
         #endregion
 
-        #region Forgot password
+        #region Quên mật khẩu
         [HttpGet]
         public IActionResult ForgotPassword() => View();
 
+        /// <summary>Gửi mã khôi phục 6 số; thông báo thành công không khẳng định email có tồn tại.</summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         [EnableRateLimiting("OtpRateLimit")]
@@ -250,6 +257,7 @@ namespace MockviewAI.Controllers
             return View();
         }
 
+        /// <summary>Xác thực mã khôi phục, đổi lấy reset token dùng một lần cho bước đặt mật khẩu mới.</summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> VerifyResetCode(string email, string code)
@@ -276,6 +284,7 @@ namespace MockviewAI.Controllers
             }
         }
 
+        /// <summary>Form mật khẩu mới; chỉ mở được ngay sau VerifyResetCode (token còn trong TempData).</summary>
         [HttpGet]
         public IActionResult ResetPassword(string email)
         {
@@ -354,6 +363,7 @@ namespace MockviewAI.Controllers
         private static string LockedMessage(TimeSpan wait) =>
             $"Đăng nhập sai quá nhiều lần. Vui lòng thử lại sau {Math.Max(1, (int)Math.Ceiling(wait.TotalMinutes))} phút.";
 
+        /// <summary>Ghi cookie đăng nhập; chỉ nhận ảnh đại diện https.</summary>
         private async Task SignInUser(string email, string fullName, string role, string? avatarUrl)
         {
             var claims = new List<Claim>
@@ -369,7 +379,7 @@ namespace MockviewAI.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
         }
 
-        /// <summary>Chưa có khu quản trị riêng: Admin cũng vào trang chủ (trước đây trỏ tới AdminController không tồn tại -> 404).</summary>
+        /// <summary>Chưa thiết lập hồ sơ thì vào Onboarding; Admin chưa có khu quản trị riêng nên cũng về trang chủ.</summary>
         private IActionResult RedirectAfterLogin(User user)
         {
             if (!user.IsOnboardingCompleted && user.Role != "Admin")

@@ -3,7 +3,8 @@ using MockviewAI.Models.DTOs;
 namespace MockviewAI.Services.CvParser
 {
     /// <summary>
-    /// [USER CV] Dùng AI chuyển nội dung CV thành dữ liệu có cấu trúc.
+    /// [USER CV] 
+    /// Dùng AI chuyển nội dung CV thành dữ liệu có cấu trúc.
     /// </summary>
     public interface ICvParsingService
     {

@@ -8,19 +8,28 @@ using MockviewAI.Services.Profiles;
 
 namespace MockviewAI.Controllers
 {
+    /// <summary>
+    /// [PROFILE] 
+    /// Xem và chỉnh sửa hồ sơ cá nhân (/Profile, /Profile/Edit).
+    /// </summary>
     [Authorize]
     [Route("Profile")]
     public class ProfileController : Controller
     {
+        #region Fields
         private readonly IProfileService _profileService;
+        #endregion
 
+        #region Constructor
         public ProfileController(IProfileService profileService)
         {
             _profileService = profileService;
         }
+        #endregion
 
         private string CurrentEmail => User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
 
+        #region Xem hồ sơ
         [HttpGet("")]
         public async Task<IActionResult> ViewProfile()
         {
@@ -29,7 +38,9 @@ namespace MockviewAI.Controllers
 
             return View(profile);
         }
+        #endregion
 
+        #region Chỉnh sửa hồ sơ
         [HttpGet("Edit")]
         public async Task<IActionResult> EditProfile()
         {
@@ -53,7 +64,10 @@ namespace MockviewAI.Controllers
 
             return RedirectToAction("ViewProfile");
         }
+        #endregion
 
+        #region Helpers
+        /// <summary>Đăng nhập lại cookie với tên và ảnh đại diện mới để thanh điều hướng cập nhật ngay.</summary>
         private async Task RefreshClaimsAsync(string fullName, string? avatarUrl)
         {
             var claims = User.Claims.Where(c => c.Type != ClaimTypes.Name && c.Type != "AvatarUrl").ToList();
@@ -67,5 +81,6 @@ namespace MockviewAI.Controllers
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
         }
+        #endregion
     }
 }

@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// [SPEECH] 
-    /// Soạn gợi ý cho Whisper và prompt cho bước chuẩn hoá (tách riêng để chỉnh không đụng code gọi API).
+    /// Soạn gợi ý cho Whisper và prompt cho bước chuẩn hoá.
     /// </summary>
     public interface ISpeechPromptBuilder
     {
