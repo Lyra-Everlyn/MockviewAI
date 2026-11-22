@@ -14,13 +14,18 @@ namespace MockviewAI.Controllers
     public class OnboardingController : Controller
     {
         #region Fields
+        private const string SessionExpiredMessage = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+        private const string SaveFailedMessage = "Không lưu được hồ sơ. Vui lòng thử lại sau ít phút.";
+
         private readonly IOnboardingService _onboardingService;
+        private readonly ILogger<OnboardingController> _logger;
         #endregion
 
         #region Constructor
-        public OnboardingController(IOnboardingService onboardingService)
+        public OnboardingController(IOnboardingService onboardingService, ILogger<OnboardingController> logger)
         {
             _onboardingService = onboardingService;
+            _logger = logger;
         }
         #endregion
 
@@ -62,17 +67,22 @@ namespace MockviewAI.Controllers
             string? userEmail = User.FindFirstValue(ClaimTypes.Email);
             if (string.IsNullOrEmpty(userEmail))
             {
-                return Json(new { success = false, message = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại." });
+                return Json(new { success = false, message = SessionExpiredMessage });
             }
 
             try
             {
-                await _onboardingService.SaveOnboardingInfoAsync(userEmail, model);
+                bool saved = await _onboardingService.SaveOnboardingInfoAsync(userEmail, model);
+                if (!saved)
+                    return Json(new { success = false, message = SessionExpiredMessage });
+
                 return Json(new { success = true, redirectUrl = Url.Action("Index", "Home") });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                // Không trả nguyên văn lỗi hệ thống (database...) về trình duyệt
+                _logger.LogError(ex, "Saving onboarding profile failed");
+                return Json(new { success = false, message = SaveFailedMessage });
             }
         }
         #endregion

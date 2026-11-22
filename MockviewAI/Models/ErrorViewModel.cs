@@ -1,8 +1,9 @@
 namespace MockviewAI.Models
 {
     /// <summary>
-    /// [SYSTEM] 
+    /// [KHÔNG DÙNG] [SYSTEM] 
     /// Dữ liệu trang lỗi chung (Views/Shared/Error.cshtml).
+    /// Chỉ còn HomeController.Error dùng; trang lỗi thực tế do ErrorHandlingMiddleware dựng.
     /// </summary>
     public class ErrorViewModel
     {

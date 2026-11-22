@@ -163,6 +163,16 @@
     display: none;
 }
 
+/* Mục tài khoản chưa dùng được (Xoá tài khoản) */
+.settings-item--button:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+    .settings-item--button:disabled:hover {
+        background: transparent;
+    }
+
 /* #region Máy tính bảng */
 @media (max-width: 900px) {
     .profile-layout {

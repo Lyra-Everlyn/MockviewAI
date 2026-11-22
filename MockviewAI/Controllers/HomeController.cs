@@ -126,6 +126,11 @@ namespace MockviewAI.Controllers
         #endregion
 
         #region Lỗi
+        /// <summary>
+        /// [KHÔNG DÙNG] [SYSTEM] 
+        /// Trang lỗi mặc định của template.
+        /// Pipeline không còn UseExceptionHandler: ErrorHandlingMiddleware tự trả JSON / trang HTML lỗi nên action này không được gọi.
+        /// </summary>
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

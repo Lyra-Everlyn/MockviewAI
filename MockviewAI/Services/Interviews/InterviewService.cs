@@ -6,17 +6,19 @@ using MockviewAI.Models.ViewModels;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Ai;
 using MockviewAI.Services.Ai.Interfaces;
-using MockviewAI.Services.Emails;
 using MockviewAI.Services.Exceptions;
 using MockviewAI.Services.InterviewQuestions.Interfaces;
 using MockviewAI.Services.Interviews.Conversation;
+using MockviewAI.Services.Interviews.Results;
 
 namespace MockviewAI.Services.Interviews
 {
     /// <summary>
     /// [AI-INTERVIEW] 
     /// Vòng đời một buổi luyện: tạo buổi -> phòng phỏng vấn -> nhận câu trả lời (+ nhà tuyển dụng phản hồi,
-    /// câu hỏi thêm) -> kết thúc và chấm điểm (+ email kết quả) -> trang Kết quả.
+    /// câu hỏi thêm) -> kết thúc và chấm điểm -> trang Kết quả.
+    /// Dựng yêu cầu chấm (ScoreRequestFactory), dữ liệu trang Kết quả (SessionResultBuilder)
+    /// và gửi email (ResultEmailSender) nằm ở Services/Interviews/Results.
     /// </summary>
     public class InterviewService : IInterviewService
     {
@@ -43,13 +45,14 @@ namespace MockviewAI.Services.Interviews
         private readonly IUserRepository _userRepository;
         private readonly IInterviewScoringService _scoring;
         private readonly IAnswerQualityChecker _quality;
-        private readonly IEmailService _email;
-        private readonly ILogger<InterviewService> _logger;
         private readonly IQuestionBankStore _bank;
         private readonly IQuestionSelector _selector;
         private readonly IFollowUpPlanner _followUps;
         private readonly IInterviewerTurnService _interviewer;
         private readonly ICandidateCvStore _cvStore;
+        private readonly IScoreRequestFactory _scoreRequests;
+        private readonly ISessionResultBuilder _results;
+        private readonly IResultEmailSender _resultEmail;
         #endregion
 
         #region Constructor
@@ -58,25 +61,27 @@ namespace MockviewAI.Services.Interviews
             IUserRepository userRepository,
             IInterviewScoringService scoring,
             IAnswerQualityChecker quality,
-            IEmailService email,
-            ILogger<InterviewService> logger,
             IQuestionBankStore bank,
             IQuestionSelector selector,
             IFollowUpPlanner followUps,
             IInterviewerTurnService interviewer,
-            ICandidateCvStore cvStore)
+            ICandidateCvStore cvStore,
+            IScoreRequestFactory scoreRequests,
+            ISessionResultBuilder results,
+            IResultEmailSender resultEmail)
         {
             _sessionRepository = sessionRepository;
             _userRepository = userRepository;
             _scoring = scoring;
             _quality = quality;
-            _email = email;
-            _logger = logger;
             _bank = bank;
             _selector = selector;
             _followUps = followUps;
             _interviewer = interviewer;
             _cvStore = cvStore;
+            _scoreRequests = scoreRequests;
+            _results = results;
+            _resultEmail = resultEmail;
         }
         #endregion
 
@@ -304,53 +309,13 @@ namespace MockviewAI.Services.Interviews
 
             session.FinishedAt = DateTime.UtcNow;
 
-            // [FOLLOW-UP] Chỉ câu CHÍNH được chấm như một câu; câu trả lời thêm gộp vào câu chính của nó
-            var mainAnswers = FollowUps.Main(session.Answers).ToList();
-            var answered = mainAnswers
-                .Where(a => a.AnsweredAt != null && !a.Skipped && !string.IsNullOrEmpty(a.Answer))
-                .OrderBy(a => a.OrderNo)
-                .ToList();
-            var followUpAnswers = session.Answers
-                .Where(a => a.IsFollowUp && a.AnsweredAt != null && !a.Skipped && !string.IsNullOrEmpty(a.Answer))
-                .ToList();
-
-            if (answered.Count == 0)
+            var request = _scoreRequests.Build(session);
+            if (request == null)
             {
                 session.Status = SessionStatus.Stopped;
                 await _sessionRepository.UpdateAsync(session);
                 return;
             }
-
-            // Câu không có ý nghĩa (đã được nhắc mà vẫn vậy) tính là SAI: không gửi AI, kéo điểm nội dung xuống theo tỉ lệ
-            var invalid = answered.Where(a => _quality.FindProblem(a.Answer!) != null).ToList();
-            var valid = answered.Except(invalid).ToList();
-
-            // Câu trả lời thêm có ý nghĩa -> gộp vào câu chính khi chấm nội dung
-            InterviewAnswer WithFollowUp(SessionAnswer main)
-            {
-                var item = ToInterviewAnswer(main);
-                var extra = followUpAnswers.FirstOrDefault(f => f.FollowUpOf == main.QuestionId);
-                if (extra != null && _quality.FindProblem(extra.Answer!) == null)
-                {
-                    item.FollowUpQuestion = extra.Question;
-                    item.FollowUpAnswer = extra.Answer;
-                }
-                return item;
-            }
-
-            var request = new ScoreRequest
-            {
-                Position = session.Position,
-                QuestionCount = session.QuestionCount,
-                SkippedCount = mainAnswers.Count(a => a.AnsweredAt != null && a.Skipped),
-                // [LIVE-MODE] Thực chiến: câu bỏ qua tính là SAI (Luyện tập: không trừ)
-                SkippedAsWrong = InterviewModes.IsLive(session.Mode)
-                    ? mainAnswers.Where(a => a.AnsweredAt != null && a.Skipped).OrderBy(a => a.OrderNo).Select(a => a.QuestionId).ToList()
-                    : new List<string?>(),
-                Answers = valid.Select(WithFollowUp).ToList(),
-                InvalidAnswers = invalid.Select(ToInterviewAnswer).ToList(),
-                FollowUpAnswers = followUpAnswers.Select(ToInterviewAnswer).ToList()   // chỉ để đo cách nói
-            };
 
             // AI lỗi (AiScoringException) thì để lỗi nổi lên: buổi vẫn còn InProgress để người dùng bấm "Chấm lại".
             // Fallback = true: người dùng chọn xem kết quả ngay -> chấm sơ bộ theo bộ đề (câu kiểu cũ: chỉ cách nói).
@@ -358,6 +323,16 @@ namespace MockviewAI.Services.Interviews
                 ? _scoring.ScoreWithoutAi(request)
                 : await _scoring.ScoreAsync(request);
 
+            ApplyScore(session, result);
+            await _sessionRepository.UpdateAsync(session);
+
+            if (session.EmailResult)
+                _resultEmail.SendInBackground(user, session, result);
+        }
+
+        /// <summary>Ghi điểm, nhận xét và xếp loại từng câu chính (câu thuộc bộ đề) vào buổi.</summary>
+        private static void ApplyScore(InterviewSession session, InterviewScoreResult result)
+        {
             session.Status = SessionStatus.Completed;
             session.TotalScore = result.Total;
             session.ContentScore = result.ContentAvailable ? result.Content.Total : null;
@@ -369,7 +344,8 @@ namespace MockviewAI.Services.Interviews
             session.Improvements = string.Join("\n", result.Content.Improvements);
             session.DeliveryTips = string.Join("\n", result.Delivery.Tips);
 
-            // [QUESTION-BANK] Lưu xếp loại từng câu (câu thuộc bộ đề; AI chấm hoặc chấm sơ bộ theo bộ đề)
+            // [QUESTION-BANK] Lưu xếp loại từng câu (AI chấm hoặc chấm sơ bộ theo bộ đề)
+            var mainAnswers = FollowUps.Main(session.Answers).ToList();
             foreach (var verdict in result.Content.Verdicts)
             {
                 var answer = mainAnswers.FirstOrDefault(a => a.QuestionId == verdict.QuestionId);
@@ -380,62 +356,6 @@ namespace MockviewAI.Services.Interviews
                 answer.CorePointsMissing = string.Join(",", verdict.MissingCorePoints);
                 answer.Feedback = verdict.Feedback;
             }
-
-            await _sessionRepository.UpdateAsync(session);
-
-            if (session.EmailResult)
-                SendResultEmailInBackground(user, session, result);
-        }
-
-        private static InterviewAnswer ToInterviewAnswer(SessionAnswer a) => new()
-        {
-            QuestionId = a.QuestionId,
-            Question = a.Question,
-            Answer = a.Answer!,
-            DurationSeconds = a.DurationSeconds,
-            // Có đo khoảng lặng thì đưa vào chấm điểm; gõ tay thì để trống (không bị trừ điểm)
-            PausesSeconds = a.LongestPauseSeconds is double pause ? new List<double> { pause } : new List<double>(),
-            VoiceLevelDb = a.VoiceLevelDb,
-            QuietRatio = a.QuietRatio,
-            PitchVariation = a.PitchVariation
-        };
-
-        /// <summary>Gửi email ở nền: lỗi SMTP chỉ ghi log, không làm hỏng việc xem kết quả của người dùng.</summary>
-        private void SendResultEmailInBackground(User user, InterviewSession session, InterviewScoreResult result)
-        {
-            string toEmail = user.Email;
-            var model = new ResultEmailModel
-            {
-                FirstName = user.FirstName,
-                Position = session.Position,
-                InterviewerName = QuestionBank.Interviewers[session.Interviewer].Name,
-                StartedAt = session.StartedAt.ToLocalTime(),
-                QuestionCount = session.QuestionCount,
-                TotalScore = result.Total,
-                ContentScore = result.ContentAvailable ? result.Content.Total : null,
-                DeliveryScore = result.Delivery.Total,
-                AnxietyIndicator = result.AnxietyIndicator,
-                AnxietyReasons = result.AnxietyReasons,
-                Summary = result.Content.Summary,
-                Strengths = result.Content.Strengths,
-                Improvements = result.Content.Improvements,
-                DeliveryTips = result.Delivery.Tips
-            };
-
-            string subject = ResultEmailBuilder.BuildSubject(model);
-            string body = ResultEmailBuilder.BuildHtml(model);
-
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await _email.SendEmailAsync(toEmail, subject, body);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Không gửi được email kết quả buổi luyện {SessionId}.", session.Id);
-                }
-            });
         }
         #endregion
 
@@ -446,52 +366,7 @@ namespace MockviewAI.Services.Interviews
             var session = await FindSessionAsync(user, sessionId);
             if (session == null || session.Status == SessionStatus.InProgress) return null;
 
-            // Buổi trước đó (nếu có) để hiện xu hướng dấu hiệu lo lắng
-            var startedAt = session.StartedAt;
-            var previous = await _sessionRepository.GetListAsync(
-                predicate: s => s.UserId == user.Id && s.StartedAt < startedAt && s.AnxietyIndicator != null,
-                orderBy: q => q.OrderByDescending(s => s.StartedAt),
-                take: 1);
-
-            // [VOICE] Giọng nói cả buổi: trung bình các câu có số đo (cùng cách tính với DeliveryAnalyzer)
-            var voiced = session.Answers.Where(a => a.QuietRatio != null).ToList();
-            var levels = voiced.Where(a => a.VoiceLevelDb != null).Select(a => a.VoiceLevelDb!.Value).ToList();
-            var tones = session.Answers.Where(a => a.PitchVariation != null).Select(a => a.PitchVariation!.Value).ToList();
-
-            return new SessionResultViewModel
-            {
-                SessionId = session.Id,
-                HasVoice = voiced.Count > 0,
-                VoiceLevelLabel = VoiceMetrics.LevelLabel(levels.Count > 0 ? levels.Average() : null),
-                QuietPercent = voiced.Count > 0 ? (int)Math.Round(voiced.Average(a => a.QuietRatio!.Value) * 100) : null,
-                ToneLabel = VoiceMetrics.ToneLabel(tones.Count > 0 ? tones.Average() : null),
-                Position = session.Position,
-                InterviewerName = QuestionBank.Interviewers[session.Interviewer].Name,
-                StartedAt = session.StartedAt.ToLocalTime(),
-                QuestionCount = session.QuestionCount,
-                HasScore = session.TotalScore != null,
-                HasContentScore = session.ContentScore != null,
-                TotalScore = session.TotalScore ?? 0,
-                ContentScore = session.ContentScore ?? 0,
-                DeliveryScore = session.DeliveryScore ?? 0,
-                AnxietyIndicator = session.AnxietyIndicator ?? 0,
-                PreviousAnxietyIndicator = previous.FirstOrDefault()?.AnxietyIndicator ?? 0,
-                EmailRequested = session.EmailResult && session.TotalScore != null,
-                InvalidAnswerCount = FollowUps.Main(session.Answers).Count(a => a.AnsweredAt != null && !a.Skipped
-                                                                && !string.IsNullOrEmpty(a.Answer) && _quality.FindProblem(a.Answer!) != null),
-                CorrectCount = session.Answers.Count(a => a.Category == AnswerCategory.Correct),
-                AlternativePathCount = session.Answers.Count(a => a.Category == AnswerCategory.AlternativePath),
-                SpecialCount = session.Answers.Count(a => a.Category == AnswerCategory.Special),
-                WrongCount = session.Answers.Count(a => a.Category == AnswerCategory.Wrong),
-                IsPreliminaryScore = session.ScoringMode == ScoringModes.BankRules,
-                IsLive = InterviewModes.IsLive(session.Mode),
-                AnswerCategories = FollowUps.Main(session.Answers).OrderBy(a => a.OrderNo).Select(a => a.Category).ToList(),
-                FollowUpCount = session.Answers.Count(a => a.IsFollowUp && a.AnsweredAt != null && !a.Skipped),
-                AiSummary = session.AiSummary ?? "",
-                Strengths = SplitLines(session.Strengths),
-                Improvements = SplitLines(session.Improvements),
-                DeliveryTips = SplitLines(session.DeliveryTips)
-            };
+            return await _results.BuildAsync(session);
         }
         #endregion
 
@@ -521,11 +396,6 @@ namespace MockviewAI.Services.Interviews
             var valid = (pauses ?? new List<double>()).Where(p => p > 0 && p < 120).ToList();
             return valid.Count == 0 ? 0 : Math.Round(valid.Max(), 1);
         }
-
-        private static List<string> SplitLines(string? text) =>
-            string.IsNullOrWhiteSpace(text)
-                ? new List<string>()
-                : text.Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
         #endregion
     }
 }

@@ -8,7 +8,7 @@ namespace MockviewAI.Services.Profiles
 {
     /// <summary>
     /// [PROFILE] 
-    /// Xem và chỉnh sửa hồ sơ; ảnh đại diện lưu trên Cloudinary.
+    /// Xem và chỉnh sửa hồ sơ; ảnh đại diện lưu trên Cloudinary (file đã qua IAvatarFileValidator ở controller).
     /// </summary>
     public class ProfileService : IProfileService
     {
@@ -80,13 +80,14 @@ namespace MockviewAI.Services.Profiles
             var user = await FindUserAsync(email);
             if (user == null) return null;
 
+            // Tải ảnh mới TRƯỚC; tải lỗi thì ném lỗi ra và hồ sơ vẫn giữ ảnh cũ còn nguyên
+            string? replacedAvatarUrl = null;
             if (model.AvatarFile != null && model.AvatarFile.Length > 0)
             {
-                await DeleteOldCloudinaryAvatarAsync(user.AvatarUrl);
-
                 var (url, _) = await _fileStorage.UploadFileAsync(model.AvatarFile, "MockviewAI/Avatars", UploadType.Avatar);
                 if (!string.IsNullOrEmpty(url))
                 {
+                    replacedAvatarUrl = user.AvatarUrl;
                     user.AvatarUrl = url;
                 }
             }
@@ -100,6 +101,10 @@ namespace MockviewAI.Services.Profiles
             user.UpdateAt = DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user);
+
+            // Hồ sơ đã trỏ sang ảnh mới mới xoá ảnh cũ
+            if (replacedAvatarUrl != null)
+                await DeleteOldCloudinaryAvatarAsync(replacedAvatarUrl);
 
             return (FullName(user), user.AvatarUrl);
         }

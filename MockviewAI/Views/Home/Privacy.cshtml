@@ -2,7 +2,7 @@
     Layout = null;
     ViewData["ActiveNav"] = "privacy";
 
-    var lastUpdated = new DateTime(2026, 11, 19);
+    var lastUpdated = new DateTime(2026, 11, 22);
     var supportEmail = "mockviewai@gmail.com";
     var isSignedIn = User.Identity?.IsAuthenticated == true;
 
@@ -127,7 +127,7 @@
                         <span class="legal-summary__icon" aria-hidden="true"><i class="fa-solid fa-lightbulb"></i></span>
                         <div>
                             <strong>Tóm tắt nhanh</strong>
-                            <p>Chúng tôi chỉ dùng dữ liệu để vận hành buổi luyện phỏng vấn và đánh giá câu trả lời của bạn. <strong>Không lưu file ghi âm</strong>, không bán dữ liệu cá nhân. Bạn có thể xoá từng buổi luyện bất cứ lúc nào và yêu cầu xoá toàn bộ tài khoản.</p>
+                            <p>Chúng tôi chỉ dùng dữ liệu để vận hành buổi luyện phỏng vấn và đánh giá câu trả lời của bạn. <strong>Không lưu file ghi âm</strong>, không lưu file CV, không bán dữ liệu cá nhân. CV bạn chọn giữ lại nằm trong bộ nhớ trình duyệt của chính bạn. Bạn có thể xoá từng buổi luyện bất cứ lúc nào và yêu cầu xoá toàn bộ tài khoản.</p>
                         </div>
                     </div>
 
@@ -143,17 +143,17 @@
                             <div class="legal-card">
                                 <i class="fa-regular fa-id-card" aria-hidden="true"></i>
                                 <strong>Thông tin tài khoản</strong>
-                                <p>Họ tên, email, ảnh đại diện (khi đăng nhập bằng Google) và mật khẩu đã được băm.</p>
+                                <p>Họ tên, email, ảnh đại diện (lấy từ Google hoặc do bạn tải lên) và mật khẩu đã được băm.</p>
                             </div>
                             <div class="legal-card">
                                 <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
                                 <strong>Hồ sơ nghề nghiệp</strong>
-                                <p>Chuyên ngành, vị trí mong muốn, tình trạng tốt nghiệp, mức kinh nghiệm; nội dung CV nếu bạn tải lên.</p>
+                                <p>Chuyên ngành, vị trí mong muốn, tình trạng tốt nghiệp, mức kinh nghiệm; thông tin trích từ CV (PDF) nếu bạn tải lên.</p>
                             </div>
                             <div class="legal-card">
                                 <i class="fa-regular fa-comments" aria-hidden="true"></i>
                                 <strong>Nội dung buổi luyện</strong>
-                                <p>Câu hỏi, câu trả lời dạng văn bản (kể cả văn bản chuyển từ giọng nói), điểm số và nhận xét.</p>
+                                <p>Câu hỏi, câu trả lời dạng văn bản (kể cả văn bản chuyển từ giọng nói), câu hỏi đào sâu, điểm số và nhận xét.</p>
                             </div>
                             <div class="legal-card">
                                 <i class="fa-solid fa-wave-square" aria-hidden="true"></i>
@@ -176,8 +176,8 @@
                     <section id="muc-dich" class="legal-section" data-legal-section>
                         <h2 class="legal-section__title">@SectionTitle("muc-dich")</h2>
                         <ul class="legal-list">
-                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>Tạo và cá nhân hoá buổi phỏng vấn theo vị trí (và CV, nếu có).</li>
-                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>Chuyển giọng nói thành văn bản, chấm điểm, nhận xét và theo dõi tiến độ.</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>Tạo và cá nhân hoá buổi phỏng vấn theo vị trí (và CV, nếu bạn chọn dùng).</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>Chuyển giọng nói thành văn bản, đặt câu hỏi đào sâu, chấm điểm, nhận xét và theo dõi tiến độ.</li>
                             <li><i class="fa-solid fa-check" aria-hidden="true"></i>Xác thực tài khoản, gửi mã OTP, email kết quả (khi bạn chọn nhận).</li>
                             <li><i class="fa-solid fa-check" aria-hidden="true"></i>Chống spam, chặn đăng nhập trái phép và bảo vệ hệ thống.</li>
                         </ul>
@@ -189,8 +189,10 @@
 
                     <section id="giong-noi" class="legal-section" data-legal-section>
                         <h2 class="legal-section__title">@SectionTitle("giong-noi")</h2>
-                        <p>Khi bạn trả lời bằng giọng nói, trình duyệt xin quyền dùng micro. Đoạn ghi âm của <strong>từng câu trả lời</strong> được gửi tới dịch vụ nhận dạng giọng nói để chuyển thành văn bản, sau đó AI sửa lỗi chính tả và thuật ngữ.</p>
+                        <p>Khi bạn trả lời bằng giọng nói, trình duyệt xin quyền dùng micro. Giọng nói được xử lý theo hai đường:</p>
                         <ul class="legal-list">
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i><strong>Chữ hiện trực tiếp</strong> do tính năng nhận dạng giọng nói có sẵn của trình duyệt tạo ra (ví dụ Chrome xử lý qua máy chủ của Google).</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i>Đoạn ghi âm của <strong>từng câu trả lời</strong> được gửi tới Groq (Whisper) để chép lại chính xác hơn, sau đó Gemini sửa lỗi chính tả, thuật ngữ và gộp với chữ của trình duyệt.</li>
                             <li><i class="fa-solid fa-check" aria-hidden="true"></i>MockviewAI <strong>không lưu file ghi âm</strong> — chỉ lưu văn bản câu trả lời và các chỉ số giọng nói ở mục 2.</li>
                             <li><i class="fa-solid fa-check" aria-hidden="true"></i>Bạn luôn xem lại được văn bản trước khi gửi (chế độ Luyện tập), hoặc trả lời bằng cách gõ phím.</li>
                         </ul>
@@ -209,8 +211,9 @@
                                     <tr><th scope="col">Dịch vụ</th><th scope="col">Mục đích</th><th scope="col">Dữ liệu liên quan</th></tr>
                                 </thead>
                                 <tbody>
-                                    <tr><td>Groq (Whisper)</td><td>Chuyển giọng nói thành văn bản</td><td>Đoạn ghi âm câu trả lời, câu hỏi đang trả lời</td></tr>
-                                    <tr><td>Google Gemini</td><td>Sửa bản chép, chấm điểm, nhận xét, phân tích CV</td><td>Văn bản câu trả lời, câu hỏi, nội dung CV (nếu có)</td></tr>
+                                    <tr><td>Nhận dạng giọng nói của trình duyệt</td><td>Hiện chữ ngay khi bạn nói</td><td>Âm thanh từ micro, xử lý theo chính sách của trình duyệt bạn dùng</td></tr>
+                                    <tr><td>Groq (Whisper)</td><td>Chuyển giọng nói thành văn bản</td><td>Đoạn ghi âm câu trả lời</td></tr>
+                                    <tr><td>Google Gemini</td><td>Sửa bản chép, phản hồi và câu hỏi đào sâu, chấm điểm, nhận xét, phân tích CV</td><td>Văn bản câu trả lời, câu hỏi, file CV khi phân tích, tóm tắt CV của buổi (nếu có)</td></tr>
                                     <tr><td>Google OAuth</td><td>Đăng nhập bằng Google</td><td>Tên, email, ảnh đại diện</td></tr>
                                     <tr><td>Cloudflare Turnstile</td><td>Chống bot khi đăng nhập, đăng ký</td><td>Tín hiệu trình duyệt, địa chỉ IP</td></tr>
                                     <tr><td>Cloudinary</td><td>Lưu ảnh đại diện</td><td>Ảnh bạn tải lên</td></tr>
@@ -228,7 +231,9 @@
                             <li><i class="fa-solid fa-lock" aria-hidden="true"></i>Kết nối được mã hoá bằng HTTPS/TLS; mật khẩu được băm, không lưu dạng văn bản thuần.</li>
                             <li><i class="fa-solid fa-key" aria-hidden="true"></i>Khoá truy cập dịch vụ (API key, mật khẩu cơ sở dữ liệu) được tách khỏi mã nguồn.</li>
                             <li><i class="fa-solid fa-user-lock" aria-hidden="true"></i>Đăng nhập sai nhiều lần sẽ tạm khoá; yêu cầu gửi quá nhanh sẽ bị giới hạn.</li>
-                            <li><i class="fa-solid fa-box-archive" aria-hidden="true"></i>Tài khoản và lịch sử luyện tập được lưu cho tới khi bạn xoá buổi luyện hoặc yêu cầu xoá tài khoản; CV tải lên được lưu tạm tối đa 7 ngày.</li>
+                            <li><i class="fa-solid fa-box-archive" aria-hidden="true"></i>Tài khoản và lịch sử luyện tập được lưu cho tới khi bạn xoá buổi luyện hoặc yêu cầu xoá tài khoản.</li>
+                            <li><i class="fa-regular fa-file-lines" aria-hidden="true"></i>CV: file PDF chỉ dùng để phân tích, không được lưu lại. Bản phân tích chờ bạn xác nhận được giữ trên máy chủ tối đa 30 phút; CV bạn chọn lưu nằm trong bộ nhớ trình duyệt của bạn (tối đa 3 CV, tự xoá sau 30 ngày hoặc khi đăng xuất).</li>
+                            <li><i class="fa-regular fa-clock" aria-hidden="true"></i>Khi bắt đầu buổi phỏng vấn kèm CV, bản tóm tắt CV được giữ tạm trên máy chủ tối đa 6 giờ để đặt câu hỏi theo kinh nghiệm của bạn.</li>
                         </ul>
                     </section>
 
@@ -237,7 +242,7 @@
                         <div class="legal-grid legal-grid--3">
                             <div class="legal-card"><i class="fa-regular fa-eye" aria-hidden="true"></i><strong>Truy cập</strong><p>Xem hồ sơ và toàn bộ lịch sử luyện tập của bạn.</p></div>
                             <div class="legal-card"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i><strong>Chỉnh sửa</strong><p>Cập nhật thông tin trong trang Hồ sơ.</p></div>
-                            <div class="legal-card"><i class="fa-regular fa-trash-can" aria-hidden="true"></i><strong>Xoá</strong><p>Tự xoá từng buổi luyện trong Lịch sử; gửi email để xoá toàn bộ tài khoản.</p></div>
+                            <div class="legal-card"><i class="fa-regular fa-trash-can" aria-hidden="true"></i><strong>Xoá</strong><p>Tự xoá từng buổi luyện trong Lịch sử và từng CV trong CV của tôi; gửi email để xoá toàn bộ tài khoản.</p></div>
                         </div>
                         <div class="legal-actions">
                             <a href="/Profile" class="button button--secondary"><i class="fa-regular fa-user" aria-hidden="true"></i> Đến trang Hồ sơ</a>
@@ -247,8 +252,9 @@
 
                     <section id="cookie" class="legal-section" data-legal-section>
                         <h2 class="legal-section__title">@SectionTitle("cookie")</h2>
-                        <p>Chúng tôi chỉ dùng cookie <strong>bắt buộc</strong>: duy trì phiên đăng nhập và chống giả mạo yêu cầu (anti-forgery). Bộ nhớ trình duyệt (localStorage) chỉ dùng để ghi nhớ giao diện sáng/tối bạn chọn. Không có cookie quảng cáo hay theo dõi.</p>
-                        <p>Nếu tắt cookie, các chức năng cần đăng nhập sẽ không hoạt động.</p>
+                        <p>Chúng tôi chỉ dùng cookie <strong>bắt buộc</strong>: duy trì phiên đăng nhập và chống giả mạo yêu cầu (anti-forgery). Không có cookie quảng cáo hay theo dõi.</p>
+                        <p>Bộ nhớ trình duyệt (localStorage) dùng để ghi nhớ giao diện sáng/tối và lưu các CV bạn chọn giữ lại; bộ nhớ phiên (sessionStorage) chỉ giữ thông báo tạm thời. CV và dữ liệu phiên được xoá khỏi trình duyệt khi bạn đăng xuất.</p>
+                        <p>Nếu tắt cookie, các chức năng cần đăng nhập sẽ không hoạt động; nếu chặn bộ nhớ trình duyệt, bạn vẫn luyện tập được nhưng không lưu được CV.</p>
                     </section>
 
                     <section id="thay-doi" class="legal-section" data-legal-section>

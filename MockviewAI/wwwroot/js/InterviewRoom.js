@@ -3,7 +3,7 @@
 /// [AI-INTERVIEW] 
 /// Phòng phỏng vấn: đọc câu hỏi, nhận giọng nói, gửi câu trả lời, chấm điểm, chế độ Thực chiến.
 /// [SPEECH] 
-//  Khi dừng nói, bản ghi âm được gửi lên server (Whisper + Gemini) và thay cho chữ trình duyệt nhận dạng.
+/// Khi dừng nói, bản ghi âm được gửi lên server (Whisper + Gemini) và thay cho chữ trình duyệt nhận dạng.
 /// </summary>
 //#endregion
 
@@ -398,7 +398,7 @@
             case 'audio-capture':
                 return 'Không tìm thấy micro. Hãy cắm/bật micro rồi thử lại.';
             case 'network':
-                return 'Trình duyệt này không kết nối được dịch vụ chuyển giọng nói thành chữ (thường gặp ở Opera). ' +
+                return 'Trình duyệt này không kết nối được dịch vụ chuyển giọng nói thành chữ (thường gặp ở Opera, Brave). ' +
                     'Hãy mở bằng Chrome hoặc Edge, hoặc gõ câu trả lời.';
             case 'language-not-supported':
                 return 'Trình duyệt chưa hỗ trợ nhận giọng nói tiếng Việt. Hãy dùng Chrome/Edge hoặc gõ câu trả lời.';

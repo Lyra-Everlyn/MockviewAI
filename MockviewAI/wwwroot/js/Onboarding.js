@@ -1,7 +1,7 @@
 ﻿//#region Onboarding
 /// <summary>
 /// [ONBOARDING] 
-//  Form thiết lập hồ sơ 3 bước (ngành học + vị trí / tình trạng tốt nghiệp / mức kinh nghiệm).
+/// Form thiết lập hồ sơ 3 bước (ngành học + vị trí / tình trạng tốt nghiệp / mức kinh nghiệm).
 /// Kiểm tra từng bước rồi gửi JSON tới /Onboarding/Complete; thành công thì chuyển trang theo redirectUrl.
 /// </summary>
 //#endregion
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof window.Swal !== 'undefined') {
                 window.Swal.fire({
                     icon: 'error', title: 'Không thể hoàn tất', text: message,
-                    confirmButtonText: 'Đã hiểu', confirmButtonColor: '#5565ed',
+                    confirmButtonText: 'Đã hiểu', confirmButtonColor: 'var(--color-primary)',
                     position: 'center'
                 });
             }
