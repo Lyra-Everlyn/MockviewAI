@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof Swal === 'undefined' || !window.SystemAlerts) return;
 
     const {success, error, info} = window.SystemAlerts;
-    const common = {confirmButtonColor: '#5565ed', customClass: {popup: 'app-alert-dialog'}};
+    const common = {confirmButtonColor: 'var(--color-primary)', customClass: {popup: 'app-alert-dialog'}};
 
     if (success) {
         Swal.fire({...common,

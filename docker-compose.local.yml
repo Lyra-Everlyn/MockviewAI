@@ -1,82 +1,34 @@
-# =============================================================================
-#  MockviewAI — docker-compose.yml (LOCAL / DEVELOPMENT)
-# -----------------------------------------------------------------------------
-#  Dùng khi lập trình trên máy cá nhân: chỉ chạy MySQL + Redis bằng Docker,
-#  còn ứng dụng web chạy trực tiếp từ Visual Studio / `dotnet run` để debug.
-#
-#  Cách dùng:
-#    1. Đổi tên file này thành docker-compose.yml (bỏ phần .local / .txt).
-#       File production cũng tên docker-compose.yml, nên đừng để 2 file chung thư mục khi deploy.
-#    2. Tạo file .env cạnh file này, tối thiểu có:
-#         MYSQL_ROOT_PASSWORD=mat_khau_tuy_chon
-#    3. Chạy:  docker compose up -d
-#    4. Trong .env của ứng dụng, trỏ chuỗi kết nối về máy local, ví dụ:
-#         ConnectionStrings__DefaultConnection=Server=127.0.0.1;Port=3306;Database=mockview_database;Uid=root;Pwd=mat_khau_tuy_chon
-#         ConnectionStrings__RedisConnection=127.0.0.1:6379
-#
-#  Khác với production:
-#    - Mở cổng 3306 / 6379 ra máy (chỉ 127.0.0.1) để app chạy ngoài Docker kết nối được.
-#    - Dùng tài khoản root của MySQL cho tiện, không tạo user riêng.
-#    - Service web_mockview đang tắt (comment) — bật lên nếu muốn chạy cả app trong Docker.
-#
-#  LƯU Ý: container_name trùng với bản production. Không chạy 2 bản cùng lúc trên một máy.
-# =============================================================================
-
-# Docker Compose v2 bỏ qua dòng này (chỉ in cảnh báo), giữ lại để tương thích công cụ cũ.
-version: '3.8'
+# MockviewAI — Local: chỉ chạy MySQL + Redis, app chạy bằng Visual Studio / dotnet run.
+# Dùng: đổi tên thành docker-compose.yml (không commit đè bản production), cần MYSQL_ROOT_PASSWORD trong .env,
+# rồi chạy: docker compose up -d
 
 services:
 
-  # ---------------------------------------------------------------------------
-  #  CƠ SỞ DỮ LIỆU — MySQL 8.0
-  # ---------------------------------------------------------------------------
   db_mockview:
     image: mysql:8.0
     container_name: mysql_mockview_container
     restart: always
-
     environment:
-      # Cú pháp ${BIEN:?thông báo}: thiếu biến trong .env thì Compose DỪNG và in thông báo,
-      # tránh tạo MySQL với mật khẩu rỗng.
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
-      # Database được tạo tự động ở lần chạy đầu tiên (khi volume còn trống)
       MYSQL_DATABASE: mockview_database
-
     ports:
-      # Chỉ mở trên 127.0.0.1: máy khác trong cùng mạng Wi-Fi / LAN không truy cập được.
-      # Dùng cổng này cho app chạy bằng Visual Studio và cho công cụ quản lý DB (Workbench, DBeaver...).
       - "127.0.0.1:3306:3306"
-
     volumes:
-      # Giữ dữ liệu khi tắt / xoá container. Muốn làm sạch DB: docker compose down -v
       - mysql_data:/var/lib/mysql
-
     healthcheck:
-      # Kiểm tra MySQL đã sẵn sàng; dùng cho depends_on của web_mockview (khi bật service đó).
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s                        # Kiểm tra dày hơn production để khởi động nhanh khi dev
+      interval: 5s
       timeout: 5s
       retries: 5
 
-  # ---------------------------------------------------------------------------
-  #  BỘ NHỚ ĐỆM — Redis
-  # ---------------------------------------------------------------------------
   redis_mockview:
     image: redis:alpine
     container_name: redis_mockview_container
     restart: always
     ports:
-      # Chỉ mở trên 127.0.0.1 cho app chạy ngoài Docker. Không lưu volume: cache mất khi tắt là bình thường.
       - "127.0.0.1:6379:6379"
 
-  # ---------------------------------------------------------------------------
-  #  ỨNG DỤNG WEB — tắt mặc định (app chạy từ Visual Studio để debug)
-  #  Bỏ comment khối dưới nếu muốn chạy toàn bộ trong Docker giống production:
-  #    - App truy cập tại http://localhost:9090 (cổng 9090 trên máy -> 8080 trong container)
-  #    - Khi app chạy TRONG Docker, chuỗi kết nối phải dùng tên service:
-  #        Server=db_mockview;...   và   redis_mockview:6379
-  #      (không dùng 127.0.0.1 như khi chạy bằng Visual Studio)
-  # ---------------------------------------------------------------------------
+  # Bỏ comment để chạy cả app trong Docker
   # web_mockview:
   #   build:
   #     context: .
@@ -84,14 +36,16 @@ services:
   #   image: mockviewai:dev
   #   container_name: web_mockview_container
   #   restart: always
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     ConnectionStrings__DefaultConnection: "Server=db_mockview;Port=3306;Database=mockview_database;Uid=root;Pwd=${MYSQL_ROOT_PASSWORD}"
+  #     ConnectionStrings__RedisConnection: "redis_mockview:6379"
   #   ports:
   #     - "9090:8080"
   #   depends_on:
   #     db_mockview:
   #       condition: service_healthy
 
-# -----------------------------------------------------------------------------
-#  VOLUMES
-# -----------------------------------------------------------------------------
 volumes:
-  mysql_data:                             # Dữ liệu MySQL local (tách biệt với mysql_data_final của production)
+  mysql_data:

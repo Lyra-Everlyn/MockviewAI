@@ -24,6 +24,7 @@ using MockviewAI.Services.InterviewQuestions.Implementations;
 using MockviewAI.Services.InterviewQuestions.Interfaces;
 using MockviewAI.Services.Interviews;
 using MockviewAI.Services.Interviews.Conversation;
+using MockviewAI.Services.Interviews.Results;
 using MockviewAI.Services.KeyManagement.ProviderExtensions;
 using MockviewAI.Services.Onboarding;
 using MockviewAI.Services.Profiles;
@@ -36,8 +37,7 @@ using MockviewAI.Services.Speech.Interfaces;
 namespace MockviewAI
 {
     /// <summary>
-    /// [SYSTEM] 
-    /// Điểm khởi động: đăng ký dịch vụ (DI) rồi dựng pipeline xử lý request.
+    /// [SYSTEM] Điểm khởi động: đăng ký dịch vụ (DI) rồi dựng pipeline xử lý request.
     /// Mọi cấu hình nhạy cảm lấy từ biến môi trường (tab Environment trên Dokploy, hoặc file .env khi chạy local).
     /// </summary>
     public class Program
@@ -107,7 +107,11 @@ namespace MockviewAI
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IOnboardingService, OnboardingService>();
             services.AddScoped<IProfileService, ProfileService>();
+            services.AddSingleton<IAvatarFileValidator, AvatarFileValidator>();
             services.AddScoped<IInterviewService, InterviewService>();
+            services.AddScoped<IScoreRequestFactory, ScoreRequestFactory>();
+            services.AddScoped<ISessionResultBuilder, SessionResultBuilder>();
+            services.AddScoped<IResultEmailSender, ResultEmailSender>();
             services.AddScoped<IInterviewScoringService, InterviewScoringService>();
             services.AddScoped<ISessionHistoryService, SessionHistoryService>();
             services.AddScoped<IFeedbackService, FeedbackService>();
@@ -278,7 +282,7 @@ namespace MockviewAI
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseRateLimiter();   // sau xác thực: SpeechRateLimit / CvRateLimit chia theo email
+            app.UseRateLimiter();
 
             app.MapStaticAssets();
             app.MapControllerRoute(

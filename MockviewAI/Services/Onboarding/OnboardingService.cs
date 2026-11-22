@@ -1,4 +1,5 @@
 ﻿using MockviewAI.Models.DTOs;
+using MockviewAI.Models.Entities;
 using MockviewAI.Repositories.Interfaces;
 
 namespace MockviewAI.Services.Onboarding
@@ -21,19 +22,10 @@ namespace MockviewAI.Services.Onboarding
         #endregion
 
         #region IOnboardingService
-        public async Task SaveOnboardingInfoAsync(string email, OnboardingDto dto)
+        public async Task<bool> SaveOnboardingInfoAsync(string email, OnboardingDto dto)
         {
-            if (string.IsNullOrWhiteSpace(email))
-            {
-                throw new ArgumentException("Email cannot be empty.", nameof(email));
-            }
-
-            var user = await _userRepository.GetByEmailAsync(email);
-
-            if (user == null)
-            {
-                throw new KeyNotFoundException("User account not found.");
-            }
+            var user = await FindUserAsync(email);
+            if (user == null) return false;
 
             user.Major = dto.Major.Trim();
             user.TargetPosition = dto.TargetPosition.Trim();
@@ -43,14 +35,22 @@ namespace MockviewAI.Services.Onboarding
             user.UpdateAt = DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user);
+            return true;
         }
 
         public async Task<bool> IsOnboardingCompletedAsync(string email)
         {
-            if (string.IsNullOrWhiteSpace(email)) return false;
-
-            var user = await _userRepository.GetByEmailAsync(email);
+            var user = await FindUserAsync(email);
             return user?.IsOnboardingCompleted ?? false;
+        }
+        #endregion
+
+        #region Helpers
+        /// <summary>Email lưu chữ thường nên chuẩn hoá trước khi tìm (giống các service khác).</summary>
+        private async Task<User?> FindUserAsync(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return null;
+            return await _userRepository.GetByEmailAsync(email.Trim().ToLowerInvariant());
         }
         #endregion
     }
