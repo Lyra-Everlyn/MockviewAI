@@ -1,4 +1,5 @@
-﻿/* Profile / ViewProfile */
+﻿/* MockviewAI | Hồ sơ cá nhân
+   Bố cục riêng của Views/Profile/ViewProfile.cshtml. */
 
 .profile-page {
     padding-bottom: 72px;
@@ -162,8 +163,17 @@
     display: none;
 }
 
-/* ---------- Tablet ---------- */
+/* Mục tài khoản chưa dùng được (Xoá tài khoản) */
+.settings-item--button:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
 
+    .settings-item--button:disabled:hover {
+        background: transparent;
+    }
+
+/* #region Máy tính bảng */
 @media (max-width: 900px) {
     .profile-layout {
         grid-template-columns: minmax(245px, .8fr) minmax(0, 1.35fr);
@@ -181,9 +191,9 @@
         border-radius: 19px;
     }
 }
+/* #endregion */
 
-/* ---------- Mobile ---------- */
-
+/* #region Điện thoại */
 @media (max-width: 680px) {
     .profile-page__header {
         display: none;
@@ -289,3 +299,4 @@
         width: 100%;
     }
 }
+/* #endregion */

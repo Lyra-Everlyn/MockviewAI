@@ -1,15 +1,13 @@
 ﻿namespace MockviewAI.Services.Speech
 {
     /// <summary>
-    /// [SPEECH]
-    /// AudioFormats
-    /// -- Danh sách định dạng ghi âm được chấp nhận (khớp với định dạng Groq Whisper đọc được)
-    ///    và phần mở rộng file tương ứng (Whisper dựa vào phần mở rộng để giải mã).
-    /// -- Trình duyệt: Chrome/Edge/Firefox ghi audio/webm (opus), Safari ghi audio/mp4 (aac).
+    /// [SPEECH] 
+    /// Định dạng ghi âm được chấp nhận (khớp với định dạng Groq Whisper đọc được) và đuôi file tương ứng
+    /// (Whisper dựa vào đuôi file để giải mã). Chrome / Edge / Firefox ghi audio/webm (opus), Safari ghi audio/mp4 (aac).
     /// </summary>
     public static class AudioFormats
     {
-        #region Supported formats
+        #region Định dạng hỗ trợ
         private static readonly Dictionary<string, string> Extensions = new(StringComparer.OrdinalIgnoreCase)
         {
             ["audio/webm"] = ".webm",
@@ -29,9 +27,8 @@
         #endregion
 
         #region API
-        /// <summary>
-        /// Lấy phần mở rộng file từ Content-Type (bỏ phần tham số như ";codecs=opus").
-        /// </summary>
+        /// <summary>Lấy đuôi file từ Content-Type (bỏ phần tham số như ";codecs=opus").</summary>
+        /// <param name="mediaType">Content-Type đã bỏ tham số, chữ thường.</param>
         /// <returns>false nếu định dạng không được hỗ trợ.</returns>
         public static bool TryGetExtension(string? contentType, out string mediaType, out string extension)
         {

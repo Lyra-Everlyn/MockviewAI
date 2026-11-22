@@ -1,11 +1,12 @@
-﻿namespace MockviewAI.Services.CvParser
+namespace MockviewAI.Services.CvParser
 {
     /// <summary>
-    /// [USER CV]
-    /// -- Dịch vụ tách và làm sạch data có trong CV người dùng
+    /// [USER CV] 
+    /// Tách chữ có sẵn trong file PDF (không OCR).
     /// </summary>
     public interface ICvExtractionService
     {
-        Task<string> ExtractAndCleanTextAsync(IFormFile file);
+        /// <summary>Chuỗi rỗng hoặc rất ngắn = PDF scan.</summary>
+        string ExtractText(byte[] pdf);
     }
 }

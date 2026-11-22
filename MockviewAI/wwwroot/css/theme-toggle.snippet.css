@@ -1,9 +1,8 @@
+/* [KHÔNG DÙNG] 
+    Bản nháp khi thêm nút chuyển theme. Nội dung đã gộp vào components.css (bản dùng biến theme),
+   không trang nào nạp file này. Giữ lại để tham khảo, có thể xoá. */
 
-/* ---------- Theme Toggle ---------- */
-/* #region Theme Toggle
-   [THEME] Nút chuyển giao diện sáng / tối (thay nhãn "VER 2.0.0").
-   Chỉ khai báo cấu trúc; màu lấy từ biến của theme-*.css. Icon / chữ đổi theo html[data-theme].
-*/
+/* #region Theme Toggle */
 
 .theme-toggle {
     display: inline-flex;

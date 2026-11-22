@@ -1,179 +1,53 @@
-# =============================================================================
-#  MockviewAI — docker-compose.yml (PRODUCTION)
-# -----------------------------------------------------------------------------
-#  Môi trường : Production — VPS Hostinger, triển khai qua Dokploy
-#  Tên miền   : https://mockviewai.com
-#  Thành phần : 3 container trong cùng mạng nội bộ của Compose
-#                 - db_mockview    : MySQL 8.0 (dữ liệu chính)
-#                 - redis_mockview : Redis (cache, phiên làm việc)
-#                 - web_mockview   : ASP.NET Core MVC (build từ MockviewAI/Dockerfile)
-#
-#  Bí mật (mật khẩu, API key...) KHÔNG ghi trong file này.
-#  Mọi giá trị dạng ${TEN_BIEN} được khai báo ở tab "Environment" của Dokploy;
-#  Dokploy tự sinh file .env cạnh file này khi deploy.
-#
-#  HTTPS & tên miền do reverse proxy Traefik tích hợp sẵn của Dokploy đảm nhận:
-#  Traefik nhận request từ mockviewai.com, cấp chứng chỉ SSL tự động,
-#  rồi chuyển tiếp vào cổng nội bộ 8080 của web_mockview.
-# =============================================================================
-
-# Khai báo phiên bản định dạng Compose.
-# Docker Compose v2 bỏ qua dòng này (chỉ in cảnh báo), giữ lại để tương thích công cụ cũ.
-version: '3.8'
+# MockviewAI — Production
 
 services:
 
-  # ---------------------------------------------------------------------------
-  #  CƠ SỞ DỮ LIỆU — MySQL 8.0
-  # ---------------------------------------------------------------------------
   db_mockview:
     image: mysql:8.0
     container_name: mysql_mockview_container
-    restart: always                       # Tự khởi động lại khi lỗi hoặc khi VPS reboot
-
+    restart: always
     environment:
-      # Mật khẩu tài khoản root — chỉ dùng cho quản trị, ứng dụng KHÔNG đăng nhập bằng root
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-      # Database được tạo tự động ở lần chạy đầu tiên (khi volume còn trống)
       MYSQL_DATABASE: "mockview_database"
-      # Tài khoản riêng cho ứng dụng, chỉ có quyền trên mockview_database
       MYSQL_USER: "mockview_user"
       MYSQL_PASSWORD: "${MYSQL_USER_PASSWORD}"
-
-    # Không mở cổng 3306 ra ngoài: chỉ web_mockview truy cập được qua mạng nội bộ Compose.
-
     volumes:
-      # Lưu dữ liệu MySQL ra volume để không mất khi container bị xoá / build lại.
-      # LƯU Ý: đổi tên volume này = MySQL khởi tạo database MỚI, trống.
       - mysql_data_final:/var/lib/mysql
-
     healthcheck:
-      # web_mockview chỉ khởi động khi MySQL trả lời "ping" (xem depends_on bên dưới).
-      # Dùng 127.0.0.1 (TCP) thay cho localhost để chắc chắn MySQL đã nhận kết nối mạng.
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
-      interval: 10s                       # Kiểm tra mỗi 10 giây
-      timeout: 10s                        # Quá 10 giây không trả lời = 1 lần thất bại
-      retries: 15                         # Cho MySQL tối đa ~150 giây để khởi động lần đầu
+      interval: 10s
+      timeout: 10s
+      retries: 15
 
-  # ---------------------------------------------------------------------------
-  #  BỘ NHỚ ĐỆM — Redis
-  # ---------------------------------------------------------------------------
   redis_mockview:
-    image: redis:alpine                   # Bản alpine: nhẹ, đủ dùng cho cache
+    image: redis:alpine
     container_name: redis_mockview_container
     restart: always
-    # Không mở cổng 6379 ra ngoài và không lưu volume:
-    # Redis chỉ chứa cache / dữ liệu tạm, mất khi khởi động lại là chấp nhận được.
 
-  # ---------------------------------------------------------------------------
-  #  ỨNG DỤNG WEB — ASP.NET Core MVC (.NET)
-  # ---------------------------------------------------------------------------
   web_mockview:
     build:
-      context: .                          # Gốc repo (chứa MockviewAI.slnx)
+      context: .
       dockerfile: MockviewAI/Dockerfile
-    image: mockviewai:dev                 # Tên image sau khi build trên VPS
+    image: mockviewai:dev
     container_name: web_mockview_container
     restart: always
-
-    # Biến môi trường dạng Section__Key (2 dấu gạch dưới) được ASP.NET Core
-    # đọc thành cấu hình Section:Key, ghi đè giá trị trong appsettings.json.
+    # Toàn bộ biến trong .env được đưa vào container
+    env_file:
+      - .env
+    # Ghi đè .env: trong Docker phải dùng tên service và tài khoản riêng của ứng dụng
     environment:
-      # --- Kết nối nội bộ: dùng TÊN SERVICE làm host (db_mockview, redis_mockview) ---
       ConnectionStrings__DefaultConnection: "Server=db_mockview;Port=3306;Database=mockview_database;Uid=mockview_user;Pwd=${MYSQL_USER_PASSWORD}"
       ConnectionStrings__RedisConnection: "redis_mockview:6379"
-
-      # --- Cloudflare Turnstile (CAPTCHA chống spam ở trang Auth) ---
-      Turnstile__SiteKey: "${Turnstile__SiteKey}"
-      Turnstile__SecretKey: "${Turnstile__SecretKey}"
-
-      # --- SMTP: gửi mã OTP, khôi phục mật khẩu, email kết quả phỏng vấn ---
-      SmtpSettings__Server: "${SmtpSettings__Server}"
-      SmtpSettings__Port: "${SmtpSettings__Port}"
-      SmtpSettings__Username: "${SmtpSettings__Username}"
-      SmtpSettings__SenderName: "${SmtpSettings__SenderName}"
-      SmtpSettings__SenderEmail: "${SmtpSettings__SenderEmail}"
-      SmtpSettings__Password: "${SmtpSettings__Password}"
-
-      # --- Đăng nhập Google (OAuth 2.0, callback /signin-google) ---
-      Authentication__Google__ClientId: "${Authentication__Google__ClientId}"
-      Authentication__Google__ClientSecret: "${Authentication__Google__ClientSecret}"
-
-      # --- Cloudinary: lưu ảnh đại diện / file người dùng ---
-      CloudinarySettings__CloudName: "${CloudinarySettings__CloudName}"
-      CloudinarySettings__ApiSecret: "${CloudinarySettings__ApiSecret}"
-      CloudinarySettings__ApiKey: "${CloudinarySettings__ApiKey}"
-
-      # --- AI chấm điểm phỏng vấn ---
-      # Ai__Provider = "Gemini" -> gọi Gemini thật; giá trị khác -> dùng MockAiScoringService (dữ liệu giả)
-      Ai__Provider: "${Ai__Provider}"
-      Gemini__Model: "${Gemini__Model}"     # Phải là model sinh văn bản (không dùng bản -tts, -live, image...)
-      Gemini__ApiKey: "${Gemini__ApiKey}"   # Key dự phòng: chỉ dùng khi danh sách Gemini__ApiKeys__N trống
-
-      # --- Xoay vòng API key (ApiKeyRotationService) ---
-      # Key hết lượt / bị khoá (401, 403, 429) -> nghỉ 1 phút, tự chuyển sang key kế tiếp.
-      # Ô nào để trống trong Dokploy sẽ bị bỏ qua, nên có thể khai báo ít hơn 6 key.
-      # Thêm key thứ 7 trở đi: thêm dòng ở ĐÂY và khai báo trong Dokploy (cả 2 nơi).
-      Gemini__ApiKeys__0: "${Gemini__ApiKeys__0:-}"
-      Gemini__ApiKeys__1: "${Gemini__ApiKeys__1:-}"
-      Gemini__ApiKeys__2: "${Gemini__ApiKeys__2:-}"
-      Gemini__ApiKeys__3: "${Gemini__ApiKeys__3:-}"
-      Gemini__ApiKeys__4: "${Gemini__ApiKeys__4:-}"
-      Gemini__ApiKeys__5: "${Gemini__ApiKeys__5:-}"
-
-      # Groq: dùng cho nhận giọng nói (Whisper). Thiếu hết key -> phòng phỏng vấn báo "thiếu Groq API key".
-      Groq__ApiKeys__0: "${Groq__ApiKeys__0:-}"
-      Groq__ApiKeys__1: "${Groq__ApiKeys__1:-}"
-      Groq__ApiKeys__2: "${Groq__ApiKeys__2:-}"
-      Groq__ApiKeys__3: "${Groq__ApiKeys__3:-}"
-      Groq__ApiKeys__4: "${Groq__ApiKeys__4:-}"
-      Groq__ApiKeys__5: "${Groq__ApiKeys__5:-}"
-
-      # --- Nhận giọng nói (STT): Groq Whisper -> lọc ảo giác -> Gemini chuẩn hoá ---
-      # Cú pháp ${TEN:-mặc_định}: Dokploy không khai báo (hoặc để trống) -> dùng giá trị mặc định,
-      # tránh truyền chuỗi rỗng vào ô kiểu số / true-false (ứng dụng sẽ lỗi khi khởi động).
-      Speech__WhisperModel: "${Speech__WhisperModel:-whisper-large-v3}"
-      Speech__WhisperFallbackModel: "${Speech__WhisperFallbackModel:-}"            # Trống = không thử model thứ 2
-      Speech__Language: "${Speech__Language:-vi}"
-      Speech__MaxAudioBytes: "${Speech__MaxAudioBytes:-10485760}"                 # 10 MB
-      Speech__TranscribeTimeoutSeconds: "${Speech__TranscribeTimeoutSeconds:-30}"
-      # Ngưỡng bỏ đoạn Whisper tự bịa trên khoảng im lặng
-      Speech__NoSpeechThreshold: "${Speech__NoSpeechThreshold:-0.6}"
-      Speech__LogprobThreshold: "${Speech__LogprobThreshold:--1.0}"
-      Speech__CompressionRatioThreshold: "${Speech__CompressionRatioThreshold:-2.4}"
-      # Gợi ý ngầm cho Whisper. Cú pháp ${TEN-...} (KHÔNG có dấu hai chấm): chỉ dùng mặc định khi
-      # CHƯA khai báo; khai báo rỗng (Speech__WhisperStylePrompt=) = TẮT câu mẫu.
-      Speech__UseQuestionAsWhisperPrompt: "${Speech__UseQuestionAsWhisperPrompt:-false}"
-      Speech__WhisperStylePrompt: "${Speech__WhisperStylePrompt-Dạ, em làm backend với C#, .NET Core, Docker, Redis cache, PostgreSQL và REST API.}"
-      # Gemini sửa chính tả / thuật ngữ; lỗi hoặc quá giờ -> dùng nguyên bản Whisper
-      Speech__NormalizeTranscript: "${Speech__NormalizeTranscript:-true}"
-      Speech__NormalizerModel: "${Speech__NormalizerModel:-gemini-3.5-flash-lite}"
-      Speech__NormalizerFallbackModel: "${Speech__NormalizerFallbackModel:-}"      # Trống = dùng Gemini__Model
-      Speech__NormalizerThinkingLevel: "${Speech__NormalizerThinkingLevel:-minimal}"
-      Speech__NormalizeAttemptTimeoutSeconds: "${Speech__NormalizeAttemptTimeoutSeconds:-8}"
-      Speech__NormalizeTimeoutSeconds: "${Speech__NormalizeTimeoutSeconds:-14}"
-      Speech__MaxLengthChangeRatio: "${Speech__MaxLengthChangeRatio:-0.3}"
-
-      # --- Khoá mã hoá cookie đăng nhập / mã chống giả mạo form (Data Protection) ---
-      # Lưu ra volume dataprotection_keys: deploy lại KHÔNG đăng xuất người dùng, form đang mở không bị lỗi 400.
       DataProtection__KeysPath: "/app/keys"
-
     volumes:
-      # Khoá Data Protection. KHÔNG xoá volume này: mất khoá = mọi người dùng bị đăng xuất.
       - dataprotection_keys:/app/keys
-
     ports:
-      # Cổng HOST:CONTAINER. Ứng dụng lắng nghe cổng 8080 bên trong container.
-      # Traefik của Dokploy định tuyến mockviewai.com -> cổng 8080 này.
       - "8080:8080"
-
     depends_on:
       db_mockview:
-        condition: service_healthy        # Chờ MySQL healthy rồi mới chạy (app tự chạy Migration khi khởi động)
+        condition: service_healthy
 
-# -----------------------------------------------------------------------------
-#  VOLUMES — vùng lưu trữ bền vững do Docker quản lý trên VPS
-# -----------------------------------------------------------------------------
+# KHÔNG đổi tên / xoá: mất mysql_data_final = mất dữ liệu, mất dataprotection_keys = mọi người bị đăng xuất
 volumes:
-  mysql_data_final:                       # Dữ liệu MySQL production — KHÔNG xoá
-  dataprotection_keys:                    # Khoá mã hoá cookie / form — KHÔNG xoá
+  mysql_data_final:
+  dataprotection_keys:

@@ -6,41 +6,53 @@ using MockviewAI.Models.Security;
 namespace MockviewAI.Services.Security
 {
     /// <summary>
-    /// Lớp mở rộng (Extension Methods) giúp đóng gói các cấu hình bảo mật.
-    /// Giúp file Program.cs giữ được sự gọn gàng và dễ bảo trì.
+    /// [SECURITY] 
+    /// Đóng gói cấu hình bảo mật: chống dò mật khẩu, CAPTCHA, proxy (Traefik), khoá mã hoá cookie, HTTP header.
     /// </summary>
     public static class SecurityExtensions
     {
+        #region Content Security Policy
         /// <summary>
-        /// Đăng ký các dịch vụ bảo mật vào DI Container.
-        /// Cách gọi: builder.Services.AddAppSecurity(builder.Configuration);
+        /// Đang chạy chế độ Report-Only: trình duyệt chỉ báo vi phạm ở Console, chưa chặn.
+        /// Kiểm tra mọi trang không còn cảnh báo thì đổi thành true.
         /// </summary>
+        private const bool CspEnforce = false;
+
+        /// <summary>Các nguồn được phép nạp script, style, font, ảnh, khung (CDN, Cloudflare Turnstile).</summary>
+        private static readonly string ContentSecurityPolicy = string.Join("; ",
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com",
+            "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com",
+            "font-src 'self' data: https://cdnjs.cloudflare.com",
+            "img-src 'self' data: blob: https:",
+            "media-src 'self' blob:",
+            "connect-src 'self'",
+            "frame-src https://challenges.cloudflare.com",
+            "object-src 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+            "frame-ancestors 'none'");
+        #endregion
+
+        #region Đăng ký dịch vụ
+        /// <summary>Dùng: builder.Services.AddAppSecurity(builder.Configuration);</summary>
         public static IServiceCollection AddAppSecurity(this IServiceCollection services, IConfiguration config)
         {
             services.Configure<SecurityOptions>(config.GetSection("Security"));
             services.AddSingleton<ILoginThrottleService, LoginThrottleService>();
-            services.AddHttpClient<ITurnstileService, TurnstileService>();
+            services.AddHttpClient<ITurnstileService, TurnstileService>(c => c.Timeout = TimeSpan.FromSeconds(10));
 
-            // Cấu hình nhận diện IP thật và giao thức (HTTPS) khi chạy phía sau Proxy (Nginx, Traefik, Docker...)
+            // Tin header X-Forwarded-* chỉ khi đến từ mạng nội bộ Docker (Traefik), để lấy đúng IP và https của người dùng
             services.Configure<ForwardedHeadersOptions>(o =>
             {
                 o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-
-                //o.KnownIPNetworks.Clear();
-                //o.KnownProxies.Clear();
-
-                // Chỉ đọc 1 lớp Proxy gần nhất (chống client tự chèn chuỗi X-Forwarded-For giả ở phía trước)
                 o.ForwardLimit = 1;
-
-                // Tin tưởng toàn bộ các dải IP nội bộ chuẩn RFC 1918 (Docker, LAN, Cloud VPC) + Loopback mặc định (127.0.0.1)
                 o.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("10.0.0.0/8"));
                 o.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("172.16.0.0/12"));
                 o.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("192.168.0.0/16"));
             });
 
-            // Lưu bộ khoá mã hoá (cookie đăng nhập, mã chống giả mạo form) ra thư mục bền vững.
-            // Không lưu: mỗi lần deploy container mới tạo khoá mới -> người dùng bị đăng xuất, form đang mở báo lỗi 400.
-            // Production: DataProtection__KeysPath=/app/keys (gắn volume trong docker-compose). Local: thư mục keys cạnh ứng dụng.
+            // Khoá mã hoá cookie lưu ra đĩa để không bị đăng xuất hàng loạt mỗi lần container khởi động lại
             var keysPath = config["DataProtection:KeysPath"];
             if (string.IsNullOrWhiteSpace(keysPath))
                 keysPath = Path.Combine(AppContext.BaseDirectory, "keys");
@@ -51,55 +63,37 @@ namespace MockviewAI.Services.Security
             return services;
         }
 
-        /// <summary>
-        /// Thiết lập các thuộc tính bảo mật nghiêm ngặt cho Authentication Cookie.
-        /// Cách gọi: options.HardenCookie(); (Bên trong AddCookie)
-        /// </summary>
+        /// <summary>Cookie đăng nhập: HttpOnly, SameSite=Lax, sống 8 giờ (trượt). Dùng trong AddCookie: options.HardenCookie();</summary>
         public static void HardenCookie(this CookieAuthenticationOptions options)
         {
-            // Chống XSS: Ngăn JavaScript truy cập cookie
             options.Cookie.HttpOnly = true;
-
-            // Chống CSRF: Hạn chế gửi cookie qua các request chéo trang (Lax vẫn cho phép Google Redirect)
-            options.Cookie.SameSite = SameSiteMode.Lax;
-
-            // Yêu cầu HTTPS trên môi trường Production
+            options.Cookie.SameSite = SameSiteMode.Lax;   // Lax vẫn cho Google redirect về
             options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-
             options.ExpireTimeSpan = TimeSpan.FromHours(8);
             options.SlidingExpiration = true;
         }
+        #endregion
 
-        /// <summary>
-        /// Kích hoạt Middleware bảo mật trong HTTP Pipeline.
-        /// Cách gọi: app.UseAppSecurity(); (Bên dưới app.Build())
-        /// </summary>
+        #region Pipeline
+        /// <summary>Đọc header proxy rồi gắn header bảo mật cho mọi phản hồi. Dùng ngay sau ErrorHandlingMiddleware.</summary>
         public static IApplicationBuilder UseAppSecurity(this IApplicationBuilder app)
         {
-            // Bắt buộc phải chạy đầu tiên để các Middleware sau nhận đúng IP/Giao thức
             app.UseForwardedHeaders();
 
-            // Bổ sung các HTTP Security Headers cơ bản phòng thủ tấn công phổ biến
             app.Use(async (context, next) =>
             {
                 var headers = context.Response.Headers;
-
-                // Ngăn trình duyệt tự ý đoán định dạng file (chống MIME-sniffing)
                 headers["X-Content-Type-Options"] = "nosniff";
-
-                // Ngăn trang web bị nhúng vào iframe của domain khác (chống Clickjacking)
                 headers["X-Frame-Options"] = "DENY";
-
-                // Bảo mật thông tin Referrer khi điều hướng sang trang khác
                 headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
-
-                // Giới hạn quyền truy cập phần cứng (chỉ cho phép camera/mic cho phòng phỏng vấn, tắt geolocation)
                 headers["Permissions-Policy"] = "camera=(self), microphone=(self), geolocation=()";
+                headers[CspEnforce ? "Content-Security-Policy" : "Content-Security-Policy-Report-Only"] = ContentSecurityPolicy;
 
                 await next();
             });
 
             return app;
         }
+        #endregion
     }
 }

@@ -1,36 +1,27 @@
-// [AI-INTERVIEW] Soạn email kết quả buổi luyện gửi cho người dùng (chỉ khi họ tick đồng ý ở trang Tạo buổi luyện).
-// Mọi chữ do người dùng/AI tạo ra đều được HTML-encode trước khi đưa vào email (chống chèn mã).
-// Nếu điểm thấp hoặc dấu hiệu lo lắng cao: thêm lời hỏi thăm và đề nghị hỗ trợ.
-
 using System.Globalization;
 using System.Net;
 using System.Text;
 
 namespace MockviewAI.Services.Emails
 {
-    public class ResultEmailModel
-    {
-        public string FirstName { get; set; } = string.Empty;
-        public string Position { get; set; } = string.Empty;
-        public string InterviewerName { get; set; } = string.Empty;
-        public DateTime StartedAt { get; set; }
-        public int QuestionCount { get; set; }
-        public int TotalScore { get; set; }
-        public int? ContentScore { get; set; }       // null: AI lỗi, chấm dự phòng
-        public int DeliveryScore { get; set; }
-        public int AnxietyIndicator { get; set; }    // 0 = chưa đủ dữ liệu
-        public List<string> AnxietyReasons { get; set; } = new();
-        public string Summary { get; set; } = string.Empty;
-        public List<string> Strengths { get; set; } = new();
-        public List<string> Improvements { get; set; } = new();
-        public List<string> DeliveryTips { get; set; } = new();
-    }
-
+    /// <summary>
+    /// [EMAIL] 
+    /// Soạn email kết quả buổi luyện (chỉ gửi khi người dùng tick đồng ý ở trang Tạo buổi).
+    /// Mọi chữ do người dùng / AI tạo đều được HTML-encode trước khi đưa vào email.
+    /// Điểm thấp hoặc lo lắng cao thì thêm lời hỏi thăm và đề nghị hỗ trợ.
+    /// Màu viết cứng vì trình đọc email không tải được file theme.
+    /// </summary>
     public static class ResultEmailBuilder
     {
+        #region Ngưỡng
+        /// <summary>Điểm tổng dưới mức này thì thêm khối đề nghị hỗ trợ.</summary>
         private const int LowScore = 50;
-        private const int HighAnxiety = 7;
 
+        /// <summary>Dấu hiệu lo lắng từ mức này thì thêm khối đề nghị hỗ trợ và lời khuyên tìm người tư vấn.</summary>
+        private const int HighAnxiety = 7;
+        #endregion
+
+        #region Soạn email
         public static string BuildSubject(ResultEmailModel m) =>
             $"[MockviewAI] Kết quả buổi luyện phỏng vấn {m.Position} ({Date(m)})";
 
@@ -42,6 +33,7 @@ namespace MockviewAI.Services.Emails
             string name = string.IsNullOrWhiteSpace(m.FirstName) ? "bạn" : m.FirstName.Trim();
             var sb = new StringBuilder();
 
+            // Đầu email
             sb.Append("<div style=\"font-family:'Segoe UI',Arial,sans-serif;max-width:600px;margin:0 auto;color:#1f2a44;line-height:1.6\">");
             sb.Append("<div style=\"background:#2949ff;color:#fff;padding:20px 24px;border-radius:12px 12px 0 0\">");
             sb.Append("<div style=\"font-size:20px;font-weight:700\">MockviewAI</div>");
@@ -53,7 +45,7 @@ namespace MockviewAI.Services.Emails
                       $"với người phỏng vấn {E(m.InterviewerName)} ngày {Date(m)} ({m.QuestionCount} câu). " +
                       "Dưới đây là kết quả tham khảo của bạn.</p>");
 
-            // Điểm
+            // Bảng điểm
             sb.Append("<table style=\"width:100%;border-collapse:collapse;margin:16px 0\">");
             sb.Append(Row("Điểm tổng (tham khảo)", $"<strong style=\"font-size:20px;color:#2949ff\">{m.TotalScore}/100</strong>"));
             sb.Append(Row("Nội dung câu trả lời", m.ContentScore is int c ? $"{c}/100" : "Chưa có (AI đang bận)"));
@@ -69,6 +61,7 @@ namespace MockviewAI.Services.Emails
                           "(từ đệm, khoảng lặng, tốc độ...), không phải đánh giá y tế." + reasons + "</p>");
             }
 
+            // Nhận xét
             if (!string.IsNullOrWhiteSpace(m.Summary))
                 sb.Append($"<h3 style=\"margin:20px 0 6px\">Nhận xét chung</h3><p>{E(m.Summary)}</p>");
 
@@ -76,6 +69,7 @@ namespace MockviewAI.Services.Emails
             sb.Append(ListSection("Nên cải thiện", m.Improvements));
             sb.Append(ListSection("Gợi ý về cách nói", m.DeliveryTips));
 
+            // Lời hỏi thăm / động viên
             if (NeedsSupport(m))
             {
                 sb.Append("<div style=\"background:#fff8e6;border:1px solid #f5d98b;border-radius:10px;padding:14px 16px;margin:20px 0\">");
@@ -95,6 +89,7 @@ namespace MockviewAI.Services.Emails
                 sb.Append("<p>Bạn đang làm rất tốt. Hãy tiếp tục luyện đều đặn để tự tin hơn trong buổi phỏng vấn thật nhé.</p>");
             }
 
+            // Chân email
             sb.Append("<p style=\"margin-top:24px\">Trân trọng,<br>Đội ngũ MockviewAI</p>");
             sb.Append("<hr style=\"border:0;border-top:1px solid #e3e8f5;margin:20px 0\">");
             sb.Append("<p style=\"font-size:12px;color:#8a93a8\">Bạn nhận email này vì đã chọn \"Gửi kết quả về email\" khi tạo buổi luyện. " +
@@ -103,11 +98,14 @@ namespace MockviewAI.Services.Emails
 
             return sb.ToString();
         }
+        #endregion
 
+        #region Helpers
         private static string Date(ResultEmailModel m) => m.StartedAt.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
 
         private static string LevelText(int level) => level <= 3 ? "Thấp" : level <= 6 ? "Trung bình" : "Cao";
 
+        /// <summary>Một dòng bảng điểm; <paramref name="valueHtml"/> đã an toàn (chỉ chứa số hoặc chữ đã encode).</summary>
         private static string Row(string label, string valueHtml) =>
             "<tr><td style=\"padding:8px 0;border-bottom:1px solid #eef1fa;color:#55607a\">" + label +
             "</td><td style=\"padding:8px 0;border-bottom:1px solid #eef1fa;text-align:right\">" + valueHtml + "</td></tr>";
@@ -121,6 +119,8 @@ namespace MockviewAI.Services.Emails
             return sb.ToString();
         }
 
+        /// <summary>HTML-encode, chống chèn mã vào email.</summary>
         private static string E(string text) => WebUtility.HtmlEncode(text ?? string.Empty);
+        #endregion
     }
 }

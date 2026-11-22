@@ -1,4 +1,5 @@
-﻿/* History page: layout only. All colors, surfaces and shadows come from theme-indigo.css. */
+﻿/* MockviewAI | Lịch sử luyện tập
+   Bố cục riêng của Views/Home/History.cshtml. */
 .history-panel {
     padding: 30px;
 }
@@ -62,7 +63,7 @@
     margin-top: 5px;
 }
 
-/* LIVE-MODE status in reused session card (History page only). */
+/* Nhãn Thực chiến trên thẻ buổi luyện (chỉ trang Lịch sử) */
 .history-page .session-card__live {
     display: inline-flex;
     align-items: center;

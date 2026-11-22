@@ -1,23 +1,42 @@
-﻿/* Upload CV: progressive enhancement only. Real file validation must also run on the server. */
+﻿//#region UploadCV
+/// <summary>
+/// [USER CV] Chọn / kéo thả CV, kiểm tra nhanh. Đủ số CV thì khoá form.
+/// </summary>
+//#endregion
 document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('CvFile');
     const zone = document.getElementById('cvDropzone');
     const form = document.getElementById('cvUploadForm');
-    if (!input || !zone || !form) return; // review state has no file picker
+    if (!input || !zone || !form) return;
 
+    //#region Config
     const selected = document.getElementById('cvSelected');
     const name = document.getElementById('cvSelectedName');
     const size = document.getElementById('cvSelectedSize');
     const error = document.getElementById('cvFileError');
     const remove = document.getElementById('cvRemoveFile');
-    const MAX_BYTES = 10 * 1024 * 1024; // Align this value with your backend request/file limit.
-    const ALLOWED = /\.(pdf|jpe?g|png)$/i;
+    const MAX_BYTES = 10 * 1024 * 1024;
+    const ALLOWED_EXT = /\.pdf$/i;
+    //#endregion
 
+    //#region Limit
+    const limitNotice = document.getElementById('cvLimitNotice');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const isFull = !!(window.MockviewCv && window.MockviewCv.hasOwner && window.MockviewCv.isFull());
+    if (isFull) {
+        if (limitNotice) limitNotice.hidden = false;
+        if (submitButton) submitButton.disabled = true;
+        input.disabled = true;
+    }
+    //#endregion
+
+    //#region Validation
     function displayError(message) {
         error.textContent = message || '';
         error.hidden = !message;
         input.setCustomValidity(message || '');
     }
+
     function update() {
         const file = input.files?.[0];
         displayError('');
@@ -27,15 +46,19 @@ document.addEventListener('DOMContentLoaded', () => {
         size.textContent = file.size < 1024 * 1024
             ? `${(file.size / 1024).toFixed(1)} KB`
             : `${(file.size / 1024 / 1024).toFixed(2)} MB`;
-        if (!ALLOWED.test(file.name)) {
-            displayError('Chỉ hỗ trợ định dạng PDF, JPG, JPEG hoặc PNG.');
+
+        const wrongType = file.type && file.type !== 'application/pdf';
+        if (!ALLOWED_EXT.test(file.name) || wrongType) {
+            displayError('Chỉ hỗ trợ CV định dạng PDF.');
         } else if (file.size > MAX_BYTES) {
             displayError('Tệp vượt quá 10 MB. Vui lòng chọn CV nhỏ hơn.');
         } else if (file.size === 0) {
             displayError('Tệp rỗng. Vui lòng chọn một CV khác.');
         }
     }
+    //#endregion
 
+    //#region Events
     input.addEventListener('change', update);
     remove.addEventListener('click', () => {
         input.value = '';
@@ -52,8 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
     zone.addEventListener('drop', event => {
         const files = event.dataTransfer?.files;
-        if (!files?.length) return;
-        // Assign only actual user-selected files to the native file input.
+        if (!files?.length || isFull) return;
         try {
             input.files = files;
             update();
@@ -62,10 +84,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     form.addEventListener('submit', event => {
+        if (isFull) {
+            event.preventDefault();
+            return;
+        }
         update();
         if (!form.checkValidity()) {
             event.preventDefault();
             input.reportValidity();
         }
     });
+    //#endregion
 });

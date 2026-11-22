@@ -1,27 +1,40 @@
 namespace MockviewAI.Models.Ai
 {
     /// <summary>
-    /// [AI-MODULE] 
-    /// -- Lớp dữ liệu vào/ra của module AI
-    /// -- Content score from the AI: 4 criteria x 25 points = 100
+    /// [AI-SCORING] 
+    /// Điểm nội dung do AI chấm: 4 tiêu chí × 25 điểm = 100.
     /// </summary>
-    
     public class ContentScoreResult
     {
-        public int Relevance { get; set; }     // Trả lời đúng câu hỏi
-        public int Structure { get; set; }     // Bố cục, mạch lạc
-        public int Specificity { get; set; }   // Ví dụ, số liệu cụ thể
-        public int Clarity { get; set; }       // Rõ ràng, dễ hiểu
+        #region Tiêu chí (0–25 mỗi tiêu chí)
+        /// <summary>Trả lời đúng câu hỏi.</summary>
+        public int Relevance { get; set; }
 
-        // Tỉ lệ câu hợp lệ / tổng câu đã trả lời (câu không có ý nghĩa = 0 điểm). Mặc định 1 = không ảnh hưởng.
+        /// <summary>Bố cục, mạch lạc.</summary>
+        public int Structure { get; set; }
+
+        /// <summary>Ví dụ, số liệu cụ thể.</summary>
+        public int Specificity { get; set; }
+
+        /// <summary>Rõ ràng, dễ hiểu.</summary>
+        public int Clarity { get; set; }
+
+        /// <summary>Tỉ lệ câu hợp lệ / tổng câu đã trả lời (câu vô nghĩa = 0 điểm). 1 = không ảnh hưởng.</summary>
         public double ValidAnswerRatio { get; set; } = 1.0;
-        public int Total => (int)Math.Round((Relevance + Structure + Specificity + Clarity) * ValidAnswerRatio);
 
+        /// <summary>Tổng 4 tiêu chí nhân tỉ lệ câu hợp lệ.</summary>
+        public int Total => (int)Math.Round((Relevance + Structure + Specificity + Clarity) * ValidAnswerRatio);
+        #endregion
+
+        #region Nhận xét
+        /// <summary>Nhận xét tổng quát.</summary>
         public string Summary { get; set; } = string.Empty;
+
         public List<string> Strengths { get; set; } = new();
         public List<string> Improvements { get; set; } = new();
 
-        // [QUESTION-BANK] Xếp loại từng câu (chỉ có với câu thuộc bộ đề). Đã qua AnswerVerdictValidator trước khi lưu.
+        /// <summary>[QUESTION-BANK] Xếp loại từng câu thuộc bộ đề, đã qua AnswerVerdictValidator.</summary>
         public List<AnswerVerdict> Verdicts { get; set; } = new();
+        #endregion
     }
 }

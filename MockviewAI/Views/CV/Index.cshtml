@@ -1,0 +1,77 @@
+@model MockviewAI.Models.ViewModels.CvPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "CV của tôi";
+    ViewData["ActiveNav"] = "";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CV của tôi - MockviewAI</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/UploadCV.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/CvLibrary.css" asp-append-version="true" />
+    <partial name="Partials/_ThemeHead" />
+    <partial name="~/Views/CV/_CvStorageMeta.cshtml" model="Model" />
+</head>
+<body class="app-layout cv-page">
+    <partial name="Partials/_AppNavigation" />
+    <div class="app-layout__content">
+        <main class="cv-page__main">
+            <header class="cv-heading">
+                <div>
+                    <span class="cv-eyebrow"><i class="fa-regular fa-folder-open" aria-hidden="true"></i> HỒ SƠ ỨNG TUYỂN</span>
+                    <h1>CV của tôi</h1>
+                    <p>CV được lưu ngay trên trình duyệt này, MockviewAI không lưu CV trên máy chủ.</p>
+                </div>
+                <div class="cv-library__head-actions">
+                    <span class="cv-phase" aria-live="polite">
+                        <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
+                        <span id="cvCount">0/@Model.MaxCvs CV</span>
+                    </span>
+                    <a class="button button--primary" id="cvUploadLink" asp-controller="CV" asp-action="UploadCv">
+                        <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Tải CV mới
+                    </a>
+                </div>
+            </header>
+
+            <div class="cv-notice cv-notice--error" id="cvStorageError" role="alert" hidden>
+                <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                <span>Trình duyệt đang chặn bộ nhớ trang web (chế độ ẩn danh hoặc đã tắt lưu dữ liệu) nên không thể lưu CV.</span>
+            </div>
+            <div class="cv-notice cv-notice--info" id="cvFullNotice" role="status" hidden>
+                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                <span>Bạn đã lưu đủ @Model.MaxCvs CV. Xoá bớt một CV để tải CV mới.</span>
+            </div>
+
+            <section class="cv-card cv-library__empty" id="cvEmpty" hidden>
+                <span class="cv-card__icon cv-card__icon--muted"><i class="fa-regular fa-file-pdf" aria-hidden="true"></i></span>
+                <h2>Chưa có CV nào trên trình duyệt này</h2>
+                <p>Tải CV dạng PDF lên để nhà tuyển dụng AI đặt câu hỏi sát với kinh nghiệm của bạn.</p>
+            </section>
+
+            <div class="cv-library__list" id="cvList" aria-live="polite"></div>
+
+            <p class="cv-field-help cv-library__note">
+                <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                Đổi máy, đổi trình duyệt, dùng chế độ ẩn danh, xoá dữ liệu duyệt web hoặc đăng xuất đều làm mất CV đã lưu. Khi đó chỉ cần tải CV lên lại.
+            </p>
+
+            <noscript>
+                <div class="cv-notice cv-notice--error" role="alert">
+                    <span>Trang này cần JavaScript để đọc CV đã lưu trên trình duyệt.</span>
+                </div>
+            </noscript>
+        </main>
+    </div>
+    <partial name="Partials/_AppFooter" />
+    <partial name="Partials/_Notify" />
+    <script src="~/js/CvStorage.js" asp-append-version="true"></script>
+    <script src="~/js/CvLibrary.js" asp-append-version="true"></script>
+</body>
+</html>

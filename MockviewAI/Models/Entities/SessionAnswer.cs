@@ -6,77 +6,97 @@ namespace MockviewAI.Models.Entities
 {
     /// <summary>
     /// [AI-INTERVIEW] 
-    /// -- Một câu hỏi trong buổi luyện và câu trả lời của người dùng.
-    /// -- Câu hỏi được tạo sẵn lúc bắt đầu buổi (Answer còn trống, AnsweredAt = null).
+    /// Một câu hỏi trong buổi luyện và câu trả lời của người dùng.
+    /// Câu chính được tạo sẵn lúc bắt đầu buổi (Answer trống, AnsweredAt = null); câu hỏi thêm được chèn khi cần.
     /// </summary>
-    
     public class SessionAnswer
     {
+        #region Câu hỏi
         [Key]
         public int Id { get; set; }
 
         public int SessionId { get; set; }
         public InterviewSession? Session { get; set; }
 
-        // Thứ tự câu hỏi: 1, 2, 3, ...
+        /// <summary>Số thứ tự câu (1, 2, 3...); câu hỏi thêm mang cùng số với câu chính.</summary>
         public int OrderNo { get; set; }
 
+        /// <summary>Nội dung câu hỏi tại thời điểm hỏi.</summary>
         [Required, MaxLength(500)]
         public string Question { get; set; } = string.Empty;
 
-        // Chữ từ giọng nói hoặc gõ tay
+        /// <summary>[QUESTION-BANK] Mã câu trong bộ đề; null = câu hỏi kiểu cũ.</summary>
+        [MaxLength(40)]
+        public string? QuestionId { get; set; }
+        #endregion
+
+        #region Câu trả lời
+        /// <summary>Chữ từ giọng nói hoặc gõ tay.</summary>
         [MaxLength(4000)]
         public string? Answer { get; set; }
 
-        // Thời gian nói (giây). Null nếu gõ tay.
-        public double? DurationSeconds { get; set; }
-
-        // Khoảng lặng dài nhất khi nói (giây). Null nếu gõ tay. Dùng để chấm điểm "khoảng lặng".
-        public double? LongestPauseSeconds { get; set; }
-
-        // [VOICE] Đợt 7: âm lượng + giọng điệu đo trên trình duyệt (null = gõ chữ / bỏ qua / buổi cũ)
-        public double? VoiceLevelDb { get; set; }
-        public double? QuietRatio { get; set; }
-        public double? PitchVariation { get; set; }
-
+        /// <summary>Người dùng bấm Bỏ qua.</summary>
         public bool Skipped { get; set; }
 
-        // Số lần câu trả lời bị từ chối vì quá ngắn / lạc đề / vô nghĩa (tối đa 2 lần, lần 3 tính là bỏ qua)
+        /// <summary>Số lần bị từ chối vì quá ngắn / lạc đề / vô nghĩa (tối đa 2, lần 3 tính là bỏ qua).</summary>
         public int Attempts { get; set; }
 
-        // Null = chưa trả lời, cũng chưa bỏ qua
+        /// <summary>Lúc trả lời hoặc bỏ qua; null = câu đang chờ.</summary>
         [Precision(3)]
         public DateTime? AnsweredAt { get; set; }
+        #endregion
 
-        // [QUESTION-BANK] Mã câu trong bộ đề (null = câu hỏi kiểu cũ) và kết quả xếp loại 4 loại sau khi chấm
-        [MaxLength(40)]
-        public string? QuestionId { get; set; }
+        #region [VOICE] Số đo cách nói (null = gõ tay, bỏ qua hoặc buổi cũ)
+        /// <summary>Thời gian nói (giây).</summary>
+        public double? DurationSeconds { get; set; }
 
+        /// <summary>Khoảng lặng dài nhất (giây), dùng chấm tiêu chí "khoảng lặng".</summary>
+        public double? LongestPauseSeconds { get; set; }
+
+        /// <summary>Âm lượng trung vị khi nói (dBFS, số âm). Xem <see cref="VoiceMetrics"/>.</summary>
+        public double? VoiceLevelDb { get; set; }
+
+        /// <summary>Tỉ lệ 0–1 thời gian nói nhỏ hơn mức dễ nghe.</summary>
+        public double? QuietRatio { get; set; }
+
+        /// <summary>Độ lên xuống giọng (nửa cung); dưới 1.5 = đều đều.</summary>
+        public double? PitchVariation { get; set; }
+        #endregion
+
+        #region [QUESTION-BANK] Xếp loại sau khi chấm
+        /// <summary>Nhãn: dung | hoi_dac_biet | dac_biet | sai (<see cref="Ai.AnswerCategory"/>).</summary>
         [MaxLength(20)]
-        public string? Category { get; set; }            // AnswerCategory: dung | hoi_dac_biet | dac_biet | sai
+        public string? Category { get; set; }
 
+        /// <summary>Con đường khớp: chuan / vong1... / loi1... / ngoai_bo.</summary>
         [MaxLength(40)]
-        public string? MatchedPath { get; set; }         // chuan / vong1 / loi1 / ngoai_bo
+        public string? MatchedPath { get; set; }
 
+        /// <summary>Mã ý cốt lõi đã đạt, ngăn bằng dấu phẩy, vd "c1,c3".</summary>
         [MaxLength(100)]
-        public string? CorePointsMet { get; set; }       // vd "c1,c3"
+        public string? CorePointsMet { get; set; }
 
+        /// <summary>Mã ý cốt lõi còn thiếu, cùng định dạng.</summary>
         [MaxLength(100)]
         public string? CorePointsMissing { get; set; }
 
+        /// <summary>Nhận xét ngắn cho câu này.</summary>
         [MaxLength(1000)]
-        public string? Feedback { get; set; }            // nhận xét ngắn cho câu này
+        public string? Feedback { get; set; }
+        #endregion
 
-        // [FOLLOW-UP] Đợt 8: câu hỏi NỐI TIẾP (người phỏng vấn hỏi thêm vì câu trả lời còn thiếu ý).
-        // FollowUpOf = mã câu bộ đề được hỏi thêm (null = câu chính); FollowUpPointId = ý cốt lõi được hỏi thêm (c2...).
-        // Câu hỏi thêm có cùng OrderNo với câu chính và đứng ngay sau nó; không tính vào số câu của buổi.
+        #region [FOLLOW-UP] Câu hỏi thêm
+        /// <summary>Mã câu bộ đề mà câu này hỏi thêm; null = câu chính.</summary>
         [MaxLength(40)]
         public string? FollowUpOf { get; set; }
 
+        /// <summary>Ý cốt lõi được hỏi thêm (c1, c2...); "cv" = câu hỏi theo CV của người dùng.</summary>
         [MaxLength(10)]
         public string? FollowUpPointId { get; set; }
 
+        /// <summary>Câu hỏi thêm, không tính vào số câu của buổi.</summary>
         [NotMapped]
         public bool IsFollowUp => FollowUpOf != null;
+        #endregion
     }
 }

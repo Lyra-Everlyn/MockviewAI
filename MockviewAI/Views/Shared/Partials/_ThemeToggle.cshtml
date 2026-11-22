@@ -1,13 +1,8 @@
 @*
-    #region _ThemeToggle
-    <summary>
-    [THEME] Nút chuyển giao diện sáng / tối, thay cho nhãn phiên bản "2.0.0" cũ.
-    - Dùng ở thanh điều hướng PC (_AppNavigation) và cột giới thiệu của các trang Auth / Onboarding
-      (cột này tự ẩn trên điện thoại, nên nút chỉ xuất hiện trên PC).
+    [THEME] Nút chuyển giao diện sáng / tối.
+    - Dùng ở thanh điều hướng PC và cột giới thiệu của các trang Auth / Onboarding (cột này ẩn trên điện thoại).
     - Biểu tượng và chữ đổi bằng CSS theo html[data-theme], không cần chờ JavaScript.
-    - Yêu cầu trang đã nhúng Partials/_ThemeHead trong thẻ head.
-    </summary>
-    #endregion
+    - Trang phải nhúng Partials/_ThemeHead trong thẻ head.
 *@
 <button type="button"
         class="theme-toggle"

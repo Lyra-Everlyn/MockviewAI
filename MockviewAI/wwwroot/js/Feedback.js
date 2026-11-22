@@ -1,4 +1,9 @@
-/* Feedback page behavior only. All visuals live in shared CSS. */
+//#region Feedback
+/// <summary>
+/// [FEEDBACK] 
+/// Trang Góp ý: nhãn và tô sao theo mức đánh giá, đếm số ký tự góp ý. Giao diện nằm trong CSS dùng chung.
+/// </summary>
+//#endregion
 (() => {
     const labels = {
         1: 'Khó sử dụng',
@@ -8,6 +13,7 @@
         5: 'Rất dễ sử dụng'
     };
 
+    //#region Đánh giá sao
     const stars = document.querySelectorAll('.rating-control__star input[name="easeRating"]');
     const ratingLabel = document.getElementById('rating-label');
     const ratingValue = document.getElementById('rating-value');
@@ -21,7 +27,9 @@
     };
     stars.forEach(input => input.addEventListener('change', updateRating));
     updateRating();
+    //#endregion
 
+    //#region Đếm ký tự
     const comment = document.getElementById('feedback-comment');
     const counter = document.getElementById('char-count');
     if (comment && counter) {
@@ -29,4 +37,5 @@
         comment.addEventListener('input', updateCount);
         updateCount();
     }
+    //#endregion
 })();

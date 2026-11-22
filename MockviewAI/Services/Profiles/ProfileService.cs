@@ -6,8 +6,16 @@ using MockviewAI.Services.SessionHistory;
 
 namespace MockviewAI.Services.Profiles
 {
+    /// <summary>
+    /// [PROFILE] 
+    /// Xem và chỉnh sửa hồ sơ; ảnh đại diện lưu trên Cloudinary (file đã qua IAvatarFileValidator ở controller).
+    /// </summary>
     public class ProfileService : IProfileService
     {
+        #region Fields
+        private const int RecentSessionCount = 3;
+
+        /// <summary>Mã tình trạng tốt nghiệp (lưu trong DB) -> chữ hiển thị.</summary>
         private static readonly Dictionary<string, string> StatusTexts = new()
         {
             ["Current Student"] = "Đang đi học",
@@ -19,14 +27,18 @@ namespace MockviewAI.Services.Profiles
         private readonly IUserRepository _userRepository;
         private readonly ISessionHistoryService _history;
         private readonly IFileStorageService _fileStorage;
+        #endregion
 
+        #region Constructor
         public ProfileService(IUserRepository userRepository, ISessionHistoryService history, IFileStorageService fileStorage)
         {
             _userRepository = userRepository;
             _history = history;
             _fileStorage = fileStorage;
         }
+        #endregion
 
+        #region Xem hồ sơ
         public async Task<ProfileViewModel?> GetProfileAsync(string email)
         {
             var user = await FindUserAsync(email);
@@ -41,10 +53,12 @@ namespace MockviewAI.Services.Profiles
                 Major = user.Major ?? string.Empty,
                 TargetPosition = user.TargetPosition ?? string.Empty,
                 ExperienceLevel = user.ExperienceLevel ?? string.Empty,
-                RecentSessions = await _history.GetHistoryAsync(email, 3)
+                RecentSessions = await _history.GetHistoryAsync(email, RecentSessionCount)
             };
         }
+        #endregion
 
+        #region Chỉnh sửa hồ sơ
         public async Task<ProfileEditViewModel?> GetEditAsync(string email)
         {
             var user = await FindUserAsync(email);
@@ -66,13 +80,14 @@ namespace MockviewAI.Services.Profiles
             var user = await FindUserAsync(email);
             if (user == null) return null;
 
+            // Tải ảnh mới TRƯỚC; tải lỗi thì ném lỗi ra và hồ sơ vẫn giữ ảnh cũ còn nguyên
+            string? replacedAvatarUrl = null;
             if (model.AvatarFile != null && model.AvatarFile.Length > 0)
             {
-                await DeleteOldCloudinaryAvatarAsync(user.AvatarUrl);
-
                 var (url, _) = await _fileStorage.UploadFileAsync(model.AvatarFile, "MockviewAI/Avatars", UploadType.Avatar);
                 if (!string.IsNullOrEmpty(url))
                 {
+                    replacedAvatarUrl = user.AvatarUrl;
                     user.AvatarUrl = url;
                 }
             }
@@ -87,10 +102,19 @@ namespace MockviewAI.Services.Profiles
 
             await _userRepository.UpdateAsync(user);
 
+            // Hồ sơ đã trỏ sang ảnh mới mới xoá ảnh cũ
+            if (replacedAvatarUrl != null)
+                await DeleteOldCloudinaryAvatarAsync(replacedAvatarUrl);
+
             return (FullName(user), user.AvatarUrl);
         }
+        #endregion
 
-
+        #region Helpers
+        /// <summary>
+        /// Xoá ảnh cũ trên Cloudinary (ảnh Google thì bỏ qua). Tách publicId từ URL:
+        /// .../upload/v123456/MockviewAI/Avatars/abc.jpg -> MockviewAI/Avatars/abc.
+        /// </summary>
         private async Task DeleteOldCloudinaryAvatarAsync(string? avatarUrl)
         {
             if (string.IsNullOrEmpty(avatarUrl) || !avatarUrl.Contains("cloudinary.com/"))
@@ -104,6 +128,7 @@ namespace MockviewAI.Services.Profiles
                     string afterUpload = avatarUrl.Substring(uploadIndex + 8);
                     var parts = afterUpload.Split('/');
 
+                    // Bỏ đoạn phiên bản "v123456" nếu có
                     if (parts.Length > 1 && parts[0].StartsWith("v") && parts[0].Length > 1 && char.IsDigit(parts[0][1]))
                     {
                         afterUpload = string.Join("/", parts.Skip(1));
@@ -117,6 +142,7 @@ namespace MockviewAI.Services.Profiles
             }
             catch
             {
+                // Xoá ảnh cũ là việc phụ: lỗi thì bỏ qua, không chặn việc lưu hồ sơ
             }
         }
 
@@ -126,6 +152,8 @@ namespace MockviewAI.Services.Profiles
             return await _userRepository.GetByEmailAsync(email.Trim().ToLowerInvariant());
         }
 
+        /// <summary>Họ + tên theo kiểu Việt Nam.</summary>
         private static string FullName(User user) => (user.LastName + " " + user.FirstName).Trim();
+        #endregion
     }
 }

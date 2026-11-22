@@ -1,4 +1,5 @@
-/* VerifyResetCode.css */
+/* MockviewAI | Xác thực mã khôi phục
+   Chỉnh riêng cho VerifyResetCode.cshtml; phần dùng chung nằm trong Login.css. */
 
 .reset-otp-shell {
     min-height: 565px;

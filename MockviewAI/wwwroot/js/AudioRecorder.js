@@ -1,6 +1,7 @@
 //#region AudioRecorder
 /// <summary>
-/// [SPEECH] Ghi âm câu trả lời và gửi lên server để chuyển thành chữ (Groq Whisper + Gemini chuẩn hoá).
+/// [SPEECH] 
+/// Ghi âm câu trả lời và gửi lên server để chuyển thành chữ (Groq Whisper + Gemini chuẩn hoá).
 /// -- Ghi từ một BẢN SAO của luồng micro (stream.clone()): trang có thể tắt luồng gốc (bộ đo âm lượng)
 ///    mà không làm mất dữ liệu đang ghi.
 /// -- Tự chọn định dạng trình duyệt hỗ trợ: webm/opus (Chrome, Edge, Firefox), mp4 (Safari).
@@ -13,7 +14,7 @@
     //#region Config
     // Thứ tự ưu tiên: opus nén tốt, Whisper đọc trực tiếp; mp4 cho Safari
     const CANDIDATE_TYPES = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus', 'audio/ogg'];
-    // Bản sửa 18/11: 96 kbps như mặc định của SoundLab (32 kbps làm mất chi tiết khi nói nhỏ / có ồn). 2 phút ≈ 1,4 MB
+    // 96 kbps: thấp hơn (vd 32 kbps) làm mất chi tiết khi nói nhỏ / có tiếng ồn. 2 phút ≈ 1,4 MB
     const BITS_PER_SECOND = 96000;
     const TIMESLICE_MS = 1000;          // lấy dữ liệu mỗi giây để không mất phần đầu nếu trình duyệt lỗi giữa chừng
     const MIN_DURATION_MS = 600;        // ngắn hơn: coi như chưa nói gì, không gửi
@@ -114,10 +115,11 @@
     /// Gửi bản ghi lên server. Trả về { rawText, text, normalized, empty }.
     /// Lỗi: ném Error có thuộc tính body = { message, retry, configError } (giống postJson của InterviewRoom).
     /// </summary>
-    async function transcribe(url, antiForgeryToken, sessionId, recording) {
+    async function transcribe(url, antiForgeryToken, sessionId, recording, browserText) {
         const form = new FormData();
         form.append('sessionId', String(sessionId));
         form.append('audio', recording.blob, 'answer' + recording.extension);
+        if (browserText) form.append('browserText', browserText.slice(0, 4000));
 
         const response = await fetch(url, {
             method: 'POST',

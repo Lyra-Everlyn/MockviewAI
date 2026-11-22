@@ -1,14 +1,9 @@
 @*
-    #region _ThemeHead
-    <summary>
-    [THEME] Nạp theme sáng / tối và áp dụng NGAY theme người dùng đã chọn (lưu trong localStorage)
-    trước khi trang được vẽ, nhờ vậy trang không bị nháy màu khi tải.
-    - Mặc định là giao diện SÁNG; không còn tự đổi theo chế độ sáng / tối của hệ điều hành.
-    - Đặt partial này ở CUỐI thẻ <head>, sau CSS riêng của trang, để theme ghi đè được màu.
-    - Script bên dưới cung cấp window.MockviewTheme cho nút chuyển theme (~/js/_ThemeToggle.js).
-    - Không dùng ký tự a-còng trong script vì Razor sẽ hiểu nhầm là mã C#.
-    </summary>
-    #endregion
+    [THEME] Nạp theme sáng / tối và áp dụng ngay theme đã lưu (localStorage) trước khi trang được vẽ, tránh nháy màu.
+    - Mặc định giao diện sáng, không theo chế độ của hệ điều hành.
+    - Đặt ở CUỐI thẻ head, sau CSS riêng của trang, để theme ghi đè được màu.
+    - Cung cấp window.MockviewTheme cho ~/js/_ThemeToggle.js.
+    - Không dùng ký tự a-còng trong script: Razor sẽ hiểu nhầm là mã C#.
 *@
 <link id="theme-light" rel="stylesheet" href="~/css/themes/theme-indigo.css" asp-append-version="true" />
 <link id="theme-dark" rel="stylesheet" href="~/css/themes/theme-dark-1.css" media="not all" asp-append-version="true" />
@@ -20,12 +15,12 @@
         var THEMES = { light: 'light', dark: 'dark' };
         var META_COLORS = { light: '#f5f7fb', dark: '#0c1220' };
 
-        /// <summary>Chỉ chấp nhận 'dark'; mọi giá trị khác (rỗng, sai) đều là 'light'.</summary>
+        // Chỉ chấp nhận 'dark'; giá trị khác đều là 'light'
         function normalize(value) {
             return value === THEMES.dark ? THEMES.dark : THEMES.light;
         }
 
-        /// <summary>Đọc theme đã lưu. Trình duyệt chặn localStorage (ẩn danh, chính sách) thì dùng mặc định.</summary>
+        // localStorage bị chặn (ẩn danh, chính sách) thì dùng mặc định
         function read() {
             try {
                 return normalize(window.localStorage.getItem(STORAGE_KEY));
@@ -34,21 +29,18 @@
             }
         }
 
-        /// <summary>Lưu theme. Lưu không được thì vẫn đổi giao diện cho trang hiện tại.</summary>
+        // Lưu không được thì vẫn đổi giao diện cho trang hiện tại
         function save(theme) {
             try {
                 window.localStorage.setItem(STORAGE_KEY, normalize(theme));
-            } catch (e) {
-                /* bỏ qua: chỉ mất phần ghi nhớ, không ảnh hưởng giao diện */
-            }
+            } catch (e) { }
         }
 
-        /// <summary>Theme đang hiển thị trên trang (đọc từ thẻ html, không phụ thuộc localStorage).</summary>
         function current() {
             return normalize(document.documentElement.getAttribute('data-theme'));
         }
 
-        /// <summary>Bật file CSS của theme được chọn, tắt file còn lại và đồng bộ màu thanh trình duyệt.</summary>
+        // Bật CSS của theme được chọn, tắt file còn lại, đồng bộ màu thanh trình duyệt
         function apply(theme) {
             var selected = normalize(theme);
             var isDark = selected === THEMES.dark;

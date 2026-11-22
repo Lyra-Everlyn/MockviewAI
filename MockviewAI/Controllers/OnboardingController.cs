@@ -1,23 +1,36 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MockviewAI.Models.DTOs;
 using MockviewAI.Services.Onboarding;
-using System.Security.Claims;
 
 namespace MockviewAI.Controllers
 {
-    /// [SETUP PROFILE]
-    // -- After login
-
+    /// <summary>
+    /// [ONBOARDING] 
+    /// Thiết lập hồ sơ ban đầu ngay sau lần đăng nhập đầu tiên.
+    /// </summary>
     [Authorize]
     public class OnboardingController : Controller
     {
+        #region Fields
+        private const string SessionExpiredMessage = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+        private const string SaveFailedMessage = "Không lưu được hồ sơ. Vui lòng thử lại sau ít phút.";
+
         private readonly IOnboardingService _onboardingService;
-        public OnboardingController(IOnboardingService onboardingService)
+        private readonly ILogger<OnboardingController> _logger;
+        #endregion
+
+        #region Constructor
+        public OnboardingController(IOnboardingService onboardingService, ILogger<OnboardingController> logger)
         {
             _onboardingService = onboardingService;
+            _logger = logger;
         }
+        #endregion
 
+        #region Actions
+        /// <summary>Đã thiết lập xong thì về trang chủ, chưa thì hiện form.</summary>
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -36,6 +49,7 @@ namespace MockviewAI.Controllers
             return View(new OnboardingDto());
         }
 
+        /// <summary>Lưu hồ sơ (Onboarding.js gửi JSON). Trả { success, message } hoặc { success, redirectUrl }.</summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Complete([FromBody] OnboardingDto model)
@@ -53,18 +67,24 @@ namespace MockviewAI.Controllers
             string? userEmail = User.FindFirstValue(ClaimTypes.Email);
             if (string.IsNullOrEmpty(userEmail))
             {
-                return Json(new { success = false, message = "Session expired. Please log in again." });
+                return Json(new { success = false, message = SessionExpiredMessage });
             }
 
             try
             {
-                await _onboardingService.SaveOnboardingInfoAsync(userEmail, model);
+                bool saved = await _onboardingService.SaveOnboardingInfoAsync(userEmail, model);
+                if (!saved)
+                    return Json(new { success = false, message = SessionExpiredMessage });
+
                 return Json(new { success = true, redirectUrl = Url.Action("Index", "Home") });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                // Không trả nguyên văn lỗi hệ thống (database...) về trình duyệt
+                _logger.LogError(ex, "Saving onboarding profile failed");
+                return Json(new { success = false, message = SaveFailedMessage });
             }
         }
+        #endregion
     }
 }

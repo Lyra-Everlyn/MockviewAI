@@ -1,8 +1,8 @@
 ﻿namespace MockviewAI.Services.KeyManagement.ProviderExtensions
 {
     /// <summary>
-    /// [SWITCH API]
-    /// -- Provider quản lý danh sách Key chuyên biệt khởi tạo từ cấu hình "Gemini:ApiKeys".
+    /// [KEY-ROTATION] 
+    /// Bộ key Gemini (Gemini__ApiKeys__0..N hoặc Gemini__ApiKey). Dùng chung cho chấm điểm, CV, STT chuẩn hoá, nhà tuyển dụng.
     /// </summary>
     public class GeminiKeyProvider : ApiKeyRotationService
     {

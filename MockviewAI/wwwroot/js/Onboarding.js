@@ -1,4 +1,11 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
+﻿//#region Onboarding
+/// <summary>
+/// [ONBOARDING] 
+/// Form thiết lập hồ sơ 3 bước (ngành học + vị trí / tình trạng tốt nghiệp / mức kinh nghiệm).
+/// Kiểm tra từng bước rồi gửi JSON tới /Onboarding/Complete; thành công thì chuyển trang theo redirectUrl.
+/// </summary>
+//#endregion
+document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('onboardingForm');
     const nextButton = document.getElementById('btnNext');
     const backButton = document.getElementById('btnBack');
@@ -26,6 +33,7 @@
     const get = id => document.getElementById(id);
     const value = id => get(id)?.value.trim() || '';
 
+    //#region Giao diện từng bước
     function setError(message, field) {
         if (errorBox) {
             errorBox.textContent = message;
@@ -62,8 +70,10 @@
         if (nextIcon) nextIcon.className = currentStep === totalSteps ? 'fa-solid fa-check' : 'fa-solid fa-chevron-right';
         clearError();
     }
+    //#endregion
 
-    // Use actual buttons for keyboard and screen-reader accessibility.
+    //#region Thẻ lựa chọn
+    // Thẻ là <button> thật để dùng được bằng bàn phím và trình đọc màn hình; giá trị ghi vào input ẩn
     document.querySelectorAll('.option-card').forEach(card => {
         card.addEventListener('click', () => {
             if (submitting) return;
@@ -79,7 +89,7 @@
         });
     });
 
-    // Prepopulate the selected card when an OnboardingDto contains existing values.
+    // Đánh dấu sẵn thẻ đã chọn khi OnboardingDto có giá trị
     [['graduation', 'graduationStatusInput'], ['experience', 'experienceLevelInput']].forEach(([group, id]) => {
         const stored = value(id);
         if (!stored) return;
@@ -89,7 +99,9 @@
             card.setAttribute('aria-pressed', String(selected));
         });
     });
+    //#endregion
 
+    //#region Kiểm tra và gửi
     function validateStep(step) {
         if (step === 1) {
             if (!value('majorInput')) {
@@ -151,6 +163,7 @@
                     : 'Máy chủ trả về dữ liệu không hợp lệ. Vui lòng thử lại.');
             }
             const data = await response.json();
+            // Chỉ chuyển tới đường dẫn nội bộ ("/..." nhưng không phải "//...") để chặn chuyển hướng ra ngoài
             if (response.ok && data.success && typeof data.redirectUrl === 'string' && data.redirectUrl.startsWith('/') && !data.redirectUrl.startsWith('//')) {
                 window.location.assign(data.redirectUrl);
                 return;
@@ -163,13 +176,15 @@
             if (typeof window.Swal !== 'undefined') {
                 window.Swal.fire({
                     icon: 'error', title: 'Không thể hoàn tất', text: message,
-                    confirmButtonText: 'Đã hiểu', confirmButtonColor: '#5565ed',
+                    confirmButtonText: 'Đã hiểu', confirmButtonColor: 'var(--color-primary)',
                     position: 'center'
                 });
             }
         }
     }
+    //#endregion
 
+    //#region Điều hướng
     nextButton.addEventListener('click', () => {
         if (submitting || !validateStep(currentStep)) return;
         if (currentStep < totalSteps) {
@@ -184,7 +199,7 @@
         currentStep -= 1;
         updateStepUI();
     });
-    // Prevent Enter from triggering an unintended native POST; this is a JSON-only endpoint.
+    // Enter không được gửi form kiểu thường: endpoint chỉ nhận JSON
     form.addEventListener('submit', event => {
         event.preventDefault();
         if (!submitting && validateStep(currentStep)) {
@@ -196,4 +211,5 @@
         if (event.persisted) setLoading(false);
     });
     updateStepUI();
+    //#endregion
 });

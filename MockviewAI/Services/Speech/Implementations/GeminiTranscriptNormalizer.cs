@@ -12,15 +12,9 @@ using MockviewAI.Services.Speech.Interfaces;
 namespace MockviewAI.Services.Speech.Implementations
 {
     /// <summary>
-    /// [SPEECH]
-    /// GeminiTranscriptNormalizer
-    /// -- Gọi Gemini (generateContent) qua HttpClient "GeminiClient" để sửa lỗi bản chép giọng nói.
-    /// -- Key do GeminiKeyHandler gắn qua header x-goog-api-key (không đặt trên URL).
-    /// -- Model chính quá tải (503) / hết lượt (429) / không nhận yêu cầu (400, 404) / quá giờ: thử model dự phòng.
-    /// -- Mỗi model có giới hạn thời gian riêng (NormalizeAttemptTimeoutSeconds), cả bước có giới hạn tổng (NormalizeTimeoutSeconds).
-    /// -- Gửi thinkingLevel (mặc định "minimal") để model không "suy nghĩ" lâu; model không nhận tham số này (400)
-    ///    thì gửi lại một lần không kèm. Mỗi lần gọi ghi log thời gian để đo độ trễ thật.
-    /// -- Mọi lỗi còn lại được ném ra; SpeechToTextService sẽ dùng lại bản thô nên người dùng không bị chặn.
+    /// [SPEECH] 
+    /// Gọi Gemini để sửa bản chép, gộp với chữ trình duyệt nếu có.
+    /// Model chính quá tải / hết lượt / quá giờ thì thử model dự phòng; lỗi còn lại ném ra để dùng bản thô.
     /// </summary>
     public class GeminiTranscriptNormalizer : ITranscriptNormalizer
     {
@@ -57,8 +51,7 @@ namespace MockviewAI.Services.Speech.Implementations
         #endregion
 
         #region ITranscriptNormalizer
-        /// <inheritdoc />
-        public async Task<string> NormalizeAsync(string rawText, string? question, CancellationToken ct = default)
+        public async Task<string> NormalizeAsync(string rawText, string? browserText, string? question, CancellationToken ct = default)
         {
             if (string.IsNullOrWhiteSpace(rawText)) return string.Empty;
             if (!_keys.HasKeys)
@@ -68,7 +61,8 @@ namespace MockviewAI.Services.Speech.Implementations
             if (models.Count == 0)
                 throw new SpeechException("Chưa cấu hình model Gemini cho bước chuẩn hoá (Speech__NormalizerModel hoặc Gemini__Model).") { IsConfigurationError = true };
 
-            // Giới hạn tổng cho cả bước: quá giờ thì dừng hẳn, dùng bản thô
+            var userPrompt = _prompts.BuildNormalizerUserPrompt(rawText, browserText, question);
+
             using var total = CancellationTokenSource.CreateLinkedTokenSource(ct);
             total.CancelAfter(TimeSpan.FromSeconds(Math.Max(3, _options.NormalizeTimeoutSeconds)));
             var perAttempt = TimeSpan.FromSeconds(Math.Max(2, _options.NormalizeAttemptTimeoutSeconds));
@@ -78,12 +72,12 @@ namespace MockviewAI.Services.Speech.Implementations
             {
                 if (total.IsCancellationRequested) break;
 
-                // Giới hạn riêng cho model này: model chậm / treo không ăn hết thời gian của model dự phòng
+                // Model treo không ăn hết thời gian của model dự phòng
                 using var attempt = CancellationTokenSource.CreateLinkedTokenSource(total.Token);
                 attempt.CancelAfter(perAttempt);
                 try
                 {
-                    return await NormalizeWithModelAsync(model, rawText, question, ct, attempt.Token);
+                    return await NormalizeWithModelAsync(model, userPrompt, ct, attempt.Token);
                 }
                 catch (SpeechException ex) when (ex.IsTransient && !ct.IsCancellationRequested)
                 {
@@ -96,39 +90,36 @@ namespace MockviewAI.Services.Speech.Implementations
         #endregion
 
         #region Request
-        /// <summary>
-        /// Gửi một yêu cầu chuẩn hoá tới một model. Lỗi có thể thử model khác được đánh dấu IsTransient.
-        /// Model từ chối tham số thinkingConfig (HTTP 400) thì gửi lại một lần không kèm tham số đó.
-        /// </summary>
-        private async Task<string> NormalizeWithModelAsync(string model, string rawText, string? question, CancellationToken userCt, CancellationToken ct)
+        /// <summary>Model từ chối thinkingConfig (HTTP 400) thì gửi lại một lần không kèm.</summary>
+        private async Task<string> NormalizeWithModelAsync(string model, string userPrompt, CancellationToken userCt, CancellationToken ct)
         {
             var thinkingLevel = (_options.NormalizerThinkingLevel ?? string.Empty).Trim();
             if (thinkingLevel.Length > 0)
             {
                 try
                 {
-                    return await SendAsync(model, BuildBody(rawText, question, thinkingLevel), userCt, ct);
+                    return await SendAsync(model, BuildBody(userPrompt, thinkingLevel), userCt, ct);
                 }
                 catch (SpeechException ex) when (ex.StatusCode == 400)
                 {
                     _logger.LogWarning("Gemini model {Model} rejected thinkingLevel={Level}, retrying without it", model, thinkingLevel);
                 }
             }
-            return await SendAsync(model, BuildBody(rawText, question, null), userCt, ct);
+            return await SendAsync(model, BuildBody(userPrompt, null), userCt, ct);
         }
 
-        /// <summary>Tạo nội dung yêu cầu generateContent; thinkingLevel null = không gửi thinkingConfig.</summary>
-        private object BuildBody(string rawText, string? question, string? thinkingLevel)
+        /// <summary>thinkingLevel null = không gửi thinkingConfig.</summary>
+        private object BuildBody(string userPrompt, string? thinkingLevel)
         {
             var systemInstruction = new { parts = new[] { new { text = _prompts.NormalizerSystemPrompt } } };
-            var contents = new[] { new { role = "user", parts = new[] { new { text = _prompts.BuildNormalizerUserPrompt(rawText, question) } } } };
+            var contents = new[] { new { role = "user", parts = new[] { new { text = userPrompt } } } };
 
             if (thinkingLevel is null)
                 return new
                 {
                     systemInstruction,
                     contents,
-                    generationConfig = new { temperature = 0.0, maxOutputTokens = 4096 }   // sửa lỗi, không sáng tác
+                    generationConfig = new { temperature = 0.0, maxOutputTokens = 4096 }
                 };
 
             return new
@@ -138,13 +129,12 @@ namespace MockviewAI.Services.Speech.Implementations
                 generationConfig = new
                 {
                     temperature = 0.0,
-                    maxOutputTokens = 4096,                         // dư chỗ cho model có chế độ thinking; bản bị cắt sẽ bị IsSafeEdit loại
-                    thinkingConfig = new { thinkingLevel }          // "minimal": gần như không suy nghĩ -> trả lời nhanh
+                    maxOutputTokens = 4096,
+                    thinkingConfig = new { thinkingLevel }
                 }
             };
         }
 
-        /// <summary>Gọi API, ghi log mã trả về + thời gian, đổi lỗi thành SpeechException.</summary>
         private async Task<string> SendAsync(string model, object body, CancellationToken userCt, CancellationToken ct)
         {
             var client = _httpClientFactory.CreateClient(HttpClientName);
@@ -159,7 +149,7 @@ namespace MockviewAI.Services.Speech.Implementations
                 {
                     _logger.LogWarning("Gemini normalizer HTTP {Status} for model {Model} after {Ms} ms: {Body}",
                         code, model, watch.ElapsedMilliseconds, json.Length > 300 ? json[..300] : json);
-                    // 429/5xx: quá tải, hết lượt; 400/404: model không nhận yêu cầu -> đều thử model khác được
+                    // 429/5xx: quá tải; 400/404: model không nhận yêu cầu -> đều thử model khác được
                     throw new SpeechException("Bước chuẩn hoá tạm thời không khả dụng.")
                     {
                         IsTransient = code is 400 or 404 or 429 or >= 500,
@@ -177,10 +167,7 @@ namespace MockviewAI.Services.Speech.Implementations
             }
         }
 
-        /// <summary>
-        /// Model chính (Speech:NormalizerModel, rỗng thì Gemini:Model) rồi model dự phòng
-        /// (Speech:NormalizerFallbackModel, rỗng thì Gemini:Model); bỏ tên rỗng, trùng, không hợp lệ.
-        /// </summary>
+        /// <summary>Speech:NormalizerModel rồi Speech:NormalizerFallbackModel (rỗng thì Gemini:Model); bỏ trùng và tên không hợp lệ.</summary>
         private List<string> ModelsToTry()
         {
             var primary = string.IsNullOrWhiteSpace(_options.NormalizerModel) ? _gemini.Model : _options.NormalizerModel;
@@ -194,9 +181,7 @@ namespace MockviewAI.Services.Speech.Implementations
         #endregion
 
         #region Helpers
-        /// <summary>
-        /// Ghép các đoạn văn bản trả lời của Gemini; bỏ qua đoạn "suy nghĩ" (thought) của model có chế độ thinking.
-        /// </summary>
+        /// <summary>Ghép phần trả lời, bỏ phần "suy nghĩ" (thought) của model.</summary>
         private static string ReadText(string json)
         {
             try
