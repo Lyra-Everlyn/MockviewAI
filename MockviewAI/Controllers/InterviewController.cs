@@ -69,11 +69,11 @@ namespace MockviewAI.Controllers
         /// <returns>Chuyển hướng người dùng vào thẳng phòng phỏng vấn (Interview Room).</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Start(string position, string interviewer, int questionCount, bool emailResult, string? mode)
+        public async Task<IActionResult> Start(string position, string interviewer, int questionCount, bool emailResult, string? mode, string? cvJson)
         {
             try
             {
-                int sessionId = await _interviewService.StartAsync(CurrentEmail, position, interviewer, questionCount, emailResult, mode);
+                int sessionId = await _interviewService.StartAsync(CurrentEmail, position, interviewer, questionCount, emailResult, mode, cvJson);
                 return RedirectToAction("Room", new { id = sessionId });
             }
             catch (Exception ex)

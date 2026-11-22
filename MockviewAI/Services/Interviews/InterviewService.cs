@@ -9,6 +9,7 @@ using MockviewAI.Services.Ai.Interfaces;
 using MockviewAI.Services.Emails;
 using MockviewAI.Services.Exceptions;
 using MockviewAI.Services.InterviewQuestions.Interfaces;
+using MockviewAI.Services.Interviews.Conversation;
 
 namespace MockviewAI.Services.Interviews
 {
@@ -25,6 +26,9 @@ namespace MockviewAI.Services.Interviews
         // vẫn lưu lại nhưng tính là SAI (0 điểm, không gửi AI chấm). Không còn giới hạn số từ tối thiểu.
         private const int MaxReminders = 1;
 
+        // [INTERVIEWER] Mã ý cốt lõi cho câu hỏi đào sâu theo CV (không thuộc ý nào của bộ đề)
+        private const string CvFollowUpPointId = "cv";
+        private const int MaxQuestionLength = 500;
 
         private readonly IRepository<InterviewSession> _sessionRepository;
         private readonly IUserRepository _userRepository;
@@ -35,6 +39,8 @@ namespace MockviewAI.Services.Interviews
         private readonly IQuestionBankStore _bank;
         private readonly IQuestionSelector _selector;
         private readonly IFollowUpPlanner _followUps;   // [FOLLOW-UP] Đợt 8
+        private readonly IInterviewerTurnService _interviewer;
+        private readonly ICandidateCvStore _cvStore;
 
         public InterviewService(
             IRepository<InterviewSession> sessionRepository,
@@ -45,7 +51,9 @@ namespace MockviewAI.Services.Interviews
             ILogger<InterviewService> logger,
             IQuestionBankStore bank,
             IQuestionSelector selector,
-            IFollowUpPlanner followUps)
+            IFollowUpPlanner followUps,
+            IInterviewerTurnService interviewer,
+            ICandidateCvStore cvStore)
         {
             _sessionRepository = sessionRepository;
             _userRepository = userRepository;
@@ -56,10 +64,12 @@ namespace MockviewAI.Services.Interviews
             _bank = bank;
             _selector = selector;
             _followUps = followUps;
+            _interviewer = interviewer;
+            _cvStore = cvStore;
         }
 
         #region Start
-        public async Task<int> StartAsync(string email, string positionKey, string interviewerKey, int questionCount, bool emailResult, string? mode = null)
+        public async Task<int> StartAsync(string email, string positionKey, string interviewerKey, int questionCount, bool emailResult, string? mode = null, string? cvJson = null)
         {
             var user = await GetUserAsync(email);
 
@@ -108,6 +118,9 @@ namespace MockviewAI.Services.Interviews
             }
 
             await _sessionRepository.AddAsync(session);
+
+            // [INTERVIEWER] CV mặc định trên trình duyệt (nếu người dùng chọn dùng) -> tóm tắt, giữ trong Redis theo buổi
+            await _cvStore.SaveAsync(session.Id, CvContextBuilder.FromBrowserJson(cvJson));
             return session.Id;
         }
         #endregion
@@ -209,19 +222,10 @@ namespace MockviewAI.Services.Interviews
             }
             current.AnsweredAt = DateTime.UtcNow;
 
-            // [FOLLOW-UP] Đợt 8: câu trả lời chưa tới điểm B (chấm sơ bộ theo bộ đề, không gọi AI) -> hỏi thêm ý còn thiếu
-            if (meaningful && FollowUps.CanAskAfter(current, session.Answers)
-                && _bank.Find(current.QuestionId) is { } bankQuestion
-                && _followUps.Plan(bankQuestion, current.Answer!) is { } plan)
-            {
-                session.Answers.Add(new SessionAnswer
-                {
-                    OrderNo = current.OrderNo,
-                    Question = plan.Question.Length > 500 ? plan.Question[..500] : plan.Question,
-                    FollowUpOf = current.QuestionId,
-                    FollowUpPointId = plan.PointId
-                });
-            }
+            // [INTERVIEWER] Nhà tuyển dụng phản hồi; câu hỏi thêm theo ý còn thiếu (bộ đề) hoặc đào sâu theo CV
+            string? reaction = dto.Skipped ? InterviewerFallback.Skipped : null;
+            if (meaningful)
+                reaction = await ReplyAndPlanFollowUpAsync(session, current);
 
             await _sessionRepository.UpdateAsync(session);
 
@@ -233,8 +237,48 @@ namespace MockviewAI.Services.Interviews
                 NextNumber = next?.OrderNo,
                 NextQuestion = next?.Question,
                 NextIsFollowUp = next?.IsFollowUp ?? false,
-                Notice = notice
+                Notice = notice,
+                Reaction = reaction
             };
+        }
+
+        /// <summary>
+        /// [INTERVIEWER] Một lần gọi AI: lời phản hồi + câu hỏi thêm (nếu còn lượt). Bộ đề vẫn quyết định ý nào còn thiếu;
+        /// AI chỉ diễn đạt lại cho tự nhiên, hoặc hỏi đào sâu theo CV khi câu trả lời đã đủ ý.
+        /// </summary>
+        private async Task<string> ReplyAndPlanFollowUpAsync(InterviewSession session, SessionAnswer current)
+        {
+            bool canAsk = FollowUps.CanAskAfter(current, session.Answers);
+            var plan = canAsk && _bank.Find(current.QuestionId) is { } bankQuestion
+                ? _followUps.Plan(bankQuestion, current.Answer!)
+                : null;
+
+            var interviewer = QuestionBank.Interviewers[session.Interviewer];
+            var turn = await _interviewer.NextTurnAsync(new InterviewerTurnRequest
+            {
+                InterviewerName = interviewer.Name,
+                InterviewerRole = interviewer.Role,
+                Position = session.Position,
+                Question = current.Question,
+                Answer = current.Answer!,
+                AllowFollowUp = canAsk,
+                MissingPointQuestion = plan?.Question,
+                CvContext = await _cvStore.GetAsync(session.Id)
+            });
+
+            if (canAsk && !string.IsNullOrWhiteSpace(turn.FollowUp))
+            {
+                var question = turn.FollowUp.Trim();
+                session.Answers.Add(new SessionAnswer
+                {
+                    OrderNo = current.OrderNo,
+                    Question = question.Length > MaxQuestionLength ? question[..MaxQuestionLength] : question,
+                    FollowUpOf = current.QuestionId,
+                    FollowUpPointId = plan?.PointId ?? CvFollowUpPointId
+                });
+            }
+
+            return turn.Reaction;
         }
         #endregion
 

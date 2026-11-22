@@ -282,6 +282,24 @@
         font-size: 12px;
         margin: -9px 0 17px;
     }
+
+        .interview-room-stage .interviewer-reaction {
+        width: fit-content;
+        max-width: 100%;
+        margin: 0 0 11px;
+        padding: 10px 14px;
+        border: 1px solid var(--color-border);
+        border-radius: 12px 12px 12px 4px;
+        background: var(--color-primary-soft);
+        color: var(--color-text);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+        .interview-room-stage .interviewer-reaction strong {
+            color: var(--color-primary);
+        }
+
 /* #endregion */
 
 /* #region Đồng hồ Thực chiến */

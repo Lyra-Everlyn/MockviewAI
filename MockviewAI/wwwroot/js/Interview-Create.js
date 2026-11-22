@@ -5,7 +5,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const tape = document.getElementById('preview-tape');
     const previewText = document.getElementById('preview-text');
     const modeLabel = document.getElementById('preview-mode');
-    const startButton = document.getElementById('startInterviewButton');
+
+    //#region CV
+    // [INTERVIEWER] CV mặc định trên trình duyệt: có thì hiện ô "Hỏi theo CV của tôi", gửi kèm khi bắt đầu
+    const cvPicker = document.getElementById('cvPicker');
+    const cvPickerName = document.getElementById('cvPickerName');
+    const cvPickerEmpty = document.getElementById('cvPickerEmpty');
+    const useCv = document.getElementById('useCv');
+    const cvJson = document.getElementById('cvJson');
+    const defaultCv = window.MockviewCv && window.MockviewCv.hasOwner ? window.MockviewCv.getDefault() : null;
+
+    if (defaultCv) {
+        cvPickerName.textContent = 'Dùng CV mặc định: ' + window.MockviewCv.titleOf(defaultCv) +
+            '. Nhà tuyển dụng sẽ hỏi thêm về dự án và kinh nghiệm trong CV.';
+        cvPicker.hidden = false;
+    } else if (cvPickerEmpty) {
+        cvPickerEmpty.hidden = false;
+    }
+    //#endregion
 
     function selected(name) {
         return form.querySelector(`input[name="${name}"]:checked`);
@@ -31,16 +48,17 @@ document.addEventListener('DOMContentLoaded', () => {
         tape.appendChild(fragment);
 
         const modeText = isLive ? 'Thực chiến' : 'Luyện tập';
+        const cvText = defaultCv && useCv.checked ? ' · hỏi theo CV' : '';
         modeLabel.textContent = modeText;
         modeLabel.classList.toggle('is-live', isLive);
-        previewText.textContent = `${count} câu với ${name} · ${modeText} · khoảng ${count * 2}–${count * 3} phút · câu đầu luôn là giới thiệu bản thân`;
+        previewText.textContent = `${count} câu với ${name} · ${modeText}${cvText} · khoảng ${count * 2}–${count * 3} phút · câu đầu luôn là giới thiệu bản thân`;
     }
 
     form.addEventListener('change', updatePreview);
     form.addEventListener('submit', event => {
         if (event.defaultPrevented || !form.checkValidity()) return;
-        // Only disable on valid submit; no second submit handler or overlay is needed.
-        // The shared _SubmitLoading.js handles overlay for forms with data-loading-text.
+        // _SubmitLoading.js lo phần khoá nút và màn hình chờ
+        cvJson.value = defaultCv && useCv.checked ? JSON.stringify(defaultCv.data) : '';
     });
     updatePreview();
 });

@@ -1,7 +1,16 @@
+@using System.Security.Claims
+@using MockviewAI.Services.CvParser
+@inject Microsoft.Extensions.Options.IOptions<CvOptions> CvOpts
 @{
     Layout = null;
     var startLive = Context.Request.Query["mode"] == MockviewAI.Models.InterviewModes.Live;
     ViewData["ActiveNav"] = "practice";
+    var cvMeta = new MockviewAI.Models.ViewModels.CvPageViewModel
+    {
+        OwnerKey = CvOwnerKey.For(User.FindFirstValue(ClaimTypes.Email)),
+        MaxCvs = Math.Clamp(CvOpts.Value.MaxCvsPerUser, 1, 10),
+        KeepDays = Math.Clamp(CvOpts.Value.BrowserKeepDays, 1, 365)
+    };
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -15,6 +24,8 @@
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/Interview-Create.css" asp-append-version="true" />
     <partial name="Partials/_ThemeHead" />
+    <partial name="~/Views/CV/_CvStorageMeta.cshtml" model="cvMeta" />
+    <script src="~/js/CvStorage.js" asp-append-version="true" defer></script>
     <script src="~/js/Interview-Create.js" asp-append-version="true" defer></script>
 </head>
 <body class="app-layout interview-create-body">
@@ -142,6 +153,20 @@
                             </div>
                             <p class="interview-create-field__help">Thời lượng ước tính: 2–3 phút mỗi câu.</p>
                         </fieldset>
+
+                        @* [INTERVIEWER] CV mặc định trên trình duyệt: JS hiện ô chọn khi có CV, gửi kèm khi bắt đầu *@
+                        <label class="interview-create-email" id="cvPicker" hidden>
+                            <input type="checkbox" id="useCv" checked />
+                            <span>
+                                <strong>Hỏi theo CV của tôi</strong>
+                                <small id="cvPickerName"></small>
+                            </span>
+                        </label>
+                        <p class="interview-create-field__help" id="cvPickerEmpty" hidden>
+                            <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
+                            Chưa có CV. <a asp-controller="CV" asp-action="UploadCv">Tải CV lên</a> để nhà tuyển dụng hỏi về dự án của bạn.
+                        </p>
+                        <input type="hidden" name="cvJson" id="cvJson" />
 
                         <label class="interview-create-email">
                             <input type="checkbox" name="emailResult" value="true" />

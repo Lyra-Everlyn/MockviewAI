@@ -6,22 +6,18 @@ namespace MockviewAI.Services.Interviews
     /// [AI-INTERVIEW]
     public interface IInterviewService
     {
-        // Tạo buổi luyện mới, trả về Id của buổi
-        Task<int> StartAsync(string email, string positionKey, string interviewerKey, int questionCount, bool emailResult, string? mode = null);
+        // Tạo buổi luyện mới, trả về Id của buổi. cvJson: CV mặc định trên trình duyệt (null = không dùng CV)
+        Task<int> StartAsync(string email, string positionKey, string interviewerKey, int questionCount, bool emailResult, string? mode = null, string? cvJson = null);
 
-        
         // Lấy câu hỏi hiện tại để vẽ phòng phỏng vấn. Trả về null nếu không tìm thấy buổi, hoặc buổi đã kết thúc.
         Task<InterviewRoomViewModel?> GetRoomAsync(string email, int sessionId);
 
-        
-        // Lưu câu trả lời (hoặc bỏ qua) của câu hiện tại
+        // Lưu câu trả lời (hoặc bỏ qua) của câu hiện tại, kèm phản hồi của nhà tuyển dụng
         Task<SubmitAnswerResultDto> SubmitAnswerAsync(string email, SubmitAnswerDto dto);
 
-        
         // Kết thúc buổi và chấm điểm
         Task FinishAsync(string email, FinishSessionDto dto);
 
-        
         // Lấy dữ liệu trang kết quả. Trả về null nếu không tìm thấy buổi.
         Task<SessionResultViewModel?> GetResultAsync(string email, int sessionId);
 

@@ -78,6 +78,9 @@
                 </div>
 
                 <!-- Câu hỏi -->
+                @* [INTERVIEWER] Lời phản hồi của người phỏng vấn trước câu tiếp theo (JS điền) *@
+                <p class="interviewer-reaction" id="interviewer-reaction" hidden><strong>@Model.InterviewerName:</strong> <span id="interviewer-reaction-text"></span></p>
+
                 @* [FOLLOW-UP] Đợt 8: câu hỏi thêm vì câu trả lời vừa rồi còn thiếu ý (JS bật / tắt khi sang câu mới) *@
                 <p class="followup-note" id="followup-note" hidden="@(!Model.IsFollowUp)">@Model.InterviewerName hỏi thêm về câu trả lời vừa rồi</p>
                 <h1 class="question" id="question-text">@Model.QuestionText</h1>

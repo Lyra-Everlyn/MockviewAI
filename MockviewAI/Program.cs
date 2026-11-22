@@ -16,7 +16,7 @@ using MockviewAI.Services.Ai.Implementations;
 using MockviewAI.Services.Ai.Interfaces;
 using MockviewAI.Services.Auth;
 using MockviewAI.Services.CvParser;
-
+using MockviewAI.Services.Interviews.Conversation;
 using MockviewAI.Services.InterviewQuestions.Implementations;
 using MockviewAI.Services.InterviewQuestions.Interfaces;
 using MockviewAI.Services.Emails;
@@ -130,7 +130,8 @@ namespace MockviewAI
                 client.BaseAddress = new Uri("https://generativelanguage.googleapis.com/v1beta/");
                 client.Timeout = TimeSpan.FromSeconds(180);
             }).AddHttpMessageHandler<GeminiKeyHandler>();
-
+            builder.Services.AddInterviewerConversation(builder.Configuration);
+            
             builder.Services.AddHttpClient("GroqClient", client =>
             {
                 client.BaseAddress = new Uri("https://api.groq.com/openai/v1/");

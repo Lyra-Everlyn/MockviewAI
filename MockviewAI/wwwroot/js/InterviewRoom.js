@@ -33,6 +33,11 @@
     const modal = document.getElementById('stop-modal');
     const answeredCount = document.getElementById('answered-count');
 
+    const reactionBox = document.getElementById('interviewer-reaction');
+    const reactionText = document.getElementById('interviewer-reaction-text');
+    let leadIn = '';
+
+
     const PLACEHOLDER = 'Câu trả lời của bạn sẽ hiện ở đây.';
     const MIN_PAUSE_SECONDS = 1;
     const NO_SOUND_HINT_MS = 6000;
@@ -303,7 +308,12 @@
         const done = typeof onDone === 'function' ? onDone : null;
         if (!synth || !vietnameseVoice || isListening) { if (done) done(); return; }
         synth.cancel();
-        const utterance = new SpeechSynthesisUtterance(questionText.textContent.trim());
+
+        const text = (leadIn ? leadIn + ' ' : '') + questionText.textContent.trim();
+        leadIn = '';
+        const utterance = new SpeechSynthesisUtterance(text);
+
+
         utterance.voice = vietnameseVoice;
         utterance.lang = vietnameseVoice.lang;
         utterance.rate = 0.95;
@@ -760,7 +770,9 @@
         }
 
         setBusy(true);
-        showMessage('Đang gửi câu trả lời...');
+        showMessage(skipped ? 'Đang chuyển câu...' : 'Nhà tuyển dụng đang lắng nghe câu trả lời của bạn...');
+        setStatus('Đang lắng nghe...', 'is-waiting');
+
         logEvent(skipped ? 'skipped' : 'answer_sent');
         try {
             const result = await postJson('/Interview/Answer', {
@@ -784,13 +796,16 @@
             lastAnswer.hidden = false;
             showMessage('');
             setStatus('Đã nhận câu trả lời ✓', 'is-waiting');
-
+            showReaction(result.reaction);
+            
             if (result.done) {
                 await finishSession(false);
             } else {
+                leadIn = result.reaction || '';
                 showNextQuestion(result.nextNumber, result.nextQuestion, result.nextIsFollowUp);
                 setBusy(false);
             }
+
         } catch (error) {
             showMessage(error.message, 'error');
             setBusy(false);
@@ -810,6 +825,12 @@
         if (isListening) cancelRecording();
         submit(true);
     });
+
+    function showReaction(text) {
+        if (!reactionBox) return;
+        reactionText.textContent = text || '';
+        reactionBox.hidden = !text;
+    }
 
     function showNextQuestion(number, text, isFollowUp) {
         questionText.textContent = text;
