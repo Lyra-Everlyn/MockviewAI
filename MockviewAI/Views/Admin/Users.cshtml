@@ -1,0 +1,138 @@
+@model MockviewAI.Models.ViewModels.Admin.AdminUserListViewModel
+@using MockviewAI.Services.Admin
+@*
+    #region Admin/Users
+    <summary>[ADMIN] Danh sách người dùng (chỉ xem): tìm theo email / tên, lọc trạng thái, phân trang.</summary>
+    #endregion
+*@
+@{
+    ViewData["Title"] = "Quản trị - Người dùng";
+
+    // Giữ bộ lọc khi chuyển trang
+    string PageUrl(int p) => Url.Action("Users", "Admin", new { search = Model.Search, status = Model.Status, page = p }) ?? "/Admin/Users";
+
+    string StatusChip(string status) => status switch
+    {
+        "Active" => "status-chip--success",
+        "Inactive" => "status-chip--warning",
+        _ => "admin-chip--danger"
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Admin.css" asp-append-version="true" />
+}
+
+<main class="page-shell admin-page">
+    <header class="page-header">
+        <div class="page-header__content">
+            <span class="page-header__eyebrow">KHU QUẢN TRỊ</span>
+            <h1 class="page-header__title">Người dùng</h1>
+            <p class="page-header__description">Danh sách tài khoản, số buổi luyện và lần đăng nhập gần nhất.</p>
+        </div>
+    </header>
+
+    <partial name="_AdminTabs" />
+
+    <section class="surface-card admin-panel" aria-labelledby="users-title">
+        <form class="admin-filters" method="get" action="/Admin/Users" role="search">
+            <div class="form-field admin-filters__search">
+                <label class="form-field__label" for="search">Tìm theo email hoặc tên</label>
+                <div class="form-control-wrap">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <input class="form-control" type="search" id="search" name="search" value="@Model.Search"
+                           maxlength="100" placeholder="VD: nguyenvana@gmail.com" autocomplete="off" />
+                </div>
+            </div>
+            <div class="form-field">
+                <label class="form-field__label" for="status">Trạng thái</label>
+                <select class="form-control" id="status" name="status">
+                    <option value="">Tất cả</option>
+                    @foreach (var s in AdminService.Statuses)
+                    {
+                        <option value="@s" selected="@(Model.Status == s)">@AdminService.StatusLabel(s)</option>
+                    }
+                </select>
+            </div>
+            <div class="admin-filters__actions">
+                <button type="submit" class="button button--primary">Lọc</button>
+                <a class="button button--secondary" href="/Admin/Users">Xoá lọc</a>
+            </div>
+        </form>
+
+        <h2 id="users-title" class="admin-count" aria-live="polite">
+            @Model.TotalCount tài khoản · Trang @Model.Page/@Model.TotalPages
+        </h2>
+
+        @if (!Model.Users.Any())
+        {
+            <div class="empty-state">
+                <span class="empty-state__icon" aria-hidden="true"><i class="fa-solid fa-user-slash"></i></span>
+                <div class="empty-state__content">
+                    <h3 class="empty-state__title">Không tìm thấy tài khoản phù hợp</h3>
+                    <p class="empty-state__description">Thử từ khoá khác hoặc xoá bộ lọc.</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Người dùng</th>
+                            <th scope="col">Trạng thái</th>
+                            <th scope="col" class="admin-table__num">Buổi luyện</th>
+                            <th scope="col">Đăng ký</th>
+                            <th scope="col">Đăng nhập gần nhất</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var u in Model.Users)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="admin-user">
+                                        <span class="user-avatar admin-user__avatar" aria-hidden="true">
+                                            @if (!string.IsNullOrWhiteSpace(u.AvatarUrl) && u.AvatarUrl.StartsWith("https://"))
+                                            {
+                                                <img src="@u.AvatarUrl" alt="" referrerpolicy="no-referrer" />
+                                            }
+                                            else
+                                            {
+                                                @u.DisplayName.Substring(0, 1).ToUpper()
+                                            }
+                                        </span>
+                                        <div class="admin-user__text">
+                                            <strong>@u.DisplayName</strong>
+                                            <span class="admin-muted">@u.Email</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="status-chip @StatusChip(u.Status)">@AdminService.StatusLabel(u.Status)</span></td>
+                                <td class="admin-table__num">@u.SessionCount</td>
+                                <td>@u.CreateAt.ToString("dd/MM/yyyy")</td>
+                                <td>@(u.LastLoginAt?.ToString("dd/MM/yyyy HH:mm") ?? "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav class="admin-pager" aria-label="Phân trang">
+                    @if (Model.Page > 1)
+                    {
+                        <a class="button button--secondary" href="@PageUrl(Model.Page - 1)"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i> Trước</a>
+                    }
+                    <span class="admin-muted">Trang @Model.Page / @Model.TotalPages</span>
+                    @if (Model.Page < Model.TotalPages)
+                    {
+                        <a class="button button--secondary" href="@PageUrl(Model.Page + 1)">Sau <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+                    }
+                </nav>
+            }
+        }
+    </section>
+</main>

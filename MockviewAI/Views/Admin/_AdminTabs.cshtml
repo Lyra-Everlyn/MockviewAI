@@ -1,0 +1,21 @@
+@* 
+    [ADMIN] 
+    Thanh chuyển tab giữa các trang quản trị. Trang hiện tại đặt ViewData["AdminTab"]. 
+*@
+@{
+    var tab = ViewData["AdminTab"] as string ?? "";
+}
+<nav class="admin-tabs" aria-label="Điều hướng quản trị">
+    <a href="/Admin" class="admin-tabs__link @(tab == "dashboard" ? "is-active" : null)"
+       aria-current="@(tab == "dashboard" ? "page" : null)">
+        <i class="fa-solid fa-chart-simple" aria-hidden="true"></i> Tổng quan
+    </a>
+    <a href="/Admin/Users" class="admin-tabs__link @(tab == "users" ? "is-active" : null)"
+       aria-current="@(tab == "users" ? "page" : null)">
+        <i class="fa-solid fa-users" aria-hidden="true"></i> Người dùng
+    </a>
+    <a href="/Admin/Feedbacks" class="admin-tabs__link @(tab == "feedbacks" ? "is-active" : null)"
+       aria-current="@(tab == "feedbacks" ? "page" : null)">
+        <i class="fa-regular fa-comment-dots" aria-hidden="true"></i> Góp ý
+    </a>
+</nav>

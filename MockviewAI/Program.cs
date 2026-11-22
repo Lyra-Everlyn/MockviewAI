@@ -3,6 +3,7 @@ using System.Threading.RateLimiting;
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
@@ -11,6 +12,7 @@ using MockviewAI.Data;
 using MockviewAI.Middleware;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
+using MockviewAI.Services.Admin;
 using MockviewAI.Services.Ai;
 using MockviewAI.Services.Ai.Implementations;
 using MockviewAI.Services.Ai.Interfaces;
@@ -37,7 +39,8 @@ using MockviewAI.Services.Speech.Interfaces;
 namespace MockviewAI
 {
     /// <summary>
-    /// [SYSTEM] Điểm khởi động: đăng ký dịch vụ (DI) rồi dựng pipeline xử lý request.
+    /// [SYSTEM] 
+    /// Điểm khởi động: đăng ký dịch vụ (DI) rồi dựng pipeline xử lý request.
     /// Mọi cấu hình nhạy cảm lấy từ biến môi trường (tab Environment trên Dokploy, hoặc file .env khi chạy local).
     /// </summary>
     public class Program
@@ -115,6 +118,7 @@ namespace MockviewAI
             services.AddScoped<IInterviewScoringService, InterviewScoringService>();
             services.AddScoped<ISessionHistoryService, SessionHistoryService>();
             services.AddScoped<IFeedbackService, FeedbackService>();
+            services.AddScoped<IAdminService, AdminService>();
             services.AddScoped<IEmailService, EmailService>();
         }
         #endregion
@@ -173,7 +177,7 @@ namespace MockviewAI
         }
         #endregion
 
-        #region Đăng nhập (Cookie + Google)
+        #region Đăng nhập (Cookie + Google) và quyền trang quản trị
         private static void AddAuthentication(IServiceCollection services, IConfiguration config)
         {
             services.AddAuthentication(options =>
@@ -185,6 +189,7 @@ namespace MockviewAI
             {
                 options.LoginPath = "/Auth/Login";
                 options.LogoutPath = "/Auth/Logout";
+                options.AccessDeniedPath = "/Home";   // [ADMIN] Không đủ quyền vào /Admin -> về trang chủ
                 options.HardenCookie();   // HttpOnly, SameSite=Lax, sống 8 giờ (trượt)
             })
             .AddGoogle(options =>
@@ -193,6 +198,13 @@ namespace MockviewAI
                 options.ClientSecret = config["Authentication:Google:ClientSecret"] ?? throw new InvalidOperationException("Google ClientSecret is missing.");
                 options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
             });
+
+            // [ADMIN] Trang quản trị chỉ xem: email khai báo ở Admin__Emails__N (không lưu quyền trong database)
+            services.Configure<AdminOptions>(config.GetSection(AdminOptions.SectionName));
+            services.AddSingleton<IAdminAccess, AdminAccess>();
+            services.AddSingleton<IAuthorizationHandler, AdminAuthorizationHandler>();
+            services.AddAuthorization(options =>
+                options.AddPolicy(AdminAccess.PolicyName, policy => policy.RequireAuthenticatedUser().AddRequirements(new AdminRequirement())));
         }
         #endregion
 

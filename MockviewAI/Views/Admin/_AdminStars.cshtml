@@ -1,0 +1,9 @@
+@model int
+@* 
+    [ADMIN] 
+    Số sao 1–5 của một góp ý (sao tô màu + sao rỗng). 
+*@
+@{
+    var stars = Math.Clamp(Model, 0, 5);
+}
+<span class="admin-stars" aria-label="@stars trên 5 sao">@(new string('★', stars))<span class="admin-stars__empty">@(new string('★', 5 - stars))</span></span>
