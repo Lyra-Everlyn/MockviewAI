@@ -5,28 +5,44 @@ namespace MockviewAI.Models.Entities
 {
     /// <summary>
     /// [AI-INTERVIEW] 
-    /// -- Một buổi luyện phỏng vấn của một người dùng.
-    /// -- Điểm (Total/Content/Delivery) chỉ có sau khi bấm "Dừng và xem kết quả" hoặc trả lời hết câu.
+    /// Một buổi luyện phỏng vấn của một người dùng.
+    /// Điểm và nhận xét chỉ có sau khi buổi được chấm (Status = Completed).
     /// </summary>
-    
     public class InterviewSession
     {
+        #region Thiết lập buổi
         [Key]
         public int Id { get; set; }
 
-        // Người luyện
+        /// <summary>Người luyện.</summary>
         public int UserId { get; set; }
         public User? User { get; set; }
 
+        /// <summary>Tên vị trí hiển thị, vd "Lập trình viên".</summary>
         [Required, MaxLength(100)]
-        public string Position { get; set; } = string.Empty;       // vd: "Lập trình viên"
+        public string Position { get; set; } = string.Empty;
 
+        /// <summary>Mã người phỏng vấn: linh | nam | an.</summary>
         [Required, MaxLength(20)]
-        public string Interviewer { get; set; } = "linh";          // linh | nam | an
+        public string Interviewer { get; set; } = "linh";
 
+        /// <summary>Số câu chính của buổi (không tính câu hỏi thêm).</summary>
         public int QuestionCount { get; set; }
 
-        // InProgress = đang làm, Completed = đã chấm điểm, Stopped = dừng khi chưa trả lời câu nào
+        /// <summary>[LIVE-MODE] practice (Luyện tập) | live (Thực chiến); null = buổi cũ, coi là Luyện tập.</summary>
+        [MaxLength(20)]
+        public string? Mode { get; set; }
+
+        /// <summary>Người dùng tick "Gửi kết quả qua email" ở trang Tạo buổi.</summary>
+        public bool EmailResult { get; set; }
+
+        /// <summary>[QUESTION-BANK] Phiên bản bộ đề đã dùng; null = buổi cũ, câu hỏi kiểu cũ.</summary>
+        [MaxLength(30)]
+        public string? QuestionBankVersion { get; set; }
+        #endregion
+
+        #region Trạng thái và thời gian
+        /// <summary>Xem <see cref="SessionStatus"/>.</summary>
         [Required, MaxLength(20)]
         public string Status { get; set; } = SessionStatus.InProgress;
 
@@ -35,41 +51,47 @@ namespace MockviewAI.Models.Entities
 
         [Precision(3)]
         public DateTime? FinishedAt { get; set; }
+        #endregion
 
-        // Điểm 0-100 (điểm tham khảo). Null nếu chưa chấm.
+        #region Kết quả chấm
+        /// <summary>Điểm tổng 0–100 (điểm tham khảo); null = chưa chấm.</summary>
         public int? TotalScore { get; set; }
+
+        /// <summary>Điểm nội dung 0–100.</summary>
         public int? ContentScore { get; set; }
+
+        /// <summary>Điểm cách nói 0–100.</summary>
         public int? DeliveryScore { get; set; }
 
-        // Nhận xét của AI và lời khuyên cách nói. Nhiều ý được ngăn cách bằng dấu xuống dòng.
-        public string? AiSummary { get; set; }
-        public string? Strengths { get; set; }
-        public string? Improvements { get; set; }
-        public string? DeliveryTips { get; set; }
-
-        // Mức lo lắng tự đánh giá 1-10 (phục vụ nghiên cứu)
-        // (Cũ, không còn dùng từ 21/10: người dùng không còn tự chấm. Giữ cột để không mất dữ liệu cũ.)
-        public int? AnxietyBefore { get; set; }
-        public int? AnxietyAfter { get; set; }
-
-        // Dấu hiệu lo lắng 1-10 do hệ thống ước tính từ cách nói (ngập ngừng, từ đệm...). Null nếu chưa đủ dữ liệu.
-        public int? AnxietyIndicator { get; set; }
-
-        // Người dùng đồng ý nhận kết quả qua email (tick ở trang Tạo buổi luyện)
-        public bool EmailResult { get; set; }
-
-        // [QUESTION-BANK] Phiên bản bộ đề đã dùng cho buổi (null = buổi cũ / câu hỏi kiểu cũ)
-        [MaxLength(30)]
-        public string? QuestionBankVersion { get; set; }
-
-        // [QUESTION-BANK] Cách chấm buổi này: ai | bank_rules | delivery_only (null = buổi cũ, chấm bằng AI hoặc dự phòng)
+        /// <summary>[AI-SCORING] Cách chấm: ai | bank_rules | delivery_only (<see cref="Ai.ScoringModes"/>); null = buổi cũ.</summary>
         [MaxLength(20)]
         public string? ScoringMode { get; set; }
 
-        // [LIVE-MODE] Chế độ: practice (Luyện tập) | live (Thực chiến). null = buổi cũ = Luyện tập
-        [MaxLength(20)]
-        public string? Mode { get; set; }
+        /// <summary>Nhận xét tổng quát của AI.</summary>
+        public string? AiSummary { get; set; }
 
+        /// <summary>Điểm mạnh, mỗi ý một dòng.</summary>
+        public string? Strengths { get; set; }
+
+        /// <summary>Điểm cần cải thiện, mỗi ý một dòng.</summary>
+        public string? Improvements { get; set; }
+
+        /// <summary>Lời khuyên cách nói, mỗi ý một dòng.</summary>
+        public string? DeliveryTips { get; set; }
+
+        /// <summary>Dấu hiệu lo lắng 1–10 hệ thống ước tính từ cách nói; null = chưa đủ dữ liệu.</summary>
+        public int? AnxietyIndicator { get; set; }
+        #endregion
+
+        #region [KHÔNG DÙNG] Cột cũ giữ lại để không mất dữ liệu
+        /// <summary>[KHÔNG DÙNG] Mức lo lắng tự đánh giá trước buổi (1–10); người dùng không còn tự chấm.</summary>
+        public int? AnxietyBefore { get; set; }
+
+        /// <summary>[KHÔNG DÙNG] Mức lo lắng tự đánh giá sau buổi (1–10).</summary>
+        public int? AnxietyAfter { get; set; }
+        #endregion
+
+        /// <summary>Các câu hỏi của buổi, gồm cả câu hỏi thêm.</summary>
         public List<SessionAnswer> Answers { get; set; } = new();
     }
 }

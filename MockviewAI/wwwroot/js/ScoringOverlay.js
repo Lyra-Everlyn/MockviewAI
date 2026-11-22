@@ -1,7 +1,7 @@
 ﻿//#region ScoringOverlay
 /// <summary>
 /// [AI-INTERVIEW] 
-/// Màn hình chờ khi chấm điểm: các bước đổi theo thời gian, đồng hồ đếm, cảnh báo khi rời trang.
+/// Màn hình chờ khi chấm điểm: các bước đổi theo thời gian, đồng hồ đếm, cảnh báo khi rời page.
 /// </summary>
 //#endregion
 (function (window, document) {

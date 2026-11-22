@@ -1,3 +1,9 @@
+//#region Interview-Create
+/// <summary>
+/// [AI-INTERVIEW] 
+/// Trang Tạo buổi luyện: xem trước dải băng số câu, chế độ, thời lượng; gửi kèm CV mặc định nếu người dùng chọn.
+/// </summary>
+//#endregion
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('createSessionForm');
     if (!form) return;
@@ -6,8 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewText = document.getElementById('preview-text');
     const modeLabel = document.getElementById('preview-mode');
 
-    //#region CV
-    // [INTERVIEWER] CV mặc định trên trình duyệt: có thì hiện ô "Hỏi theo CV của tôi", gửi kèm khi bắt đầu
+    //#region [INTERVIEWER] CV mặc định
+    // Có CV mặc định trên trình duyệt thì hiện ô "Hỏi theo CV của tôi", gửi kèm khi bắt đầu
     const cvPicker = document.getElementById('cvPicker');
     const cvPickerName = document.getElementById('cvPickerName');
     const cvPickerEmpty = document.getElementById('cvPickerEmpty');
@@ -24,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     //#endregion
 
+    //#region Xem trước
     function selected(name) {
         return form.querySelector(`input[name="${name}"]:checked`);
     }
@@ -53,7 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
         modeLabel.classList.toggle('is-live', isLive);
         previewText.textContent = `${count} câu với ${name} · ${modeText}${cvText} · khoảng ${count * 2}–${count * 3} phút · câu đầu luôn là giới thiệu bản thân`;
     }
+    //#endregion
 
+    //#region Sự kiện
     form.addEventListener('change', updatePreview);
     form.addEventListener('submit', event => {
         if (event.defaultPrevented || !form.checkValidity()) return;
@@ -61,4 +70,5 @@ document.addEventListener('DOMContentLoaded', () => {
         cvJson.value = defaultCv && useCv.checked ? JSON.stringify(defaultCv.data) : '';
     });
     updatePreview();
+    //#endregion
 });

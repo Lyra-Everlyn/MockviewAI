@@ -1,6 +1,6 @@
 ﻿//#region UploadCV
 /// <summary>
-/// [USER CV] Chọn / kéo thả CV, kiểm tra nhanh (chỉ PDF, tối đa 10 MB). Đủ số CV thì khoá form.
+/// [USER CV] Chọn / kéo thả CV, kiểm tra nhanh. Đủ số CV thì khoá form.
 /// </summary>
 //#endregion
 document.addEventListener('DOMContentLoaded', () => {

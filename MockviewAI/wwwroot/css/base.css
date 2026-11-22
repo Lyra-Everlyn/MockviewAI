@@ -1,10 +1,9 @@
-/* =========================================================
-   MockviewAI — Base
-   Structure + typography scale. Theme colors live elsewhere.
-   ========================================================= */
+/* MockviewAI | Base
+   Reset, bố cục trang và cỡ chữ. Màu nằm trong themes/*.css. */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
+/* #region Reset */
 *,
 *::before,
 *::after {
@@ -82,7 +81,9 @@ ol {
 button {
     border: 0;
 }
+/* #endregion */
 
+/* #region Bố cục trang */
 .page-shell {
     width: min(var(--layout-max-width), calc(100% - 48px));
     margin-inline: auto;
@@ -168,7 +169,9 @@ button {
     display: grid;
     gap: 14px;
 }
+/* #endregion */
 
+/* #region Responsive */
 @media (max-width: 768px) {
     body {
         padding-bottom: calc(76px + env(safe-area-inset-bottom));
@@ -225,3 +228,4 @@ button {
         font-size: 12px;
     }
 }
+/* #endregion */

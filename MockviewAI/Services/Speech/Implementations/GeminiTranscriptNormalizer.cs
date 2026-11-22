@@ -13,7 +13,7 @@ namespace MockviewAI.Services.Speech.Implementations
 {
     /// <summary>
     /// [SPEECH] 
-    /// Gọi Gemini (generateContent, HttpClient "GeminiClient") để sửa bản chép, gộp với chữ trình duyệt nếu có.
+    /// Gọi Gemini để sửa bản chép, gộp với chữ trình duyệt nếu có.
     /// Model chính quá tải / hết lượt / quá giờ thì thử model dự phòng; lỗi còn lại ném ra để dùng bản thô.
     /// </summary>
     public class GeminiTranscriptNormalizer : ITranscriptNormalizer

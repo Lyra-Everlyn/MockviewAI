@@ -1,10 +1,16 @@
-﻿// Generic submit overlay for any form with data-loading-overlay.
-// CSS lives in components.css, colors in theme-indigo.css.
+﻿//#region _SubmitLoading
+/// <summary>
+/// Màn hình chờ dùng chung cho mọi form có thuộc tính data-loading-overlay="Nội dung thông báo":
+/// khoá nút gửi, chặn gửi trùng, mở lại khi người dùng quay về trang (pageshow).
+/// Giao diện nằm trong components.css, màu trong các file theme.
+/// </summary>
+//#endregion
 (() => {
     const OVERLAY_ID = 'app-loading-overlay';
     let activeForm = null;
     let savedFocus = null;
 
+    //#region Overlay
     function createOverlay(message) {
         let overlay = document.getElementById(OVERLAY_ID);
         if (!overlay) {
@@ -29,6 +35,7 @@
         return overlay;
     }
 
+    /// <summary>Ẩn overlay, mở khoá nút và trả focus (khi người dùng bấm Back quay lại trang).</summary>
     function reset() {
         const overlay = document.getElementById(OVERLAY_ID);
         if (overlay) overlay.hidden = true;
@@ -48,7 +55,9 @@
         if (savedFocus && savedFocus.isConnected) savedFocus.focus({preventScroll:true});
         savedFocus = null;
     }
+    //#endregion
 
+    //#region Sự kiện
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('form[data-loading-overlay]').forEach(form => {
             form.addEventListener('submit', event => {
@@ -59,11 +68,11 @@
                 }
                 if (!form.checkValidity()) return;
 
-                // Turnstile is only present on selected forms. The backend must still validate its token.
+                // Form có Turnstile: chưa xác minh xong thì để widget tự xử lý (server vẫn kiểm tra token)
                 const turnstileWidget = form.querySelector('.cf-turnstile');
                 if (turnstileWidget && typeof window.turnstile?.getResponse === 'function') {
                     const response = window.turnstile.getResponse();
-                    if (!response) return; // Do not override the widget's own verification behavior.
+                    if (!response) return;
                 }
 
                 form.dataset.submitting = '1';
@@ -83,4 +92,5 @@
         });
         window.addEventListener('pageshow', reset);
     });
+    //#endregion
 })();

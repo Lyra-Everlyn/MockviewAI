@@ -1,7 +1,8 @@
 ﻿namespace MockviewAI.Services.Speech
 {
     /// <summary>
-    /// [SPEECH] Đoán nhanh văn bản là tiếng Việt hay tiếng Anh theo tỉ lệ từ mang dấu tiếng Việt.
+    /// [SPEECH] 
+    /// Đoán nhanh văn bản là tiếng Việt hay tiếng Anh theo tỉ lệ từ mang dấu tiếng Việt.
     /// </summary>
     public static class VietnameseText
     {

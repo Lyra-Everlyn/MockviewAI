@@ -1,11 +1,7 @@
-/* =========================================================
-   MockviewAI — Generic Components
-   Reusable structure only. Colors are controlled by theme-*.css.
-   Icons use Font Awesome across the system.
-   ========================================================= */
+/* MockviewAI | Components
+   Thành phần dùng chung toàn hệ thống: chỉ cấu trúc và kích thước. Màu nằm trong themes/*.css, icon dùng Font Awesome. */
 
-/* ---------- App Navigation ---------- */
-
+/* #region Thanh điều hướng */
 .app-nav {
     position: sticky;
     z-index: 100;
@@ -109,9 +105,9 @@
 .app-nav__mobile {
     display: none;
 }
+/* #endregion */
 
-/* ---------- Buttons ---------- */
-
+/* #region Nút */
 .button {
     display: inline-flex;
     min-height: 46px;
@@ -137,9 +133,9 @@
 .button--secondary {
     border-color: var(--color-border);
 }
+/* #endregion */
 
-/* ---------- Panel ---------- */
-
+/* #region Panel */
 .panel {
     overflow: hidden;
     border: 1px solid var(--color-border);
@@ -174,9 +170,9 @@
     gap: 10px;
     margin-top: 24px;
 }
+/* #endregion */
 
-/* ---------- Generic Cards ---------- */
-
+/* #region Thẻ dùng chung */
 .action-card,
 .info-card,
 .stat-card,
@@ -311,9 +307,9 @@
     font-size: 11px;
     line-height: 1.5;
 }
+/* #endregion */
 
-/* ---------- Session Card ---------- */
-
+/* #region Thẻ buổi luyện */
 .session-list {
     display: grid;
     gap: 11px;
@@ -368,6 +364,19 @@
     white-space: nowrap;
 }
 
+.session-card__details {
+    display: grid;
+    gap: 5px;
+    text-align: right;
+    min-width: 0;
+}
+
+.session-card__count {
+    color: var(--color-muted);
+    font-size: 10px;
+    white-space: nowrap;
+}
+
 .status-chip {
     display: inline-flex;
     min-height: 24px;
@@ -378,8 +387,9 @@
     font-weight: 750;
 }
 
-/* ---------- Empty State ---------- */
+/* #endregion */
 
+/* #region Trạng thái trống */
 .empty-state {
     display: flex;
     min-height: 140px;
@@ -411,9 +421,9 @@
     font-size: 12px;
     line-height: 1.6;
 }
+/* #endregion */
 
-/* ---------- Mobile Navigation ---------- */
-
+/* #region Điện thoại: điều hướng dưới đáy và thu gọn thẻ */
 @media (max-width: 768px) {
     .app-nav {
         position: static;
@@ -508,8 +518,22 @@
     }
 }
 
-/* ---------- Settings / Account ---------- */
+@media (max-width: 420px) {
+    .session-card__side {
+        gap: 8px;
+    }
 
+    .session-card__date {
+        font-size: 10px;
+    }
+
+    .session-card__count {
+        font-size: 9px;
+    }
+}
+/* #endregion */
+
+/* #region Cài đặt tài khoản */
 .settings-card {
     overflow: hidden;
     border: 1px solid var(--color-border);
@@ -602,6 +626,55 @@
     color: var(--color-danger);
 }
 
+/* Mục cài đặt dạng button (vd: công tắc giao diện); cột cuối rộng hơn để chứa công tắc */
+.settings-item--button {
+    width: 100%;
+    grid-template-columns: 38px minmax(0, 1fr) 36px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+    .settings-item--button:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: -2px;
+    }
+
+.settings-switch {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    justify-self: end;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 999px;
+    background: var(--color-surface-soft);
+    transition: background-color .18s ease, border-color .18s ease;
+}
+
+    .settings-switch::after {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--color-muted);
+        content: "";
+        transition: transform .18s ease, background-color .18s ease;
+    }
+
+html[data-theme="dark"] .settings-switch {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+}
+
+    html[data-theme="dark"] .settings-switch::after {
+        background: var(--color-primary-text);
+        transform: translateX(16px);
+    }
+
 @media (max-width: 680px) {
     .settings-card {
         border-radius: 15px;
@@ -615,6 +688,10 @@
         grid-template-columns: 36px minmax(0, 1fr) 18px;
         min-height: 66px;
         padding: 12px 15px;
+    }
+
+    .settings-item--button {
+        grid-template-columns: 36px minmax(0, 1fr) 36px;
     }
 
     .settings-item__icon {
@@ -631,7 +708,15 @@
     }
 }
 
-/* ---------- Generic form foundation (Edit, Settings, Feedback) ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .settings-switch,
+    .settings-switch::after {
+        transition: none;
+    }
+}
+/* #endregion */
+
+/* #region Form dùng chung */
 .surface-card {
     min-width: 0;
     border: 1px solid var(--color-border);
@@ -846,6 +931,32 @@
         color: var(--color-primary-text);
     }
 
+/* selection-card đi sau input radio ẩn (trang Góp ý) */
+.selection-grid > input[type="radio"]:checked + .selection-card {
+    border-color: var(--color-primary);
+    background: var(--color-primary-soft);
+}
+
+    .selection-grid > input[type="radio"]:checked + .selection-card .selection-card__icon {
+        color: var(--color-primary);
+        background: var(--color-surface);
+    }
+
+    .selection-grid > input[type="radio"]:checked + .selection-card .selection-card__content strong {
+        color: var(--color-primary);
+    }
+
+    .selection-grid > input[type="radio"]:checked + .selection-card .selection-card__check {
+        border-color: var(--color-primary);
+        background: var(--color-primary);
+        color: var(--color-primary-text);
+    }
+
+.selection-grid > input[type="radio"]:focus-visible + .selection-card {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
 .form-footer {
     display: flex;
     justify-content: flex-end;
@@ -929,9 +1040,9 @@
             min-width: 0;
         }
 }
+/* #endregion */
 
-/* ---------- Generic rating and textarea controls (Feedback, Surveys) ---------- */
-
+/* #region Đánh giá sao và ô nhập dài */
 .rating-control {
     display: flex;
     align-items: center;
@@ -998,31 +1109,6 @@
         font-weight: 700;
         color: var(--color-muted);
     }
-/* Radio variant for the generic selection-card component. */
-.selection-grid > input[type="radio"]:checked + .selection-card {
-    border-color: var(--color-primary);
-    background: var(--color-primary-soft);
-}
-
-    .selection-grid > input[type="radio"]:checked + .selection-card .selection-card__icon {
-        color: var(--color-primary);
-        background: var(--color-surface);
-    }
-
-    .selection-grid > input[type="radio"]:checked + .selection-card .selection-card__content strong {
-        color: var(--color-primary);
-    }
-
-    .selection-grid > input[type="radio"]:checked + .selection-card .selection-card__check {
-        border-color: var(--color-primary);
-        background: var(--color-primary);
-        color: var(--color-primary-text);
-    }
-
-.selection-grid > input[type="radio"]:focus-visible + .selection-card {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px;
-}
 
 .form-control--textarea {
     min-height: 155px;
@@ -1086,37 +1172,63 @@
         font-size: 10px;
     }
 }
+/* #endregion */
 
-/* Shared session metadata (History, Profile, Home). */
-.session-card__details {
+/* #region Ô nhập mã OTP */
+.otp-control {
     display: grid;
-    gap: 5px;
-    text-align: right;
+    grid-template-columns: repeat(6,minmax(0,1fr));
+    gap: clamp(5px,1.2vw,10px);
     min-width: 0;
 }
 
-.session-card__count {
-    color: var(--color-muted);
-    font-size: 10px;
-    white-space: nowrap;
+.otp-control__digit {
+    width: 100%;
+    min-width: 0;
+    height: clamp(45px,5vw,58px);
+    padding: 0 2px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-control);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    font-size: clamp(19px,2vw,25px);
+    font-weight: 800;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    outline: none;
+    transition: border-color .18s ease,box-shadow .18s ease;
 }
 
-@media (max-width: 420px) {
-    .session-card__side {
-        gap: 8px;
+    .otp-control__digit:focus-visible {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px var(--color-primary-soft);
     }
 
-    .session-card__date {
-        font-size: 10px;
+    .otp-control__digit[aria-invalid="true"] {
+        border-color: var(--color-danger);
     }
 
-    .session-card__count {
-        font-size: 9px;
-    }
+.otp-control__message {
+    min-height: 18px;
+    margin-top: 7px;
+    color: var(--color-danger);
+    font-size: 12px;
 }
 
-/* ---------- Generic submission loading dialog ---------- */
+@media(max-width:360px) {
+    .otp-control {
+        gap: 5px;
+    }
 
+    .otp-control__digit {
+        height: 43px;
+        font-size: 19px;
+    }
+}
+/* #endregion */
+
+/* #region Màn hình chờ khi gửi form (_SubmitLoading.js) */
 .loading-overlay[hidden] {
     display: none !important;
 }
@@ -1197,10 +1309,9 @@ body.is-loading {
         animation-duration: 2s;
     }
 }
+/* #endregion */
 
-
-/* --- APPLICATION SHELL --- */
-
+/* #region Khung ứng dụng */
 .app-layout {
     display: flex;
     min-height: 100vh;
@@ -1213,14 +1324,13 @@ body.is-loading {
     min-width: 0;
 }
 
-
-/* Auth pages do not have bottom navigation */
+/* Trang Auth không có thanh điều hướng dưới đáy */
 body.app-layout--auth {
     padding-bottom: 0;
 }
+/* #endregion */
 
-/* --- APPLICATION FOOTER --- */
-
+/* #region Chân trang */
 .app-footer {
     flex: 0 0 auto;
     width: 100%;
@@ -1237,8 +1347,6 @@ body.app-layout--auth {
     margin-inline: auto;
     padding: 24px 0;
 }
-
-/* ---------- Brand ---------- */
 
 .app-footer__identity {
     min-width: 0;
@@ -1263,8 +1371,6 @@ body.app-layout--auth {
     line-height: 1.6;
 }
 
-/* ---------- Navigation ---------- */
-
 .app-footer__links {
     display: flex;
     flex-wrap: wrap;
@@ -1284,8 +1390,6 @@ body.app-layout--auth {
             color: var(--color-primary);
         }
 
-/* ---------- Copyright ---------- */
-
 .app-footer__copyright {
     grid-column: 1 / -1;
     color: var(--color-subtle);
@@ -1293,7 +1397,6 @@ body.app-layout--auth {
 }
 
 @media (max-width: 768px) {
-
     .app-footer__inner {
         grid-template-columns: minmax(0, 1fr);
         align-items: start;
@@ -1315,66 +1418,10 @@ body.app-layout--auth {
         margin-top: 2px;
     }
 }
+/* #endregion */
 
-/* Append to wwwroot/css/components.css — reusable OTP control */
-.otp-control {
-    display: grid;
-    grid-template-columns: repeat(6,minmax(0,1fr));
-    gap: clamp(5px,1.2vw,10px);
-    min-width: 0;
-}
-
-.otp-control__digit {
-    width: 100%;
-    min-width: 0;
-    height: clamp(45px,5vw,58px);
-    padding: 0 2px;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-control);
-    background: var(--color-surface);
-    color: var(--color-text);
-    font: inherit;
-    font-size: clamp(19px,2vw,25px);
-    font-weight: 800;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-    outline: none;
-    transition: border-color .18s ease,box-shadow .18s ease;
-}
-
-    .otp-control__digit:focus-visible {
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px var(--color-primary-soft);
-    }
-
-    .otp-control__digit[aria-invalid="true"] {
-        border-color: var(--color-danger);
-    }
-
-.otp-control__message {
-    min-height: 18px;
-    margin-top: 7px;
-    color: var(--color-danger);
-    font-size: 12px;
-}
-
-@media(max-width:360px) {
-    .otp-control {
-        gap: 5px;
-    }
-
-    .otp-control__digit {
-        height: 43px;
-        font-size: 19px;
-    }
-}
-
-/* ---------- Theme Toggle ---------- */
-/* #region Theme Toggle
-   [THEME] Nút chuyển giao diện sáng / tối (thay nhãn "VER 2.0.0").
-   Chỉ khai báo cấu trúc; màu lấy từ biến của theme-*.css. Icon / chữ đổi theo html[data-theme].
-*/
-
+/* #region Nút đổi giao diện sáng / tối
+   Icon và chữ đổi theo html[data-theme]. */
 .theme-toggle {
     display: inline-flex;
     min-height: 30px;
@@ -1418,7 +1465,7 @@ html[data-theme="dark"] .theme-toggle__state--dark {
     display: inline-flex;
 }
 
-/* Trên nền gradient (cột giới thiệu Auth / Onboarding): giữ kiểu viền trắng mờ như nhãn 2.0.0 cũ */
+/* Trên nền gradient (cột giới thiệu Auth / Onboarding): viền trắng mờ */
 .auth-intro .theme-toggle,
 .onboarding-aside .theme-toggle {
     border-color: var(--color-on-gradient-border);
@@ -1437,24 +1484,6 @@ html[data-theme="dark"] .theme-toggle__state--dark {
         outline-color: var(--color-on-gradient);
     }
 
-/* #endregion */
-
-
-/* settings-item dạng <button>: bỏ kiểu mặc định của trình duyệt */
-.settings-item--button {
-    width: 100%;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-}
-
-    .settings-item--button:focus-visible {
-        outline: 2px solid var(--color-primary);
-        outline-offset: -2px;
-    }
-
 /* Nội dung chỉ hiện ở một theme */
 .theme-state--dark,
 html[data-theme="dark"] .theme-state--light {
@@ -1464,55 +1493,4 @@ html[data-theme="dark"] .theme-state--light {
 html[data-theme="dark"] .theme-state--dark {
     display: inline;
 }
-
-/* Công tắc gạt (thay cho mũi tên ở cột cuối) */
-.settings-switch {
-    position: relative;
-    width: 36px;
-    height: 20px;
-    justify-self: end;
-    border: 1px solid var(--color-border-strong);
-    border-radius: 999px;
-    background: var(--color-surface-soft);
-    transition: background-color .18s ease, border-color .18s ease;
-}
-
-    .settings-switch::after {
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-        background: var(--color-muted);
-        content: "";
-        transition: transform .18s ease, background-color .18s ease;
-    }
-
-html[data-theme="dark"] .settings-switch {
-    border-color: var(--color-primary);
-    background: var(--color-primary);
-}
-
-    html[data-theme="dark"] .settings-switch::after {
-        background: var(--color-primary-text);
-        transform: translateX(16px);
-    }
-
-/* Cột cuối của settings-item rộng 18px; công tắc cần rộng hơn */
-.settings-item--button {
-    grid-template-columns: 38px minmax(0, 1fr) 36px;
-}
-
-@media (max-width: 680px) {
-    .settings-item--button {
-        grid-template-columns: 36px minmax(0, 1fr) 36px;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .settings-switch,
-    .settings-switch::after {
-        transition: none;
-    }
-}
+/* #endregion */

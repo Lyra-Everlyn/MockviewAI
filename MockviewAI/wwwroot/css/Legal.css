@@ -1,10 +1,7 @@
-﻿/* =========================================================
-   MockviewAI — Trang pháp lý (Điều khoản sử dụng + Chính sách quyền riêng tư)
-   Dùng chung cho Views/Home/Terms.cshtml và Privacy.cshtml.
-   ========================================================= */
+﻿/* MockviewAI | Trang pháp lý
+   Dùng chung cho Views/Home/Terms.cshtml và Privacy.cshtml. */
 
-/* ---------- Thanh khách (chưa đăng nhập) ---------- */
-
+/* #region Thanh khách (chưa đăng nhập) */
 .legal-guestbar {
     position: sticky;
     z-index: 100;
@@ -51,9 +48,9 @@
 .legal-page {
     padding-top: 40px;
 }
+/* #endregion */
 
-/* ---------- Reading progress ---------- */
-
+/* #region Thanh tiến độ đọc */
 .legal-progress {
     position: fixed;
     z-index: 200;
@@ -73,9 +70,9 @@
     transform-origin: left center;
     transition: transform .08s linear;
 }
+/* #endregion */
 
-/* ---------- Header ---------- */
-
+/* #region Tiêu đề trang */
 .legal-header__eyebrow {
     display: inline-flex;
     align-items: center;
@@ -108,18 +105,18 @@
     padding: 0 14px;
     font-size: 12px;
 }
+/* #endregion */
 
-/* ---------- Layout ---------- */
-
+/* #region Bố cục */
 .legal-layout {
     display: grid;
     grid-template-columns: 240px minmax(0, 1fr);
     align-items: start;
     gap: 28px;
 }
+/* #endregion */
 
-/* ---------- Table of contents ---------- */
-
+/* #region Mục lục */
 .legal-aside {
     position: sticky;
     top: 90px; /* 66px thanh điều hướng + khoảng thở */
@@ -198,9 +195,9 @@
 .legal-toc__link.is-active .legal-toc__index {
     color: var(--color-primary);
 }
+/* #endregion */
 
-/* ---------- Content ---------- */
-
+/* #region Nội dung */
 .legal-content {
     padding: 34px 36px;
 }
@@ -303,9 +300,9 @@
     .legal-link:hover {
         color: var(--color-primary-hover);
     }
+/* #endregion */
 
-/* ---------- Liên kết sang trang pháp lý còn lại ---------- */
-
+/* #region Liên kết sang trang pháp lý còn lại */
 .legal-related {
     display: flex;
     align-items: center;
@@ -359,9 +356,9 @@
     color: var(--color-muted);
     font-size: 12px;
 }
+/* #endregion */
 
-/* ---------- Lists ---------- */
-
+/* #region Danh sách */
 .legal-list {
     display: grid;
     gap: 10px;
@@ -393,9 +390,9 @@
     background: var(--color-danger-soft);
     color: var(--color-danger);
 }
+/* #endregion */
 
-/* ---------- Mini cards ---------- */
-
+/* #region Thẻ nhỏ */
 .legal-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -440,9 +437,9 @@
     font-size: 12px;
     line-height: 1.55;
 }
+/* #endregion */
 
-/* ---------- Callouts ---------- */
-
+/* #region Hộp lưu ý */
 .legal-callout {
     display: flex;
     align-items: flex-start;
@@ -473,9 +470,9 @@
     background: var(--color-warning-soft);
     color: var(--color-warning);
 }
+/* #endregion */
 
-/* ---------- Table ---------- */
-
+/* #region Bảng */
 .legal-table-wrap {
     overflow-x: auto;
     margin: 14px 0;
@@ -519,9 +516,9 @@
     .legal-table tbody tr:last-child td {
         border-bottom: 0;
     }
+/* #endregion */
 
-/* ---------- Actions / contact ---------- */
-
+/* #region Nút và liên hệ */
 .legal-actions {
     display: flex;
     flex-wrap: wrap;
@@ -541,9 +538,9 @@
         text-overflow: ellipsis;
         white-space: nowrap;
     }
+/* #endregion */
 
-/* ---------- Back to top ---------- */
-
+/* #region Nút lên đầu trang */
 .legal-top {
     position: fixed;
     z-index: 90;
@@ -577,9 +574,9 @@
         outline: 2px solid var(--color-primary);
         outline-offset: 2px;
     }
+/* #endregion */
 
-/* ---------- Responsive ---------- */
-
+/* #region Responsive */
 @media (max-width: 900px) {
     .legal-layout {
         grid-template-columns: minmax(0, 1fr);
@@ -713,9 +710,9 @@
         bottom: calc(16px + env(safe-area-inset-bottom));
     }
 }
+/* #endregion */
 
-/* ---------- Print ---------- */
-
+/* #region Bản in */
 @media print {
     .app-nav,
     .app-footer,
@@ -756,3 +753,4 @@
         transition: none;
     }
 }
+/* #endregion */

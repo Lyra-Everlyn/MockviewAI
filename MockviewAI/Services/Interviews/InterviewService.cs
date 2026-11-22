@@ -13,21 +13,30 @@ using MockviewAI.Services.Interviews.Conversation;
 
 namespace MockviewAI.Services.Interviews
 {
-    /// [AI-INTERVIEW]
+    /// <summary>
+    /// [AI-INTERVIEW] 
+    /// Vòng đời một buổi luyện: tạo buổi -> phòng phỏng vấn -> nhận câu trả lời (+ nhà tuyển dụng phản hồi,
+    /// câu hỏi thêm) -> kết thúc và chấm điểm (+ email kết quả) -> trang Kết quả.
+    /// </summary>
     public class InterviewService : IInterviewService
     {
+        #region Fields
         private const int MaxAnswerLength = 2000;
-        private const int MinQuestions = 5, MaxQuestions = 10;   // [QUESTION-BANK] người dùng chọn 5..10 câu
 
-        // Mỗi buổi gọi AI chấm 1 lần -> giới hạn số buổi mới để không bị spam tốn tiền API
+        /// <summary>[QUESTION-BANK] Người dùng chọn 5..10 câu.</summary>
+        private const int MinQuestions = 5, MaxQuestions = 10;
+
+        /// <summary>Mỗi buổi gọi AI chấm 1 lần -> giới hạn số buổi mới để không bị spam tốn tiền API.</summary>
         private const int MaxSessionsPerHour = 10;
 
-        // 26/10: câu trả lời không có ý nghĩa được NHẮC 1 lần để trả lời lại; lần sau vẫn không hợp lệ thì
-        // vẫn lưu lại nhưng tính là SAI (0 điểm, không gửi AI chấm). Không còn giới hạn số từ tối thiểu.
+        /// <summary>
+        /// Câu trả lời vô nghĩa được nhắc 1 lần để trả lời lại; lần sau vẫn vậy thì vẫn lưu nhưng tính SAI (0 điểm, không gửi AI).
+        /// </summary>
         private const int MaxReminders = 1;
 
-        // [INTERVIEWER] Mã ý cốt lõi cho câu hỏi đào sâu theo CV (không thuộc ý nào của bộ đề)
+        /// <summary>[INTERVIEWER] Mã ý cốt lõi cho câu hỏi đào sâu theo CV (không thuộc ý nào của bộ đề).</summary>
         private const string CvFollowUpPointId = "cv";
+
         private const int MaxQuestionLength = 500;
 
         private readonly IRepository<InterviewSession> _sessionRepository;
@@ -38,10 +47,12 @@ namespace MockviewAI.Services.Interviews
         private readonly ILogger<InterviewService> _logger;
         private readonly IQuestionBankStore _bank;
         private readonly IQuestionSelector _selector;
-        private readonly IFollowUpPlanner _followUps;   // [FOLLOW-UP] Đợt 8
+        private readonly IFollowUpPlanner _followUps;
         private readonly IInterviewerTurnService _interviewer;
         private readonly ICandidateCvStore _cvStore;
+        #endregion
 
+        #region Constructor
         public InterviewService(
             IRepository<InterviewSession> sessionRepository,
             IUserRepository userRepository,
@@ -67,8 +78,9 @@ namespace MockviewAI.Services.Interviews
             _interviewer = interviewer;
             _cvStore = cvStore;
         }
+        #endregion
 
-        #region Start
+        #region Tạo buổi
         public async Task<int> StartAsync(string email, string positionKey, string interviewerKey, int questionCount, bool emailResult, string? mode = null, string? cvJson = null)
         {
             var user = await GetUserAsync(email);
@@ -96,8 +108,8 @@ namespace MockviewAI.Services.Interviews
                 Mode = InterviewModes.Normalize(mode)   // [LIVE-MODE] mã lạ -> Luyện tập
             };
 
-            // [QUESTION-BANK] Người phỏng vấn + vị trí đã có trong bộ đề -> dùng bộ đề có đáp án (xếp loại 4 nhãn);
-            // chưa có (người phỏng vấn / vị trí chưa có trong bộ đề) -> câu hỏi cũ trong QuestionBank.cs
+            // [QUESTION-BANK] Có câu trong bộ đề -> dùng bộ đề có đáp án (xếp loại 4 nhãn);
+            // không có -> câu hỏi kiểu cũ trong QuestionBank.cs (hiện bộ đề đã phủ đủ 9 cặp nên nhánh này không chạy)
             var picked = _selector.Select(interviewerKey!, positionKey!, questionCount);
             if (picked.Count > 0)
             {
@@ -125,7 +137,7 @@ namespace MockviewAI.Services.Interviews
         }
         #endregion
 
-        #region Room
+        #region Phòng phỏng vấn
         public async Task<InterviewRoomViewModel?> GetRoomAsync(string email, int sessionId)
         {
             var user = await GetUserAsync(email);
@@ -151,10 +163,6 @@ namespace MockviewAI.Services.Interviews
             };
         }
 
-        /// <summary>
-        /// [SPEECH] Câu hỏi hiện tại (câu chính hoặc câu hỏi thêm) của buổi đang diễn ra, dùng làm ngữ cảnh cho STT.
-        /// Kiểm tra buổi thuộc người dùng và còn InProgress. Không ghi gì vào database.
-        /// </summary>
         public async Task<string> GetCurrentQuestionAsync(string email, int sessionId)
         {
             var user = await GetUserAsync(email);
@@ -166,7 +174,9 @@ namespace MockviewAI.Services.Interviews
                 ?? throw new InterviewException("Bạn đã trả lời hết các câu hỏi.");
             return current.Question;
         }
+        #endregion
 
+        #region Nhận câu trả lời
         public async Task<SubmitAnswerResultDto> SubmitAnswerAsync(string email, SubmitAnswerDto dto)
         {
             var user = await GetUserAsync(email);
@@ -209,11 +219,13 @@ namespace MockviewAI.Services.Interviews
                 current.Answer = answer;
                 current.DurationSeconds = dto.DurationSeconds is > 0 and < 600 ? dto.DurationSeconds : null;
                 current.LongestPauseSeconds = current.DurationSeconds == null ? null : LongestPause(dto.PausesSeconds);
+
                 // [VOICE] Chỉ lưu số đo giọng khi trả lời bằng giọng nói; giá trị lạ thì bỏ
                 bool spoken = current.DurationSeconds != null;
                 current.VoiceLevelDb = spoken ? VoiceMetrics.CleanLevel(dto.VoiceLevelDb) : null;
                 current.QuietRatio = spoken ? VoiceMetrics.CleanRatio(dto.QuietRatio) : null;
                 current.PitchVariation = spoken ? VoiceMetrics.CleanPitch(dto.PitchVariation) : null;
+
                 meaningful = problem == null;
                 if (problem != null)
                     notice = live
@@ -282,7 +294,7 @@ namespace MockviewAI.Services.Interviews
         }
         #endregion
 
-        #region Finish
+        #region Kết thúc và chấm điểm
         public async Task FinishAsync(string email, FinishSessionDto dto)
         {
             var user = await GetUserAsync(email);
@@ -331,7 +343,7 @@ namespace MockviewAI.Services.Interviews
                 Position = session.Position,
                 QuestionCount = session.QuestionCount,
                 SkippedCount = mainAnswers.Count(a => a.AnsweredAt != null && a.Skipped),
-                // [LIVE-MODE] Thực chiến: câu bỏ qua tính là SAI (Luyện tập: không trừ như trước)
+                // [LIVE-MODE] Thực chiến: câu bỏ qua tính là SAI (Luyện tập: không trừ)
                 SkippedAsWrong = InterviewModes.IsLive(session.Mode)
                     ? mainAnswers.Where(a => a.AnsweredAt != null && a.Skipped).OrderBy(a => a.OrderNo).Select(a => a.QuestionId).ToList()
                     : new List<string?>(),
@@ -341,7 +353,7 @@ namespace MockviewAI.Services.Interviews
             };
 
             // AI lỗi (AiScoringException) thì để lỗi nổi lên: buổi vẫn còn InProgress để người dùng bấm "Chấm lại".
-            // Fallback = true: người dùng chọn xem kết quả ngay, không chờ AI -> chấm sơ bộ theo bộ đề (câu kiểu cũ: chỉ cách nói).
+            // Fallback = true: người dùng chọn xem kết quả ngay -> chấm sơ bộ theo bộ đề (câu kiểu cũ: chỉ cách nói).
             var result = dto.Fallback
                 ? _scoring.ScoreWithoutAi(request)
                 : await _scoring.ScoreAsync(request);
@@ -388,7 +400,7 @@ namespace MockviewAI.Services.Interviews
             PitchVariation = a.PitchVariation
         };
 
-        // Gửi email ở nền: lỗi SMTP chỉ ghi log, không làm hỏng việc xem kết quả của người dùng
+        /// <summary>Gửi email ở nền: lỗi SMTP chỉ ghi log, không làm hỏng việc xem kết quả của người dùng.</summary>
         private void SendResultEmailInBackground(User user, InterviewSession session, InterviewScoreResult result)
         {
             string toEmail = user.Email;
@@ -427,7 +439,7 @@ namespace MockviewAI.Services.Interviews
         }
         #endregion
 
-        #region Result
+        #region Trang kết quả
         public async Task<SessionResultViewModel?> GetResultAsync(string email, int sessionId)
         {
             var user = await GetUserAsync(email);
@@ -490,6 +502,7 @@ namespace MockviewAI.Services.Interviews
                    ?? throw new InterviewException("Không tìm thấy tài khoản. Vui lòng đăng nhập lại.");
         }
 
+        /// <summary>Chỉ trả buổi thuộc tài khoản này (kèm danh sách câu hỏi, có theo dõi thay đổi để lưu).</summary>
         private async Task<InterviewSession?> FindSessionAsync(User user, int sessionId)
         {
             return await _sessionRepository.GetSingleAsync(
@@ -498,11 +511,11 @@ namespace MockviewAI.Services.Interviews
             );
         }
 
-        // Số câu CHÍNH đã trả lời (câu hỏi thêm không tính vào "x / tổng số câu")
+        /// <summary>Số câu CHÍNH đã trả lời (câu hỏi thêm không tính vào "x / tổng số câu").</summary>
         private static int CountAnswered(InterviewSession session) =>
             FollowUps.Main(session.Answers).Count(a => a.AnsweredAt != null && !a.Skipped);
 
-        // Lấy khoảng lặng dài nhất; bỏ số vô lý (<= 0 hoặc >= 120 giây) vì dữ liệu đến từ trình duyệt
+        /// <summary>Khoảng lặng dài nhất; bỏ số vô lý (&lt;= 0 hoặc &gt;= 120 giây) vì dữ liệu đến từ trình duyệt.</summary>
         private static double LongestPause(List<double>? pauses)
         {
             var valid = (pauses ?? new List<double>()).Where(p => p > 0 && p < 120).ToList();

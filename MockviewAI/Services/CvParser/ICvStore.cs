@@ -3,7 +3,8 @@ using MockviewAI.Models.DTOs;
 namespace MockviewAI.Services.CvParser
 {
     /// <summary>
-    /// [USER CV] Giữ tạm CV vừa phân tích, chờ người dùng xác nhận. CV đã lưu nằm trên trình duyệt.
+    /// [USER CV] 
+    /// Giữ tạm CV vừa phân tích, chờ người dùng xác nhận. CV đã lưu nằm trên trình duyệt.
     /// </summary>
     public interface ICvStore
     {

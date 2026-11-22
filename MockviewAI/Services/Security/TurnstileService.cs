@@ -4,7 +4,7 @@ namespace MockviewAI.Services.Security
 {
     /// <summary>
     /// [SECURITY] 
-    /// Gọi API siteverify của Cloudflare Turnstile.
+    /// Gọi API siteverify của Cloudflare Turnstile. Secret key lấy từ Turnstile__SecretKey.
     /// </summary>
     public class TurnstileService : ITurnstileService
     {
@@ -51,6 +51,7 @@ namespace MockviewAI.Services.Security
             }
             catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
             {
+                // Không xác minh được thì coi như không hợp lệ (an toàn hơn cho qua)
                 _logger.LogWarning(ex, "Turnstile verify failed");
                 return false;
             }

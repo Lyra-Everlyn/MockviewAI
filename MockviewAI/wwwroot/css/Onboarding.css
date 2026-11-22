@@ -1,4 +1,5 @@
-﻿/* Onboarding.css */
+﻿/* MockviewAI | Thiết lập hồ sơ lần đầu
+   Views/Onboarding/Index.cshtml: 3 bước ngành học, tình trạng tốt nghiệp, kinh nghiệm. */
 
 .onboarding-page {
     --ob-accent: var(--color-primary);
@@ -34,7 +35,7 @@
     overflow: hidden;
 }
 
-/* #region Aside (nền gradient) */
+/* #region Cột giới thiệu (nền gradient) */
 .onboarding-aside {
     display: flex;
     flex-direction: column;
@@ -222,7 +223,7 @@
 }
 /* #endregion */
 
-/* #region Main (nền thường) */
+/* #region Nội dung chính (nền thường) */
 .onboarding-main {
     display: flex;
     flex-direction: column;
@@ -574,7 +575,7 @@
 }
 /* #endregion */
 
-/* #region Loading dialog */
+/* #region Hộp chờ lưu hồ sơ */
 .onboarding-loading[hidden] {
     display: none !important;
 }
@@ -642,6 +643,7 @@
 }
 /* #endregion */
 
+/* #region Responsive */
 @media(max-width:880px) {
     .onboarding-container {
         grid-template-columns: minmax(0,.84fr) minmax(0,1.16fr);
@@ -772,3 +774,4 @@
         transition: none;
     }
 }
+/* #endregion */

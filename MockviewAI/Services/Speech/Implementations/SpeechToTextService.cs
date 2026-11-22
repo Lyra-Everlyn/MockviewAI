@@ -8,7 +8,7 @@ namespace MockviewAI.Services.Speech.Implementations
     /// <summary>
     /// [SPEECH] 
     /// Điều phối: Whisper -> đối chiếu ngôn ngữ với chữ trình duyệt -> lọc câu "ảo giác" -> Gemini gộp hai bản -> kiểm tra an toàn.
-    /// Whisper lỗi: ném SpeechException. Gemini lỗi hoặc sửa quá tay: trả bản thô, không làm hỏng câu trả lời.
+    /// Whisper lỗi: ném ra SpeechException. Gemini lỗi hoặc sửa quá tay: trả bản thô, không làm hỏng câu trả lời.
     /// </summary>
     public class SpeechToTextService : ISpeechToTextService
     {

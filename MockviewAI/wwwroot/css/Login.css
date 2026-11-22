@@ -1,5 +1,8 @@
-/* Login page: layout and spacing only. Colors come from themes/theme-*.css. */
+/* MockviewAI | Đăng nhập
+   Khung hai cột dùng chung cho mọi trang Auth (đăng ký, quên mật khẩu, xác thực mã...).
+   Màu lấy từ themes/*.css. */
 
+/* #region Khung trang và cột giới thiệu (nền gradient) */
 .auth-page {
     width: min(1100px,calc(100% - 48px));
     margin-inline: auto;
@@ -164,7 +167,7 @@
 }
 /* #endregion */
 
-/* #region Auth panel (nền thường) */
+/* #region Khung đăng nhập (nền thường) */
 .auth-panel {
     display: flex;
     flex-direction: column;
@@ -323,6 +326,7 @@
 }
 /* #endregion */
 
+/* #region Responsive */
 @media(max-width:900px) {
     .auth-shell {
         grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr);
@@ -390,3 +394,4 @@
         font-size: 9px;
     }
 }
+/* #endregion */

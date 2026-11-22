@@ -4,7 +4,7 @@
         ? "MockviewAI"
         : $"{pageTitle} - MockviewAI";
 
-    // Sử dụng trên các trang đăng nhập / trang đặc biệt khi cần.
+    // Trang đăng nhập / trang đặc biệt có thể ẩn thanh điều hướng và chân trang
     var hideNavigation = ViewData["HideNavigation"] is true;
     var hideFooter = ViewData["HideFooter"] is true;
 }
@@ -16,16 +16,14 @@
     <title>@title</title>
     <meta name="theme-color" content="#f5f7fb" />
 
-    <!-- Tài nguyên chung, nạp đúng một lần cho toàn bộ ứng dụng. -->
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
 
-    <!-- CSS riêng cho từng trang được khai báo trong section Styles. -->
     @await RenderSectionAsync("Styles", required: false)
 
-    <!-- Theme đặt sau component/page styles để có thể thay đổi màu tập trung. -->
+    @* Theme nạp sau CSS của trang để ghi đè màu *@
     <partial name="Partials/_ThemeHead" />
 </head>
 <body class="app-layout">
@@ -42,9 +40,6 @@
     {
         <partial name="Partials/_AppFooter" />
     }
-
-    @* Optional: khi tất cả trang đã dùng layout, có thể chuyển _Notify về đây.
-       Hiện chưa chuyển để tránh render hai lần trong giai đoạn migrate. *@
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -8,7 +8,8 @@ namespace MockviewAI.Services.Security
     /// <summary>
     /// [SECURITY] 
     /// Đếm lần đăng nhập sai trong Redis và khoá tạm thời.
-    /// Khoá theo cặp email + IP sau MaxFailedLogins lần sai; khoá riêng email sau gấp đôi số lần đó (chống dò từ nhiều IP).
+    /// Khoá cặp email + IP sau MaxFailedLogins lần sai; khoá riêng email sau gấp đôi số đó (chống dò từ nhiều IP).
+    /// Khoá Redis: MockviewAI_Throttle|...:Failures (bộ đếm) và :Locked (đang khoá, TTL = thời gian còn lại).
     /// </summary>
     public class LoginThrottleService : ILoginThrottleService
     {
@@ -27,16 +28,17 @@ namespace MockviewAI.Services.Security
         }
         #endregion
 
-        #region Keys
+        #region Dựng khoá
+        /// <summary>Khoá theo cặp email + IP.</summary>
         public static string BuildKey(string email, IPAddress? ip) =>
             $"Throttle|{(email ?? string.Empty).Trim().ToLowerInvariant()}|{ip}";
 
+        /// <summary>Khoá chỉ theo email.</summary>
         public static string BuildEmailKey(string email) =>
             $"Throttle|EmailOnly|{(email ?? string.Empty).Trim().ToLowerInvariant()}";
         #endregion
 
         #region ILoginThrottleService
-        /// <summary>Khoá còn hiệu lực khi khoá ":Locked" còn tồn tại; thời gian còn lại lấy từ TTL của Redis.</summary>
         public async Task<(bool LockedOut, TimeSpan Remaining)> IsLockedOutAsync(string key, string emailKey)
         {
             foreach (var k in new[] { key, emailKey })
@@ -68,6 +70,7 @@ namespace MockviewAI.Services.Security
         #endregion
 
         #region Helpers
+        /// <summary>Tăng bộ đếm (hết hạn sau <paramref name="window"/> tính từ lần sai đầu); chạm ngưỡng thì đặt khoá và xoá bộ đếm.</summary>
         private async Task CountAsync(string key, int limit, TimeSpan window)
         {
             if (string.IsNullOrEmpty(key)) return;

@@ -3,7 +3,8 @@ using MockviewAI.Models.DTOs;
 namespace MockviewAI.Services.CvParser
 {
     /// <summary>
-    /// [USER CV] Làm sạch dữ liệu CV (từ AI hoặc từ form): cắt độ dài, bỏ mục rỗng / trùng.
+    /// [USER CV] 
+    /// Làm sạch dữ liệu CV (từ AI hoặc từ form): cắt độ dài, bỏ mục rỗng / trùng.
     /// </summary>
     public static class CvDataSanitizer
     {

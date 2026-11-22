@@ -1,5 +1,10 @@
-﻿// Generic six-digit OTP behavior for verification forms.
-// The shared _SubmitLoading.js alone manages the submitting state/overlay.
+﻿//#region VerifyCode
+/// <summary>
+/// [AUTH] 
+// Ô nhập mã OTP 6 số (xác thực đăng ký, khôi phục mật khẩu): tự nhảy ô, dán cả mã, phím mũi tên / Backspace,
+/// ghép mã vào input ẩn #finalCode trước khi gửi. Màn hình chờ do _SubmitLoading.js lo.
+/// </summary>
+//#endregion
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('verifyForm');
     const finalCode = document.getElementById('finalCode');
@@ -9,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const message = document.getElementById('otp-message');
     if (!inputs.length) return;
 
+    //#region Helpers
     const digitsOnly = value => value.replace(/[^0-9]/g, '');
     const focusInput = index => {
         const input = inputs[index];
@@ -20,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (message) message.textContent = '';
         inputs.forEach(input => input.removeAttribute('aria-invalid'));
     };
+    // Điền nhiều chữ số từ vị trí start; dán đủ 6 số thì điền từ ô đầu
     const fill = (start, raw) => {
         const digits = digitsOnly(raw);
         if (!digits) return;
@@ -30,7 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
         focusInput(Math.min(from + digits.length, inputs.length - 1));
         clearMessage();
     };
+    //#endregion
 
+    //#region Sự kiện từng ô
     inputs.forEach((input, index) => {
         input.addEventListener('input', event => {
             if (event.isComposing) return;
@@ -44,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 clearMessage();
             }
         });
+        // Bộ gõ tiếng Việt (IME) chỉ báo giá trị cuối ở compositionend
         input.addEventListener('compositionend', () => {
             const digits = digitsOnly(input.value);
             if (digits.length > 1) { input.value = ''; fill(index, digits); }
@@ -68,8 +78,10 @@ document.addEventListener('DOMContentLoaded', () => {
             fill(index, raw);
         });
     });
+    //#endregion
 
-    // Assemble code before the shared loading submit listener executes.
+    //#region Gửi form
+    // Ghép mã trước khi listener của _SubmitLoading.js chạy
     form.addEventListener('submit', event => {
         const code = inputs.map(input => digitsOnly(input.value).slice(0, 1)).join('');
         if (code.length !== inputs.length) {
@@ -84,4 +96,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         finalCode.value = code;
     });
+    //#endregion
 });

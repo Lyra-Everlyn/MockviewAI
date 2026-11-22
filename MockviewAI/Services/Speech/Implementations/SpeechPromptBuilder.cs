@@ -3,7 +3,8 @@
 namespace MockviewAI.Services.Speech.Implementations
 {
     /// <summary>
-    /// [SPEECH] Soạn gợi ý cho Whisper và prompt cho bước chuẩn hoá / gộp hai bản chép. Chỉnh thuật ngữ hay cách Gemini sửa: chỉ sửa file này.
+    /// [SPEECH] 
+    /// Soạn gợi ý cho Whisper và prompt cho bước chuẩn hoá / gộp hai bản chép. Chỉnh thuật ngữ hay cách Gemini sửa: chỉ sửa file này.
     /// </summary>
     public class SpeechPromptBuilder : ISpeechPromptBuilder
     {

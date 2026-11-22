@@ -1,4 +1,9 @@
-// History page: local, role-name-only search. No server-side request.
+//#region History
+/// <summary>
+/// [HISTORY] 
+/// Trang Lịch sử: tìm theo tên vị trí ngay trên trình duyệt (bỏ dấu, không gọi server).
+/// </summary>
+//#endregion
 document.addEventListener('DOMContentLoaded', () => {
     const search = document.getElementById('history-search');
     const entries = Array.from(document.querySelectorAll('.history-entry'));
@@ -7,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clear = document.getElementById('history-clear');
     if (!search || !entries.length) return;
 
+    // "Lập trình viên" và "lap trinh vien" khớp nhau
     const normalize = text => (text || '').normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/đ/g, 'd').replace(/Đ/g, 'd')

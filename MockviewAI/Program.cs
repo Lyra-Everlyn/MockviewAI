@@ -1,14 +1,14 @@
+using System.Security.Claims;
+using System.Threading.RateLimiting;
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
-using System.Security.Principal;
-using System.Threading.RateLimiting;
 
 using MockviewAI.Data;
+using MockviewAI.Middleware;
 using MockviewAI.Repositories.Implementations;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Ai;
@@ -16,141 +16,163 @@ using MockviewAI.Services.Ai.Implementations;
 using MockviewAI.Services.Ai.Interfaces;
 using MockviewAI.Services.Auth;
 using MockviewAI.Services.CvParser;
-using MockviewAI.Services.Interviews.Conversation;
-using MockviewAI.Services.InterviewQuestions.Implementations;
-using MockviewAI.Services.InterviewQuestions.Interfaces;
 using MockviewAI.Services.Emails;
 using MockviewAI.Services.Feedbacks;
 using MockviewAI.Services.FileStorage.Implementations;
 using MockviewAI.Services.FileStorage.Interfaces;
+using MockviewAI.Services.InterviewQuestions.Implementations;
+using MockviewAI.Services.InterviewQuestions.Interfaces;
 using MockviewAI.Services.Interviews;
+using MockviewAI.Services.Interviews.Conversation;
 using MockviewAI.Services.KeyManagement.ProviderExtensions;
 using MockviewAI.Services.Onboarding;
 using MockviewAI.Services.Profiles;
 using MockviewAI.Services.Security;
 using MockviewAI.Services.SessionHistory;
 using MockviewAI.Services.Speech;
-using MockviewAI.Services.Speech.Interfaces;
 using MockviewAI.Services.Speech.Implementations;
+using MockviewAI.Services.Speech.Interfaces;
 
 namespace MockviewAI
 {
+    /// <summary>
+    /// [SYSTEM] 
+    /// Điểm khởi động: đăng ký dịch vụ (DI) rồi dựng pipeline xử lý request.
+    /// Mọi cấu hình nhạy cảm lấy từ biến môi trường (tab Environment trên Dokploy, hoặc file .env khi chạy local).
+    /// </summary>
     public class Program
     {
         public static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            DotNetEnv.Env.TraversePath().Load();
+            DotNetEnv.Env.TraversePath().Load();   // .env -> biến môi trường (chỉ có tác dụng khi chạy local)
 
             var builder = WebApplication.CreateBuilder(args);
-            builder.Configuration.AddEnvironmentVariables();
-            
 
-            // =========================================================================
-            // PART 1: CONNECTION CONFIGURATION
+            AddDataStores(builder.Services, builder.Configuration);
+            AddCoreServices(builder.Services);
+            string aiProvider = AddAiServices(builder.Services, builder.Configuration, builder.Environment);
+            AddAuthentication(builder.Services, builder.Configuration);
+            AddMediaStorage(builder.Services, builder.Configuration);
 
-            // --- A. Database
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Database connection string is missing.");
+            builder.Services.AddControllersWithViews();
+            builder.Services.AddAppSecurity(builder.Configuration);
+            AddRateLimits(builder.Services);
 
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            var app = builder.Build();
+            app.Logger.LogInformation("AI scoring provider: {Provider} | Environment: {Env}", aiProvider, app.Environment.EnvironmentName);
+
+            MigrateDatabase(app);
+            ConfigurePipeline(app);
+
+            app.Run();
+        }
+
+        #region Kết nối dữ liệu
+        /// <summary>MySQL (EF Core + Pomelo, tự thử lại khi mất kết nối) và Redis (cache + IConnectionMultiplexer).</summary>
+        private static void AddDataStores(IServiceCollection services, IConfiguration config)
+        {
+            var connectionString = config.GetConnectionString("DefaultConnection")
+                                   ?? throw new InvalidOperationException("Database connection string is missing.");
+
+            services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(
                     connectionString,
                     new MySqlServerVersion(new Version(8, 0, 0)),
                     mysqlOptions => mysqlOptions.EnableRetryOnFailure(
                         maxRetryCount: 5,
                         maxRetryDelay: TimeSpan.FromSeconds(10),
-                        errorNumbersToAdd: null
-                    )
-                )
-            );
+                        errorNumbersToAdd: null)));
 
-            // --- B. Redis
-            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection") ?? throw new InvalidOperationException("Redis connection string is missing.");
+            var redisConnectionString = config.GetConnectionString("RedisConnection")
+                                        ?? throw new InvalidOperationException("Redis connection string is missing.");
             var redisOptions = ConfigurationOptions.Parse(redisConnectionString);
+            redisOptions.AbortOnConnectFail = false;   // Redis khởi động chậm hơn web thì vẫn tự nối lại
 
-            redisOptions.AbortOnConnectFail = false;
-            builder.Services.AddStackExchangeRedisCache(options =>
+            services.AddStackExchangeRedisCache(options =>
             {
                 options.ConfigurationOptions = redisOptions;
                 options.InstanceName = "MockviewAI_";
             });
+            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisOptions));
+        }
+        #endregion
 
-            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisOptions));
+        #region Repository và dịch vụ nghiệp vụ
+        private static void AddCoreServices(IServiceCollection services)
+        {
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<IUserRepository, UserRepository>();
 
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IOnboardingService, OnboardingService>();
+            services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IInterviewService, InterviewService>();
+            services.AddScoped<IInterviewScoringService, InterviewScoringService>();
+            services.AddScoped<ISessionHistoryService, SessionHistoryService>();
+            services.AddScoped<IFeedbackService, FeedbackService>();
+            services.AddScoped<IEmailService, EmailService>();
+        }
+        #endregion
 
+        #region AI: chấm điểm, bộ đề, nhà tuyển dụng, giọng nói, CV
+        /// <returns>Tên bộ chấm thực tế (Gemini / Mock), để ghi log khi khởi động.</returns>
+        private static string AddAiServices(IServiceCollection services, IConfiguration config, IWebHostEnvironment env)
+        {
+            // Xoay vòng nhiều API key: handler gắn key cho từng request của HttpClient
+            services.AddSingleton<GeminiKeyProvider>();
+            services.AddSingleton<GroqKeyProvider>();
+            services.AddTransient<GeminiKeyHandler>();
+            services.AddTransient<GroqKeyHandler>();
 
-            // =========================================================================
-            // PART 2: REGISTERING REPOSITORIES & SERVICES FOR THE MOCKVIEW AI PROJECT
-
-            // --- A. REPOSITORIES ---
-            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-
-            // --- B. SERVICES ---
-            builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<IOnboardingService, OnboardingService>();
-            builder.Services.AddScoped<IFeedbackService, FeedbackService>();
-            builder.Services.AddScoped<IInterviewService, InterviewService>();
-            builder.Services.AddScoped<IInterviewScoringService, InterviewScoringService>();
-            builder.Services.AddScoped<ISessionHistoryService, SessionHistoryService>();
-            builder.Services.AddScoped<IProfileService, ProfileService>();
-            builder.Services.AddScoped<IEmailService, EmailService>();
-
-
-            // --- C. THIRD-PARTY SERVICE ---
-
-            // -- AI Service v1
-            builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
-            builder.Services.AddSingleton<IDeliveryAnalyzer, DeliveryAnalyzer>();
-            builder.Services.AddSingleton<IAnxietyEstimator, AnxietyEstimator>();
-            builder.Services.AddSingleton<IAnswerQualityChecker, AnswerQualityChecker>();
-
-            // [QUESTION-BANK] Bộ đề có đáp án + xếp loại 4 nhãn. Đọc Data/InterviewQuestions/question-bank.v1.json một lần khi chạy.
-            builder.Services.AddSingleton<IQuestionBankStore>(sp => new JsonQuestionBankStore(
-                Path.Combine(sp.GetRequiredService<IWebHostEnvironment>().ContentRootPath, "Data", "InterviewQuestions")));
-            builder.Services.AddSingleton<IQuestionSelector>(sp => new RandomQuestionSelector(sp.GetRequiredService<IQuestionBankStore>()));
-            builder.Services.AddSingleton<IAnswerVerdictValidator, AnswerVerdictValidator>();
-            builder.Services.AddSingleton<IOfflineAnswerScorer, BankKeywordScorer>();
-            builder.Services.AddSingleton<IFollowUpPlanner, FollowUpPlanner>();
-
-            // -- AI Chấm điểm phỏng vấn
-            var aiProvider = builder.Services.AddAiScoring(builder.Configuration, builder.Environment);
-
-
-            // -- AI Service v2
-            builder.Services.AddSingleton<GeminiKeyProvider>();
-            builder.Services.AddSingleton<GroqKeyProvider>();
-
-            builder.Services.AddTransient<GeminiKeyHandler>();
-            builder.Services.AddTransient<GroqKeyHandler>();
-
-            builder.Services.AddHttpClient("GeminiClient", client =>
+            services.AddHttpClient("GeminiClient", client =>
             {
                 client.BaseAddress = new Uri("https://generativelanguage.googleapis.com/v1beta/");
                 client.Timeout = TimeSpan.FromSeconds(180);
             }).AddHttpMessageHandler<GeminiKeyHandler>();
-            builder.Services.AddInterviewerConversation(builder.Configuration);
-            
-            builder.Services.AddHttpClient("GroqClient", client =>
+
+            services.AddHttpClient("GroqClient", client =>
             {
                 client.BaseAddress = new Uri("https://api.groq.com/openai/v1/");
             }).AddHttpMessageHandler<GroqKeyHandler>();
 
-            // -- Speech-to-Text (Groq Whisper + Gemini chuẩn hoá)
-            builder.Services.Configure<SpeechOptions>(builder.Configuration.GetSection(SpeechOptions.SectionName));
-            builder.Services.AddSingleton<ISpeechPromptBuilder, SpeechPromptBuilder>();
-            builder.Services.AddScoped<ISpeechTranscriber, GroqWhisperTranscriber>();
-            builder.Services.AddScoped<ITranscriptNormalizer, GeminiTranscriptNormalizer>();
-            builder.Services.AddScoped<ISpeechToTextService, SpeechToTextService>();
-            builder.Services.AddSingleton<IHallucinationFilter, WhisperHallucinationFilter>();   // dòng mới
+            // [AI-SCORING] Chấm cách nói bằng code, chấm nội dung bằng Gemini (Mock khi Development thiếu key)
+            services.Configure<GeminiOptions>(config.GetSection("Gemini"));
+            services.AddSingleton<IDeliveryAnalyzer, DeliveryAnalyzer>();
+            services.AddSingleton<IAnxietyEstimator, AnxietyEstimator>();
+            services.AddSingleton<IAnswerQualityChecker, AnswerQualityChecker>();
+            string aiProvider = services.AddAiScoring(config, env);
 
-            // -- CV (PDF -> PdfPig / Gemini -> Redis)
-            builder.Services.AddCvServices(builder.Configuration);
+            // [QUESTION-BANK] Đọc Data/InterviewQuestions/question-bank.v1.json một lần khi chạy
+            services.AddSingleton<IQuestionBankStore>(sp => new JsonQuestionBankStore(
+                Path.Combine(sp.GetRequiredService<IWebHostEnvironment>().ContentRootPath, "Data", "InterviewQuestions")));
+            services.AddSingleton<IQuestionSelector>(sp => new RandomQuestionSelector(sp.GetRequiredService<IQuestionBankStore>()));
+            services.AddSingleton<IAnswerVerdictValidator, AnswerVerdictValidator>();
+            services.AddSingleton<IOfflineAnswerScorer, BankKeywordScorer>();
+            services.AddSingleton<IFollowUpPlanner, FollowUpPlanner>();
 
+            // [INTERVIEWER] Lời phản hồi + câu hỏi nối tiếp theo CV
+            services.AddInterviewerConversation(config);
 
-            // -- Google Authentication % Cookies
-            builder.Services.AddAuthentication(options =>
+            // [SPEECH] Groq Whisper chép lời -> Gemini chuẩn hoá
+            services.Configure<SpeechOptions>(config.GetSection(SpeechOptions.SectionName));
+            services.AddSingleton<ISpeechPromptBuilder, SpeechPromptBuilder>();
+            services.AddSingleton<IHallucinationFilter, WhisperHallucinationFilter>();
+            services.AddScoped<ISpeechTranscriber, GroqWhisperTranscriber>();
+            services.AddScoped<ITranscriptNormalizer, GeminiTranscriptNormalizer>();
+            services.AddScoped<ISpeechToTextService, SpeechToTextService>();
+
+            // [USER CV] PDF -> PdfPig -> Gemini -> Redis
+            services.AddCvServices(config);
+
+            return aiProvider;
+        }
+        #endregion
+
+        #region Đăng nhập (Cookie + Google)
+        private static void AddAuthentication(IServiceCollection services, IConfiguration config)
+        {
+            services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -159,155 +181,111 @@ namespace MockviewAI
             {
                 options.LoginPath = "/Auth/Login";
                 options.LogoutPath = "/Auth/Logout";
-
-                // Secure cookie configuration:
-                // Enable HttpOnly (to prevent XSS) and SameSite (to prevent CSRF), and set a lifespan of 8 hours
-                options.HardenCookie();
+                options.HardenCookie();   // HttpOnly, SameSite=Lax, sống 8 giờ (trượt)
             })
             .AddGoogle(options =>
             {
-                options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? throw new InvalidOperationException("Google ClientId is missing.");
-                options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? throw new InvalidOperationException("Google ClientSecret is missing.");
+                options.ClientId = config["Authentication:Google:ClientId"] ?? throw new InvalidOperationException("Google ClientId is missing.");
+                options.ClientSecret = config["Authentication:Google:ClientSecret"] ?? throw new InvalidOperationException("Google ClientSecret is missing.");
                 options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
             });
+        }
+        #endregion
 
+        #region Lưu trữ ảnh (Cloudinary)
+        private static void AddMediaStorage(IServiceCollection services, IConfiguration config)
+        {
+            var settings = config.GetSection("CloudinarySettings");
+            string cloudName = settings["CloudName"] ?? throw new InvalidOperationException("Cloudinary CloudName is missing.");
+            string apiKey = settings["ApiKey"] ?? throw new InvalidOperationException("Cloudinary ApiKey is missing.");
+            string apiSecret = settings["ApiSecret"] ?? throw new InvalidOperationException("Cloudinary ApiSecret is missing.");
 
-            // -- Cloudinary (Media Storage)
-            var cloudinarySettings = builder.Configuration.GetSection("CloudinarySettings");
-            string cloudName = cloudinarySettings["CloudName"] ?? throw new InvalidOperationException("Cloudinary CloudName is missing.");
-            string apiKey = cloudinarySettings["ApiKey"] ?? throw new InvalidOperationException("Cloudinary ApiKey is missing.");
-            string apiSecret = cloudinarySettings["ApiSecret"] ?? throw new InvalidOperationException("Cloudinary ApiSecret is missing.");
+            services.AddSingleton(new Cloudinary(new Account(cloudName, apiKey, apiSecret)));
+            services.AddScoped<IFileStorageService, CloudinaryStorageService>();
+        }
+        #endregion
 
-            var cloudinaryAccount = new Account(cloudName, apiKey, apiSecret);
-            var cloudinary = new Cloudinary(cloudinaryAccount);
-            builder.Services.AddSingleton(cloudinary);
-            builder.Services.AddScoped<IFileStorageService, CloudinaryStorageService>();
-
-
-
-
-            // =========================================================================
-            // PART 4: CONFIGURATION VIA VISUAL STUDIO & SECURITY
-
-            builder.Services.AddControllersWithViews();
-
-            // --- A. Register security services:
-            // Password-guessing protection (throttling), proxy configuration, and system security policies
-            builder.Services.AddAppSecurity(builder.Configuration);
-
-
-            // --- B. IP-BASED RATE LIMITING CONFIGURATION ---
-            builder.Services.AddRateLimiter(options =>
+        #region Giới hạn tần suất
+        /// <summary>
+        /// OTP: 3 lần / 15 phút / IP. Đăng nhập: 5 lần / phút / IP. Giọng nói: 20 lần / phút / tài khoản.
+        /// Giới hạn phân tích CV đăng ký riêng trong AddCvServices.
+        /// </summary>
+        private static void AddRateLimits(IServiceCollection services)
+        {
+            services.AddRateLimiter(options =>
             {
                 options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
                 options.AddPolicy("OtpRateLimit", context =>
-                {
-                    var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "unknown_ip";
-
-                    return RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: ipAddress,
-                        factory: partition => new FixedWindowRateLimiterOptions
-                        {
-                            AutoReplenishment = true,
-                            PermitLimit = 3,
-                            Window = TimeSpan.FromMinutes(15),
-                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                            QueueLimit = 0
-                        });
-                });
+                    FixedWindow(ClientIp(context), permitLimit: 3, window: TimeSpan.FromMinutes(15)));
 
                 options.AddPolicy("LoginRateLimit", context =>
-                {
-                    var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "unknown_ip";
-                    return RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: ipAddress,
-                        factory: partition => new FixedWindowRateLimiterOptions
-                        {
-                            AutoReplenishment = true,
-                            PermitLimit = 5,
-                            Window = TimeSpan.FromMinutes(1),
-                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                            QueueLimit = 0
-                        });
-                });
+                    FixedWindow(ClientIp(context), permitLimit: 5, window: TimeSpan.FromMinutes(1)));
 
                 options.AddPolicy("SpeechRateLimit", context =>
                 {
-                    var userKey = context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                    var userKey = context.User.FindFirst(ClaimTypes.Email)?.Value
                                   ?? context.Connection.RemoteIpAddress?.ToString()
                                   ?? "unknown";
-                    return RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: "speech:" + userKey,
-                        factory: partition => new FixedWindowRateLimiterOptions
-                        {
-                            AutoReplenishment = true,
-                            PermitLimit = 20,
-                            Window = TimeSpan.FromMinutes(1),
-                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                            QueueLimit = 0
-                        });
+                    return FixedWindow("speech:" + userKey, permitLimit: 20, window: TimeSpan.FromMinutes(1));
                 });
 
+                // JS (AudioRecorder) chỉ dựa vào mã 429; form thường thì hiện dòng chữ này
                 options.OnRejected = async (context, token) =>
                 {
-                    context.HttpContext.Response.StatusCode = 429;
+                    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
                     context.HttpContext.Response.ContentType = "text/plain; charset=utf-8";
-
-                    await context.HttpContext.Response.WriteAsync("Too many requests from this IP. Please try again in a few minutes.", token);
+                    await context.HttpContext.Response.WriteAsync("Bạn thao tác quá nhiều lần. Vui lòng thử lại sau ít phút.", token);
                 };
             });
+        }
 
+        private static string ClientIp(HttpContext context) =>
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown_ip";
 
+        private static RateLimitPartition<string> FixedWindow(string key, int permitLimit, TimeSpan window) =>
+            RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = permitLimit,
+                Window = window,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            });
+        #endregion
 
-            var app = builder.Build();
+        #region Database và pipeline
+        /// <summary>Tự chạy migration còn thiếu mỗi lần khởi động.</summary>
+        private static void MigrateDatabase(WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
+        }
 
-            // =========================================================================
-            // PART 5: MIDDLEWARE PIPELINE
+        /// <summary>
+        /// Thứ tự quan trọng: bắt lỗi -> proxy + header bảo mật -> HSTS -> routing -> xác thực -> phân quyền -> giới hạn tần suất.
+        /// HTTPS do Traefik (Dokploy) đảm nhận, app chỉ nghe HTTP nội bộ cổng 8080 nên không dùng UseHttpsRedirection.
+        /// </summary>
+        private static void ConfigurePipeline(WebApplication app)
+        {
+            // Đứng đầu và là nơi DUY NHẤT xử lý lỗi: request từ fetch nhận JSON { message }, trang thường nhận HTML
+            app.UseMiddleware<ErrorHandlingMiddleware>();
 
-            // --- Global error-handling checkpoint for the entire app
-            app.UseMiddleware<Middleware.ErrorHandlingMiddleware>();
-
-
-            // --- Standard security: Forwarded headers & HTTP security headers
             app.UseAppSecurity();
-            
-            app.Logger.LogInformation("AI scoring provider: {Provider} | Environment: {Env}", aiProvider, app.Environment.EnvironmentName);
-
-
             if (!app.Environment.IsDevelopment())
-            {
-                app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
-            }
 
-
-            // --- Auto update database
-            using (var scope = app.Services.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                dbContext.Database.Migrate();
-            }
-
-            //app.UseHttpsRedirection();
             app.UseRouting();
-
-
-            // --- Enforce security workflow: Identity check before permission check
             app.UseAuthentication();
             app.UseAuthorization();
-           
-            // --- Enable rate limitter
-            app.UseRateLimiter();
+            app.UseRateLimiter();   // sau xác thực: SpeechRateLimit / CvRateLimit chia theo email
 
             app.MapStaticAssets();
             app.MapControllerRoute(
-                name: "default",
-                //pattern: "{controller=Home}/{action=Index}/{id?}")
-                pattern: "{controller=Auth}/{action=Login}/{id?}")
+                    name: "default",
+                    pattern: "{controller=Auth}/{action=Login}/{id?}")
                 .WithStaticAssets();
-
-            app.Run();
         }
+        #endregion
     }
 }

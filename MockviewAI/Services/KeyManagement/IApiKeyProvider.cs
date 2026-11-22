@@ -1,32 +1,22 @@
 ﻿namespace MockviewAI.Services.KeyManagement
 {
     /// <summary>
-    /// [SWITCH API]
-    /// -- Cung cấp cơ chế quản lý và luân phiên nhiều API Key khi gọi tới các dịch vụ AI.
-    /// -- Giúp tối ưu hóa hạn mức, tránh bị block và đảm bảo tính liên tục của hệ thống.
+    /// [KEY-ROTATION] 
+    /// Quản lý và luân phiên nhiều API key của một nhà cung cấp AI,
+    /// để dàn đều hạn mức và tự bỏ qua key đang bị giới hạn.
     /// </summary>
     public interface IApiKeyProvider
     {
-        /// <summary>
-        /// true nếu cấu hình có ít nhất một API Key (danh sách ApiKeys hoặc ApiKey đơn).
-        /// Dịch vụ gọi AI kiểm tra cờ này để báo lỗi cấu hình rõ ràng thay vì gửi request không có key.
-        /// </summary>
+        /// <summary>Có ít nhất một key. Service gọi AI kiểm tra cờ này để báo lỗi cấu hình rõ ràng.</summary>
         bool HasKeys { get; }
 
-        /// <summary>
-        /// Số lượng API Key đang được quản lý (dùng để quyết định có nên đổi key và thử lại hay không).
-        /// </summary>
+        /// <summary>Số key đang quản lý; dưới 2 thì đổi key thử lại là vô ích.</summary>
         int KeyCount { get; }
 
-        /// <summary>
-        /// Trả về API Key hợp lệ tiếp theo. Tự động bỏ qua các Key đang trong thời gian bị phạt.
-        /// Trả về chuỗi rỗng khi không có key nào được cấu hình.
-        /// </summary>
+        /// <summary>Key kế tiếp theo vòng tròn, bỏ qua key đang bị phạt. Chuỗi rỗng khi không có key.</summary>
         string GetNextKey();
 
-        /// <summary>
-        /// Đưa một API Key vào danh sách đen tạm thời (1 phút) khi nhận mã lỗi 401, 402, 403, 429 từ AI provider.
-        /// </summary>
+        /// <summary>Phạt key 1 phút khi nhà cung cấp trả 401, 402, 403 hoặc 429.</summary>
         void MarkKeyAsExhausted(string key);
     }
 }

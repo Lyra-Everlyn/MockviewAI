@@ -1,6 +1,6 @@
 //#region CvStorage
 /// <summary>
-/// [USER CV] Lưu CV trên trình duyệt (localStorage), tách theo tài khoản.
+/// [USER CV] Lưu CV trên trình duyệt, tách theo tài khoản.
 /// Cấu hình lấy từ thẻ meta cv-owner / cv-max / cv-keep-days.
 /// </summary>
 //#endregion

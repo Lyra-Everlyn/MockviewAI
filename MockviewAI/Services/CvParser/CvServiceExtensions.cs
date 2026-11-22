@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace MockviewAI.Services.CvParser
 {
     /// <summary>
-    /// [USER CV] Đăng ký dịch vụ CV và giới hạn số lần phân tích.
+    /// [USER CV] 
+    /// Đăng ký dịch vụ CV và giới hạn số lần phân tích.
     /// Dùng: builder.Services.AddCvServices(builder.Configuration);
     /// </summary>
     public static class CvServiceExtensions

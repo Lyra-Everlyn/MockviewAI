@@ -1,6 +1,6 @@
 ﻿//#region Logout
 /// <summary>
-/// Đăng xuất: xoá dữ liệu tạm và CV lưu trên trình duyệt (máy dùng chung) rồi gửi form.
+/// Đăng xuất: xoá dữ liệu tạm và CV lưu trên trình duyệt rồi gửi form.
 /// </summary>
 //#endregion
 function onClickLogout(event) {

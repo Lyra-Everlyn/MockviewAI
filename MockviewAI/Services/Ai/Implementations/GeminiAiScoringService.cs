@@ -12,7 +12,8 @@ using MockviewAI.Services.KeyManagement.ProviderExtensions;
 namespace MockviewAI.Services.Ai.Implementations
 {
     /// <summary>
-    /// [AI-MODULE] Gửi yêu cầu chấm điểm tới Gemini qua HttpClient "GeminiClient" (xoay vòng key).
+    /// [AI-SCORING] 
+    /// Gửi yêu cầu chấm điểm tới Gemini qua HttpClient "GeminiClient" (xoay vòng key).
     /// Gửi kèm thinkingLevel để rút ngắn thời gian chấm; model lỗi tạm thời thì thử model dự phòng.
     /// </summary>
     public class GeminiAiScoringService : IAiScoringService
@@ -20,7 +21,11 @@ namespace MockviewAI.Services.Ai.Implementations
         #region Fields
         public const string HttpClientName = "GeminiClient";
         private static readonly string[] DefaultFallbackModels = { "gemini-3.5-flash-lite" };
+
+        /// <summary>Dấu hiệu tên model không dùng để chấm văn bản (giọng nói, ảnh, nhúng...).</summary>
         private static readonly string[] NonTextModelMarkers = { "-tts", "-live", "native-audio", "transcribe", "image", "embedding", "imagen", "veo", "lyria", "omni", "robotics" };
+
+        /// <summary>Tên model chỉ lấy từ cấu hình; chặn ký tự có thể làm đổi đường dẫn URL.</summary>
         private static readonly Regex SafeModelName = new(@"^[A-Za-z0-9._-]+$", RegexOptions.Compiled);
 
         private readonly IHttpClientFactory _httpClientFactory;
@@ -102,9 +107,7 @@ namespace MockviewAI.Services.Ai.Implementations
             return models;
         }
 
-        /// <summary>
-        /// Gửi đầy đủ (JSON mode + thinkingLevel). Lỗi 400 không do key thì gửi lại một lần dạng tối giản.
-        /// </summary>
+        /// <summary>Gửi đầy đủ (JSON mode + thinkingLevel). Lỗi 400 không do key thì gửi lại một lần dạng tối giản.</summary>
         private async Task<ContentScoreResult> ScoreWithModelAsync(HttpClient http, string model, string systemPrompt, string userPrompt, CancellationToken ct)
         {
             using (var response = await SendAsync(http, model, systemPrompt, userPrompt, minimal: false, ct))

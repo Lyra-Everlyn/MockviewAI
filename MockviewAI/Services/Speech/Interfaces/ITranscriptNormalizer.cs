@@ -1,7 +1,8 @@
 ﻿namespace MockviewAI.Services.Speech.Interfaces
 {
     /// <summary>
-    /// [SPEECH] Sửa lỗi bản chép giọng nói (thuật ngữ nghe sai, dấu câu) mà không đổi ý người nói. Lỗi ném ra để dùng lại bản thô.
+    /// [SPEECH] 
+    /// Sửa lỗi bản chép giọng nói (thuật ngữ nghe sai, dấu câu) mà không đổi ý người nói. Lỗi ném ra để dùng lại bản thô.
     /// </summary>
     public interface ITranscriptNormalizer
     {

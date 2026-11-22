@@ -1,4 +1,5 @@
-/* [AI-MODULE] Avatar người phỏng vấn - kiểu dáng. Dùng cùng avatar.js */
+/* MockviewAI | Avatar người phỏng vấn (thử nghiệm)
+   Dùng với avatar.js trong avatar.html; chưa gắn vào phòng phỏng vấn. */
 .mv-avatar { display: block; width: 100%; max-width: 240px; aspect-ratio: 1 / 1; margin: 0 auto; }
 .mv-avatar svg { width: 100%; height: 100%; display: block; }
 

@@ -1,7 +1,5 @@
-﻿/* =========================================================
-   MockviewAI — Home / Index
-   Only layout that is specific to Home.
-   ========================================================= */
+﻿/* MockviewAI | Trang chủ
+   Bố cục riêng của Views/Home/Index.cshtml. */
 
 .content-grid {
     display: grid;

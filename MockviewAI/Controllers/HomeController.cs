@@ -1,35 +1,45 @@
+using System.Diagnostics;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MockviewAI.Models;
 using MockviewAI.Models.DTOs;
 using MockviewAI.Services.Feedbacks;
 using MockviewAI.Services.SessionHistory;
-using System.Diagnostics;
-using System.Security.Claims;
 
 namespace MockviewAI.Controllers
 {
+    /// <summary>
+    /// [HOME] Trang chủ, trang pháp lý, lịch sử luyện tập, xem lại hội thoại, góp ý và trang lỗi.
+    /// </summary>
     public class HomeController : Controller
     {
+        #region Fields
+        private const int RecentSessionCount = 2;
+
         private readonly ISessionHistoryService _history;
         private readonly IFeedbackService _feedback;
+        #endregion
 
+        #region Constructor
         public HomeController(ISessionHistoryService history, IFeedbackService feedback)
         {
             _history = history;
             _feedback = feedback;
         }
+        #endregion
 
         private string CurrentEmail => User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
 
-        #region Trang chủ
+        #region Trang chủ và trang pháp lý
+        /// <summary>Trang chủ: lời chào, thống kê nhanh và các buổi luyện gần nhất.</summary>
         [Authorize]
         [Route("Home")]
         [Route("Home/Index")]
         [Route("")]
         public async Task<IActionResult> Index()
         {
-            var recent = await _history.GetHistoryAsync(CurrentEmail, 2);
+            var recent = await _history.GetHistoryAsync(CurrentEmail, RecentSessionCount);
             return View(recent);
         }
 
@@ -48,7 +58,7 @@ namespace MockviewAI.Controllers
         }
         #endregion
 
-        #region Lịch sử + Xem lại hội thoại
+        #region Lịch sử và xem lại hội thoại
         [Authorize]
         [Route("Home/History")]
         public async Task<IActionResult> History()
@@ -57,6 +67,7 @@ namespace MockviewAI.Controllers
             return View(sessions);
         }
 
+        /// <summary>Xem lại từng câu hỏi, câu trả lời và xếp loại của một buổi; buổi của người khác coi như không tồn tại.</summary>
         [Authorize]
         [Route("Home/InterviewDetail/{id:int}")]
         public async Task<IActionResult> InterviewDetail(int id)
@@ -114,10 +125,12 @@ namespace MockviewAI.Controllers
         }
         #endregion
 
+        #region Lỗi
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+        #endregion
     }
 }

@@ -3,25 +3,28 @@
 namespace MockviewAI.Models.DTOs
 {
     /// <summary>
-    /// [SETUP PROFILE]
-    /// -- After login, user need to set up Major, ...
+    /// [ONBOARDING]
+    /// Hồ sơ ban đầu người dùng điền sau lần đăng nhập đầu tiên (POST /Onboarding/Complete).
     /// </summary>
-    
     public class OnboardingDto
     {
-        [Required(ErrorMessage = "Please enter your major or field of study.")]
+        /// <summary>Ngành học.</summary>
+        [Required(ErrorMessage = "Vui lòng nhập ngành học.")]
         [MaxLength(100)]
         public string Major { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Please enter your target position.")]
+        /// <summary>Vị trí muốn ứng tuyển.</summary>
+        [Required(ErrorMessage = "Vui lòng nhập vị trí muốn ứng tuyển.")]
         [MaxLength(100)]
         public string TargetPosition { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Please select your graduation status.")]
+        /// <summary>Tình trạng tốt nghiệp.</summary>
+        [Required(ErrorMessage = "Vui lòng chọn tình trạng tốt nghiệp.")]
         [MaxLength(50)]
         public string GraduationStatus { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Please select your experience level.")]
+        /// <summary>Mức kinh nghiệm.</summary>
+        [Required(ErrorMessage = "Vui lòng chọn mức kinh nghiệm.")]
         [MaxLength(50)]
         public string ExperienceLevel { get; set; } = string.Empty;
     }
