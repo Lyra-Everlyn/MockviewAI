@@ -1,0 +1,55 @@
+# MockviewAI V1 — chạy song song với V2 để khảo sát so sánh (https://v1.mockviewai.com)
+# Database, Redis, container, volume tách riêng: không đụng dữ liệu V2.
+# Biến môi trường khai báo ở tab Environment của app V1 trên Dokploy.
+
+services:
+
+  db_mockview_v1:
+    image: mysql:8.0
+    container_name: mysql_mockview_v1
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "mockview_v1"
+      MYSQL_USER: "mockview_v1_user"
+      MYSQL_PASSWORD: "${MYSQL_USER_PASSWORD}"
+    volumes:
+      - mysql_data_v1:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
+
+  redis_mockview_v1:
+    image: redis:alpine
+    container_name: redis_mockview_v1
+    restart: always
+
+  web_mockview_v1:
+    build:
+      context: .
+      dockerfile: MockviewAI/Dockerfile
+    image: mockviewai:v1
+    container_name: web_mockview_v1
+    restart: always
+    env_file:
+      - .env
+    # Ghi đè .env: trong Docker dùng tên service và tài khoản riêng của V1
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=db_mockview_v1;Port=3306;Database=mockview_v1;Uid=mockview_v1_user;Pwd=${MYSQL_USER_PASSWORD}"
+      ConnectionStrings__RedisConnection: "redis_mockview_v1:6379"
+    # Không mở cổng ra máy chủ (tránh trùng 8080 của V2); Traefik của Dokploy đi qua mạng dokploy-network
+    networks:
+      - default
+      - dokploy-network
+    depends_on:
+      db_mockview_v1:
+        condition: service_healthy
+
+networks:
+  dokploy-network:
+    external: true
+
+volumes:
+  mysql_data_v1:
