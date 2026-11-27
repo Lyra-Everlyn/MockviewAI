@@ -17,5 +17,8 @@ namespace MockviewAI.Services.SessionHistory
 
         /// <returns>false = không tìm thấy buổi.</returns>
         Task<bool> DeleteAsync(string email, int sessionId);
+
+        /// <summary>Số liệu tổng hợp cho thẻ Hành trình (trang Hồ sơ).</summary>
+        Task<PracticeJourneyStats> GetJourneyStatsAsync(string email);
     }
 }

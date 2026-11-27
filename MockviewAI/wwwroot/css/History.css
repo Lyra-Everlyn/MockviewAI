@@ -1,101 +1,150 @@
 ﻿/* MockviewAI | Lịch sử luyện tập
-   Bố cục riêng của Views/Home/History.cshtml. */
-.history-panel {
-    padding: 30px;
+   Bố cục riêng của Views/Home/History.cshtml. Thẻ buổi luyện nằm trong components.css. Màu nằm trong themes/*.css. */
+
+/* #region Khung trang + thanh công cụ */
+.history-page {
+    display: grid;
+    gap: 20px;
+    padding-top: 28px;
 }
 
-.history-panel__header {
+.history-toolbar {
     display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 24px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
 }
 
 .history-search {
-    flex: 0 0 280px;
-    max-width: 100%;
+    position: relative;
+    flex: 1 1 280px;
+    max-width: 380px;
 }
 
+.history-search__icon {
+    position: absolute;
+    top: 50%;
+    left: 17px;
+    font-size: 14px;
+    transform: translateY(-50%);
+}
+
+.history-search__input {
+    width: 100%;
+    min-height: 46px;
+    padding: 0 16px 0 42px;
+    border: var(--border-card, 1px) solid;
+    border-radius: 999px;
+    font: inherit;
+    font-size: 14px;
+    outline: none;
+}
+
+    .history-search__input:focus-visible {
+        outline: 3px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+.history-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.history-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    border: 0;
+    border-radius: 999px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+    .history-filter:focus-visible {
+        outline: 3px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+.history-filter__count {
+    font-size: 12px;
+    opacity: .8;
+}
+
+.history-count {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: 600;
+}
+/* #endregion */
+
+/* #region Danh sách 2 cột + trạng thái trống */
 .history-list {
-    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 .history-entry {
+    display: grid;
     min-width: 0;
 }
 
     .history-entry[hidden],
-    .history-no-results[hidden] {
+    .history-empty[hidden] {
         display: none;
     }
 
-.history-no-results {
+.history-empty {
     display: grid;
     justify-items: center;
-    gap: 10px;
-    padding: 42px 20px;
+    gap: 8px;
+    padding: 40px 20px;
+    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
     text-align: center;
 }
 
-.history-no-results__icon {
-    display: grid;
-    width: 52px;
-    height: 52px;
-    place-items: center;
-    border-radius: var(--radius-card);
-    background: var(--color-primary-soft);
-    color: var(--color-primary);
-    font-size: 20px;
-}
-
-.history-no-results h3 {
-    font-size: 16px;
-    font-weight: 800;
-}
-
-.history-no-results p {
-    color: var(--color-muted);
-    font-size: 13px;
-}
-
-.history-no-results .button {
-    margin-top: 5px;
-}
-
-/* Nhãn Thực chiến trên thẻ buổi luyện (chỉ trang Lịch sử) */
-.history-page .session-card__live {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    border: 1px solid var(--color-border);
-    background: var(--color-primary-soft);
-    color: var(--color-primary);
-}
-
-@media (max-width: 768px) {
-    .history-panel {
-        padding: 20px 16px;
+    .history-empty h2 {
+        font-size: 18px;
+        font-weight: 800;
     }
 
-    .history-panel__header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 18px;
+    .history-empty p {
+        font-size: 14px;
+    }
+
+    .history-empty .button {
+        margin-top: 6px;
+    }
+/* #endregion */
+
+/* #region Responsive */
+@media (max-width: 900px) {
+    .history-list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .history-page {
+        padding-top: 20px;
     }
 
     .history-search {
-        flex: none;
-        width: 100%;
-    }
-}
-
-@media (max-width: 420px) {
-    .history-panel {
-        padding: 18px 12px;
+        max-width: none;
     }
 
-    .history-panel__header {
-        margin-bottom: 18px;
+    .history-count {
+        flex-basis: 100%;
+        margin-left: 0;
     }
 }
+/* #endregion */

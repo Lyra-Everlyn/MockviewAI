@@ -1,210 +1,194 @@
 /* MockviewAI | Chỉnh sửa hồ sơ
-   Bố cục riêng của Views/Profile/EditProfile.cshtml. */
+   Bố cục riêng của Views/Profile/EditProfile.cshtml */
 
+/* #region Đầu trang */
 .edit-profile-page__back {
     margin-bottom: 18px;
-    font-size: 13px;
+    font-size: 14px;
 }
 
-.edit-profile-layout {
+.edit-avatar-button {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
     display: grid;
-    grid-template-columns: minmax(260px,320px) minmax(0,1fr);
-    align-items: start;
-    gap: 28px;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border: 4px solid;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform .1s ease, box-shadow .1s ease;
 }
 
-.edit-profile-sidebar {
+    .edit-avatar-button:active {
+        transform: translateY(3px);
+    }
+
+    .edit-avatar-button:focus-visible {
+        outline: 3px solid var(--color-info);
+        outline-offset: 2px;
+    }
+/* #endregion */
+
+/* #region Form */
+.edit-profile-form {
+    display: grid;
+    gap: 30px;
+    margin-top: 22px;
+    padding: 28px 32px;
+    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+}
+
+.form-step {
+    display: grid;
+    gap: 14px;
     min-width: 0;
 }
 
-.avatar-preview-card {
-    position: sticky;
-    top: 24px;
-    padding: 28px;
+.form-step__title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 17px;
+    font-weight: 800;
 }
 
-.avatar-preview-card__image-wrap {
-    position: relative;
-    flex: 0 0 auto;
-    width: fit-content;
-    margin-bottom: 18px;
-}
-
-.avatar-preview-card__image {
+.form-step__number {
     display: grid;
-    width: 84px;
-    height: 84px;
-    overflow: hidden;
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
     place-items: center;
-    border: 4px solid var(--color-primary-soft);
-    border-radius: 22px;
-    background: var(--gradient-primary);
-    color: var(--color-on-gradient);
-    font-size: 27px;
-    font-weight: 800;
-    box-shadow: var(--shadow-control);
-}
-
-    .avatar-preview-card__image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-.avatar-preview-card__online {
-    position: absolute;
-    right: -3px;
-    bottom: -3px;
-    width: 17px;
-    height: 17px;
-    border: 3px solid var(--color-surface);
     border-radius: 50%;
-    background: var(--color-success);
-}
-
-.avatar-preview-card__identity h2 {
-    margin-bottom: 6px;
-    overflow-wrap: anywhere;
-    color: var(--color-text);
-    font-size: 21px;
+    font-size: 13px;
     font-weight: 800;
 }
 
-.avatar-preview-card__identity p {
-    color: var(--color-muted);
-    font-size: 13px;
-    line-height: 1.6;
+.edit-profile-form .form-footer {
+    margin-top: 0;
+    border-top-style: dashed;
+    border-top-width: 2px;
+}
+/* #endregion */
+
+/* #region Trạng thái: viên chọn */
+.choice-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.avatar-preview-card__button {
-    width: 100%;
-    margin-top: 21px;
+.choice-pill {
+    min-height: 44px;
+    padding: 0 18px;
+    border: 2px solid;
+    border-radius: 999px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease;
 }
+/* #endregion */
 
-.avatar-preview-card__divider {
-    height: 1px;
-    margin: 22px 0;
-    background: var(--color-border);
-}
-
-.avatar-preview-card__tip {
+/* #region Kinh nghiệm: thẻ cấp độ */
+.level-grid {
     display: grid;
-    grid-template-columns: 40px minmax(0,1fr);
-    box-shadow: none;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
 }
 
-.edit-profile-form-card {
-    padding: 32px;
+.level-card {
+    display: grid;
+    min-width: 0;
+    justify-items: start;
+    gap: 10px;
+    padding: 16px;
+    border: 2px solid;
+    border-radius: 18px;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease;
 }
 
-.edit-profile-form-card__header {
-    margin-bottom: 30px;
+.level-bars {
+    display: flex;
+    height: 22px;
+    align-items: flex-end;
+    gap: 4px;
 }
 
-@media (max-width: 900px) {
-    .edit-profile-layout {
-        grid-template-columns: minmax(220px,.75fr) minmax(0,1.4fr);
-        gap: 18px;
+    .level-bars span {
+        width: 8px;
+        border-radius: 3px;
     }
 
-    .avatar-preview-card, .edit-profile-form-card {
-        padding: 22px;
+        .level-bars span:nth-child(1) { height: 8px; }
+        .level-bars span:nth-child(2) { height: 13px; }
+        .level-bars span:nth-child(3) { height: 18px; }
+        .level-bars span:nth-child(4) { height: 22px; }
+
+.level-card__text {
+    display: grid;
+    gap: 2px;
+}
+
+    .level-card__text strong {
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .level-card__text small {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+/* #endregion */
+
+/* #region Responsive */
+@media (max-width: 900px) {
+    .level-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 680px) {
-    .edit-profile-page__header {
-        margin-bottom: 18px;
+    .edit-profile-form {
+        gap: 24px;
+        padding: 22px 18px;
     }
 
-        .edit-profile-page__header .page-header__eyebrow,
-        .edit-profile-page__header .page-header__description {
-            display: none;
-        }
-
-    .edit-profile-page__back {
-        margin-bottom: 12px;
-        font-size: 12px;
-    }
-
-    .edit-profile-layout {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-    }
-
-    .edit-profile-sidebar, .edit-profile-form-card {
-        width: 100%;
-    }
-
-    .avatar-preview-card {
-        position: static;
-        display: grid;
-        grid-template-columns: 72px minmax(0,1fr);
-        align-items: center;
-        gap: 8px 13px;
-        padding: 18px;
-    }
-
-    .avatar-preview-card__head {
-        display: contents;
-    }
-
-    .avatar-preview-card__image-wrap {
-        grid-row: 1 / 3;
-        margin: 0;
-    }
-
-    .avatar-preview-card__image {
-        width: 66px;
-        height: 66px;
-        border-radius: 18px;
-        font-size: 22px;
-    }
-
-    .avatar-preview-card__identity {
-        min-width: 0;
-    }
-
-        .avatar-preview-card__identity .section-header__eyebrow {
-            display: none;
-        }
-
-        .avatar-preview-card__identity h2 {
-            font-size: 17px;
-        }
-
-        .avatar-preview-card__identity p {
-            font-size: 11px;
-        }
-
-    .avatar-preview-card__button {
-        grid-column: 2;
-        justify-self: start;
-        width: auto;
-        min-height: 32px;
-        margin: 0;
-        padding: 0 4px;
-        border: 0;
-        background: transparent;
-        color: var(--color-primary);
-        font-size: 12px;
-        box-shadow: none;
-    }
-
-    .avatar-preview-card__divider, .avatar-preview-card__tip {
-        display: none;
-    }
-
-    .edit-profile-form-card {
-        padding: 20px 17px;
-    }
-
-    .edit-profile-form-card__header {
-        margin-bottom: 24px;
-    }
-
-        .edit-profile-form-card__header .section-header__title {
-            font-size: 20px;
+        /* components.css kéo giãn 2 nút theo lưới trên điện thoại; trang này giữ nút đúng cỡ, canh phải */
+        .edit-profile-form .form-footer {
+            display: flex;
+            justify-content: flex-end;
         }
 }
+
+@media (max-width: 420px) {
+    /* Giữ 2 cột cho gọn, thu nhỏ thẻ cấp độ */
+    .level-grid {
+        gap: 10px;
+    }
+
+    .level-card {
+        gap: 8px;
+        padding: 12px;
+    }
+
+        .level-card__text strong {
+            font-size: 14px;
+        }
+
+    .choice-pill {
+        min-height: 40px;
+        padding: 0 14px;
+        font-size: 13px;
+    }
+}
+/* #endregion */

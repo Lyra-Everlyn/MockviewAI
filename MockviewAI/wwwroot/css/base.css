@@ -1,7 +1,7 @@
 /* MockviewAI | Base
    Reset, bố cục trang và cỡ chữ. Màu nằm trong themes/*.css. */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* #region Reset */
 *,
@@ -168,6 +168,17 @@ button {
 .stack {
     display: grid;
     gap: 14px;
+}
+/* #endregion */
+
+/* #region Tiêu đề mục có dấu ◆ */
+.section-header__title--marked::before {
+    display: inline-block;
+    margin-right: 10px;
+    color: var(--color-section-marker, var(--color-primary));
+    font-size: .55em;
+    vertical-align: .2em;
+    content: "\25C6";
 }
 /* #endregion */
 

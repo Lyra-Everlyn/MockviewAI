@@ -20,33 +20,40 @@
 <body class="app-layout cv-page">
     <partial name="Partials/_AppNavigation" />
     <div class="app-layout__content">
-        <main class="cv-page__main">
+        <main class="cv-page__main cv-saved-page">
             <script type="application/json" id="cvSavedData">@Html.Raw(Model.CvJson)</script>
 
-            <div class="cv-notice cv-notice--info" id="cvSavedStatus" role="status">
-                <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
-                <span>Đang lưu CV vào trình duyệt của bạn...</span>
-            </div>
-
-            <div class="cv-notice cv-notice--error" id="cvSavedError" role="alert" hidden>
-                <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
-                <span id="cvSavedErrorText"></span>
-            </div>
-
-            <div class="cv-review__actions" id="cvSavedActions" hidden>
-                <a class="button button--secondary cv-button-secondary" asp-controller="CV" asp-action="Index">
-                    <i class="fa-regular fa-folder-open" aria-hidden="true"></i> Mở CV của tôi
-                </a>
-            </div>
-
-            <noscript>
-                <div class="cv-notice cv-notice--error" role="alert">
-                    <span>Trình duyệt đang tắt JavaScript nên không thể lưu CV. Hãy bật JavaScript rồi tải CV lên lại.</span>
+            @* CvSaved.js: lưu xong thì chuyển về /CV, lỗi thì ẩn #cvSavedStatus và hiện #cvSavedError + #cvSavedActions *@
+            <section class="cv-saved">
+                <div class="cv-saved__state" id="cvSavedStatus" role="status">
+                    <span class="cv-saved__spinner" aria-hidden="true">
+                        <span class="cv-saved__ring"></span>
+                        <span class="cv-saved__bubble"><i class="fa-regular fa-file-lines"></i></span>
+                    </span>
+                    <h1 class="cv-saved__title">Đang lưu CV</h1>
+                    <p class="cv-saved__text">Đang lưu CV vào trình duyệt của bạn. Xong sẽ tự chuyển về "CV của tôi".</p>
                 </div>
-            </noscript>
+
+                <div class="cv-saved__state" id="cvSavedError" role="alert" hidden>
+                    <span class="cv-saved__alert" aria-hidden="true"><i class="fa-solid fa-exclamation"></i></span>
+                    <h1 class="cv-saved__title">Chưa lưu được CV</h1>
+                    <p class="cv-saved__text" id="cvSavedErrorText"></p>
+                </div>
+
+                <div class="cv-saved__actions" id="cvSavedActions" hidden>
+                    <a class="button button--alt button--icon" asp-controller="CV" asp-action="Index">
+                        <span class="button__icon" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+                        Mở CV của tôi
+                    </a>
+                </div>
+
+                <noscript>
+                    <p class="cv-notice cv-notice--error" role="alert">Trình duyệt đang tắt JavaScript nên không thể lưu CV. Hãy bật JavaScript rồi tải CV lên lại.</p>
+                </noscript>
+            </section>
         </main>
     </div>
-    <partial name="Partials/_AppFooter" />
+    
     <partial name="Partials/_Notify" />
     <script src="~/js/CvStorage.js" asp-append-version="true"></script>
     <script src="~/js/CvSaved.js" asp-append-version="true"></script>

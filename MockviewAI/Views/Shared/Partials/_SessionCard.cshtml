@@ -1,31 +1,41 @@
 ﻿@model MockviewAI.Models.ViewModels.RecentSessionViewModel
+@*
+    [HISTORY]
+    Thẻ một buổi luyện (Trang chủ, Lịch sử). Buổi chưa xong có nút "Luyện tiếp" thay cho mũi tên.
+*@
 @{
     var sessionUrl = Model.IsInProgress
         ? $"/Interview/Room/{Model.SessionId}"
         : $"/Home/InterviewDetail/{Model.SessionId}";
+    var stateClass = Model.HasScore ? "session-chip--score" : Model.IsInProgress ? "session-chip--progress" : "session-chip--stopped";
 }
 <a href="@sessionUrl" class="session-card">
-    <div class="session-card__main">
-        <h3 class="session-card__title">@Model.RoleName</h3>
-        <div class="session-card__meta">
-            <span class="status-chip">@(Model.HasScore ? Model.Score + " điểm" : Model.StatusText)</span>
+    <span class="session-card__main">
+        <strong class="session-card__title">@Model.RoleName</strong>
+        <span class="session-card__meta">
+            <span class="session-chip @stateClass">@(Model.HasScore ? Model.Score + " điểm" : Model.StatusText)</span>
             @if (Model.IsLive)
             {
-                <span class="status-chip session-card__live">
-                    <i class="fa-solid fa-bolt" aria-hidden="true"></i> Thực chiến
-                </span>
+                <span class="session-chip session-chip--live">Thực chiến</span>
             }
             @if (!string.IsNullOrWhiteSpace(Model.AnxietyText))
             {
-                <span class="status-chip @(Model.AnxietyImproved ? "status-chip--success" : "status-chip--warning")">@Model.AnxietyText</span>
+                <span class="session-chip @(Model.AnxietyImproved ? "session-chip--calm" : "session-chip--tense")">@Model.AnxietyText</span>
             }
-        </div>
-    </div>
-    <div class="session-card__side">
+        </span>
+    </span>
+    <span class="session-card__side">
         <span class="session-card__details">
             <span class="session-card__date">@Model.DateFormatted</span>
             <span class="session-card__count">@Model.QuestionCount câu hỏi</span>
         </span>
-        <span class="session-card__chevron" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
-    </div>
+        @if (Model.IsInProgress)
+        {
+            <span class="session-card__resume">Luyện tiếp</span>
+        }
+        else
+        {
+            <span class="session-card__chevron" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+        }
+    </span>
 </a>

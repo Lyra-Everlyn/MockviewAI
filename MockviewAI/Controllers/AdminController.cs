@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MockviewAI.Models.ViewModels.Admin;
 using MockviewAI.Services.Admin;
 
 namespace MockviewAI.Controllers
@@ -29,15 +30,17 @@ namespace MockviewAI.Controllers
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
-            SetTab("dashboard");
-            return View(await _admin.GetDashboardAsync());
+            var model = await _admin.GetDashboardAsync();
+            // Tổng quan đã có sẵn hai số này, không cần đếm lại
+            SetTab("dashboard", new AdminTabCounts(model.TotalUsers, model.TotalFeedbacks));
+            return View(model);
         }
 
         /// <summary>GET: /Admin/Users?search=&amp;status=&amp;page=</summary>
         [HttpGet("Users")]
         public async Task<IActionResult> Users(string? search, string? status, int page = 1)
         {
-            SetTab("users");
+            SetTab("users", await _admin.GetTabCountsAsync());
             return View(await _admin.GetUsersAsync(search, status, page));
         }
 
@@ -45,16 +48,18 @@ namespace MockviewAI.Controllers
         [HttpGet("Feedbacks")]
         public async Task<IActionResult> Feedbacks(int? rating, bool withComment = false, int page = 1)
         {
-            SetTab("feedbacks");
+            SetTab("feedbacks", await _admin.GetTabCountsAsync());
             return View(await _admin.GetFeedbacksAsync(rating, withComment, page));
         }
         #endregion
 
         #region Helpers
-        private void SetTab(string tab)
+        /// <summary>Đánh dấu tab đang mở và gửi số đếm cho _AdminTabs.</summary>
+        private void SetTab(string tab, AdminTabCounts counts)
         {
             ViewData["ActiveNav"] = "admin";
             ViewData["AdminTab"] = tab;
+            ViewData["AdminTabCounts"] = counts;
         }
         #endregion
     }

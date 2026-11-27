@@ -68,6 +68,13 @@ namespace MockviewAI.Services.Admin
             };
         }
 
+        public async Task<AdminTabCounts> GetTabCountsAsync()
+        {
+            return new AdminTabCounts(
+                await _db.Users.AsNoTracking().CountAsync(),
+                await _db.Feedbacks.AsNoTracking().CountAsync());
+        }
+
         /// <summary>
         /// Số buổi luyện mỗi ngày (giờ Việt Nam) trong 14 ngày gần nhất, kể cả ngày không có buổi nào.
         /// Gom nhóm trong bộ nhớ (chỉ lấy một cột) để không lệch ngày giữa UTC và giờ Việt Nam.

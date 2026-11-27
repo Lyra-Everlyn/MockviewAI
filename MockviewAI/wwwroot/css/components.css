@@ -116,29 +116,75 @@
     gap: 9px;
     padding: 0 20px;
     border: 1px solid transparent;
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-button, var(--radius-control));
     font-size: 14px;
     font-weight: 750;
-    transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+    white-space: nowrap;
+    transition: transform .12s ease, box-shadow .12s ease, background .18s ease, border-color .18s ease;
 }
 
     .button:hover {
-        transform: translateY(-1px);
+        transform: translateY(var(--button-hover-lift, -1px));
     }
 
+    .button:active {
+        transform: translateY(var(--button-press-offset, 0px));
+    }
+
+/* Nút chính: theme Bạc hà dùng gờ 3D (--shadow-button-main), theme cũ giữ bóng mờ */
 .button--primary {
-    box-shadow: var(--shadow-control);
+    box-shadow: var(--shadow-button-main, var(--shadow-control));
+    text-shadow: var(--text-shadow-button-main, none);
 }
 
-.button--secondary {
-    border-color: var(--color-border);
+    .button--primary:active {
+        box-shadow: var(--shadow-button-main-pressed, var(--shadow-control));
+    }
+
+/* Nút phụ nền nhạt: secondary (màu chính), info (xanh dương) */
+.button--secondary,
+.button--info {
+    border-color: var(--color-button-soft-border, var(--color-border));
+    box-shadow: var(--shadow-button-soft, none);
+}
+
+.button--info {
+    border-color: transparent;
+}
+
+.button--small {
+    min-height: 40px;
+    padding: 0 18px;
+    font-size: 13px;
+}
+
+/* Nút màu phụ: cùng cấu trúc nút chính */
+.button--alt:active {
+    transform: translateY(var(--button-press-offset, 0px));
+}
+
+/* Nút có icon nằm trong vòng tròn ở đầu nút; vòng tròn luôn sát mép trái kể cả khi nút bị kéo giãn */
+.button--icon {
+    justify-content: flex-start;
+    padding-left: 6px;
+    padding-right: 22px;
+}
+
+.button__icon {
+    display: grid;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 15px;
 }
 /* #endregion */
 
 /* #region Panel */
 .panel {
     overflow: hidden;
-    border: 1px solid var(--color-border);
+    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
     border-radius: var(--radius-panel);
     box-shadow: var(--shadow-panel);
 }
@@ -178,7 +224,7 @@
 .stat-card,
 .session-card,
 .empty-state {
-    border: 1px solid var(--color-border);
+    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
     border-radius: var(--radius-card);
     background: var(--color-surface);
     box-shadow: var(--shadow-card);
@@ -261,6 +307,12 @@
     transform: translateX(2px);
 }
 
+.session-card__chevron {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
 .info-card {
     display: grid;
     grid-template-columns: 42px minmax(0, 1fr);
@@ -312,22 +364,22 @@
 /* #region Thẻ buổi luyện */
 .session-list {
     display: grid;
-    gap: 11px;
+    gap: 14px;
 }
 
 .session-card {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
     min-width: 0;
-    padding: 18px 20px;
-    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    padding: 16px 20px;
+    text-decoration: none;
+    transition: transform .15s ease;
 }
 
     .session-card:hover {
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-card-hover);
+        transform: translateY(-2px);
     }
 
 .session-card__main {
@@ -335,9 +387,10 @@
 }
 
 .session-card__title {
+    display: block;
     overflow: hidden;
-    font-size: 15px;
-    font-weight: 750;
+    font-size: 16px;
+    font-weight: 700;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -345,38 +398,50 @@
 .session-card__meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 7px;
-    margin-top: 10px;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.session-chip {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
 .session-card__side {
     display: flex;
-    min-width: 64px;
     align-items: center;
-    justify-content: flex-end;
-    gap: 18px;
-}
-
-.session-card__date {
-    flex: 0 0 auto;
-    font-size: 11px;
-    font-weight: 600;
-    white-space: nowrap;
+    gap: 14px;
 }
 
 .session-card__details {
     display: grid;
-    gap: 5px;
+    gap: 2px;
     text-align: right;
-    min-width: 0;
 }
 
-.session-card__count {
-    color: var(--color-muted);
-    font-size: 10px;
+.session-card__date {
+    font-size: 12px;
+    font-weight: 600;
     white-space: nowrap;
 }
 
+.session-card__count {
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.session-card__resume {
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* [KHÔNG DÙNG] status-chip: thẻ buổi luyện đã chuyển sang session-chip, không còn view nào dùng. */
 .status-chip {
     display: inline-flex;
     min-height: 24px;
@@ -502,14 +567,27 @@
         font-size: 26px;
     }
 
+    /* Điện thoại: ngày giờ và mũi tên xuống hàng dưới để tên vị trí không bị cắt */
     .session-card {
-        gap: 12px;
-        padding: 15px;
+        gap: 10px;
+        padding: 14px 16px;
+    }
+
+    .session-card__title {
+        white-space: normal;
     }
 
     .session-card__side {
-        min-width: 48px;
-        gap: 12px;
+        grid-column: 1 / -1;
+        justify-content: space-between;
+        padding-top: 10px;
+        border-top: 1px dashed;
+    }
+
+    .session-card__details {
+        display: flex;
+        gap: 10px;
+        text-align: left;
     }
 
     .empty-state {
@@ -518,19 +596,6 @@
     }
 }
 
-@media (max-width: 420px) {
-    .session-card__side {
-        gap: 8px;
-    }
-
-    .session-card__date {
-        font-size: 10px;
-    }
-
-    .session-card__count {
-        font-size: 9px;
-    }
-}
 /* #endregion */
 
 /* #region Cài đặt tài khoản */
@@ -738,6 +803,7 @@ html[data-theme="dark"] .settings-switch {
         color: var(--color-primary-hover);
     }
 
+/* [KHÔNG DÙNG] Trang Góp ý đã chuyển sang Feedback.css; các lớp form-layout, form-section, form-divider, selection-grid, selection-card không còn view nào dùng. */
 .form-layout {
     display: grid;
     min-width: 0;
@@ -1042,7 +1108,8 @@ html[data-theme="dark"] .settings-switch {
 }
 /* #endregion */
 
-/* #region Đánh giá sao và ô nhập dài */
+/* #region Đánh giá sao và ô nhập dài
+   [KHÔNG DÙNG] Trang Góp ý đã chuyển sang Feedback.css; rating-control, textarea-field không còn view nào dùng. */
 .rating-control {
     display: flex;
     align-items: center;
@@ -1465,7 +1532,6 @@ html[data-theme="dark"] .theme-toggle__state--dark {
     display: inline-flex;
 }
 
-/* Trên nền gradient (cột giới thiệu Auth / Onboarding): viền trắng mờ */
 .auth-intro .theme-toggle,
 .onboarding-aside .theme-toggle {
     border-color: var(--color-on-gradient-border);
@@ -1494,3 +1560,145 @@ html[data-theme="dark"] .theme-state--dark {
     display: inline;
 }
 /* #endregion */
+
+/* #region Nhãn chữ thường */
+.label-plain {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+}
+/* #endregion */
+
+/* #region Banner hồ sơ (trang Hồ sơ, Chỉnh sửa hồ sơ) */
+.profile-banner {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 30px;
+    overflow: hidden;
+    padding: 34px 36px;
+    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+}
+
+    .profile-banner::before,
+    .profile-banner::after {
+        position: absolute;
+        top: 50%;
+        border-style: solid;
+        border-radius: 50%;
+        content: "";
+        pointer-events: none;
+    }
+
+    .profile-banner::before {
+        right: -110px;
+        width: 320px;
+        height: 320px;
+        margin-top: -160px;
+        border-width: 24px;
+    }
+
+    .profile-banner::after {
+        right: -10px;
+        width: 120px;
+        height: 120px;
+        margin-top: -60px;
+        border-width: 15px;
+    }
+
+.profile-banner__avatar-wrap {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.profile-banner__avatar {
+    display: grid;
+    width: 112px;
+    height: 112px;
+    overflow: hidden;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 44px;
+    font-weight: 800;
+}
+
+    .profile-banner__avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.profile-banner__presence {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    width: 20px;
+    height: 20px;
+    border: 4px solid;
+    border-radius: 50%;
+}
+
+.profile-banner__identity {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex: 1 1 360px;
+    min-width: 0;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.profile-banner__label {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.profile-banner__name {
+    overflow-wrap: anywhere;
+    font-size: clamp(28px, 3.4vw, 34px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -.02em;
+}
+
+.profile-banner__status {
+    font-size: 15px;
+}
+
+.profile-banner__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 14px;
+}
+/* #endregion */
+
+@media (max-width: 680px) {
+    .profile-banner {
+        gap: 20px;
+        padding: 24px 20px;
+    }
+
+        .profile-banner::before {
+            top: -70px;
+            right: -70px;
+            width: 170px;
+            height: 170px;
+            margin-top: 0;
+            border-width: 18px;
+        }
+
+        .profile-banner::after {
+            display: none;
+        }
+
+    .profile-banner__avatar {
+        width: 84px;
+        height: 84px;
+        font-size: 32px;
+    }
+}

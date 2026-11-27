@@ -1,6 +1,7 @@
 ﻿using MockviewAI.Models.Entities;
 using MockviewAI.Models.ViewModels;
 using MockviewAI.Repositories.Interfaces;
+using MockviewAI.Services.Admin;
 using MockviewAI.Services.FileStorage.Interfaces;
 using MockviewAI.Services.SessionHistory;
 
@@ -13,8 +14,6 @@ namespace MockviewAI.Services.Profiles
     public class ProfileService : IProfileService
     {
         #region Fields
-        private const int RecentSessionCount = 3;
-
         /// <summary>Mã tình trạng tốt nghiệp (lưu trong DB) -> chữ hiển thị.</summary>
         private static readonly Dictionary<string, string> StatusTexts = new()
         {
@@ -45,6 +44,9 @@ namespace MockviewAI.Services.Profiles
             if (user == null) return null;
 
             string fullName = FullName(user);
+            var journey = await _history.GetJourneyStatsAsync(email);
+            var memberSince = VietnamTime.FromUtc(user.CreateAt);
+
             return new ProfileViewModel
             {
                 FullName = fullName,
@@ -53,7 +55,12 @@ namespace MockviewAI.Services.Profiles
                 Major = user.Major ?? string.Empty,
                 TargetPosition = user.TargetPosition ?? string.Empty,
                 ExperienceLevel = user.ExperienceLevel ?? string.Empty,
-                RecentSessions = await _history.GetHistoryAsync(email, RecentSessionCount)
+                MemberSince = memberSince,
+                DaysWithUs = Math.Max(1, (VietnamTime.Today - memberSince.Date).Days + 1),
+                CurrentLoginAt = VietnamTime.FromUtc(user.LastLoginAt),
+                TotalSessions = journey.TotalSessions,
+                AnsweredQuestions = journey.AnsweredQuestions,
+                StreakDays = journey.StreakDays
             };
         }
         #endregion

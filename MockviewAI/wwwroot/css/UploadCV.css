@@ -1,494 +1,468 @@
 ﻿/* MockviewAI | Tải lên CV
-   Tải lên và kiểm tra CV (UploadCV, Saved) cùng trạng thái dùng chung cho các trang CV. */
+   Bố cục của Views/CV/UploadCV.cshtml, Views/CV/Saved.cshtml và phần khung dùng chung với Views/CV/Index.cshtml.
+ */
 
-/* #region Tải lên và kiểm tra CV */
+/* #region Khung dùng chung cho các trang CV */
 .cv-page__main {
-    width: min(var(--layout-max-width),calc(100% - 48px));
+    width: min(var(--layout-max-width), calc(100% - 48px));
     margin: 0 auto;
-    padding: 42px 0 82px
+    padding: 32px 0 82px;
 }
 
-.cv-heading {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 27px
+/* .cv-notice { display:flex } ghi đè thuộc tính hidden của trình duyệt -> ép ẩn lại */
+.cv-page [hidden] {
+    display: none !important;
 }
 
-.cv-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    color: var(--color-primary);
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: .1em
-}
-
-.cv-heading h1 {
-    margin: 9px 0 9px;
-    color: var(--color-text);
-    font-size: clamp(27px,3.5vw,35px);
-    line-height: 1.2;
-    letter-spacing: -.045em
-}
-
-.cv-heading p {
-    max-width: 630px;
-    color: var(--color-muted);
-    font-size: 14px;
-    line-height: 1.7
-}
-
-.cv-phase {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    flex: 0 0 auto;
-    margin-top: 8px;
-    padding: 9px 13px;
-    border: 1px solid var(--color-border);
-    border-radius: 999px;
-    background: var(--color-surface);
-    color: var(--color-text-soft);
-    font-size: 12px;
-    font-weight: 700
-}
-
-    .cv-phase i {
-        color: var(--color-primary)
-    }
-
-.cv-steps {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    margin-bottom: 27px;
-    padding: 16px 22px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-card);
-    background: var(--color-surface)
-}
-
-.cv-step {
+.cv-notice {
     display: flex;
     align-items: center;
     gap: 12px;
-    min-width: 0;
-    opacity: .52
+    margin-bottom: 18px;
+    padding: 14px 18px;
+    border-radius: var(--radius-card);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.6;
 }
 
-    .cv-step.is-current, .cv-step.is-done {
-        opacity: 1
+    .cv-notice > i {
+        flex: 0 0 auto;
+        font-size: 18px;
     }
 
-.cv-step__num {
-    display: grid;
-    place-items: center;
-    flex: 0 0 32px;
-    width: 32px;
-    height: 32px;
-    border: 1px solid var(--color-border-strong);
-    border-radius: 50%;
-    background: var(--color-surface-soft);
-    color: var(--color-muted);
+/* Trang Tải CV lên: thông báo nằm ngay dưới banner */
+.cv-upload-banner ~ .cv-notice {
+    margin: 22px 0 0;
+}
+
+.cv-validation {
     font-size: 13px;
-    font-weight: 800
 }
 
-.cv-step.is-current .cv-step__num {
-    border-color: var(--color-primary);
-    background: var(--color-primary);
-    color: var(--color-primary-text)
+    .cv-validation:empty {
+        display: none;
+    }
+/* #endregion */
+
+/* #region Link quay lại + banner tiến trình */
+.cv-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
 }
 
-.cv-step.is-done .cv-step__num {
-    border-color: var(--color-success);
-    background: var(--color-success-soft);
-    color: var(--color-success)
+    .cv-back:hover {
+        text-decoration: underline;
+    }
+
+.cv-upload-banner {
+    padding: 28px 34px;
 }
 
-.cv-step strong, .cv-step small {
-    display: block;
-    white-space: nowrap
+    .cv-upload-banner .profile-banner__status {
+        max-width: 60ch;
+        font-size: 14px;
+    }
+
+/* Thanh tiến trình 2 nút, kiểu bản đồ màn chơi */
+.cv-track {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-start;
+    margin: 0 90px 0 0;
+    padding: 0;
+    list-style: none;
 }
 
-.cv-step strong {
-    color: var(--color-text);
-    font-size: 12px;
-    font-weight: 800
+.cv-track__node {
+    display: flex;
+    width: 110px;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
 }
 
-.cv-step small {
-    margin-top: 2px;
-    color: var(--color-muted);
-    font-size: 11px
+.cv-track__dot {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border: 3px solid;
+    border-radius: 50%;
+    font-weight: 800;
 }
 
-.cv-steps__line {
-    height: 1px;
-    flex: 1 1 55px;
-    max-width: 90px;
-    background: var(--color-border-strong)
+.cv-track__label {
+    font-size: 13px;
+    font-weight: 700;
 }
 
+.cv-track__line {
+    width: 54px;
+    height: 6px;
+    margin-top: 19px;
+    border-radius: 999px;
+}
+/* #endregion */
+
+/* #region Bố cục hai cột + thẻ */
 .cv-layout {
     display: grid;
-    grid-template-columns: minmax(0,1.6fr) minmax(260px,.9fr);
+    grid-template-columns: minmax(0, 1.7fr) minmax(260px, .85fr);
     align-items: start;
-    gap: 20px
-}
-
-.cv-layout--review {
-    grid-template-columns: minmax(0,1.75fr) minmax(240px,.8fr)
+    gap: 22px;
+    margin-top: 22px;
 }
 
 .cv-card {
     min-width: 0;
-    padding: 28px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-panel);
-    background: var(--color-surface);
-    box-shadow: var(--shadow-card)
+    padding: 26px 28px;
+    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
 }
 
-.cv-card__heading {
+.cv-card__head {
+    margin-bottom: 18px;
+}
+
+    .cv-card__head h2 {
+        font-size: 19px;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
+    .cv-card__head p {
+        margin-top: 4px;
+        font-size: 14px;
+    }
+
+.cv-card__footer {
     display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 23px
+    justify-content: flex-end;
+    margin-top: 18px;
 }
 
-.cv-card__icon {
+.cv-side {
     display: grid;
-    flex: 0 0 43px;
-    width: 43px;
-    height: 43px;
-    place-items: center;
-    border-radius: 13px;
-    background: var(--color-primary-soft);
-    color: var(--color-primary);
-    font-size: 18px
+    gap: 16px;
+    min-width: 0;
 }
+/* #endregion */
 
-.cv-card__icon--muted {
-    margin-bottom: 15px
-}
-
-.cv-card__heading h2, .cv-guide h2 {
-    color: var(--color-text);
-    font-size: 17px;
-    font-weight: 800;
-    line-height: 1.4
-}
-
-.cv-card__heading p {
-    margin-top: 3px;
-    color: var(--color-muted);
-    font-size: 12px;
-    line-height: 1.6
-}
-
+/* #region Bước 1: vùng kéo thả + tệp đã chọn */
 .cv-dropzone {
     position: relative;
     display: flex;
-    min-height: 268px;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    padding: 27px 18px;
-    border: 2px dashed var(--color-border-strong);
-    border-radius: 15px;
-    background: var(--color-surface-soft);
+    min-height: 260px;
+    padding: 34px 20px;
+    border: 3px dashed;
+    border-radius: 20px;
     text-align: center;
-    transition: border-color .18s,background .18s
+    transition: border-color .18s, background .18s;
 }
 
-    .cv-dropzone:focus-within, .cv-dropzone.is-dragging {
-        border-color: var(--color-primary);
-        background: var(--color-primary-soft)
-    }
-
-.cv-dropzone__illustration {
+.cv-dropzone__bubble {
     display: grid;
-    width: 56px;
-    height: 56px;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 8px;
     place-items: center;
-    border: 1px solid var(--color-border);
-    border-radius: 16px;
-    background: var(--color-surface);
-    color: var(--color-primary);
-    font-size: 26px
+    border-radius: 50%;
+    font-size: 32px;
 }
 
 .cv-dropzone > strong {
-    font-size: 15px;
-    color: var(--color-text)
+    font-size: 17px;
 }
 
 .cv-dropzone > p {
-    color: var(--color-muted);
-    font-size: 13px
+    font-size: 14px;
 }
 
 .cv-dropzone__help {
-    margin-top: 1px;
-    color: var(--color-muted);
-    font-size: 11px
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.cv-pick-button {
+    cursor: pointer;
 }
 
 .cv-file-input {
     position: absolute;
     width: 1px;
     height: 1px;
-    opacity: 0;
     overflow: hidden;
-    clip-path: inset(50%)
+    clip-path: inset(50%);
+    opacity: 0;
 }
 
-.cv-pick-button {
-    display: inline-flex;
-    min-height: 39px;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 2px;
-    padding: 0 16px;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-control);
-    background: var(--color-surface);
-    color: var(--color-primary);
-    font-size: 12px;
-    font-weight: 800;
-    cursor: pointer
-}
-
-    .cv-pick-button:hover {
-        background: var(--color-primary-soft)
+    .cv-file-input:focus-visible + .cv-dropzone__help {
+        outline: 3px solid var(--color-primary);
+        outline-offset: 3px;
     }
 
-.cv-file-input:focus-visible + .cv-dropzone__help {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px
-}
-
 .cv-file-error {
-    margin: 12px 0 0;
-    color: var(--color-danger);
-    font-size: 12px
+    margin-top: 12px;
+    font-size: 13px;
 }
 
 .cv-selected {
     display: flex;
     align-items: center;
-    gap: 11px;
-    margin-top: 14px;
-    padding: 12px;
-    border: 1px solid var(--color-border);
-    border-radius: 12px;
-    background: var(--color-surface-soft)
+    gap: 14px;
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 16px;
 }
 
-    .cv-selected[hidden], .cv-file-error[hidden] {
-        display: none !important
+.cv-selected__icon {
+    display: grid;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.cv-selected__details {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+    gap: 2px;
+}
+
+    .cv-selected__details strong {
+        overflow: hidden;
+        font-size: 14px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
-.cv-selected__icon {
+    .cv-selected__details small {
+        font-size: 12px;
+    }
+
+.cv-selected__remove {
     display: grid;
     flex: 0 0 36px;
     width: 36px;
     height: 36px;
     place-items: center;
-    border-radius: 9px;
-    background: var(--color-primary-soft);
-    color: var(--color-primary)
+    border-radius: 50%;
+    cursor: pointer;
+}
+/* #endregion */
+
+/* #region Cột hướng dẫn */
+.cv-guide {
+    padding: 22px 24px;
 }
 
-.cv-selected__details {
-    display: grid;
-    min-width: 0;
-    flex: 1;
-    gap: 3px
-}
-
-    .cv-selected__details strong {
-        overflow: hidden;
-        color: var(--color-text);
-        font-size: 12px;
-        text-overflow: ellipsis;
-        white-space: nowrap
+    .cv-guide h2 {
+        font-size: 17px;
+        font-weight: 800;
     }
-
-    .cv-selected__details small {
-        color: var(--color-muted);
-        font-size: 11px
-    }
-
-.cv-selected__remove {
-    display: grid;
-    width: 30px;
-    height: 30px;
-    place-items: center;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--color-muted);
-    cursor: pointer
-}
-
-    .cv-selected__remove:hover {
-        background: var(--color-danger-soft);
-        color: var(--color-danger)
-    }
-
-.cv-submit {
-    width: 100%;
-    margin-top: 17px
-}
-
-.cv-side {
-    display: grid;
-    gap: 15px;
-    min-width: 0
-}
 
 .cv-guide__list {
     display: grid;
-    gap: 18px;
-    margin-top: 20px;
+    gap: 14px;
+    margin-top: 14px;
     padding: 0;
-    list-style: none
+    list-style: none;
 }
 
     .cv-guide__list li {
         display: flex;
         align-items: flex-start;
-        gap: 12px
+        gap: 12px;
     }
 
-        .cv-guide__list li > span {
-            display: grid;
-            flex: 0 0 30px;
-            width: 30px;
-            height: 30px;
-            place-items: center;
-            border-radius: 9px;
-            background: var(--color-primary-soft);
-            color: var(--color-primary);
-            font-size: 11px;
-            font-weight: 800
-        }
-
-    .cv-guide__list strong, .cv-guide__list small {
-        display: block
+    .cv-guide__list strong,
+    .cv-guide__list small {
+        display: block;
     }
 
     .cv-guide__list strong {
-        font-size: 12px;
-        color: var(--color-text)
+        font-size: 14px;
     }
 
     .cv-guide__list small {
-        margin-top: 4px;
-        font-size: 11px;
-        color: var(--color-muted);
-        line-height: 1.55
+        font-size: 13px;
+        line-height: 1.55;
     }
+
+.cv-guide__num {
+    display: grid;
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.cv-guide__copy {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.6;
+}
 
 .cv-hint {
     display: flex;
     gap: 10px;
-    padding: 17px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-card);
-    background: var(--color-surface-soft);
-    color: var(--color-muted)
+    padding: 0 4px;
+    font-size: 13px;
+    line-height: 1.65;
 }
 
     .cv-hint i {
-        margin-top: 3px;
-        color: var(--color-primary)
+        margin-top: 4px;
     }
 
-    .cv-hint p {
-        font-size: 11px;
-        line-height: 1.75
-    }
-
-.cv-notice {
-    display: flex;
-    align-items: flex-start;
+.cv-checklist {
+    display: grid;
     gap: 10px;
-    margin-bottom: 18px;
-    padding: 13px 16px;
-    border-radius: var(--radius-card);
-    font-size: 13px;
-    line-height: 1.6
+    margin-top: 12px;
+    padding: 0;
+    list-style: none;
 }
 
-.cv-notice--error {
-    border: 1px solid var(--color-danger-border);
-    background: var(--color-danger-soft);
-    color: var(--color-danger)
-}
-
-.cv-notice--success {
-    border: 1px solid var(--color-success-border);
-    background: var(--color-success-soft);
-    color: var(--color-success)
-}
-
-.cv-notice i {
-    margin-top: 3px
-}
-
-.cv-validation {
-    color: var(--color-danger);
-    font-size: 12px
-}
-
-    .cv-validation:empty {
-        display: none
+    .cv-checklist li {
+        display: flex;
+        gap: 10px;
+        font-size: 14px;
+        line-height: 1.55;
     }
 
-.cv-review .cv-section-label {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    margin: 6px 0 17px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--color-border);
-    color: var(--color-text);
-    font-size: 13px;
-    font-weight: 800
+    .cv-checklist i {
+        margin-top: 4px;
+    }
+/* #endregion */
+
+/* #region Bước 2: form kiểm tra */
+.cv-review {
+    display: grid;
+    gap: 26px;
 }
 
-.cv-section-label i {
-    color: var(--color-primary)
+.cv-review__title {
+    margin-bottom: 12px;
+    font-size: 15px;
+    font-weight: 800;
 }
 
 .cv-fields {
     display: grid;
-    grid-template-columns: repeat(2,minmax(0,1fr));
-    gap: 17px;
-    margin-bottom: 29px
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
 }
 
 .cv-fields__full {
-    grid-column: 1/-1
+    grid-column: 1 / -1;
 }
 
 .cv-textarea {
     min-height: 122px;
-    padding: 13px 14px;
+    padding: 12px 14px;
+    line-height: 1.6;
     resize: vertical;
-    line-height: 1.6
 }
 
 .cv-field-help {
-    color: var(--color-muted);
-    font-size: 11px
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+}
+
+/* Luồng AI nhận diện: mỗi nhóm có chấm màu, đường dọc nối sang nhóm sau */
+.cv-flow {
+    margin: 0 0 4px;
+    padding: 0;
+    list-style: none;
+}
+
+.cv-flow__group {
+    position: relative;
+    padding: 0 0 10px 30px;
+}
+
+    .cv-flow__group::before,
+    .cv-flow__group::after {
+        position: absolute;
+        content: "";
+    }
+
+    /* Chấm màu của nhóm */
+    .cv-flow__group::before {
+        top: 4px;
+        left: 0;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+    }
+
+    /* Đường nối dọc, nhóm cuối không có */
+    .cv-flow__group::after {
+        top: 22px;
+        bottom: 0;
+        left: 7px;
+        width: 2px;
+    }
+
+    .cv-flow__group:last-child {
+        padding-bottom: 0;
+    }
+
+        .cv-flow__group:last-child::after {
+            display: none;
+        }
+
+.cv-flow__label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.cv-flow__items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+    .cv-flow__items > li {
+        padding-bottom: 12px;
+        overflow-wrap: anywhere;
+    }
+
+.cv-flow__title,
+.cv-flow__meta {
+    display: block;
+}
+
+.cv-flow__title {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.cv-flow__meta {
+    font-size: 13px;
 }
 
 .cv-review__actions {
@@ -496,166 +470,152 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
-    gap: 11px;
-    margin-top: 28px;
+    gap: 12px;
     padding-top: 20px;
-    border-top: 1px solid var(--color-border)
+    border-top: 2px dashed;
+}
+/* #endregion */
+
+/* #region Trang Đang lưu CV */
+.cv-saved-page {
+    display: flex;
+    justify-content: center;
+    padding-top: 72px;
 }
 
-.cv-button-secondary {
-    background: var(--color-surface)
-}
-
-.cv-guide__copy {
-    margin-top: 10px;
-    color: var(--color-muted);
-    font-size: 12px;
-    line-height: 1.7
-}
-
-.cv-review__tips {
+.cv-saved {
     display: grid;
-    gap: 13px;
-    margin-top: 19px;
-    padding: 0;
-    list-style: none
+    width: 100%;
+    max-width: 480px;
+    justify-items: center;
+    gap: 14px;
+    padding: 40px 34px;
+    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    text-align: center;
 }
 
-    .cv-review__tips li {
-        display: flex;
-        gap: 9px;
-        color: var(--color-text-soft);
-        font-size: 12px;
-        line-height: 1.65
-    }
+.cv-saved__state {
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+}
 
-    .cv-review__tips i {
-        margin-top: 4px;
-        color: var(--color-success)
+.cv-saved__spinner {
+    position: relative;
+    display: grid;
+    width: 96px;
+    height: 96px;
+    place-items: center;
+}
+
+.cv-saved__ring {
+    position: absolute;
+    inset: 0;
+    border: 8px solid;
+    border-radius: 50%;
+    animation: cv-saved-spin 1s linear infinite;
+}
+
+.cv-saved__bubble {
+    display: grid;
+    width: 56px;
+    height: 56px;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 22px;
+}
+
+.cv-saved__alert {
+    display: grid;
+    width: 80px;
+    height: 80px;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 34px;
+}
+
+.cv-saved__title {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.cv-saved__text {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.cv-saved__actions {
+    margin-top: 6px;
+}
+
+.cv-saved .cv-notice {
+    margin: 0;
+}
+
+@keyframes cv-saved-spin {
+    to {
+        transform: rotate(360deg);
     }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cv-saved__ring {
+        animation-duration: 3s;
+    }
+}
 /* #endregion */
 
 /* #region Responsive */
-@media(max-width:850px) {
-    .cv-layout, .cv-layout--review {
-        grid-template-columns: minmax(0,1fr)
-    }
-
-    .cv-side {
-        grid-template-columns: repeat(2,minmax(0,1fr))
-    }
-
-    .cv-layout--review .cv-side {
-        grid-template-columns: 1fr
-    }
-
-    .cv-guide__list {
-        gap: 12px
+@media (max-width: 850px) {
+    .cv-layout {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 
-@media(max-width:600px) {
+@media (max-width: 680px) {
     .cv-page__main {
         width: calc(100% - 28px);
-        padding: 26px 0 36px
+        padding: 22px 0 40px;
     }
 
-    .cv-heading {
-        display: block;
-        margin-bottom: 18px
+    .cv-upload-banner {
+        padding: 24px 20px;
     }
 
-        .cv-heading p {
-            font-size: 13px
-        }
-
-    .cv-phase {
-        margin-top: 16px
+    .cv-track {
+        margin-right: 0;
     }
 
-    .cv-steps {
-        gap: 9px;
-        padding: 13px 12px;
-        margin-bottom: 18px
+    .cv-track__node {
+        width: 92px;
     }
 
-    .cv-step {
-        gap: 7px
-    }
 
-    .cv-step__num {
-        flex-basis: 28px;
-        width: 28px;
-        height: 28px
-    }
-
-    .cv-step strong {
-        font-size: 11px
-    }
-
-    .cv-step small {
-        font-size: 10px;
-        white-space: normal
-    }
-
-    .cv-steps__line {
-        min-width: 9px;
-        flex: 1 1 10px
+    .cv-track__line {
+        width: 40px;
     }
 
     .cv-card {
-        padding: 20px 16px
-    }
-
-    .cv-side {
-        grid-template-columns: 1fr
-    }
-
-    .cv-card__heading {
-        gap: 10px
+        padding: 20px 18px;
     }
 
     .cv-dropzone {
-        min-height: 235px
+        min-height: 230px;
+        padding: 26px 16px;
     }
 
     .cv-fields {
         grid-template-columns: 1fr;
-        gap: 15px
     }
 
-    .cv-fields__full {
-        grid-column: auto
+    .cv-saved-page {
+        padding-top: 32px;
     }
 
-    .cv-review__actions {
-        flex-direction: column-reverse;
-        align-items: stretch
+    .cv-saved {
+        padding: 32px 22px;
     }
-
-        .cv-review__actions .button {
-            width: 100%
-        }
-}
-/* #endregion */
-
-/* #region Trạng thái dùng chung cho các trang CV */
-/* .cv-notice { display:flex } ghi đè thuộc tính hidden của trình duyệt -> ép ẩn lại */
-.cv-page [hidden] {
-    display: none !important
-}
-
-.cv-notice--info {
-    border: 1px solid var(--color-border);
-    background: var(--color-primary-soft);
-    color: var(--color-text)
-}
-
-    .cv-notice--info i {
-        color: var(--color-primary)
-    }
-
-.cv-review .form-field + .cv-section-label {
-    margin-top: 28px
 }
 /* #endregion */

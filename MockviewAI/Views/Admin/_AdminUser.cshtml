@@ -1,0 +1,21 @@
+@model MockviewAI.Models.ViewModels.Admin.AdminUserRowViewModel
+@*
+    [ADMIN]
+    Ảnh đại diện (hoặc chữ cái đầu) + tên + email của một người dùng.
+*@
+<div class="admin-user">
+    <span class="admin-user__avatar" aria-hidden="true">
+        @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl) && Model.AvatarUrl.StartsWith("https://"))
+        {
+            <img src="@Model.AvatarUrl" alt="" referrerpolicy="no-referrer" />
+        }
+        else
+        {
+            @Model.DisplayName.Substring(0, 1).ToUpper()
+        }
+    </span>
+    <span class="admin-user__text">
+        <strong>@Model.DisplayName</strong>
+        <small>@Model.Email</small>
+    </span>
+</div>

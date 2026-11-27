@@ -1,13 +1,10 @@
 @model MockviewAI.Models.ViewModels.Admin.AdminDashboardViewModel
-@*
-    #region Admin/Index
-    <summary>[ADMIN] Tổng quan: 4 số liệu chính, buổi luyện 14 ngày, top vị trí, người dùng mới, góp ý gần đây.</summary>
-    #endregion
-*@
+
 @{
     ViewData["Title"] = "Quản trị - Tổng quan";
     var invariant = System.Globalization.CultureInfo.InvariantCulture;
     int maxPerDay = Math.Max(1, Model.SessionsPerDay.Select(d => d.Count).DefaultIfEmpty(0).Max());
+    int totalPerDay = Model.SessionsPerDay.Sum(d => d.Count);
     int maxPosition = Math.Max(1, Model.TopPositions.Select(p => p.Count).DefaultIfEmpty(0).Max());
     double completionRate = Model.TotalSessions == 0 ? 0 : Model.CompletedSessions * 100.0 / Model.TotalSessions;
 }
@@ -17,91 +14,87 @@
 }
 
 <main class="page-shell admin-page">
-    <header class="page-header">
-        <div class="page-header__content">
-            <span class="page-header__eyebrow">KHU QUẢN TRỊ</span>
-            <h1 class="page-header__title">Tổng quan hệ thống</h1>
-            <p class="page-header__description">Số liệu người dùng, buổi luyện và góp ý của MockviewAI (chỉ xem).</p>
-        </div>
-    </header>
-
     <partial name="_AdminTabs" />
 
+    @* #region Số liệu chính *@
     <section class="admin-stats" aria-label="Số liệu chính">
-        <div class="stat-card">
-            <span class="stat-card__label">Người dùng</span>
-            <span class="stat-card__value">@Model.TotalUsers</span>
-            <span class="stat-card__description">+@Model.NewUsers7Days mới · @Model.ActiveUsers7Days đăng nhập trong 7 ngày</span>
+        <div class="admin-stat">
+            <span class="admin-stat__label">Người dùng</span>
+            <strong class="admin-stat__value">@Model.TotalUsers</strong>
+            <span class="admin-stat__note">+@Model.NewUsers7Days mới · @Model.ActiveUsers7Days đăng nhập trong 7 ngày</span>
         </div>
-        <div class="stat-card">
-            <span class="stat-card__label">Buổi luyện</span>
-            <span class="stat-card__value">@Model.TotalSessions</span>
-            <span class="stat-card__description">@Model.Sessions7Days buổi trong 7 ngày · @completionRate.ToString("0")% hoàn thành</span>
+        <div class="admin-stat">
+            <span class="admin-stat__label">Buổi luyện</span>
+            <strong class="admin-stat__value">@Model.TotalSessions</strong>
+            <span class="admin-stat__note">@Model.Sessions7Days trong 7 ngày · @completionRate.ToString("0")% hoàn thành</span>
         </div>
-        <div class="stat-card">
-            <span class="stat-card__label">Điểm trung bình</span>
-            <span class="stat-card__value">@(Model.AverageScore?.ToString("0.0") ?? "—")</span>
-            <span class="stat-card__description">Trên @Model.CompletedSessions buổi đã chấm (thang 100)</span>
+        <div class="admin-stat">
+            <span class="admin-stat__label">Điểm trung bình</span>
+            <strong class="admin-stat__value">@(Model.AverageScore?.ToString("0.0") ?? "—")</strong>
+            <span class="admin-stat__note">Trên @Model.CompletedSessions buổi đã chấm, thang 100</span>
         </div>
-        <div class="stat-card">
-            <span class="stat-card__label">Góp ý</span>
-            <span class="stat-card__value">@Model.TotalFeedbacks</span>
-            <span class="stat-card__description">Dễ dùng: @(Model.AverageEaseRating?.ToString("0.0") ?? "—")/5 sao</span>
+        <div class="admin-stat">
+            <span class="admin-stat__label">Góp ý</span>
+            <strong class="admin-stat__value">@Model.TotalFeedbacks</strong>
+            <span class="admin-stat__note">Dễ dùng trung bình @(Model.AverageEaseRating?.ToString("0.0") ?? "—")/5 sao</span>
         </div>
     </section>
+    @* #endregion *@
 
-    <div class="admin-grid">
-        <section class="surface-card admin-panel" aria-labelledby="chart-title">
-            <span class="section-header__eyebrow">14 NGÀY GẦN NHẤT</span>
-            <h2 id="chart-title" class="section-header__title">Buổi luyện mỗi ngày</h2>
-            <div class="admin-bars" role="list">
+    @* #region Biểu đồ + vị trí luyện nhiều nhất *@
+    <section class="admin-panel admin-chart" aria-labelledby="chart-title">
+        <div class="admin-chart__main">
+            <div class="admin-panel__head">
+                <h2 id="chart-title" class="admin-panel__title">Buổi luyện 14 ngày qua</h2>
+                <span class="admin-muted">Tổng @totalPerDay buổi</span>
+            </div>
+            <ol class="admin-bars">
                 @foreach (var day in Model.SessionsPerDay)
                 {
-                    var height = day.Count * 100.0 / maxPerDay;
-                    <div class="admin-bars__item" role="listitem" title="@day.Day.ToString("dd/MM"): @day.Count buổi">
+                    // Ngày không có buổi nào vẫn có vạch mỏng để thấy trục
+                    var height = Math.Max(day.Count * 100.0 / maxPerDay, 3);
+                    <li class="admin-bars__item" title="@day.Day.ToString("dd/MM"): @day.Count buổi">
                         <span class="admin-bars__value">@(day.Count > 0 ? day.Count.ToString() : "")</span>
                         <span class="admin-bars__bar" style="height:@height.ToString("0.#", invariant)%"></span>
-                        <span class="admin-bars__label">@day.Day.ToString("dd/MM")</span>
-                    </div>
+                        <span class="admin-bars__label">@day.Day.ToString("dd")</span>
+                    </li>
                 }
-            </div>
-        </section>
+            </ol>
+        </div>
 
-        <section class="surface-card admin-panel" aria-labelledby="position-title">
-            <span class="section-header__eyebrow">TOP 5</span>
-            <h2 id="position-title" class="section-header__title">Vị trí được luyện nhiều nhất</h2>
+        <div class="admin-chart__side">
+            <h3 class="admin-panel__title admin-panel__title--small">Vị trí luyện nhiều nhất</h3>
             @if (!Model.TopPositions.Any())
             {
-                <p class="admin-muted admin-empty">Chưa có buổi luyện nào.</p>
+                <p class="admin-muted">Chưa có buổi luyện nào.</p>
             }
             else
             {
-                <ul class="admin-ranks">
+                <ol class="admin-ranks">
                     @foreach (var p in Model.TopPositions)
                     {
                         <li class="admin-ranks__item">
                             <span class="admin-ranks__name">@p.Position</span>
                             <span class="admin-ranks__track"><span class="admin-ranks__fill" style="width:@((p.Count * 100.0 / maxPosition).ToString("0.#", invariant))%"></span></span>
-                            <span class="admin-ranks__count">@p.Count</span>
+                            <strong class="admin-ranks__count">@p.Count</strong>
                         </li>
                     }
-                </ul>
+                </ol>
             }
-        </section>
-    </div>
+        </div>
+    </section>
+    @* #endregion *@
 
+    @* #region Người dùng mới + góp ý gần đây *@
     <div class="admin-grid">
-        <section class="surface-card admin-panel" aria-labelledby="recent-users-title">
+        <section class="admin-panel" aria-labelledby="recent-users-title">
             <div class="admin-panel__head">
-                <div>
-                    <span class="section-header__eyebrow">MỚI ĐĂNG KÝ</span>
-                    <h2 id="recent-users-title" class="section-header__title">Người dùng mới</h2>
-                </div>
-                <a class="text-link" href="/Admin/Users">Xem tất cả</a>
+                <h2 id="recent-users-title" class="admin-panel__title">Người dùng mới</h2>
+                <a class="admin-link" href="/Admin/Users">Xem tất cả</a>
             </div>
             @if (!Model.RecentUsers.Any())
             {
-                <p class="admin-muted admin-empty">Chưa có người dùng nào.</p>
+                <p class="admin-muted">Chưa có người dùng nào.</p>
             }
             else
             {
@@ -109,10 +102,7 @@
                     @foreach (var u in Model.RecentUsers)
                     {
                         <li class="admin-list__item">
-                            <div>
-                                <strong>@u.DisplayName</strong>
-                                <span class="admin-muted">@u.Email</span>
-                            </div>
+                            <partial name="_AdminUser" model="u" />
                             <span class="admin-muted">@u.CreateAt.ToString("dd/MM/yyyy")</span>
                         </li>
                     }
@@ -120,17 +110,14 @@
             }
         </section>
 
-        <section class="surface-card admin-panel" aria-labelledby="recent-feedback-title">
+        <section class="admin-panel" aria-labelledby="recent-feedback-title">
             <div class="admin-panel__head">
-                <div>
-                    <span class="section-header__eyebrow">MỚI NHẤT</span>
-                    <h2 id="recent-feedback-title" class="section-header__title">Góp ý gần đây</h2>
-                </div>
-                <a class="text-link" href="/Admin/Feedbacks">Xem tất cả</a>
+                <h2 id="recent-feedback-title" class="admin-panel__title">Góp ý gần đây</h2>
+                <a class="admin-link" href="/Admin/Feedbacks">Xem tất cả</a>
             </div>
             @if (!Model.RecentFeedbacks.Any())
             {
-                <p class="admin-muted admin-empty">Chưa có góp ý nào.</p>
+                <p class="admin-muted">Chưa có góp ý nào.</p>
             }
             else
             {
@@ -140,11 +127,15 @@
                         <li class="admin-list__item admin-list__item--stack">
                             <div class="admin-feedback__head">
                                 <partial name="_AdminStars" model="f.EaseRating" />
-                                <span class="admin-muted">@f.UserEmail · @f.CreatedAt.ToString("dd/MM HH:mm")</span>
+                                <span class="admin-muted">@(string.IsNullOrWhiteSpace(f.UserName) ? f.UserEmail : f.UserName) · @f.CreatedAt.ToString("dd/MM HH:mm")</span>
                             </div>
                             @if (!string.IsNullOrWhiteSpace(f.Comment))
                             {
                                 <p class="admin-feedback__comment">@f.Comment</p>
+                            }
+                            else
+                            {
+                                <p class="admin-feedback__comment admin-feedback__comment--empty">Không có nội dung</p>
                             }
                         </li>
                     }
@@ -152,4 +143,5 @@
             }
         </section>
     </div>
+    @* #endregion *@
 </main>

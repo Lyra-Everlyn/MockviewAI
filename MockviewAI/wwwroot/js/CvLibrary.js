@@ -15,7 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const fullNotice = document.getElementById('cvFullNotice');
     const storageError = document.getElementById('cvStorageError');
     const uploadLink = document.getElementById('cvUploadLink');
+    const slots = document.getElementById('cvSlots');
     if (!CV || !list) return;
+
+    const DAY_MS = 24 * 60 * 60 * 1000;
 
     //#region DOM helpers
     function el(tag, className, text) {
@@ -40,6 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function formatDate(date) {
         return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    /// <summary>Số ngày còn lại trước khi trình duyệt tự xoá CV.</summary>
+    function daysLeftText(item) {
+        const days = Math.ceil((CV.expiresAt(item).getTime() - Date.now()) / DAY_MS);
+        return days > 0 ? 'Còn ' + days + ' ngày' : 'Hết hạn hôm nay';
     }
 
     function asList(value) {
@@ -72,88 +81,132 @@ document.addEventListener('DOMContentLoaded', () => {
     //#endregion
 
     //#region Details
-    function section(parent, label, iconClass) {
-        const wrap = el('div', 'cv-library__section');
-        const heading = el('div', 'cv-section-label');
-        heading.append(icon(iconClass), document.createTextNode(' ' + label));
-        wrap.append(heading);
+    /// <summary>Một phần có tiêu đề ◆ (dùng chung cho cột chính và cột phụ).</summary>
+    function section(parent, label) {
+        const wrap = el('section', 'cv-detail__section');
+        wrap.append(el('h3', 'cv-detail__heading section-header__title--marked', label));
         parent.append(wrap);
         return wrap;
     }
 
-    function bulletList(parent, lines) {
-        const ul = el('ul', 'cv-review__tips');
-        lines.forEach(line => ul.append(el('li', null, line)));
-        parent.append(ul);
+    function chips(values, className) {
+        const ul = el('ul', 'cv-detail__chips' + (className ? ' ' + className : ''));
+        values.forEach(value => ul.append(el('li', 'cv-detail__chip', value)));
+        return ul;
     }
 
-    /// <summary>Một mục có tiêu đề, dòng phụ, mô tả và danh sách gạch đầu dòng (dự án, kinh nghiệm).</summary>
-    function entry(parent, title, meta, description, bullets) {
-        const box = el('div', 'cv-library__entry');
-        box.append(el('strong', null, title));
-        if (meta) box.append(el('small', null, meta));
-        if (description) box.append(el('p', null, description));
-        const lines = asList(bullets);
-        if (lines.length) {
-            const ul = el('ul');
-            lines.forEach(line => ul.append(el('li', null, line)));
-            box.append(ul);
-        }
-        parent.append(box);
+    /// <summary>Gạch đầu dòng chi tiết được gập sau nút "Xem N ý chính".</summary>
+    function moreList(lines) {
+        const label = 'Xem ' + lines.length + ' ý chính';
+        const more = el('details', 'cv-detail__more');
+        const summary = el('summary', null, label);
+        const ul = el('ul', 'cv-detail__bullets');
+        lines.forEach(line => ul.append(el('li', null, line)));
+        more.append(summary, ul);
+        more.addEventListener('toggle', () => { summary.textContent = more.open ? 'Ẩn bớt' : label; });
+        return more;
+    }
+
+    /// <summary>Một mục trong luồng: tên, dòng phụ, mô tả, công nghệ, ý chính.</summary>
+    function flowItem(title, meta, description, tech, bullets) {
+        const li = el('li');
+        li.append(el('strong', 'cv-flow__title', title || 'Chưa có tên'));
+        if (meta) li.append(el('span', 'cv-flow__meta', meta));
+        if (description) li.append(el('p', 'cv-detail__desc', description));
+        if (tech.length) li.append(chips(tech, 'cv-detail__chips--small'));
+        if (bullets.length) li.append(moreList(bullets));
+        return li;
+    }
+
+    function flowGroup(kind, label, items) {
+        const group = el('li', 'cv-flow__group cv-flow__group--' + kind);
+        const ul = el('ul', 'cv-flow__items');
+        items.forEach(item => ul.append(item));
+        group.append(el('span', 'cv-flow__label', label + ' · ' + items.length), ul);
+        return group;
+    }
+
+    /// <summary>Tên đậm + một dòng phụ (học vấn, chứng chỉ ở cột phụ).</summary>
+    function sideEntry(parent, title, meta) {
+        const p = el('p', 'cv-detail__side-entry');
+        p.append(el('strong', null, title));
+        if (meta) p.append(el('span', null, meta));
+        parent.append(p);
     }
 
     function buildDetails(data) {
         const box = el('div', 'cv-library__details');
         box.hidden = true;
 
-        if (data.fullName) box.append(el('p', null, 'Họ tên: ' + data.fullName));
-        if (data.totalYearsOfExperience) box.append(el('p', null, 'Kinh nghiệm: khoảng ' + data.totalYearsOfExperience + ' năm'));
-        if (data.careerObjective) {
-            section(box, 'Mục tiêu nghề nghiệp', 'fa-regular fa-flag').append(el('p', null, data.careerObjective));
-        }
-
+        const jobs = asList(data.workExperiences);
+        const projects = asList(data.projects);
+        const schools = asList(data.educations);
+        const certs = asList(data.certificationsAndAwards);
         const hard = asList(data.hardSkills);
         const soft = asList(data.softSkills);
-        if (hard.length || soft.length) {
-            const s = section(box, 'Kỹ năng', 'fa-solid fa-code');
-            if (hard.length) s.append(el('p', null, 'Chuyên môn: ' + hard.join(', ')));
-            if (soft.length) s.append(el('p', null, 'Kỹ năng mềm: ' + soft.join(', ')));
+
+        //#region Hàng tóm tắt
+        const facts = el('div', 'cv-detail__facts');
+        [
+            ['Họ tên', data.fullName],
+            ['Kinh nghiệm', data.totalYearsOfExperience ? 'Khoảng ' + data.totalYearsOfExperience + ' năm' : ''],
+            ['Học vấn', schools.length ? [schools[0].schoolName, schools[0].major].filter(Boolean).join(' · ') : '']
+        ].filter(([, value]) => value).forEach(([label, value]) => {
+            const fact = el('div', 'cv-detail__fact');
+            fact.append(el('span', null, label), el('strong', null, value));
+            facts.append(fact);
+        });
+        if (facts.childElementCount) box.append(facts);
+        //#endregion
+
+        const cols = el('div', 'cv-detail__cols');
+        const main = el('div', 'cv-detail__main');
+        const side = el('aside', 'cv-detail__side');
+
+        //#region Cột chính
+        if (data.careerObjective) {
+            section(main, 'Mục tiêu nghề nghiệp').append(el('p', 'cv-detail__objective', data.careerObjective));
         }
 
-        const jobs = asList(data.workExperiences);
-        if (jobs.length) {
-            const s = section(box, 'Kinh nghiệm làm việc', 'fa-solid fa-briefcase');
-            jobs.forEach(j => entry(s,
-                [j.jobTitle, j.companyName].filter(Boolean).join(' · '),
-                j.duration,
-                j.mainResponsibilities,
-                j.achievements));
-        }
-
-        const projects = asList(data.projects);
-        if (projects.length) {
-            const s = section(box, 'Dự án', 'fa-solid fa-diagram-project');
-            projects.forEach(p => {
-                const tech = asList(p.technologies);
-                entry(s,
+        if (jobs.length || projects.length) {
+            const flow = el('ol', 'cv-flow');
+            if (jobs.length) {
+                flow.append(flowGroup('job', 'Kinh nghiệm', jobs.map(j => flowItem(
+                    j.jobTitle,
+                    [j.companyName, j.duration].filter(Boolean).join(' · '),
+                    j.mainResponsibilities,
+                    [],
+                    asList(j.achievements)))));
+            }
+            if (projects.length) {
+                flow.append(flowGroup('project', 'Dự án', projects.map(p => flowItem(
                     p.name,
                     [p.context, p.role, p.duration].filter(Boolean).join(' · '),
                     p.description,
-                    asList(p.responsibilities).concat(tech.length ? ['Công nghệ: ' + tech.join(', ')] : []));
-            });
+                    asList(p.technologies),
+                    asList(p.responsibilities)))));
+            }
+            section(main, 'Kinh nghiệm & dự án').append(flow);
         }
+        //#endregion
 
-        const schools = asList(data.educations);
+        //#region Cột phụ
+        if (hard.length) section(side, 'Kỹ năng chuyên môn').append(chips(hard));
+        if (soft.length) section(side, 'Kỹ năng mềm').append(chips(soft, 'cv-detail__chips--soft'));
         if (schools.length) {
-            bulletList(section(box, 'Học vấn', 'fa-solid fa-graduation-cap'), schools.map(e =>
-                [e.schoolName, e.major, e.degree].filter(Boolean).join(' · ') + (e.gpa ? ' (GPA ' + e.gpa + ')' : '')));
+            const s = section(side, 'Học vấn');
+            schools.forEach(e => sideEntry(s, e.schoolName,
+                [e.major, e.degree, e.gpa ? 'GPA ' + e.gpa : ''].filter(Boolean).join(' · ')));
         }
-
-        const certs = asList(data.certificationsAndAwards);
         if (certs.length) {
-            bulletList(section(box, 'Chứng chỉ & giải thưởng', 'fa-solid fa-award'), certs.map(c =>
-                [c.title, c.issuer].filter(Boolean).join(' · ') + (c.year ? ' (' + c.year + ')' : '')));
+            const s = section(side, 'Chứng chỉ & giải thưởng');
+            certs.forEach(c => sideEntry(s, c.title, [c.issuer, c.year].filter(Boolean).join(' · ')));
         }
+        //#endregion
+
+        if (main.childElementCount) cols.append(main);
+        if (side.childElementCount) cols.append(side);
+        if (cols.childElementCount) box.append(cols);
         return box;
     }
     //#endregion
@@ -162,38 +215,43 @@ document.addEventListener('DOMContentLoaded', () => {
     function buildCard(item) {
         const data = item.data || {};
         const title = CV.titleOf(item);
-        const card = el('article', 'cv-card cv-library__item' + (item.isDefault ? ' is-default' : ''));
+        const card = el('article', 'cv-library__item' + (item.isDefault ? ' is-default' : ''));
 
-        const head = el('div', 'cv-card__heading');
-        const iconBox = el('span', 'cv-card__icon');
+        const head = el('div', 'cv-library__head');
+        const iconBox = el('span', 'cv-library__icon');
         iconBox.append(icon('fa-regular fa-file-lines'));
 
-        const text = el('div');
-        const h2 = el('h2', null, title);
+        const text = el('div', 'cv-library__info');
+        const h2 = el('h2', 'cv-library__title', title);
         if (item.isDefault) {
-            const badge = el('span', 'cv-phase cv-library__badge');
+            const badge = el('span', 'cv-library__badge');
             badge.append(icon('fa-solid fa-star'), document.createTextNode(' Mặc định'));
-            h2.append(document.createTextNode(' '), badge);
+            h2.append(badge);
         }
-        const meta = [data.fullName, asList(data.hardSkills).length + ' kỹ năng',
-        'Lưu ngày ' + formatDate(new Date(item.savedAt)), 'Hết hạn ' + formatDate(CV.expiresAt(item))]
-            .filter(Boolean).join(' · ');
-        text.append(h2, el('p', null, meta));
+
+        const meta = el('div', 'cv-library__meta');
+        [data.fullName, asList(data.hardSkills).length + ' kỹ năng',
+            'Lưu ngày ' + formatDate(new Date(item.savedAt)), daysLeftText(item)]
+            .filter(Boolean)
+            .forEach(value => meta.append(el('span', 'cv-library__pill', value)));
+
+        text.append(h2, meta);
         head.append(iconBox, text);
 
         const details = buildDetails(data);
-        const actions = el('div', 'cv-review__actions cv-library__actions');
+        const actions = el('div', 'cv-library__actions');
 
-        const viewBtn = button('Xem chi tiết', 'fa-regular fa-eye', 'button--secondary cv-button-secondary');
+        const viewBtn = button('Xem chi tiết', 'fa-regular fa-eye', 'button--info button--small');
         viewBtn.setAttribute('aria-expanded', 'false');
         viewBtn.addEventListener('click', () => {
             details.hidden = !details.hidden;
             viewBtn.setAttribute('aria-expanded', String(!details.hidden));
+            viewBtn.lastChild.textContent = details.hidden ? ' Xem chi tiết' : ' Thu gọn';
         });
         actions.append(viewBtn);
 
         if (!item.isDefault) {
-            const defaultBtn = button('Dùng CV này', 'fa-regular fa-star', 'button--secondary cv-button-secondary');
+            const defaultBtn = button('Dùng CV này', 'fa-regular fa-star', 'button--secondary button--small');
             defaultBtn.addEventListener('click', () => {
                 CV.setDefault(item.id);
                 render();
@@ -202,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
             actions.append(defaultBtn);
         }
 
-        const deleteBtn = button('Xoá', 'fa-regular fa-trash-can', 'button--secondary cv-button-secondary');
+        const deleteBtn = button('Xoá', 'fa-regular fa-trash-can', 'button--small cv-library__delete');
         deleteBtn.addEventListener('click', async () => {
             if (!(await confirmDelete(title))) return;
             CV.remove(item.id);
@@ -217,6 +275,18 @@ document.addEventListener('DOMContentLoaded', () => {
     //#endregion
 
     //#region Render
+    /// <summary>Tô các ô lưu trữ trên banner theo số CV đã lưu.</summary>
+    function renderSlots(used) {
+        if (!slots) return;
+        const cells = [];
+        for (let i = 0; i < CV.max; i++) {
+            const cell = el('span', 'cv-slot' + (i < used ? ' is-filled' : ''));
+            if (i < used) cell.append(icon('fa-regular fa-file-lines'));
+            cells.push(cell);
+        }
+        slots.replaceChildren(...cells);
+    }
+
     function render() {
         const usable = CV.hasOwner && CV.isAvailable();
         storageError.hidden = usable;
@@ -225,6 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
         list.replaceChildren(...items.map(buildCard));
         empty.hidden = !usable || items.length > 0;
         count.textContent = items.length + '/' + CV.max + ' CV';
+        renderSlots(items.length);
 
         const blocked = !usable || items.length >= CV.max;
         fullNotice.hidden = !usable || items.length < CV.max;

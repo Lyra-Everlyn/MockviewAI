@@ -1,7 +1,7 @@
 //#region Feedback
 /// <summary>
 /// [FEEDBACK] 
-/// Trang Góp ý: nhãn và tô sao theo mức đánh giá, đếm số ký tự góp ý. Giao diện nằm trong CSS dùng chung.
+/// Trang Góp ý: nhãn và tô sao theo mức đánh giá, đếm số ký tự góp ý. Giao diện nằm trong Feedback.css, màu trong các file theme.
 /// </summary>
 //#endregion
 (() => {
@@ -14,16 +14,16 @@
     };
 
     //#region Đánh giá sao
-    const stars = document.querySelectorAll('.rating-control__star input[name="easeRating"]');
+    const stars = document.querySelectorAll('.feedback-star input[name="easeRating"]');
     const ratingLabel = document.getElementById('rating-label');
     const ratingValue = document.getElementById('rating-value');
     const updateRating = () => {
-        const selected = document.querySelector('.rating-control__star input[name="easeRating"]:checked');
+        const selected = document.querySelector('.feedback-star input[name="easeRating"]:checked');
         if (!selected) return;
         const n = Number(selected.value);
         if (ratingLabel) ratingLabel.textContent = labels[n];
         if (ratingValue) ratingValue.textContent = n + '/5';
-        stars.forEach(input => input.closest('.rating-control__star').classList.toggle('is-selected', Number(input.value) <= n));
+        stars.forEach(input => input.closest('.feedback-star').classList.toggle('is-selected', Number(input.value) <= n));
     };
     stars.forEach(input => input.addEventListener('change', updateRating));
     updateRating();

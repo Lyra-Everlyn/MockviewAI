@@ -94,4 +94,7 @@
         public int TotalCount { get; set; }
         public int TotalPages => PageSize <= 0 ? 1 : Math.Max(1, (int)Math.Ceiling(TotalCount / (double)PageSize));
     }
+
+    /// <summary>[ADMIN] Tổng số người dùng và góp ý, hiện cạnh tên tab ở mọi trang quản trị.</summary>
+    public record AdminTabCounts(int Users, int Feedbacks);
 }

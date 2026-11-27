@@ -10,6 +10,9 @@ namespace MockviewAI.Services.Admin
     {
         Task<AdminDashboardViewModel> GetDashboardAsync();
 
+        /// <summary>Tổng số người dùng và góp ý cho thanh tab.</summary>
+        Task<AdminTabCounts> GetTabCountsAsync();
+
         /// <param name="search">Tìm theo email hoặc tên (tối đa 100 ký tự).</param>
         /// <param name="status">Active / Locked / Inactive; giá trị khác = không lọc.</param>
         Task<AdminUserListViewModel> GetUsersAsync(string? search, string? status, int page);

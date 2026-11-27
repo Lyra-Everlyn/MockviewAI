@@ -20,32 +20,25 @@
     <partial name="Partials/_AppNavigation" />
 
     <main class="page-shell thankyou-page">
-        <section class="thankyou-panel" aria-labelledby="thankyou-title">
-            <span class="thankyou-panel__icon" aria-hidden="true">
-                <i class="fa-solid fa-check"></i>
+        <section class="thankyou-card" aria-labelledby="thankyou-title">
+            @* Dấu tick nổi giữa hai vòng tròn đồng tâm *@
+            <span class="thankyou-card__badge" aria-hidden="true">
+                <span class="thankyou-card__check"><i class="fa-solid fa-check"></i></span>
             </span>
 
-            <h1 class="thankyou-panel__title" id="thankyou-title">
-                Cảm ơn bạn đã góp ý!
-            </h1>
-            <p class="thankyou-panel__description">
-                Ý kiến của bạn đã được ghi nhận và sẽ giúp nhóm cải thiện phiên bản tiếp theo.
-            </p>
+            <h1 class="thankyou-card__title" id="thankyou-title">Đã gửi góp ý</h1>
+            <p class="thankyou-card__text">Cảm ơn bạn. Nhóm đã ghi nhận ý kiến và sẽ dùng để cải thiện phiên bản tiếp theo.</p>
 
-            <div class="thankyou-panel__actions">
-                <a class="button button--primary" href="/Home">
-                    <i class="fa-solid fa-house" aria-hidden="true"></i>
-                    Về trang chủ
-                </a>
-                <a class="button button--secondary" href="/Interview/Create">
-                    <i class="fa-solid fa-microphone" aria-hidden="true"></i>
+            <div class="thankyou-card__actions">
+                <a class="button button--primary button--icon" href="/Interview/Create">
+                    <span class="button__icon" aria-hidden="true"><i class="fa-solid fa-microphone"></i></span>
                     Luyện thêm một buổi
                 </a>
+                <a class="button button--secondary" href="/Home">Về trang chủ</a>
             </div>
         </section>
     </main>
 
     <partial name="Partials/_Notify" />
-    <partial name="Partials/_AppFooter" />
 </body>
 </html>

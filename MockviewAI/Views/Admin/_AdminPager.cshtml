@@ -1,0 +1,19 @@
+@model (int Page, int TotalPages, Func<int, string> PageUrl)
+@*
+    [ADMIN]
+    Phân trang Trước / Sau dùng chung cho trang Người dùng và Góp ý. Chỉ hiện khi có hơn 1 trang.
+*@
+@if (Model.TotalPages > 1)
+{
+    <nav class="admin-pager" aria-label="Phân trang">
+        @if (Model.Page > 1)
+        {
+            <a class="button button--secondary button--small" href="@Model.PageUrl(Model.Page - 1)"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i> Trước</a>
+        }
+        <span class="admin-muted">Trang @Model.Page / @Model.TotalPages</span>
+        @if (Model.Page < Model.TotalPages)
+        {
+            <a class="button button--secondary button--small" href="@Model.PageUrl(Model.Page + 1)">Sau <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+        }
+    </nav>
+}

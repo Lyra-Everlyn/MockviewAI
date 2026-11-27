@@ -1,19 +1,16 @@
 @*
     [THEME] Nạp theme sáng / tối và áp dụng ngay theme đã lưu (localStorage) trước khi trang được vẽ, tránh nháy màu.
     - Mặc định giao diện sáng, không theo chế độ của hệ điều hành.
-    - Đặt ở CUỐI thẻ head, sau CSS riêng của trang, để theme ghi đè được màu.
-    - Cung cấp window.MockviewTheme cho ~/js/_ThemeToggle.js.
-    - Không dùng ký tự a-còng trong script: Razor sẽ hiểu nhầm là mã C#.
 *@
-<link id="theme-light" rel="stylesheet" href="~/css/themes/theme-indigo.css" asp-append-version="true" />
-<link id="theme-dark" rel="stylesheet" href="~/css/themes/theme-dark-1.css" media="not all" asp-append-version="true" />
+<link id="theme-light" rel="stylesheet" href="~/css/themes/theme-mint.css" asp-append-version="true" />
+<link id="theme-dark" rel="stylesheet" href="~/css/themes/theme-mint-night.css" media="not all" asp-append-version="true" />
 <script>
     (function (window, document) {
         'use strict';
 
         var STORAGE_KEY = 'mockview-theme';
         var THEMES = { light: 'light', dark: 'dark' };
-        var META_COLORS = { light: '#f5f7fb', dark: '#0c1220' };
+        var META_COLORS = { light: '#e4f0ea', dark: '#0d1521' };
 
         // Chỉ chấp nhận 'dark'; giá trị khác đều là 'light'
         function normalize(value) {

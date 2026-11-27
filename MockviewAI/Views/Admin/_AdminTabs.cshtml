@@ -1,21 +1,31 @@
-@* 
-    [ADMIN] 
-    Thanh chuyển tab giữa các trang quản trị. Trang hiện tại đặt ViewData["AdminTab"]. 
+@*
+    [ADMIN]
+    Thanh gạt 3 tab của khu quản trị. Controller đặt ViewData["AdminTab"] và ViewData["AdminTabCounts"].
 *@
+@using MockviewAI.Models.ViewModels.Admin
 @{
     var tab = ViewData["AdminTab"] as string ?? "";
+    var counts = ViewData["AdminTabCounts"] as AdminTabCounts;
+    var title = tab switch { "users" => "Người dùng", "feedbacks" => "Góp ý", _ => "Tổng quan" };
 }
-<nav class="admin-tabs" aria-label="Điều hướng quản trị">
+<h1 class="visually-hidden">Quản trị: @title</h1>
+<nav class="admin-tabs" aria-label="Trang quản trị">
     <a href="/Admin" class="admin-tabs__link @(tab == "dashboard" ? "is-active" : null)"
-       aria-current="@(tab == "dashboard" ? "page" : null)">
-        <i class="fa-solid fa-chart-simple" aria-hidden="true"></i> Tổng quan
-    </a>
+       aria-current="@(tab == "dashboard" ? "page" : null)">Tổng quan</a>
     <a href="/Admin/Users" class="admin-tabs__link @(tab == "users" ? "is-active" : null)"
        aria-current="@(tab == "users" ? "page" : null)">
-        <i class="fa-solid fa-users" aria-hidden="true"></i> Người dùng
+        Người dùng
+        @if (counts != null)
+        {
+            <span class="admin-tabs__count">@counts.Users</span>
+        }
     </a>
     <a href="/Admin/Feedbacks" class="admin-tabs__link @(tab == "feedbacks" ? "is-active" : null)"
        aria-current="@(tab == "feedbacks" ? "page" : null)">
-        <i class="fa-regular fa-comment-dots" aria-hidden="true"></i> Góp ý
+        Góp ý
+        @if (counts != null)
+        {
+            <span class="admin-tabs__count">@counts.Feedbacks</span>
+        }
     </a>
 </nav>

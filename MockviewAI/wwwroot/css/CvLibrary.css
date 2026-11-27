@@ -1,178 +1,390 @@
 /* MockviewAI | CV của tôi
-   Danh sách CV lưu trên trình duyệt (Views/CV/Index.cshtml); dùng thêm UploadCV.css. */
+   Bố cục riêng của Views/CV/Index.cshtml */
 
-/* #region Tiêu đề */
-.cv-library__head-actions {
+/* #region Banner */
+.cv-banner__icon {
+    position: relative;
+    display: grid;
+    flex: 0 0 84px;
+    width: 84px;
+    height: 84px;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 34px;
+}
+
+.cv-banner__actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: flex-end;
-    gap: 12px;
-    flex: 0 0 auto
+    gap: 14px 18px;
+    margin-top: 14px;
 }
 
-    .cv-library__head-actions .cv-phase {
-        margin-top: 0
+.cv-slots {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cv-slots__list {
+    display: flex;
+    gap: 8px;
+}
+
+.cv-slot {
+    display: grid;
+    width: 34px;
+    height: 40px;
+    place-items: center;
+    border: 2px dashed;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+    .cv-slot.is-filled {
+        border-style: solid;
     }
+
+.cv-slots__count {
+    font-size: 14px;
+    font-weight: 700;
+}
 /* #endregion */
 
-/* #region Danh sách */
-.cv-library__list {
-    display: grid;
-    gap: 16px
+/* #region Thông báo + trạng thái trống */
+.cv-library__notices {
+    margin-top: 22px;
 }
+
+    .cv-library__notices .cv-notice {
+        margin-bottom: 0;
+    }
 
 .cv-library__empty {
     display: grid;
     justify-items: center;
-    gap: 6px;
+    gap: 8px;
+    margin-top: 22px;
     padding: 40px 24px;
-    text-align: center
+    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    text-align: center;
 }
 
-    .cv-library__empty .cv-card__icon {
-        margin-bottom: 8px
-    }
+.cv-library__empty-icon {
+    display: grid;
+    width: 64px;
+    height: 64px;
+    place-items: center;
+    border-radius: 20px;
+    font-size: 26px;
+}
 
-    .cv-library__empty h2 {
-        color: var(--color-text);
-        font-size: 17px;
-        font-weight: 800
-    }
+.cv-library__empty h2 {
+    font-size: 19px;
+    font-weight: 800;
+}
 
-    .cv-library__empty p {
-        color: var(--color-muted);
-        font-size: 13px;
-        line-height: 1.6
-    }
-
-.cv-library__note {
-    display: flex;
-    gap: 8px;
-    margin-top: 20px;
-    line-height: 1.6
+.cv-library__empty p {
+    max-width: 46ch;
+    font-size: 14px;
+    line-height: 1.6;
 }
 /* #endregion */
 
-/* #region Thẻ CV */
-.cv-library__item .cv-card__heading {
-    margin-bottom: 0
+/* #region Danh sách thẻ CV */
+.cv-library__list {
+    display: grid;
+    gap: 18px;
+    margin-top: 22px;
 }
 
-    .cv-library__item .cv-card__heading h2 {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 8px
+    .cv-library__list:empty {
+        display: none;
     }
 
-.cv-library__item.is-default {
-    border-color: var(--color-primary)
+.cv-library__item {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+    padding: 22px 24px;
+    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+}
+
+.cv-library__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.cv-library__icon {
+    display: grid;
+    flex: 0 0 52px;
+    width: 52px;
+    height: 52px;
+    place-items: center;
+    border-radius: 16px;
+    font-size: 22px;
+}
+
+.cv-library__info {
+    display: grid;
+    flex: 1 1 0;
+    min-width: 0;
+    gap: 8px;
+}
+
+.cv-library__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    overflow-wrap: anywhere;
+    font-size: 18px;
+    font-weight: 800;
 }
 
 .cv-library__badge {
-    margin-top: 0;
-    padding: 3px 10px;
-    font-size: 11px
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.cv-library__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.cv-library__pill {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .cv-library__actions {
-    justify-content: flex-start;
+    display: flex;
+    flex-wrap: wrap;
     gap: 8px;
-    margin-top: 18px;
-    padding-top: 16px
+    padding-top: 14px;
+    border-top: 1px solid;
+}
+
+.cv-library__delete {
+    margin-left: auto;
 }
 /* #endregion */
 
-/* #region Chi tiết CV */
+/* #region Chi tiết CV
+   Luồng kinh nghiệm & dự án dùng lớp .cv-flow trong UploadCV.css */
 .cv-library__details {
-    display: grid;
-    gap: 16px;
-    margin-top: 16px;
-    padding: 18px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-card);
-    background: var(--color-surface-soft)
+    padding: 22px;
+    border-radius: 18px;
 }
 
-    .cv-library__details p {
-        margin: 0;
-        color: var(--color-text-soft);
-        font-size: 13px;
-        line-height: 1.7;
-        overflow-wrap: anywhere
+.cv-detail__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.cv-detail__fact {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+    padding: 12px 16px;
+    border-radius: 14px;
+    overflow-wrap: anywhere;
+}
+
+    .cv-detail__fact span {
+        font-size: 12px;
+        font-weight: 600;
     }
 
-    .cv-library__details .cv-section-label {
-        display: flex;
+    .cv-detail__fact strong {
+        font-size: 14px;
+    }
+
+.cv-detail__cols {
+    display: grid;
+    grid-template-columns: minmax(0, 1.8fr) minmax(240px, 1fr);
+    align-items: start;
+    gap: 28px;
+}
+
+.cv-detail__main,
+.cv-detail__side {
+    display: grid;
+    gap: 22px;
+    min-width: 0;
+}
+
+.cv-detail__heading {
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.cv-detail__objective,
+.cv-detail__desc {
+    max-width: 68ch;
+    font-size: 14px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.cv-detail__desc {
+    margin-top: 4px;
+    line-height: 1.6;
+}
+
+.cv-detail__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.cv-detail__chip {
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.cv-detail__chips--small {
+    margin-top: 8px;
+}
+
+    .cv-detail__chips--small .cv-detail__chip {
+        padding: 3px 10px;
+        font-size: 12px;
+    }
+
+.cv-detail__more {
+    margin-top: 6px;
+}
+
+    .cv-detail__more summary {
+        display: inline-flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 6px;
-        color: var(--color-text);
-        font-size: 13px;
-        font-weight: 800
-    }
-
-    .cv-library__details .cv-review__tips {
         gap: 6px;
-        margin-top: 0
+        font-size: 13px;
+        font-weight: 700;
+        list-style: none;
+        cursor: pointer;
     }
 
-        .cv-library__details .cv-review__tips li {
-            font-size: 13px
+        .cv-detail__more summary::-webkit-details-marker {
+            display: none;
         }
 
-.cv-library__entry {
+        .cv-detail__more summary::before {
+            content: "+";
+        }
+
+    .cv-detail__more[open] summary::before {
+        content: "\2212";
+    }
+
+.cv-detail__bullets {
     display: grid;
-    gap: 4px;
-    padding: 10px 0;
-    border-top: 1px dashed var(--color-border)
-}
-
-.cv-section-label + .cv-library__entry {
-    border-top: 0;
-    padding-top: 0
-}
-
-.cv-library__entry strong {
-    color: var(--color-text);
-    font-size: 13px
-}
-
-.cv-library__entry small {
-    color: var(--color-muted);
-    font-size: 12px
-}
-
-.cv-library__entry ul {
-    display: grid;
-    gap: 4px;
-    margin: 2px 0 0;
+    gap: 6px;
+    max-width: 68ch;
+    margin: 8px 0 0;
     padding-left: 18px;
-    color: var(--color-text-soft);
     font-size: 13px;
-    line-height: 1.6
+    line-height: 1.6;
+    list-style: disc;
+}
+
+.cv-detail__side-entry {
+    margin: 0 0 10px;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+    .cv-detail__side-entry strong,
+    .cv-detail__side-entry span {
+        display: block;
+    }
+
+    .cv-detail__side-entry strong {
+        font-weight: 600;
+    }
+
+    .cv-detail__side-entry span {
+        font-size: 13px;
+    }
+
+/* Mục trong luồng ở trang này cách nhau rộng hơn vì có mô tả */
+.cv-library__details .cv-flow__items > li {
+    padding-bottom: 18px;
 }
 /* #endregion */
 
-/* #region Trạng thái */
+/* #region Ghi chú cuối trang + trạng thái nút */
+.cv-library__note {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+    .cv-library__note i {
+        margin-top: 4px;
+    }
+
 .button.is-disabled {
-    opacity: .55;
+    opacity: .5;
     pointer-events: none;
-    cursor: not-allowed
+    cursor: not-allowed;
 }
 /* #endregion */
 
 /* #region Responsive */
-@media(max-width:600px) {
-    .cv-library__head-actions {
-        justify-content: flex-start;
-        margin-top: 16px
+@media (max-width: 860px) {
+    .cv-detail__cols {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .cv-library__item {
+        padding: 18px;
+    }
+
+    .cv-library__details {
+        padding: 16px;
+    }
+
+    .cv-library__icon {
+        flex-basis: 44px;
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
     }
 
     .cv-library__actions .button {
-        flex: 1 1 100%;
-        justify-content: center
+        flex: 1 1 auto;
+    }
+
+    .cv-library__delete {
+        margin-left: 0;
     }
 }
 /* #endregion */

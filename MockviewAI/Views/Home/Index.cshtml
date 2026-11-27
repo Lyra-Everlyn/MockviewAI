@@ -5,7 +5,7 @@
     ViewData["ActiveNav"] = "home";
 
     var userName = User.Identity?.Name ?? "";
-    var hour = DateTime.Now.Hour;
+    var hour = MockviewAI.Services.Admin.VietnamTime.FromUtc(DateTime.UtcNow).Hour;
 
     var greeting = hour >= 5 && hour < 12
         ? "Chào buổi sáng"
@@ -42,7 +42,7 @@
     <main class="page-shell">
         <header class="page-header">
             <div class="page-header__content">
-                <span class="page-header__eyebrow">@greeting</span>
+                <span class="page-header__eyebrow label-plain">@greeting</span>
                 <h1 class="page-header__title">Xin chào, @userName</h1>
                 <p class="page-header__description">
                     Tiếp tục luyện tập, theo dõi tiến độ và chuẩn bị cho buổi phỏng vấn tiếp theo.
@@ -50,40 +50,144 @@
             </div>
         </header>
 
-        <section class="content-grid content-grid--hero" aria-label="Bắt đầu luyện tập">
-            <article class="panel panel--primary">
-                <div class="panel__content">
-                    <span class="panel__eyebrow">LUYỆN PHỎNG VẤN</span>
-                    <h2 class="panel__title">Sẵn sàng cho buổi luyện tiếp theo?</h2>
-                    <p class="panel__description">
+        <section class="action-tiles" aria-label="Bắt đầu">
+            <article class="action-tile action-tile--practice">
+                <span class="action-tile__bubble" aria-hidden="true">
+                    <i class="fa-solid fa-microphone"></i>
+                </span>
+                <div class="action-tile__content">
+                    <span class="action-tile__label">Luyện phỏng vấn</span>
+                    <h2 class="action-tile__title">Sẵn sàng cho buổi luyện tiếp theo?</h2>
+                    <p class="action-tile__description">
                         Chọn vị trí ứng tuyển và bắt đầu một phiên phỏng vấn mô phỏng với AI.
                     </p>
-
-                    <div class="panel__actions">
-                        <a href="/Interview/Create" class="button button--primary">
-                            <i class="fa-solid fa-microphone" aria-hidden="true"></i>
+                    <div class="action-tile__actions">
+                        <a href="/Interview/Create" class="button button--primary button--icon">
+                            <span class="button__icon" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
                             Tạo buổi luyện
                         </a>
                     </div>
                 </div>
             </article>
 
-            <div class="stack">
+            <article class="action-tile action-tile--cv">
+                <span class="action-tile__bubble" aria-hidden="true">
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                </span>
+                <div class="action-tile__content">
+                    <span class="action-tile__label">CV của bạn</span>
+                    <h2 class="action-tile__title">Tải CV để câu hỏi sát với bạn hơn</h2>
+                    <p class="action-tile__description">
+                        AI đọc kinh nghiệm và dự án trong CV để đặt câu hỏi phù hợp. Chỉ nhận file PDF.
+                    </p>
+                    <div class="action-tile__actions">
+                        <a href="/CV/UploadCv" class="button button--alt button--icon">
+                            <span class="button__icon" aria-hidden="true"><i class="fa-solid fa-arrow-up"></i></span>
+                            Tải CV lên
+                        </a>
+                        <a href="/CV" class="action-tile__link">CV đã lưu</a>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="page-section" aria-labelledby="overview-title">
+            <div class="section-header">
+                <div class="section-header__content">
+                    <h2 id="overview-title" class="section-header__title section-header__title--marked">Tiến độ gần đây</h2>
+                    <p class="section-header__description">
+                        Tóm tắt nhanh dựa trên các buổi luyện gần nhất đang hiển thị.
+                    </p>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <span class="stat-card__label label-plain">Buổi gần đây</span>
+                    <strong class="stat-card__value">@recentSessions.Count</strong>
+                    <span class="stat-card__description">Phiên đang hiển thị</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-card__label label-plain">Đã chấm điểm</span>
+                    <strong class="stat-card__value stat-card__value--success">@scoredSessions.Count</strong>
+                    <span class="stat-card__description">Phiên có kết quả</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-card__label label-plain">Đang thực hiện</span>
+                    <strong class="stat-card__value stat-card__value--info">@inProgressSessions</strong>
+                    <span class="stat-card__description">Phiên chưa hoàn tất</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-card__label label-plain">Điểm trung bình</span>
+                    <strong class="stat-card__value @(averageScore.HasValue ? null : "stat-card__value--muted")">
+                        @(averageScore.HasValue ? averageScore.Value.ToString("0") : "—")
+                    </strong>
+                    <span class="stat-card__description">Từ các phiên đã chấm</span>
+                </article>
+            </div>
+        </section>
+
+        <div class="page-section home-bottom">
+            <section class="home-bottom__main" aria-labelledby="recent-title">
+                <div class="section-header section-header--with-action">
+                    <div class="section-header__content">
+                        <h2 id="recent-title" class="section-header__title section-header__title--marked">Buổi luyện gần đây</h2>
+                        <p class="section-header__description">
+                            Tiếp tục phiên đang dở hoặc xem lại kết quả các buổi gần nhất.
+                        </p>
+                    </div>
+
+                    <a href="/Home/History" class="button button--info button--small">
+                        Xem tất cả
+                    </a>
+                </div>
+
+                @if (!recentSessions.Any())
+                {
+                    <div class="empty-state">
+                        <div class="empty-state__icon" aria-hidden="true">
+                            <i class="fa-regular fa-clock"></i>
+                        </div>
+
+                        <div class="empty-state__content">
+                            <h3 class="empty-state__title">Chưa có buổi luyện nào</h3>
+                            <p class="empty-state__description">
+                                Bắt đầu phiên đầu tiên để lịch sử và tiến độ xuất hiện tại đây.
+                            </p>
+                        </div>
+
+                        <a href="/Interview/Create" class="button button--secondary">
+                            Tạo buổi luyện
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="session-list">
+                        @foreach (var session in recentSessions)
+                        {
+                            <partial name="Partials/_SessionCard" model="session" />
+                        }
+                    </div>
+                }
+            </section>
+
+            <aside class="home-bottom__aside stack">
                 <a href="/Feedback" class="action-card feedback-action-card">
                     <div class="action-card__icon" aria-hidden="true">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <i class="fa-regular fa-comment"></i>
                     </div>
                     <div class="action-card__content">
-                        <span class="action-card__eyebrow">GÓP Ý</span>
+                        <span class="action-card__eyebrow label-plain">Góp ý</span>
                         <h3 class="action-card__title">Đóng góp ý kiến</h3>
                         <p class="action-card__description">
                             Chia sẻ trải nghiệm để MockviewAI cải thiện tốt hơn.
                         </p>
                         <span class="action-card__action">
-                            Gửi góp ý
-                            <span class="action-card__chevron" aria-hidden="true">
-                                <i class="fa-solid fa-chevron-right"></i>
-                            </span>
+                            <span class="button button--secondary button--small">Gửi góp ý</span>
                         </span>
                     </div>
                 </a>
@@ -93,151 +197,15 @@
                         <i class="fa-regular fa-lightbulb"></i>
                     </div>
                     <div class="info-card__content">
-                        <span class="info-card__eyebrow">MẸO HÔM NAY</span>
+                        <span class="info-card__eyebrow label-plain">Mẹo hôm nay</span>
                         <h3 class="info-card__title">Trả lời theo cấu trúc STAR</h3>
                         <p class="info-card__description">
-                            Tình huống · Nhiệm vụ · Hành động · Kết quả.
+                            Tình huống, Nhiệm vụ, Hành động, Kết quả.
                         </p>
                     </div>
                 </article>
-            </div>
-        </section>
-
-        <section class="page-section" aria-labelledby="overview-title">
-            <div class="section-header">
-                <div class="section-header__content">
-                    <span class="section-header__eyebrow">TỔNG QUAN</span>
-                    <h2 id="overview-title" class="section-header__title">Tiến độ gần đây</h2>
-                    <p class="section-header__description">
-                        Tóm tắt nhanh dựa trên các buổi luyện gần nhất đang hiển thị.
-                    </p>
-                </div>
-            </div>
-
-            <div class="stats-grid">
-                <article class="stat-card">
-                    <span class="stat-card__label">Buổi gần đây</span>
-                    <strong class="stat-card__value">@recentSessions.Count</strong>
-                    <span class="stat-card__description">Phiên đang hiển thị</span>
-                </article>
-
-                <article class="stat-card">
-                    <span class="stat-card__label">Đã chấm điểm</span>
-                    <strong class="stat-card__value">@scoredSessions.Count</strong>
-                    <span class="stat-card__description">Phiên có kết quả</span>
-                </article>
-
-                <article class="stat-card">
-                    <span class="stat-card__label">Đang thực hiện</span>
-                    <strong class="stat-card__value">@inProgressSessions</strong>
-                    <span class="stat-card__description">Phiên chưa hoàn tất</span>
-                </article>
-
-                <article class="stat-card">
-                    <span class="stat-card__label">Điểm trung bình</span>
-                    <strong class="stat-card__value">
-                        @(averageScore.HasValue ? averageScore.Value.ToString("0") : "—")
-                    </strong>
-                    <span class="stat-card__description">Từ các phiên đã chấm</span>
-                </article>
-            </div>
-        </section>
-
-        <section class="page-section" aria-labelledby="recent-title">
-            <div class="section-header section-header--with-action">
-                <div class="section-header__content">
-                    <span class="section-header__eyebrow">LỊCH SỬ</span>
-                    <h2 id="recent-title" class="section-header__title">Buổi luyện gần đây</h2>
-                    <p class="section-header__description">
-                        Tiếp tục phiên đang dở hoặc xem lại kết quả các buổi gần nhất.
-                    </p>
-                </div>
-
-                <a href="/Home/History" class="section-header__action">
-                    Xem tất cả
-                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-                </a>
-            </div>
-
-            @if (!recentSessions.Any())
-            {
-                <div class="empty-state">
-                    <div class="empty-state__icon" aria-hidden="true">
-                        <i class="fa-regular fa-clock"></i>
-                    </div>
-
-                    <div class="empty-state__content">
-                        <h3 class="empty-state__title">Chưa có buổi luyện nào</h3>
-                        <p class="empty-state__description">
-                            Bắt đầu phiên đầu tiên để lịch sử và tiến độ xuất hiện tại đây.
-                        </p>
-                    </div>
-
-                    <a href="/Interview/Create" class="button button--secondary">
-                        Tạo buổi luyện
-                    </a>
-                </div>
-            }
-            else
-            {
-                <div class="session-list">
-                    @foreach (var session in recentSessions)
-                    {
-                        <partial name="Partials/_SessionCard" model="session" />
-                    }
-                </div>
-            }
-        </section>
-
-        <section class="page-section" aria-labelledby="quick-actions-title">
-            <div class="section-header">
-                <div class="section-header__content">
-                    <span class="section-header__eyebrow">TRUY CẬP NHANH</span>
-                    <h2 id="quick-actions-title" class="section-header__title">Bạn muốn làm gì tiếp theo?</h2>
-                </div>
-            </div>
-
-            <div class="action-grid">
-                <a href="/Interview/Create" class="action-card">
-                    <div class="action-card__icon" aria-hidden="true">
-                        <i class="fa-solid fa-microphone"></i>
-                    </div>
-                    <div class="action-card__content">
-                        <h3 class="action-card__title">Luyện phỏng vấn</h3>
-                        <p class="action-card__description">Bắt đầu một phiên luyện mới.</p>
-                    </div>
-                    <span class="action-card__chevron" aria-hidden="true">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </span>
-                </a>
-
-                <a href="/Home/History" class="action-card">
-                    <div class="action-card__icon" aria-hidden="true">
-                        <i class="fa-regular fa-clock"></i>
-                    </div>
-                    <div class="action-card__content">
-                        <h3 class="action-card__title">Xem lịch sử</h3>
-                        <p class="action-card__description">Xem lại các phiên đã thực hiện.</p>
-                    </div>
-                    <span class="action-card__chevron" aria-hidden="true">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </span>
-                </a>
-
-                <a href="/Profile" class="action-card">
-                    <div class="action-card__icon" aria-hidden="true">
-                        <i class="fa-regular fa-user"></i>
-                    </div>
-                    <div class="action-card__content">
-                        <h3 class="action-card__title">Hồ sơ cá nhân</h3>
-                        <p class="action-card__description">Kiểm tra thông tin và định hướng nghề nghiệp.</p>
-                    </div>
-                    <span class="action-card__chevron" aria-hidden="true">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </span>
-                </a>
-            </div>
-        </section>
+            </aside>
+        </div>
     </main>
 
     <partial name="Partials/_Notify" />

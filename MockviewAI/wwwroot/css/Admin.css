@@ -1,171 +1,219 @@
-/* [ADMIN] Trang quản trị */
+/* MockviewAI | Quản trị
+   Bố cục của Views/Admin (Index, Users, Feedbacks và các partial _Admin*). Màu nằm trong themes/*.css. */
 
+/* #region Khung trang + thanh tab */
 .admin-page {
     display: grid;
     gap: 22px;
+    padding-top: 28px;
 }
 
-/* #region Tabs */
 .admin-tabs {
-    display: flex;
+    display: inline-flex;
+    justify-self: start;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
 }
 
 .admin-tabs__link {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
-    min-height: 40px;
-    padding: 0 16px;
-    border: 1px solid var(--color-border);
+    padding: 9px 18px;
     border-radius: 999px;
-    background: var(--color-surface);
-    color: var(--color-muted);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     text-decoration: none;
 }
 
-    .admin-tabs__link:hover,
-    .admin-tabs__link.is-active {
-        border-color: var(--color-primary);
-        color: var(--color-primary);
-    }
-
-    .admin-tabs__link.is-active {
-        background: var(--color-primary-soft);
-    }
+.admin-tabs__count {
+    display: inline-grid;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    place-items: center;
+    border-radius: 999px;
+    font-size: 12px;
+}
 /* #endregion */
 
-/* #region Bố cục chung */
+/* #region Số liệu chính */
 .admin-stats {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 14px;
 }
 
-.admin-grid {
+.admin-stat {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
+    gap: 2px;
+    padding: 16px 20px;
+    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
 }
 
+.admin-stat__label {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-stat__value {
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.admin-stat__note {
+    font-size: 12px;
+}
+/* #endregion */
+
+/* #region Thẻ chung */
 .admin-panel {
-    padding: 26px;
+    display: grid;
+    align-content: start;
+    gap: 16px;
+    min-width: 0;
+    padding: 22px 24px;
+    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
 }
 
 .admin-panel__head {
     display: flex;
-    align-items: flex-end;
+    align-items: baseline;
     justify-content: space-between;
     gap: 12px;
 }
 
-    .admin-panel__head > div {
-        display: grid;
-        gap: 4px;
+.admin-panel__title {
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.admin-panel__title--small {
+    font-size: 15px;
+}
+
+.admin-link {
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+    .admin-link:hover {
+        text-decoration: underline;
     }
 
 .admin-muted {
-    color: var(--color-muted);
-    font-size: 12px;
+    font-size: 13px;
 }
 
-.admin-empty {
-    margin-top: 16px;
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 22px;
 }
 /* #endregion */
 
-/* #region Biểu đồ cột (thuần CSS) */
+/* #region Biểu đồ 14 ngày + top vị trí */
+.admin-chart {
+    grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+    gap: 28px;
+}
+
+.admin-chart__main {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+}
+
+.admin-chart__side {
+    display: grid;
+    align-content: start;
+    gap: 12px;
+    padding-left: 28px;
+    border-left: 2px dashed;
+}
+
 .admin-bars {
     display: grid;
     grid-template-columns: repeat(14, minmax(0, 1fr));
     align-items: end;
     gap: 6px;
-    height: 180px;
-    margin-top: 18px;
+    height: 170px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 .admin-bars__item {
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: 18px 1fr 18px;
     height: 100%;
-    min-width: 0;
     text-align: center;
 }
 
-.admin-bars__value {
-    min-height: 16px;
-    color: var(--color-text);
-    font-size: 10px;
-    font-weight: 700;
+.admin-bars__bar {
+    display: block;
+    align-self: end;
+    border-radius: 8px 8px 3px 3px;
 }
 
-.admin-bars__bar {
-    align-self: end;
-    width: 100%;
-    min-height: 3px;
-    border-radius: 6px 6px 2px 2px;
-    background: var(--color-primary);
+.admin-bars__value {
+    font-size: 11px;
+    font-weight: 800;
 }
 
 .admin-bars__label {
-    margin-top: 6px;
-    color: var(--color-muted);
-    font-size: 9px;
-    white-space: nowrap;
+    font-size: 11px;
 }
-/* #endregion */
 
-/* #region Top vị trí */
 .admin-ranks {
     display: grid;
-    gap: 12px;
-    margin: 18px 0 0;
+    gap: 10px;
+    margin: 0;
     padding: 0;
     list-style: none;
 }
 
 .admin-ranks__item {
     display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr) auto;
+    grid-template-columns: minmax(0, 1fr) 70px auto;
     align-items: center;
-    gap: 12px;
-    font-size: 13px;
+    gap: 10px;
+    font-size: 14px;
 }
 
 .admin-ranks__name {
     overflow: hidden;
-    color: var(--color-text);
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .admin-ranks__track {
-    height: 8px;
+    height: 10px;
     overflow: hidden;
     border-radius: 999px;
-    background: var(--color-primary-soft);
 }
 
 .admin-ranks__fill {
     display: block;
     height: 100%;
-    border-radius: inherit;
-    background: var(--color-primary);
-}
-
-.admin-ranks__count {
-    color: var(--color-text);
-    font-weight: 700;
+    border-radius: 999px;
 }
 /* #endregion */
 
-/* #region Danh sách ngắn (trang Tổng quan) */
+/* #region Danh sách + người dùng + sao */
 .admin-list {
     display: grid;
-    margin: 12px 0 0;
+    margin: 0;
     padding: 0;
     list-style: none;
 }
@@ -175,143 +223,218 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--color-border);
-    color: var(--color-text);
-    font-size: 13px;
+    padding: 10px 0;
 }
 
-    .admin-list__item:last-child {
-        border-bottom: 0;
-    }
-
-    .admin-list__item > div {
-        display: grid;
-        gap: 2px;
-        min-width: 0;
+    .admin-list__item + .admin-list__item {
+        border-top: 1px solid;
     }
 
 .admin-list__item--stack {
+    display: block;
+}
+
+.admin-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.admin-user__avatar {
     display: grid;
-    justify-content: stretch;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    overflow: hidden;
+    place-items: center;
+    border-radius: 50%;
+    font-weight: 800;
+}
+
+    .admin-user__avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.admin-user__text {
+    min-width: 0;
+}
+
+    .admin-user__text strong,
+    .admin-user__text small {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .admin-user__text small {
+        font-size: 12px;
+    }
+
+.admin-stars {
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.admin-feedback__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+}
+
+    .admin-feedback__head .admin-muted {
+        font-size: 12px;
+    }
+
+.admin-feedback__comment {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.admin-feedback__comment--empty {
+    font-style: italic;
+}
+
+.admin-tag {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
 }
 /* #endregion */
 
-/* #region Bộ lọc */
+/* #region Bộ lọc dạng viên bấm */
 .admin-filters {
     display: flex;
     flex-wrap: wrap;
-    align-items: end;
-    gap: 14px;
-    margin-bottom: 20px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
-.admin-filters__search {
-    flex: 1 1 260px;
-}
-
-.admin-filters__actions {
+.admin-search {
     display: flex;
+    flex: 1 1 320px;
     gap: 8px;
+    max-width: 460px;
 }
 
-.admin-check {
+.admin-search__input {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 2px solid;
+    border-radius: 999px;
+    font: inherit;
+    font-size: 14px;
+    outline: none;
+}
+
+    .admin-search__input:focus-visible {
+        outline: 3px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+.admin-search .button {
+    min-height: 44px;
+}
+
+.admin-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.admin-chip {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    min-height: 46px;
-    color: var(--color-text);
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
     font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.admin-chip__box {
+    display: grid;
+    width: 16px;
+    height: 16px;
+    place-items: center;
+    border: 2px solid;
+    border-radius: 5px;
+    font-size: 9px;
 }
 
 .admin-count {
-    margin: 0 0 14px;
-    color: var(--color-muted);
     font-size: 13px;
     font-weight: 600;
 }
+
+.admin-empty {
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    padding: 32px 16px;
+    border-radius: 16px;
+    text-align: center;
+}
+
+    .admin-empty span {
+        font-size: 14px;
+    }
 /* #endregion */
 
-/* #region Bảng người dùng */
+/* #region Bảng người dùng + thẻ góp ý + phân trang */
 .admin-table-wrap {
     overflow-x: auto;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-card);
+    border: 2px solid;
+    border-radius: 16px;
 }
 
 .admin-table {
     width: 100%;
-    min-width: 720px;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 14px;
 }
 
     .admin-table th,
     .admin-table td {
-        padding: 12px 14px;
-        border-bottom: 1px solid var(--color-border);
-        color: var(--color-text);
+        padding: 12px 16px;
         text-align: left;
-        vertical-align: middle;
         white-space: nowrap;
     }
 
     .admin-table th {
-        background: var(--color-surface-soft);
-        color: var(--color-muted);
-        font-size: 11px;
-        font-weight: 750;
-        letter-spacing: .04em;
-        text-transform: uppercase;
+        font-size: 12px;
+        font-weight: 700;
     }
 
-    .admin-table tbody tr:last-child td {
-        border-bottom: 0;
-    }
-
-    .admin-table tbody tr:hover td {
-        background: var(--color-surface-soft);
+    .admin-table tbody tr + tr td {
+        border-top: 1px solid;
     }
 
     .admin-table .admin-table__num {
         text-align: right;
     }
 
-.admin-user {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.admin-status {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
 }
 
-.admin-user__avatar {
-    flex: 0 0 auto;
-    width: 34px;
-    height: 34px;
-    font-size: 13px;
-}
-
-.admin-user__text {
+.admin-feedbacks {
     display: grid;
-    gap: 2px;
-}
-
-.status-chip.admin-chip--danger {
-    background: var(--color-danger-soft);
-    color: var(--color-danger);
-}
-
-.admin-pager {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    margin-top: 20px;
-}
-/* #endregion */
-
-/* #region Góp ý */
-.admin-feedback-list {
-    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
     margin: 0;
     padding: 0;
@@ -320,39 +443,14 @@
 
 .admin-feedback {
     padding: 16px 18px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-card);
-    background: var(--color-surface);
+    border-radius: 16px;
 }
 
-.admin-feedback__head {
+.admin-pager {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
-}
-
-.admin-feedback__meta {
-    margin-left: auto;
-}
-
-.admin-feedback__comment {
-    margin: 10px 0 0;
-    color: var(--color-text);
-    font-size: 14px;
-    line-height: 1.6;
-    white-space: pre-line;
-    overflow-wrap: anywhere;
-}
-
-.admin-stars {
-    color: var(--color-star);
-    font-size: 15px;
-    letter-spacing: 1px;
-}
-
-.admin-stars__empty {
-    color: var(--color-border-strong);
+    justify-content: center;
+    gap: 14px;
 }
 /* #endregion */
 
@@ -362,27 +460,51 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .admin-grid {
-        grid-template-columns: 1fr;
+    .admin-chart,
+    .admin-grid,
+    .admin-feedbacks {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .admin-chart__side {
+        padding: 20px 0 0;
+        border-top: 2px dashed;
+        border-left: 0;
     }
 }
 
-@media (max-width: 560px) {
-    .admin-stats {
-        grid-template-columns: 1fr;
+@media (max-width: 600px) {
+    .admin-page {
+        padding-top: 20px;
+    }
+
+    /* Ba tab chia đều một hàng */
+    .admin-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        justify-self: stretch;
+    }
+
+    .admin-tabs__link {
+        padding: 8px 6px;
+        font-size: 13px;
     }
 
     .admin-panel {
         padding: 18px;
     }
 
-    .admin-bars__label {
-        writing-mode: vertical-rl;
-        transform: rotate(180deg);
+    .admin-stat__value {
+        font-size: 26px;
     }
 
-    .admin-feedback__meta {
-        margin-left: 0;
+    .admin-bars {
+        gap: 3px;
+        height: 140px;
+    }
+
+    .admin-bars__label {
+        font-size: 9px;
     }
 }
 /* #endregion */

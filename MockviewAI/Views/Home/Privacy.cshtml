@@ -8,24 +8,24 @@
 
     var sections = new[]
     {
-        new { Id = "gioi-thieu", Icon = "fa-solid fa-circle-info", Title = "Giới thiệu" },
-        new { Id = "thu-thap", Icon = "fa-solid fa-database", Title = "Dữ liệu chúng tôi thu thập" },
-        new { Id = "muc-dich", Icon = "fa-solid fa-bullseye", Title = "Mục đích sử dụng dữ liệu" },
-        new { Id = "giong-noi", Icon = "fa-solid fa-microphone", Title = "Giọng nói và xử lý bằng AI" },
-        new { Id = "ben-thu-ba", Icon = "fa-solid fa-share-nodes", Title = "Chia sẻ với bên thứ ba" },
-        new { Id = "luu-tru", Icon = "fa-solid fa-shield-halved", Title = "Bảo mật và thời gian lưu trữ" },
-        new { Id = "quyen", Icon = "fa-solid fa-user-shield", Title = "Quyền của bạn" },
-        new { Id = "cookie", Icon = "fa-solid fa-cookie-bite", Title = "Cookie và bộ nhớ trình duyệt" },
-        new { Id = "thay-doi", Icon = "fa-solid fa-clock-rotate-left", Title = "Thay đổi chính sách" },
-        new { Id = "lien-he", Icon = "fa-regular fa-envelope", Title = "Liên hệ" }
+        new { Id = "gioi-thieu", Title = "Giới thiệu" },
+        new { Id = "thu-thap", Title = "Dữ liệu chúng tôi thu thập" },
+        new { Id = "muc-dich", Title = "Mục đích sử dụng dữ liệu" },
+        new { Id = "giong-noi", Title = "Giọng nói và xử lý bằng AI" },
+        new { Id = "ben-thu-ba", Title = "Chia sẻ với bên thứ ba" },
+        new { Id = "luu-tru", Title = "Bảo mật và thời gian lưu trữ" },
+        new { Id = "quyen", Title = "Quyền của bạn" },
+        new { Id = "cookie", Title = "Cookie và bộ nhớ trình duyệt" },
+        new { Id = "thay-doi", Title = "Thay đổi chính sách" },
+        new { Id = "lien-he", Title = "Liên hệ" }
     };
 
+    // Tiêu đề mục: số thứ tự trong vòng tròn + tên mục
     Microsoft.AspNetCore.Html.IHtmlContent SectionTitle(string id)
     {
         var index = Array.FindIndex(sections, x => x.Id == id);
-        var section = sections[index];
-        return Html.Raw($"<span class=\"legal-section__icon\" aria-hidden=\"true\"><i class=\"{section.Icon}\"></i></span>"
-                      + $"<span><span class=\"legal-section__number\">{index + 1:00}.</span> {System.Net.WebUtility.HtmlEncode(section.Title)}</span>");
+        return Html.Raw($"<span class=\"legal-section__number\">{index + 1}</span>"
+                      + $"<span>{System.Net.WebUtility.HtmlEncode(sections[index].Title)}</span>");
     }
 }
 
@@ -56,8 +56,8 @@
                 <span>Mockview<span>AI</span></span>
             </a>
             <div class="legal-guestbar__actions">
-                <a class="button button--secondary" href="/Auth/Login">Đăng nhập</a>
-                <a class="button button--primary" href="/Auth/Register">Đăng ký</a>
+                <a class="button button--secondary button--small" href="/Auth/Login">Đăng nhập</a>
+                <a class="button button--primary button--small" href="/Auth/Register">Đăng ký</a>
             </div>
         </header>
     }
@@ -66,30 +66,25 @@
 
     <div class="app-layout__content">
         <main class="page-shell legal-page">
-            <header class="page-header legal-header">
-                <div class="page-header__content">
-                    <span class="page-header__eyebrow legal-header__eyebrow">
-                        <i class="fa-solid fa-user-shield" aria-hidden="true"></i>
-                        QUYỀN RIÊNG TƯ
-                    </span>
-                    <h1 class="page-header__title">Chính sách quyền riêng tư</h1>
-                    <p class="page-header__description">MockviewAI thu thập dữ liệu gì, dùng để làm gì, chia sẻ với ai và bạn có những quyền gì đối với dữ liệu của mình.</p>
+            @* #region Banner *@
+            <section class="profile-banner legal-banner" aria-labelledby="legal-title">
+                <div class="profile-banner__identity">
+                    <nav class="legal-switch" aria-label="Trang pháp lý">
+                        <a class="legal-switch__link " asp-controller="Home" asp-action="Terms">Điều khoản sử dụng</a>
+                        <a class="legal-switch__link is-current" asp-controller="Home" asp-action="Privacy" aria-current="page">Quyền riêng tư</a>
+                    </nav>
+                    <h1 id="legal-title" class="profile-banner__name">Chính sách quyền riêng tư</h1>
+                    <p class="profile-banner__status">MockviewAI thu thập dữ liệu gì, dùng để làm gì, chia sẻ với ai và bạn có những quyền gì đối với dữ liệu của mình.</p>
+                    <div class="legal-meta">
+                        <span class="legal-chip">Cập nhật @lastUpdated.ToString("dd/MM/yyyy")</span>
+                        <span class="legal-chip" data-legal-read-time>~5 phút đọc</span>
+                        <button type="button" class="button button--secondary button--small legal-print" data-legal-print>
+                            <i class="fa-solid fa-print" aria-hidden="true"></i> In / Lưu PDF
+                        </button>
+                    </div>
                 </div>
-                <div class="legal-meta">
-                    <span class="status-chip">
-                        <i class="fa-regular fa-calendar" aria-hidden="true"></i>
-                        Cập nhật: @lastUpdated.ToString("dd/MM/yyyy")
-                    </span>
-                    <span class="status-chip status-chip--success">
-                        <i class="fa-regular fa-clock" aria-hidden="true"></i>
-                        <span data-legal-read-time>~5 phút đọc</span>
-                    </span>
-                    <button type="button" class="button button--secondary legal-print" data-legal-print>
-                        <i class="fa-solid fa-print" aria-hidden="true"></i>
-                        In / Lưu PDF
-                    </button>
-                </div>
-            </header>
+            </section>
+            @* #endregion *@
 
             <div class="legal-layout">
                 <aside class="legal-aside">
@@ -98,33 +93,23 @@
                             <span><i class="fa-solid fa-list-ul" aria-hidden="true"></i> Mục lục</span>
                             <i class="fa-solid fa-chevron-down legal-toc__caret" aria-hidden="true"></i>
                         </button>
-                        <span class="legal-toc__title">TRONG TRANG NÀY</span>
+                        <h2 class="legal-toc__title">Mục lục</h2>
                         <ol id="legal-toc-list" class="legal-toc__list">
                             @for (var i = 0; i < sections.Length; i++)
                             {
                                 <li>
                                     <a class="legal-toc__link" href="#@sections[i].Id" data-legal-toc-link>
-                                        <span class="legal-toc__index">@((i + 1).ToString("00"))</span>
+                                        <span class="legal-toc__index">@(i + 1)</span>
                                         <span>@sections[i].Title</span>
                                     </a>
                                 </li>
                             }
                         </ol>
                     </nav>
-
-                    <a class="legal-related" asp-controller="Home" asp-action="Terms" target="_blank" rel="noopener noreferrer">
-                        <span class="legal-related__icon" aria-hidden="true"><i class="fa-solid fa-file-contract"></i></span>
-                        <span class="legal-related__text">
-                            <small>XEM THÊM</small>
-                            <strong>Điều khoản sử dụng</strong>
-                        </span>
-                        <i class="fa-solid fa-chevron-right legal-related__chevron" aria-hidden="true"></i>
-                    </a>
                 </aside>
 
-                <article class="legal-content surface-card" data-legal-content>
+                <article class="legal-content" data-legal-content>
                     <div class="legal-summary">
-                        <span class="legal-summary__icon" aria-hidden="true"><i class="fa-solid fa-lightbulb"></i></span>
                         <div>
                             <strong>Tóm tắt nhanh</strong>
                             <p>Chúng tôi chỉ dùng dữ liệu để vận hành buổi luyện phỏng vấn và đánh giá câu trả lời của bạn. <strong>Không lưu file ghi âm</strong>, không lưu file CV, không bán dữ liệu cá nhân. CV bạn chọn giữ lại nằm trong bộ nhớ trình duyệt của chính bạn. Bạn có thể xoá từng buổi luyện bất cứ lúc nào và yêu cầu xoá toàn bộ tài khoản.</p>
@@ -266,23 +251,13 @@
                         <h2 class="legal-section__title">@SectionTitle("lien-he")</h2>
                         <p>Nếu có câu hỏi hoặc muốn thực hiện quyền đối với dữ liệu của mình, hãy liên hệ:</p>
                         <div class="legal-contact">
-                            <a class="action-card" href="mailto:@supportEmail">
-                                <div class="action-card__icon" aria-hidden="true"><i class="fa-regular fa-envelope"></i></div>
-                                <div class="action-card__content">
-                                    <span class="action-card__eyebrow">EMAIL</span>
-                                    <h3 class="action-card__title">@supportEmail</h3>
-                                    <p class="action-card__description">Phản hồi trong 3–5 ngày làm việc.</p>
-                                </div>
-                                <span class="action-card__chevron" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+                            <a class="legal-contact__card" href="mailto:@supportEmail">
+                                <span class="legal-contact__icon legal-contact__icon--mail" aria-hidden="true"><i class="fa-regular fa-envelope"></i></span>
+                                <span class="legal-contact__text"><strong>@supportEmail</strong><small>Phản hồi trong 3–5 ngày làm việc.</small></span>
                             </a>
-                            <a class="action-card" href="/Feedback">
-                                <div class="action-card__icon" aria-hidden="true"><i class="fa-regular fa-message"></i></div>
-                                <div class="action-card__content">
-                                    <span class="action-card__eyebrow">GÓP Ý</span>
-                                    <h3 class="action-card__title">Gửi ý kiến</h3>
-                                    <p class="action-card__description">Góp ý trực tiếp trên MockviewAI (cần đăng nhập).</p>
-                                </div>
-                                <span class="action-card__chevron" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+                            <a class="legal-contact__card" href="/Feedback">
+                                <span class="legal-contact__icon" aria-hidden="true"><i class="fa-regular fa-message"></i></span>
+                                <span class="legal-contact__text"><strong>Gửi góp ý</strong><small>Góp ý trực tiếp trên MockviewAI (cần đăng nhập).</small></span>
                             </a>
                         </div>
                     </section>

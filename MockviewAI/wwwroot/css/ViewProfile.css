@@ -1,302 +1,158 @@
-﻿/* MockviewAI | Hồ sơ cá nhân
-   Bố cục riêng của Views/Profile/ViewProfile.cshtml. */
+﻿/* MockviewAI | Trang Hồ sơ
+   Bố cục riêng của Views/Profile/ViewProfile.cshtml */
 
-.profile-page {
-    padding-bottom: 72px;
-}
-
-.profile-layout {
+/* #region Thông tin nghề nghiệp */
+.profile-facts {
     display: grid;
-    grid-template-columns: minmax(300px, 340px) minmax(0, 1fr);
-    align-items: start;
-    gap: 28px;
-}
-
-.profile-sidebar {
-    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
+    margin-top: 26px;
+}
+
+.profile-fact {
+    display: flex;
     min-width: 0;
-}
-
-.profile-summary-card,
-.profile-history-card {
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-panel);
-    background: var(--color-surface);
-    box-shadow: var(--shadow-panel);
-}
-
-.profile-summary-card {
-    padding: 28px;
-}
-
-.profile-summary-card__avatar-wrap {
-    position: relative;
-    width: fit-content;
-    margin-bottom: 18px;
-}
-
-.profile-summary-card__avatar {
-    display: grid;
-    width: 82px;
-    height: 82px;
-    overflow: hidden;
-    place-items: center;
-    border: 4px solid var(--color-primary-soft);
-    border-radius: 22px;
-    background: var(--gradient-primary);
-    color: var(--color-on-gradient);
-    font-size: 27px;
-    font-weight: 800;
-    box-shadow: var(--shadow-control);
-}
-
-    .profile-summary-card__avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-.profile-summary-card__status {
-    position: absolute;
-    right: -3px;
-    bottom: -3px;
-    width: 17px;
-    height: 17px;
-    border: 3px solid var(--color-surface);
-    border-radius: 50%;
-    background: var(--color-success);
-}
-
-.profile-summary-card__name {
-    overflow-wrap: anywhere;
-    font-size: 22px;
-    font-weight: 800;
-    line-height: 1.25;
-    letter-spacing: -.025em;
-}
-
-.profile-summary-card__status-text {
-    margin-top: 6px;
-    color: var(--color-muted);
-    font-size: 14px;
-}
-
-.profile-summary-card__identity .status-chip {
-    margin-top: 10px;
-}
-
-.profile-summary-card__divider {
-    height: 1px;
-    margin: 22px 0;
-    background: var(--color-border);
-}
-
-.profile-detail-list {
-    display: grid;
-    gap: 16px;
-}
-
-.profile-detail {
-    display: grid;
-    grid-template-columns: 36px minmax(0, 1fr);
     align-items: center;
-    gap: 11px;
+    gap: 14px;
+    padding: 18px 20px;
+    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
 }
 
-.profile-detail__icon {
+.profile-fact__icon {
     display: grid;
-    width: 36px;
-    height: 36px;
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
     place-items: center;
-    border-radius: 10px;
-    background: var(--color-primary-soft);
-    color: var(--color-primary);
-    font-size: 15px;
+    border-radius: 14px;
+    font-size: 18px;
 }
 
-.profile-detail__content {
+.profile-fact__content {
     display: grid;
-    gap: 3px;
     min-width: 0;
+    gap: 2px;
 }
 
-.profile-detail__label {
-    color: var(--color-muted);
-    font-size: 10px;
-    font-weight: 750;
-    letter-spacing: .05em;
-    text-transform: uppercase;
-}
-
-.profile-detail__value {
-    overflow-wrap: anywhere;
-    color: var(--color-text-soft);
-    font-size: 14px;
+.profile-fact__label {
+    font-size: 13px;
     font-weight: 700;
 }
 
-.profile-summary-card__actions {
-    display: grid;
-    gap: 9px;
-    margin-top: 22px;
-}
-
-.profile-action-button {
-    width: 100%;
-}
-
-.profile-history-card {
-    min-width: 0;
-    padding: 30px;
-}
-
-.profile-history-card__header {
-    margin-bottom: 22px;
-}
-
-.profile-session-item {
-    min-width: 0;
-}
-
-.profile-session-item--extra {
-    display: none;
-}
-
-/* Mục tài khoản chưa dùng được (Xoá tài khoản) */
-.settings-item--button:disabled {
-    opacity: .55;
-    cursor: not-allowed;
-}
-
-    .settings-item--button:disabled:hover {
-        background: transparent;
-    }
-
-/* #region Máy tính bảng */
-@media (max-width: 900px) {
-    .profile-layout {
-        grid-template-columns: minmax(245px, .8fr) minmax(0, 1.35fr);
-        gap: 18px;
-    }
-
-    .profile-summary-card,
-    .profile-history-card {
-        padding: 22px;
-    }
-
-    .profile-summary-card__avatar {
-        width: 72px;
-        height: 72px;
-        border-radius: 19px;
-    }
+.profile-fact__value {
+    overflow: hidden;
+    font-size: 16px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 /* #endregion */
 
-/* #region Điện thoại */
+/* #region Quản lý tài khoản + Hành trình */
+.profile-panels {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 22px;
+    margin-top: 26px;
+}
+
+.profile-panels .settings-card {
+    border-width: var(--border-card, 1px);
+    border-color: var(--color-card-border, var(--color-border));
+    border-radius: var(--radius-card);
+}
+
+.journey-card {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 16px;
+    padding: 22px 24px;
+    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+}
+
+.journey-card__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px 12px;
+}
+
+.journey-card__title {
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.journey-card__since {
+    font-size: 13px;
+}
+
+.journey-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.journey-stat {
+    display: grid;
+    gap: 2px;
+    padding: 14px 16px;
+    border-radius: 16px;
+}
+
+.journey-stat__label {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.journey-stat__value {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+    .journey-stat__value small {
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+.journey-card__login {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    font-size: 13px;
+}
+
+.journey-card__dot {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+    border-radius: 50%;
+}
+/* #endregion */
+
+/* #region Responsive */
+@media (max-width: 900px) {
+    .profile-facts,
+    .profile-panels {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 680px) {
-    .profile-page__header {
-        display: none;
-    }
-
-    .profile-layout {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-    }
-
-    .profile-sidebar {
-        display: contents;
-    }
-
-    .profile-summary-card {
-        order: 1;
-        width: 100%;
-        padding: 20px;
-        border-radius: 16px;
-    }
-
-    .profile-summary-card__avatar-wrap {
-        float: left;
-        margin: 0 14px 14px 0;
-    }
-
-    .profile-summary-card__avatar {
-        width: 68px;
-        height: 68px;
-        border-radius: 18px;
-        font-size: 22px;
-    }
-
-    .profile-summary-card__identity {
-        min-height: 85px;
-        padding-top: 4px;
-    }
-
-    .profile-summary-card__name {
-        font-size: 19px;
-    }
-
-    .profile-summary-card__status-text {
-        font-size: 13px;
-    }
-
-    .profile-summary-card__divider {
-        clear: both;
-        margin: 16px 0;
-    }
-
-    .profile-detail {
-        grid-template-columns: 32px minmax(0, 1fr);
-        gap: 9px;
-    }
-
-    .profile-detail__icon {
-        width: 32px;
-        height: 32px;
-    }
-
-    .profile-detail__value {
-        font-size: 13px;
-    }
-
-    .profile-summary-card__actions {
+    .profile-facts,
+    .profile-panels {
+        gap: 12px;
         margin-top: 18px;
-    }
-
-    .profile-action-button {
-        min-height: 42px;
-        font-size: 12px;
-    }
-
-    .profile-history-card {
-        order: 2;
-        width: 100%;
-        padding: 20px 15px;
-        border-radius: 16px;
-    }
-
-    .profile-history-card__header {
-        align-items: flex-start;
-        margin-bottom: 17px;
-    }
-
-        .profile-history-card__header .section-header__action {
-            margin-top: 20px;
-        }
-
-    .profile-session-item--extra {
-        display: none;
-    }
-
-    .feedback-action-card {
-        order: 3;
-        width: 100%;
-    }
-
-    .settings-card {
-        order: 4;
-        width: 100%;
     }
 }
 /* #endregion */

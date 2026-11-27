@@ -4,6 +4,7 @@ using MockviewAI.Models.Entities;
 using MockviewAI.Models.InterviewQuestions;
 using MockviewAI.Models.ViewModels;
 using MockviewAI.Repositories.Interfaces;
+using MockviewAI.Services.Admin;
 using MockviewAI.Services.Ai;
 using MockviewAI.Services.Ai.Interfaces;
 using MockviewAI.Services.InterviewQuestions.Interfaces;
@@ -60,6 +61,39 @@ namespace MockviewAI.Services.SessionHistory
 
             await _sessionRepository.DeleteAsync(session.Id);
             return true;
+        }
+        #endregion
+
+        #region Hành trình (trang Hồ sơ)
+        public async Task<PracticeJourneyStats> GetJourneyStatsAsync(string email)
+        {
+            var user = await FindUserAsync(email);
+            if (user == null) return new PracticeJourneyStats(0, 0, 0);
+
+            var sessions = (await _sessionRepository.GetListAsync(
+                predicate: s => s.UserId == user.Id,
+                includes: s => s.Answers
+            )).ToList();
+
+            int answered = sessions.Sum(s => s.Answers.Count(a => !a.Skipped && !string.IsNullOrWhiteSpace(a.Answer)));
+            var practiceDays = sessions.Select(s => VietnamTime.FromUtc(s.StartedAt).Date).ToHashSet();
+
+            return new PracticeJourneyStats(sessions.Count, answered, CountStreak(practiceDays, VietnamTime.Today));
+        }
+
+        /// <summary>Đếm ngày luyện liên tiếp lùi từ hôm nay; hôm nay chưa luyện thì bắt đầu từ hôm qua.</summary>
+        private static int CountStreak(HashSet<DateTime> practiceDays, DateTime today)
+        {
+            var day = practiceDays.Contains(today) ? today : today.AddDays(-1);
+            int streak = 0;
+
+            while (practiceDays.Contains(day))
+            {
+                streak++;
+                day = day.AddDays(-1);
+            }
+
+            return streak;
         }
         #endregion
 

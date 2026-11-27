@@ -1,8 +1,19 @@
 ﻿@model List<MockviewAI.Models.ViewModels.RecentSessionViewModel>
+
 @{
     Layout = null;
     ViewData["ActiveNav"] = "history";
     var sessions = Model ?? new List<MockviewAI.Models.ViewModels.RecentSessionViewModel>();
+
+    // Trạng thái dùng cho viên lọc: scored (đã chấm), progress (chưa xong), stopped (đã dừng)
+    string StateOf(MockviewAI.Models.ViewModels.RecentSessionViewModel s) => s.HasScore ? "scored" : s.IsInProgress ? "progress" : "stopped";
+    var filters = new[]
+    {
+        (Key: "all", Label: "Tất cả", Count: sessions.Count),
+        (Key: "scored", Label: "Đã chấm", Count: sessions.Count(s => s.HasScore)),
+        (Key: "progress", Label: "Chưa xong", Count: sessions.Count(s => s.IsInProgress)),
+        (Key: "live", Label: "Thực chiến", Count: sessions.Count(s => s.IsLive))
+    };
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -21,65 +32,59 @@
     <partial name="Partials/_AppNavigation" />
 
     <main class="page-shell history-page">
-        <header class="page-header">
-            <div class="page-header__content">
-                <span class="page-header__eyebrow">HÀNH TRÌNH CỦA BẠN</span>
-                <h1 class="page-header__title">Lịch sử luyện tập</h1>
-                <p class="page-header__description">
-                    Xem lại hội thoại, kết quả đánh giá và tiếp tục các buổi phỏng vấn chưa hoàn thành.
-                </p>
-            </div>
-        </header>
+        <h1 class="visually-hidden">Lịch sử luyện tập</h1>
 
-        <section class="surface-card history-panel" aria-labelledby="history-list-title">
-            <div class="section-header history-panel__header">
-                <div class="section-header__content">
-                    <span class="section-header__eyebrow">DANH SÁCH BUỔI LUYỆN</span>
-                    <h2 id="history-list-title" class="section-header__title">Tất cả buổi luyện</h2>
-                    <p class="section-header__description" id="history-count" aria-live="polite">
-                        @sessions.Count buổi luyện · Chọn một buổi để xem chi tiết.
-                    </p>
-                </div>
-                <div class="form-field history-search">
-                    <label class="form-field__label" for="history-search">Tìm theo vị trí</label>
-                    <div class="form-control-wrap">
-                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                        <input class="form-control" type="search" id="history-search"
-                               placeholder="VD: Lập trình viên"
-                               autocomplete="off" aria-controls="history-list" />
-                    </div>
-                </div>
-            </div>
+        @if (!sessions.Any())
+        {
+            <section class="history-empty">
+                <h2>Chưa có buổi luyện nào</h2>
+                <p>Bắt đầu một buổi phỏng vấn để lịch sử luyện tập xuất hiện ở đây.</p>
+                <a class="button button--primary button--icon" href="/Interview/Create">
+                    <span class="button__icon" aria-hidden="true"><i class="fa-solid fa-microphone"></i></span>
+                    Bắt đầu luyện tập
+                </a>
+            </section>
+        }
+        else
+        {
+            @* #region Thanh công cụ: tìm + lọc *@
+            <div class="history-toolbar">
+                <label class="history-search">
+                    <span class="visually-hidden">Tìm theo vị trí</span>
+                    <i class="fa-solid fa-magnifying-glass history-search__icon" aria-hidden="true"></i>
+                    <input class="history-search__input" type="search" id="history-search"
+                           placeholder="Tìm theo vị trí, ví dụ Lập trình viên" autocomplete="off" aria-controls="history-list" />
+                </label>
 
-            @if (!sessions.Any())
-            {
-                <div class="empty-state">
-                    <span class="empty-state__icon" aria-hidden="true"><i class="fa-regular fa-clock"></i></span>
-                    <div class="empty-state__content">
-                        <h3 class="empty-state__title">Chưa có buổi luyện tập nào</h3>
-                        <p class="empty-state__description">Bắt đầu một buổi phỏng vấn để lịch sử luyện tập xuất hiện ở đây.</p>
-                    </div>
-                    <a class="button button--secondary" href="/Interview/Create">Bắt đầu luyện tập <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
-                </div>
-            }
-            else
-            {
-                <div class="session-list history-list" id="history-list">
-                    @foreach (var session in sessions)
+                <div class="history-filters" role="group" aria-label="Lọc buổi luyện">
+                    @foreach (var f in filters)
                     {
-                        <div class="history-entry" data-role="@session.RoleName">
-                            <partial name="Partials/_SessionCard" model="session" />
-                        </div>
+                        <button type="button" class="history-filter @(f.Key == "all" ? "is-active" : null)"
+                                data-filter="@f.Key" aria-pressed="@(f.Key == "all" ? "true" : "false")">
+                            @f.Label <span class="history-filter__count">@f.Count</span>
+                        </button>
                     }
                 </div>
-                <div class="history-no-results" id="history-no-results" hidden role="status">
-                    <span class="history-no-results__icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
-                    <h3>Không tìm thấy buổi luyện phù hợp</h3>
-                    <p>Thử từ khóa khác hoặc xóa nội dung tìm kiếm.</p>
-                    <button type="button" class="button button--secondary" id="history-clear">Xóa tìm kiếm</button>
-                </div>
-            }
-        </section>
+
+                <span class="history-count" id="history-count" aria-live="polite">@sessions.Count buổi luyện</span>
+            </div>
+            @* #endregion *@
+
+            <ul class="history-list" id="history-list">
+                @foreach (var session in sessions)
+                {
+                    <li class="history-entry" data-role="@session.RoleName" data-state="@StateOf(session)" data-live="@(session.IsLive ? "true" : "false")">
+                        <partial name="Partials/_SessionCard" model="session" />
+                    </li>
+                }
+            </ul>
+
+            <section class="history-empty" id="history-no-results" hidden role="status">
+                <h2>Không có buổi luyện phù hợp</h2>
+                <p>Thử từ khoá khác hoặc chọn "Tất cả".</p>
+                <button type="button" class="button button--secondary" id="history-clear">Xoá tìm kiếm và bộ lọc</button>
+            </section>
+        }
     </main>
 
     <partial name="Partials/_Notify" />

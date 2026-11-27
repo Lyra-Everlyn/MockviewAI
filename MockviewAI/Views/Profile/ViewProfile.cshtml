@@ -1,20 +1,11 @@
 ﻿@model MockviewAI.Models.ViewModels.ProfileViewModel
-@*
-    #region ViewProfile
-    <summary>
-    [PROFILE] 
-    Trang hồ sơ: thẻ thông tin, nút góp ý, quản lý tài khoản, các buổi luyện gần đây.
-    - Không có mục "Xoá ghi âm": hệ thống không lưu file ghi âm (chỉ gửi sang Groq / Gemini để chép lời rồi bỏ).
-    - "Xoá tài khoản" đang tắt cho tới khi có luồng xoá dữ liệu người dùng.
-    </summary>
-    #endregion
-*@
 @{
     Layout = null;
     ViewData["ActiveNav"] = "profile";
 
     var userName = User.Identity?.Name ?? "";
     var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
+    const string NotSet = "Chưa cập nhật";
 }
 
 <!DOCTYPE html>
@@ -35,228 +26,160 @@
     <partial name="Partials/_AppNavigation" />
 
     <main class="page-shell profile-page">
-        <header class="page-header profile-page__header">
-            <div class="page-header__content">
-                <span class="page-header__eyebrow">TÀI KHOẢN CỦA BẠN</span>
-                <h1 class="page-header__title">Hồ sơ cá nhân</h1>
-                <p class="page-header__description">
-                    Quản lý thông tin và theo dõi hành trình luyện phỏng vấn của bạn.
-                </p>
+        @* #region Banner *@
+        <section class="profile-banner" aria-labelledby="profile-name">
+            <div class="profile-banner__avatar-wrap">
+                <div class="profile-banner__avatar">
+                    @if (!string.IsNullOrWhiteSpace(avatarUrl))
+                    {
+                        <img src="@avatarUrl" alt="Ảnh đại diện" referrerpolicy="no-referrer" />
+                    }
+                    else
+                    {
+                        @Model.AvatarInitial
+                    }
+                </div>
+                <span class="profile-banner__presence" title="Đang hoạt động" aria-label="Tài khoản đang hoạt động"></span>
             </div>
-        </header>
 
-        <div class="profile-layout">
-            <aside class="profile-sidebar">
-                <section class="profile-summary-card">
-                    <div class="profile-summary-card__avatar-wrap">
-                        <div class="profile-summary-card__avatar">
-                            @if (!string.IsNullOrWhiteSpace(avatarUrl))
-                            {
-                                <img src="@avatarUrl"
-                                     alt="Ảnh đại diện"
-                                     referrerpolicy="no-referrer" />
-                            }
-                            else
-                            {
-                                @Model.AvatarInitial
-                            }
-                        </div>
+            <div class="profile-banner__identity">
+                <span class="profile-banner__label">Hồ sơ cá nhân</span>
+                <h1 id="profile-name" class="profile-banner__name">@userName</h1>
+                @if (!string.IsNullOrWhiteSpace(Model.StatusText))
+                {
+                    <p class="profile-banner__status">@Model.StatusText</p>
+                }
 
-                        <span class="profile-summary-card__status"
-                              aria-label="Tài khoản đang hoạt động"></span>
-                    </div>
-
-                    <div class="profile-summary-card__identity">
-                        <h2 class="profile-summary-card__name">@userName</h2>
-                        <p class="profile-summary-card__status-text">@Model.StatusText</p>
-
-                        @if (!string.IsNullOrWhiteSpace(Model.ExperienceLevel))
-                        {
-                            <span class="status-chip">@Model.ExperienceLevel</span>
-                        }
-                    </div>
-
-                    <div class="profile-summary-card__divider"></div>
-
-                    <div class="profile-detail-list">
-                        @if (!string.IsNullOrWhiteSpace(Model.Major))
-                        {
-                            <div class="profile-detail">
-                                <span class="profile-detail__icon" aria-hidden="true">
-                                    <i class="fa-solid fa-graduation-cap"></i>
-                                </span>
-
-                                <div class="profile-detail__content">
-                                    <span class="profile-detail__label">Chuyên ngành</span>
-                                    <strong class="profile-detail__value">@Model.Major</strong>
-                                </div>
-                            </div>
-                        }
-
-                        @if (!string.IsNullOrWhiteSpace(Model.TargetPosition))
-                        {
-                            <div class="profile-detail">
-                                <span class="profile-detail__icon" aria-hidden="true">
-                                    <i class="fa-solid fa-briefcase"></i>
-                                </span>
-
-                                <div class="profile-detail__content">
-                                    <span class="profile-detail__label">Vị trí mục tiêu</span>
-                                    <strong class="profile-detail__value">@Model.TargetPosition</strong>
-                                </div>
-                            </div>
-                        }
-                    </div>
-
-                    <div class="profile-summary-card__actions">
-                        <a href="/Profile/Edit" class="button button--secondary profile-action-button">
-                            <i class="fa-solid fa-pen"></i>
-                            Chỉnh sửa hồ sơ
-                        </a>
-
-                        <a href="/CV" class="button button--secondary profile-action-button">
-                            <i class="fa-regular fa-file-lines"></i>
-                            CV của tôi
-                        </a>
-                    </div>
-                </section>
-
-                <a href="/Feedback" class="action-card feedback-action-card">
-                    <div class="action-card__icon" aria-hidden="true">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    </div>
-
-                    <div class="action-card__content">
-                        <span class="action-card__eyebrow">GÓP Ý</span>
-                        <h3 class="action-card__title">Đóng góp ý kiến</h3>
-                        <p class="action-card__description">
-                            Chia sẻ trải nghiệm để MockviewAI cải thiện tốt hơn.
-                        </p>
-
-                        <span class="action-card__action">
-                            Gửi góp ý
-                            <span class="action-card__chevron" aria-hidden="true">
-                                <i class="fa-solid fa-chevron-right"></i>
-                            </span>
-                        </span>
-                    </div>
-                </a>
-
-                <section class="settings-card" aria-labelledby="account-settings-title">
-                    <div class="settings-card__header">
-                        <span class="section-header__eyebrow">TÀI KHOẢN</span>
-                        <h2 id="account-settings-title" class="settings-card__title">
-                            Quản lý tài khoản
-                        </h2>
-                    </div>
-
-                    <div class="settings-list">
-                        <button type="button"
-                                class="settings-item settings-item--button"
-                                data-theme-toggle
-                                aria-pressed="false"
-                                aria-label="Chuyển sang giao diện tối">
-                            <span class="settings-item__icon" aria-hidden="true">
-                                <i class="fa-solid fa-moon theme-state--light"></i>
-                                <i class="fa-solid fa-sun theme-state--dark"></i>
-                            </span>
-
-                            <span class="settings-item__content">
-                                <strong class="settings-item__title">Chế độ tối</strong>
-                                <span class="settings-item__description">
-                                    <span class="theme-state--light">Đang dùng giao diện sáng</span>
-                                    <span class="theme-state--dark">Đang dùng giao diện tối</span>
-                                </span>
-                            </span>
-
-                            <span class="settings-switch" aria-hidden="true"></span>
-                        </button>
-
-                        <button type="button" class="settings-item settings-item--button settings-item--danger" disabled>
-                            <span class="settings-item__icon" aria-hidden="true">
-                                <i class="fa-solid fa-user-xmark"></i>
-                            </span>
-
-                            <span class="settings-item__content">
-                                <strong class="settings-item__title">Xoá tài khoản</strong>
-                                <span class="settings-item__description">
-                                    Chức năng đang được phát triển
-                                </span>
-                            </span>
-                        </button>
-
-                        <button type="button" class="settings-item settings-item--button" onclick="onClickLogout(event)">
-                            <span class="settings-item__icon" aria-hidden="true">
-                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                            </span>
-
-                            <span class="settings-item__content">
-                                <strong class="settings-item__title">Đăng xuất</strong>
-                                <span class="settings-item__description">
-                                    Kết thúc phiên đăng nhập hiện tại
-                                </span>
-                            </span>
-
-                            <span class="settings-item__chevron" aria-hidden="true">
-                                <i class="fa-solid fa-chevron-right"></i>
-                            </span>
-                        </button>
-                    </div>
-                </section>
-            </aside>
-
-            <section class="profile-history-card" aria-labelledby="profile-history-title">
-                <div class="section-header section-header--with-action profile-history-card__header">
-                    <div class="section-header__content">
-                        <span class="section-header__eyebrow">HÀNH TRÌNH CỦA BẠN</span>
-                        <h2 id="profile-history-title" class="section-header__title">
-                            Lịch sử luyện tập
-                        </h2>
-                        <p class="section-header__description">
-                            Các buổi phỏng vấn gần đây của bạn.
-                        </p>
-                    </div>
-
-                    <a href="/Home/History" class="section-header__action">
-                        Xem tất cả
-                        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                <div class="profile-banner__actions">
+                    <a href="/Profile/Edit" class="button button--primary button--icon">
+                        <span class="button__icon" aria-hidden="true"><i class="fa-solid fa-pen"></i></span>
+                        Chỉnh sửa hồ sơ
+                    </a>
+                    <a href="/CV" class="button button--alt button--icon">
+                        <span class="button__icon" aria-hidden="true"><i class="fa-regular fa-file-lines"></i></span>
+                        CV của tôi
                     </a>
                 </div>
+            </div>
+        </section>
+        @* #endregion *@
 
-                @if (!Model.RecentSessions.Any())
-                {
-                    <div class="empty-state">
-                        <div class="empty-state__icon" aria-hidden="true">
-                            <i class="fa-regular fa-clock"></i>
-                        </div>
+        @* #region Thông tin nghề nghiệp *@
+        <section class="profile-facts" aria-label="Thông tin nghề nghiệp">
+            <div class="profile-fact">
+                <span class="profile-fact__icon profile-fact__icon--major" aria-hidden="true"><i class="fa-solid fa-graduation-cap"></i></span>
+                <div class="profile-fact__content">
+                    <span class="profile-fact__label">Chuyên ngành</span>
+                    <strong class="profile-fact__value">@(string.IsNullOrWhiteSpace(Model.Major) ? NotSet : Model.Major)</strong>
+                </div>
+            </div>
 
-                        <div class="empty-state__content">
-                            <h3 class="empty-state__title">Chưa có buổi luyện tập nào</h3>
-                            <p class="empty-state__description">
-                                Bắt đầu một buổi phỏng vấn để xem tiến độ của bạn tại đây.
-                            </p>
-                        </div>
+            <div class="profile-fact">
+                <span class="profile-fact__icon profile-fact__icon--target" aria-hidden="true"><i class="fa-solid fa-briefcase"></i></span>
+                <div class="profile-fact__content">
+                    <span class="profile-fact__label">Vị trí mục tiêu</span>
+                    <strong class="profile-fact__value">@(string.IsNullOrWhiteSpace(Model.TargetPosition) ? NotSet : Model.TargetPosition)</strong>
+                </div>
+            </div>
 
-                        <a href="/Interview/Create" class="button button--secondary">
-                            Bắt đầu luyện tập
-                            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-                        </a>
+            <div class="profile-fact">
+                <span class="profile-fact__icon profile-fact__icon--level" aria-hidden="true"><i class="fa-solid fa-star"></i></span>
+                <div class="profile-fact__content">
+                    <span class="profile-fact__label">Kinh nghiệm</span>
+                    <strong class="profile-fact__value">@(string.IsNullOrWhiteSpace(Model.ExperienceLevel) ? NotSet : Model.ExperienceLevel)</strong>
+                </div>
+            </div>
+        </section>
+        @* #endregion *@
+
+        <div class="profile-panels">
+            @* #region Quản lý tài khoản *@
+            <section class="settings-card" aria-labelledby="account-settings-title">
+                <div class="settings-card__header">
+                    <h2 id="account-settings-title" class="settings-card__title">Quản lý tài khoản</h2>
+                </div>
+
+                <div class="settings-list">
+                    <button type="button"
+                            class="settings-item settings-item--button"
+                            data-theme-toggle
+                            aria-pressed="false"
+                            aria-label="Chuyển sang giao diện tối">
+                        <span class="settings-item__icon" aria-hidden="true">
+                            <i class="fa-solid fa-moon theme-state--light"></i>
+                            <i class="fa-solid fa-sun theme-state--dark"></i>
+                        </span>
+                        <span class="settings-item__content">
+                            <strong class="settings-item__title">Chế độ tối</strong>
+                            <span class="settings-item__description">
+                                <span class="theme-state--light">Đang dùng giao diện sáng</span>
+                                <span class="theme-state--dark">Đang dùng giao diện tối</span>
+                            </span>
+                        </span>
+                        <span class="settings-switch" aria-hidden="true"></span>
+                    </button>
+
+                    <button type="button" class="settings-item settings-item--button" onclick="onClickLogout(event)">
+                        <span class="settings-item__icon" aria-hidden="true">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        </span>
+                        <span class="settings-item__content">
+                            <strong class="settings-item__title">Đăng xuất</strong>
+                            <span class="settings-item__description">Kết thúc phiên đăng nhập hiện tại</span>
+                        </span>
+                        <span class="settings-item__chevron" aria-hidden="true">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </span>
+                    </button>
+
+                    <button type="button" class="settings-item settings-item--button settings-item--danger" disabled>
+                        <span class="settings-item__icon" aria-hidden="true">
+                            <i class="fa-solid fa-user-xmark"></i>
+                        </span>
+                        <span class="settings-item__content">
+                            <strong class="settings-item__title">Xoá tài khoản</strong>
+                            <span class="settings-item__description">Chức năng đang được phát triển</span>
+                        </span>
+                    </button>
+                </div>
+            </section>
+            @* #endregion *@
+
+            @* #region Hành trình của bạn *@
+            <section class="journey-card" aria-labelledby="journey-title">
+                <div class="journey-card__header">
+                    <h2 id="journey-title" class="journey-card__title">Hành trình của bạn</h2>
+                    <span class="journey-card__since">Tham gia từ @Model.MemberSince.ToString("dd/MM/yyyy")</span>
+                </div>
+
+                <div class="journey-grid">
+                    <div class="journey-stat">
+                        <span class="journey-stat__label">Chuỗi luyện tập</span>
+                        <strong class="journey-stat__value journey-stat__value--streak">@Model.StreakDays <small>ngày liên tiếp</small></strong>
                     </div>
-                }
-                else
-                {
-                    <div class="session-list">
-                        @for (int i = 0; i < Model.RecentSessions.Count; i++)
-                        {
-                            var session = Model.RecentSessions[i];
-
-                            <div class="profile-session-item @(i >= 3 ? "profile-session-item--extra" : "")">
-                                <partial name="Partials/_SessionCard" model="session" />
-                            </div>
-                        }
+                    <div class="journey-stat">
+                        <span class="journey-stat__label">Đã luyện</span>
+                        <strong class="journey-stat__value journey-stat__value--sessions">@Model.TotalSessions <small>buổi</small></strong>
                     </div>
+                    <div class="journey-stat">
+                        <span class="journey-stat__label">Câu đã trả lời</span>
+                        <strong class="journey-stat__value journey-stat__value--answers">@Model.AnsweredQuestions</strong>
+                    </div>
+                    <div class="journey-stat">
+                        <span class="journey-stat__label">Đã đồng hành</span>
+                        <strong class="journey-stat__value">@Model.DaysWithUs <small>ngày</small></strong>
+                    </div>
+                </div>
+
+                @if (Model.CurrentLoginAt.HasValue)
+                {
+                    <p class="journey-card__login">
+                        <span class="journey-card__dot" aria-hidden="true"></span>
+                        Đăng nhập lần này lúc @Model.CurrentLoginAt.Value.ToString("HH:mm, dd/MM/yyyy")
+                    </p>
                 }
             </section>
+            @* #endregion *@
         </div>
     </main>
     <partial name="Partials/_Notify" />

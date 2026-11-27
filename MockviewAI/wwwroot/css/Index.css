@@ -1,78 +1,173 @@
 ﻿/* MockviewAI | Trang chủ
-   Bố cục riêng của Views/Home/Index.cshtml. */
+   Bố cục riêng của Views/Home/Index.cshtml */
 
-.content-grid {
+/* #region Hai ô hành động */
+.action-tiles {
     display: grid;
-}
-
-.content-grid--hero {
-    grid-template-columns: minmax(0, 1.8fr) minmax(270px, .82fr);
-    align-items: stretch;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
 }
 
-    .content-grid--hero > .panel {
-        min-height: 270px;
+.action-tile {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: 230px;
+    align-items: center;
+    gap: 22px;
+    overflow: hidden;
+    padding: 30px;
+    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+}
+
+    .action-tile::before,
+    .action-tile::after {
+        position: absolute;
+        top: 50%;
+        border-style: solid;
+        border-radius: 50%;
+        content: "";
+        pointer-events: none;
     }
 
-    .content-grid--hero .stack {
-        grid-template-rows: 1fr 1fr;
+    .action-tile::before {
+        right: -120px;
+        width: 280px;
+        height: 280px;
+        margin-top: -140px;
+        border-width: 22px;
     }
 
-    .content-grid--hero .action-card,
-    .content-grid--hero .info-card {
-        height: 100%;
+    .action-tile::after {
+        right: -30px;
+        width: 100px;
+        height: 100px;
+        margin-top: -50px;
+        border-width: 13px;
     }
 
+.action-tile__bubble {
+    position: relative;
+    display: grid;
+    flex: 0 0 84px;
+    width: 84px;
+    height: 84px;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 32px;
+}
+
+.action-tile__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-width: 0;
+    max-width: 300px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.action-tile__label {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.action-tile__title {
+    font-size: 21px;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -.02em;
+}
+
+.action-tile__description {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.action-tile__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.action-tile__link {
+    font-size: 14px;
+    font-weight: 700;
+}
+/* #endregion */
+
+/* #region Số liệu */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 13px;
 }
+/* #endregion */
 
-.action-grid {
+/* #region Buổi gần đây + cột phải */
+.home-bottom {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 13px;
+    grid-template-columns: minmax(0, 1.8fr) minmax(270px, .9fr);
+    align-items: stretch;
+    gap: 20px;
 }
 
+.home-bottom__aside {
+    align-self: start;
+    padding-top: 70px;
+}
+
+    .home-bottom__aside .action-card,
+    .home-bottom__aside .info-card {
+        align-content: center;
+    }
+
+    .home-bottom__aside .action-card {
+        grid-template-columns: 42px minmax(0, 1fr);
+    }
+/* #endregion */
+
+/* #region Responsive */
 @media (max-width: 900px) {
-    .content-grid--hero {
-        grid-template-columns: minmax(0, 1.45fr) minmax(230px, .85fr);
-        gap: 15px;
+    .action-tiles,
+    .home-bottom {
+        grid-template-columns: 1fr;
     }
 
     .stats-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .action-grid {
-        grid-template-columns: 1fr;
+    .home-bottom__aside {
+        padding-top: 0;
     }
 }
 
 @media (max-width: 680px) {
-    .content-grid--hero {
-        display: flex;
+    .action-tile {
+        min-height: 0;
         flex-direction: column;
-        gap: 12px;
+        align-items: flex-start;
+        padding: 24px 20px;
     }
 
-        .content-grid--hero > .panel {
-            min-height: 0;
+        .action-tile::after {
+            display: none;
         }
 
-        .content-grid--hero .stack {
-            grid-template-rows: none;
-            gap: 10px;
-        }
+    .action-tile__bubble {
+        flex-basis: 64px;
+        width: 64px;
+        height: 64px;
+        font-size: 24px;
+    }
 
     .stats-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 9px;
-    }
-
-    .action-grid {
         gap: 9px;
     }
 }
@@ -82,3 +177,4 @@
         grid-template-columns: 1fr;
     }
 }
+/* #endregion */
