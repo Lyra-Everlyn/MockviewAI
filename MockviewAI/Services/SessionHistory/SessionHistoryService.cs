@@ -6,6 +6,8 @@ using MockviewAI.Models.ViewModels;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Ai;
 using MockviewAI.Services.Ai.Interfaces;
+using MockviewAI.Services.CvQuestions.Interfaces;
+using MockviewAI.Services.InterviewQuestions;
 using MockviewAI.Services.InterviewQuestions.Interfaces;
 
 namespace MockviewAI.Services.SessionHistory
@@ -25,16 +27,18 @@ namespace MockviewAI.Services.SessionHistory
         private readonly IUserRepository _userRepository;
         private readonly IAnswerQualityChecker _quality;
         private readonly IQuestionBankStore _bank;
+        private readonly ICvQuestionStore _cvQuestions;
         #endregion
 
         #region Constructor
         public SessionHistoryService(IRepository<InterviewSession> sessionRepository, IUserRepository userRepository,
-                                     IAnswerQualityChecker quality, IQuestionBankStore bank)
+                                     IAnswerQualityChecker quality, IQuestionBankStore bank, ICvQuestionStore cvQuestions)
         {
             _sessionRepository = sessionRepository;
             _userRepository = userRepository;
             _quality = quality;
             _bank = bank;
+            _cvQuestions = cvQuestions;
         }
         #endregion
 
@@ -69,6 +73,9 @@ namespace MockviewAI.Services.SessionHistory
             var session = await FindSessionAsync(email, sessionId);
             if (session == null) return null;
 
+            // [CV-QUESTIONS] Câu AI soạn theo CV lưu trong DB (không phụ thuộc Redis) -> xem lại được buổi cũ
+            var cvQuestions = await _cvQuestions.GetForSessionAsync(session.Id, session.UserId);
+
             return new InterviewDetailViewModel
             {
                 SessionId = session.Id,
@@ -90,15 +97,15 @@ namespace MockviewAI.Services.SessionHistory
                 Turns = FollowUps.Main(session.Answers)
                     .Where(a => a.AnsweredAt != null)
                     .OrderBy(a => a.OrderNo)
-                    .Select(a => ToTurnWithFollowUp(a, session.Answers))
+                    .Select(a => ToTurnWithFollowUp(a, session.Answers, cvQuestions))
                     .ToList()
             };
         }
 
         /// <summary>Lượt của câu chính, gắn thêm lượt hỏi thêm nếu có.</summary>
-        private ConversationTurnViewModel ToTurnWithFollowUp(SessionAnswer main, IEnumerable<SessionAnswer> all)
+        private ConversationTurnViewModel ToTurnWithFollowUp(SessionAnswer main, IEnumerable<SessionAnswer> all, IReadOnlyList<BankQuestion> cvQuestions)
         {
-            var turn = ToTurn(main);
+            var turn = ToTurn(main, cvQuestions);
             var extra = all.FirstOrDefault(a => a.IsFollowUp && a.FollowUpOf == main.QuestionId && a.AnsweredAt != null);
             if (extra == null) return turn;
 
@@ -112,12 +119,12 @@ namespace MockviewAI.Services.SessionHistory
                 InvalidReason = !extra.Skipped && !string.IsNullOrEmpty(extra.Answer) ? _quality.FindProblem(extra.Answer) : null,
                 VoiceText = VoiceMetrics.Describe(extra.VoiceLevelDb, extra.QuietRatio, extra.PitchVariation)
             };
-            turn.FollowUpPointText = _bank.Find(main.QuestionId)?.CorePoints.FirstOrDefault(c => c.Id == extra.FollowUpPointId)?.Text;
+            turn.FollowUpPointText = _bank.Find(cvQuestions, main.QuestionId)?.CorePoints.FirstOrDefault(c => c.Id == extra.FollowUpPointId)?.Text;
             return turn;
         }
 
         /// <summary>Một lượt hỏi – đáp kèm xếp loại 4 nhãn, mã ý / con đường đổi thành nội dung.</summary>
-        private ConversationTurnViewModel ToTurn(SessionAnswer a)
+        private ConversationTurnViewModel ToTurn(SessionAnswer a, IReadOnlyList<BankQuestion> cvQuestions)
         {
             var turn = new ConversationTurnViewModel
             {
@@ -131,10 +138,11 @@ namespace MockviewAI.Services.SessionHistory
                 CategoryIcon = AnswerCategory.Icon(a.Category),
                 CategoryDescription = AnswerCategory.Description(a.Category),
                 Feedback = a.Feedback,
+                IsCvQuestion = QuestionBankStoreExtensions.IsCvQuestionId(a.QuestionId),
                 VoiceText = VoiceMetrics.Describe(a.VoiceLevelDb, a.QuietRatio, a.PitchVariation)
             };
 
-            var question = _bank.Find(a.QuestionId);
+            var question = _bank.Find(cvQuestions, a.QuestionId);
             if (question == null || turn.Category == null) return turn;
 
             var path = question.Paths.FirstOrDefault(p => p.Id == a.MatchedPath);

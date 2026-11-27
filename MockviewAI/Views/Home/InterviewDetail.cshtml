@@ -131,7 +131,14 @@
                         var category = t.InvalidReason != null ? "sai" : t.Category?.ToString() ?? "none";
                         <article class="interview-detail-turn" id="cau-@t.Number">
                             <div class="interview-detail-turn__head">
-                                <span class="interview-detail-turn__number">Câu @t.Number</span>
+                                <span class="interview-detail-turn__tags">
+                                    <span class="interview-detail-turn__number">Câu @t.Number</span>
+                                    @* [CV-QUESTIONS] Câu do AI soạn theo CV của người dùng *@
+                                    @if (t.IsCvQuestion)
+                                    {
+                                        <span class="interview-detail-cv-tag"><i class="fa-regular fa-file-lines" aria-hidden="true"></i> Câu hỏi theo CV</span>
+                                    }
+                                </span>
                                 <span class="interview-detail-turn__marker is-@category"><span class="interview-detail-dot is-@category"></span> Đánh giá câu hỏi</span>
                             </div>
                             <div class="interview-detail-speaker">

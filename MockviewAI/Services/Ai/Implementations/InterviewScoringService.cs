@@ -1,5 +1,6 @@
 using MockviewAI.Models.Ai;
 using MockviewAI.Services.Ai.Interfaces;
+using MockviewAI.Services.InterviewQuestions;
 using MockviewAI.Services.InterviewQuestions.Interfaces;
 
 namespace MockviewAI.Services.Ai.Implementations
@@ -52,7 +53,7 @@ namespace MockviewAI.Services.Ai.Implementations
 
             // [QUESTION-BANK] Kiểm tra lại xếp loại của AI theo bộ đề; câu bị bộ lọc đánh dấu không có ý nghĩa -> "sai"
             var askedIds = request.Answers.Where(a => a.QuestionId != null).Select(a => a.QuestionId!).ToList();
-            content.Verdicts = askedIds.Count == 0 ? new List<AnswerVerdict>() : _verdicts.Normalize(content.Verdicts, askedIds);
+            content.Verdicts = askedIds.Count == 0 ? new List<AnswerVerdict>() : _verdicts.Normalize(content.Verdicts, askedIds, request.CvQuestions);
             foreach (var invalid in request.InvalidAnswers.Where(a => a.QuestionId != null))
             {
                 content.Verdicts.Add(new AnswerVerdict
@@ -82,8 +83,8 @@ namespace MockviewAI.Services.Ai.Implementations
         public InterviewScoreResult ScoreWithoutAi(ScoreRequest request)
         {
             var delivery = _delivery.Analyze(AllAnswers(request));
-            bool hasBankQuestions = request.Answers.Concat(request.InvalidAnswers).Any(a => _bank.Find(a.QuestionId) != null)
-                                    || request.SkippedAsWrong.Any(id => _bank.Find(id) != null);
+            bool hasBankQuestions = request.Answers.Concat(request.InvalidAnswers).Any(a => _bank.Find(request.CvQuestions, a.QuestionId) != null)
+                                    || request.SkippedAsWrong.Any(id => _bank.Find(request.CvQuestions, id) != null);
 
             if (!hasBankQuestions)
             {
@@ -102,13 +103,13 @@ namespace MockviewAI.Services.Ai.Implementations
             var coverages = new List<double>();
             foreach (var answer in request.Answers)
             {
-                var question = _bank.Find(answer.QuestionId);
+                var question = _bank.Find(request.CvQuestions, answer.QuestionId);
                 if (question == null) continue;
                 var verdict = _offline.Score(question, answer.ContentText);   // [FOLLOW-UP] gồm cả câu trả lời thêm
                 verdicts.Add(verdict);
                 coverages.Add(question.CorePoints.Count == 0 ? 0 : verdict.MetCorePoints.Count / (double)question.CorePoints.Count);
             }
-            foreach (var invalid in request.InvalidAnswers.Where(a => _bank.Find(a.QuestionId) != null))
+            foreach (var invalid in request.InvalidAnswers.Where(a => _bank.Find(request.CvQuestions, a.QuestionId) != null))
             {
                 verdicts.Add(new AnswerVerdict
                 {
@@ -126,7 +127,7 @@ namespace MockviewAI.Services.Ai.Implementations
             int goodCount = verdicts.Count(v => v.Category != AnswerCategory.Wrong);
 
             var missing = verdicts
-                .SelectMany(v => (_bank.Find(v.QuestionId)?.CorePoints ?? new()).Where(c => v.MissingCorePoints.Contains(c.Id)))
+                .SelectMany(v => (_bank.Find(request.CvQuestions, v.QuestionId)?.CorePoints ?? new()).Where(c => v.MissingCorePoints.Contains(c.Id)))
                 .Select(c => c.Text).Distinct().Take(3)
                 .Select(text => "Bổ sung ý: " + text);
 
@@ -157,7 +158,7 @@ namespace MockviewAI.Services.Ai.Implementations
         {
             foreach (var id in request.SkippedAsWrong)
             {
-                if (id == null || (inBankOnly && _bank.Find(id) == null)) continue;
+                if (id == null || (inBankOnly && _bank.Find(request.CvQuestions, id) == null)) continue;
                 if (verdicts.Any(v => v.QuestionId == id)) continue;
                 verdicts.Add(new AnswerVerdict
                 {

@@ -196,6 +196,17 @@ Interviewer__ThinkingLevel=minimal
 Interviewer__TimeoutSeconds=8
 Interviewer__CvContextHours=6
 
+# --- Questions from CV (Gemini writes, Groq reviews) - option
+# Uses the existing Gemini__ApiKeys__N and Groq__ApiKeys__N (no new keys). Enabled=false = question bank only.
+CvQuestions__Enabled=true
+CvQuestions__MaxQuestions=2 # bank questions replaced by CV questions (clamped 0-3)
+CvQuestions__GeneratorModel=gemini-3.5-flash-lite # empty = Gemini__Model (gemini-3.6-flash is too slow: 57-89s)
+CvQuestions__ThinkingLevel=minimal
+CvQuestions__ReviewerModel=qwen/qwen3.8-27b # must exist in the Groq console (llama-3.3-70b-versatile is not available)
+CvQuestions__ReviewerFallbackModel=openai/gpt-oss-20b # used when the main reviewer hits the Groq rate limit (429); empty = none
+CvQuestions__TimeoutSeconds=25 # total time to write + review + fix (clamped 10-45)
+CvQuestions__MaxFixRounds=1 # clamped 0-1
+
 # --- Gemini API
 Gemini__ApiKeys__0=
 Gemini__ApiKeys__1=

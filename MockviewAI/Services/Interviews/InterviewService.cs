@@ -6,7 +6,11 @@ using MockviewAI.Models.ViewModels;
 using MockviewAI.Repositories.Interfaces;
 using MockviewAI.Services.Ai;
 using MockviewAI.Services.Ai.Interfaces;
+using MockviewAI.Models.CvQuestions;
+using MockviewAI.Models.InterviewQuestions;
+using MockviewAI.Services.CvQuestions.Interfaces;
 using MockviewAI.Services.Exceptions;
+using MockviewAI.Services.InterviewQuestions;
 using MockviewAI.Services.InterviewQuestions.Interfaces;
 using MockviewAI.Services.Interviews.Conversation;
 using MockviewAI.Services.Interviews.Results;
@@ -53,6 +57,8 @@ namespace MockviewAI.Services.Interviews
         private readonly IScoreRequestFactory _scoreRequests;
         private readonly ISessionResultBuilder _results;
         private readonly IResultEmailSender _resultEmail;
+        private readonly ICvQuestionPipeline _cvPipeline;
+        private readonly ICvQuestionStore _cvQuestions;
         #endregion
 
         #region Constructor
@@ -68,7 +74,9 @@ namespace MockviewAI.Services.Interviews
             ICandidateCvStore cvStore,
             IScoreRequestFactory scoreRequests,
             ISessionResultBuilder results,
-            IResultEmailSender resultEmail)
+            IResultEmailSender resultEmail,
+            ICvQuestionPipeline cvPipeline,
+            ICvQuestionStore cvQuestions)
         {
             _sessionRepository = sessionRepository;
             _userRepository = userRepository;
@@ -82,6 +90,8 @@ namespace MockviewAI.Services.Interviews
             _scoreRequests = scoreRequests;
             _results = results;
             _resultEmail = resultEmail;
+            _cvPipeline = cvPipeline;
+            _cvQuestions = cvQuestions;
         }
         #endregion
 
@@ -116,6 +126,20 @@ namespace MockviewAI.Services.Interviews
             // [QUESTION-BANK] Có câu trong bộ đề -> dùng bộ đề có đáp án (xếp loại 4 nhãn);
             // không có -> câu hỏi kiểu cũ trong QuestionBank.cs (hiện bộ đề đã phủ đủ 9 cặp nên nhánh này không chạy)
             var picked = _selector.Select(interviewerKey!, positionKey!, questionCount);
+
+            // [CV-QUESTIONS] Gemini soạn + Groq duyệt câu theo CV; lỗi / hết giờ / không đạt -> rỗng, giữ 100% bộ đề
+            string cvSummary = CvContextBuilder.FromBrowserJson(cvJson);
+            var cvResult = picked.Count > 0 && cvSummary.Length > 0
+                ? await _cvPipeline.RunAsync(new CvQuestionContext
+                {
+                    PositionKey = positionKey!,
+                    PositionName = positionName,
+                    InterviewerKey = interviewerKey!,
+                    CvSummary = cvSummary,
+                    ExistingQuestions = picked.Select(q => q.Question).ToList()
+                })
+                : CvQuestionPipelineResult.Empty;
+
             if (picked.Count > 0)
             {
                 session.QuestionBankVersion = _bank.Version;
@@ -136,8 +160,12 @@ namespace MockviewAI.Services.Interviews
 
             await _sessionRepository.AddAsync(session);
 
+            // [CV-QUESTIONS] Đã có session.Id -> thay câu cuối bằng câu CV (giữ câu 1), mã cv-{id}-{n}, lưu đáp án vào DB
+            if (cvResult.Accepted.Count > 0)
+                await _cvQuestions.AttachToSessionAsync(session, cvResult);
+
             // [INTERVIEWER] CV mặc định trên trình duyệt (nếu người dùng chọn dùng) -> tóm tắt, giữ trong Redis theo buổi
-            await _cvStore.SaveAsync(session.Id, CvContextBuilder.FromBrowserJson(cvJson));
+            await _cvStore.SaveAsync(session.Id, cvSummary);
             return session.Id;
         }
         #endregion
@@ -266,9 +294,16 @@ namespace MockviewAI.Services.Interviews
         private async Task<string> ReplyAndPlanFollowUpAsync(InterviewSession session, SessionAnswer current)
         {
             bool canAsk = FollowUps.CanAskAfter(current, session.Answers);
-            var plan = canAsk && _bank.Find(current.QuestionId) is { } bankQuestion
+            var plan = canAsk && await FindQuestionAsync(session, current.QuestionId) is { } bankQuestion
                 ? _followUps.Plan(bankQuestion, current.Answer!)
                 : null;
+
+            // [CV-QUESTIONS] Buổi đã có câu chính soạn theo CV: câu bộ đề CHỈ hỏi thêm khi thiếu ý cốt lõi (không tự đào sâu),
+            // để không hỏi trùng dự án với câu CV và để dành lượt hỏi thêm (tối đa FollowUps.MaxPerSession) cho câu CV,
+            // nơi người phỏng vấn được hỏi "vì sao / nếu thay đổi thì sao" để kiểm tra ứng viên hiểu việc mình làm.
+            bool sessionHasCvQuestions = session.Answers.Any(a => QuestionBankStoreExtensions.IsCvQuestionId(a.QuestionId));
+            bool useCvContext = !sessionHasCvQuestions || QuestionBankStoreExtensions.IsCvQuestionId(current.QuestionId);
+            if (!useCvContext && plan == null) canAsk = false;
 
             var interviewer = QuestionBank.Interviewers[session.Interviewer];
             var turn = await _interviewer.NextTurnAsync(new InterviewerTurnRequest
@@ -280,7 +315,7 @@ namespace MockviewAI.Services.Interviews
                 Answer = current.Answer!,
                 AllowFollowUp = canAsk,
                 MissingPointQuestion = plan?.Question,
-                CvContext = await _cvStore.GetAsync(session.Id)
+                CvContext = useCvContext ? await _cvStore.GetAsync(session.Id) : string.Empty
             });
 
             if (canAsk && !string.IsNullOrWhiteSpace(turn.FollowUp))
@@ -316,6 +351,10 @@ namespace MockviewAI.Services.Interviews
                 await _sessionRepository.UpdateAsync(session);
                 return;
             }
+
+            // [CV-QUESTIONS] Đáp án câu theo CV nằm trong DB -> đưa vào yêu cầu chấm (buổi không có câu CV: không truy vấn thêm)
+            if (session.Answers.Any(a => QuestionBankStoreExtensions.IsCvQuestionId(a.QuestionId)))
+                request.CvQuestions = await _cvQuestions.GetForSessionAsync(session.Id, session.UserId);
 
             // AI lỗi (AiScoringException) thì để lỗi nổi lên: buổi vẫn còn InProgress để người dùng bấm "Chấm lại".
             // Fallback = true: người dùng chọn xem kết quả ngay -> chấm sơ bộ theo bộ đề (câu kiểu cũ: chỉ cách nói).
@@ -384,6 +423,14 @@ namespace MockviewAI.Services.Interviews
                 predicate: s => s.Id == sessionId && s.UserId == user.Id,
                 includes: s => s.Answers
             );
+        }
+
+        /// <summary>[CV-QUESTIONS] Câu bộ đề hoặc câu theo CV (mã cv-..., đọc từ DB của đúng buổi / người dùng).</summary>
+        private async Task<BankQuestion?> FindQuestionAsync(InterviewSession session, string? questionId)
+        {
+            if (!QuestionBankStoreExtensions.IsCvQuestionId(questionId)) return _bank.Find(questionId);
+            var cvQuestions = await _cvQuestions.GetForSessionAsync(session.Id, session.UserId);
+            return cvQuestions.FirstOrDefault(q => q.Id == questionId);
         }
 
         /// <summary>Số câu CHÍNH đã trả lời (câu hỏi thêm không tính vào "x / tổng số câu").</summary>

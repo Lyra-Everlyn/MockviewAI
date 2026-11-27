@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using MockviewAI.Models.Ai;
+using MockviewAI.Models.InterviewQuestions;
 using MockviewAI.Services.InterviewQuestions.Interfaces;
 
 namespace MockviewAI.Services.InterviewQuestions.Implementations
@@ -46,12 +47,13 @@ namespace MockviewAI.Services.InterviewQuestions.Implementations
         #endregion
 
         #region IAnswerVerdictValidator
-        public List<AnswerVerdict> Normalize(IEnumerable<AnswerVerdict> rawVerdicts, IReadOnlyCollection<string> askedQuestionIds)
+        public List<AnswerVerdict> Normalize(IEnumerable<AnswerVerdict> rawVerdicts, IReadOnlyCollection<string> askedQuestionIds,
+                                         IReadOnlyList<BankQuestion>? cvQuestions = null)
         {
             var result = new List<AnswerVerdict>();
             foreach (var raw in rawVerdicts)
             {
-                var question = _store.Find(raw.QuestionId);
+                var question = _store.Find(cvQuestions, raw.QuestionId);   // [CV-QUESTIONS] gồm cả câu theo CV
                 if (question == null || !askedQuestionIds.Contains(raw.QuestionId) || result.Any(r => r.QuestionId == raw.QuestionId))
                 {
                     _logger.LogWarning("AI verdict ignored for unknown/duplicate question {QuestionId}", raw.QuestionId);

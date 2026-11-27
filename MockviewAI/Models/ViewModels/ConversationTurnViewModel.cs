@@ -14,6 +14,9 @@
         public string? Answer { get; set; }
         public bool Skipped { get; set; }
 
+        /// <summary>[CV-QUESTIONS] Câu hỏi do AI soạn theo CV (mã cv-...), hiện nhãn nhỏ "Câu hỏi theo CV".</summary>
+        public bool IsCvQuestion { get; set; }
+
         /// <summary>Lý do câu trả lời bị tính sai (vô nghĩa); null = hợp lệ.</summary>
         public string? InvalidReason { get; set; }
 

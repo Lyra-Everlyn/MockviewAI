@@ -20,10 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const useCv = document.getElementById('useCv');
     const cvJson = document.getElementById('cvJson');
     const defaultCv = window.MockviewCv && window.MockviewCv.hasOwner ? window.MockviewCv.getDefault() : null;
+    const defaultOverlayText = form.dataset.loadingOverlay;
+    const cvOverlayText = 'Đang soạn câu hỏi theo CV của bạn (khoảng 15–25 giây)...';
 
     if (defaultCv) {
         cvPickerName.textContent = 'Dùng CV mặc định: ' + window.MockviewCv.titleOf(defaultCv) +
-            '. Nhà tuyển dụng sẽ hỏi thêm về dự án và kinh nghiệm trong CV.';
+            '. Một số câu hỏi sẽ được soạn theo dự án và kinh nghiệm trong CV.';
         cvPicker.hidden = false;
     } else if (cvPickerEmpty) {
         cvPickerEmpty.hidden = false;
@@ -56,6 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const modeText = isLive ? 'Thực chiến' : 'Luyện tập';
         const cvText = defaultCv && useCv.checked ? ' · hỏi theo CV' : '';
+        // [CV-QUESTIONS] Soạn câu theo CV mất 15–25 giây -> đổi chữ màn hình chờ (_SubmitLoading.js đọc lúc bấm gửi)
+        form.dataset.loadingOverlay = cvText ? cvOverlayText : defaultOverlayText;
         modeLabel.textContent = modeText;
         modeLabel.classList.toggle('is-live', isLive);
         previewText.textContent = `${count} câu với ${name} · ${modeText}${cvText} · khoảng ${count * 2}–${count * 3} phút · câu đầu luôn là giới thiệu bản thân`;

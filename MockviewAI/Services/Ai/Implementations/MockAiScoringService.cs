@@ -1,5 +1,7 @@
 using MockviewAI.Models.Ai;
 using MockviewAI.Services.Ai.Interfaces;
+using MockviewAI.Models.InterviewQuestions;
+using MockviewAI.Services.InterviewQuestions;
 using MockviewAI.Services.InterviewQuestions.Interfaces;
 
 namespace MockviewAI.Services.Ai.Implementations
@@ -42,7 +44,7 @@ namespace MockviewAI.Services.Ai.Implementations
                 Summary = "[MOCK] Đây là điểm mẫu, chưa phải điểm do AI chấm.",
                 Strengths = new() { "[MOCK] Câu trả lời bám sát câu hỏi." },
                 Improvements = new() { "[MOCK] Hãy thêm một ví dụ cụ thể cho mỗi ý." },
-                Verdicts = request.Answers.Select(MockVerdict).OfType<AnswerVerdict>().ToList()
+                Verdicts = request.Answers.Select(a => MockVerdict(a, request.CvQuestions)).OfType<AnswerVerdict>().ToList()
             };
             return Task.FromResult(result);
         }
@@ -50,9 +52,9 @@ namespace MockviewAI.Services.Ai.Implementations
 
         #region Helpers
         /// <summary>[QUESTION-BANK] Xếp loại bằng bộ chấm sơ bộ theo bộ đề (gồm cả câu trả lời thêm), gắn nhãn [MOCK].</summary>
-        private AnswerVerdict? MockVerdict(InterviewAnswer answer)
+        private AnswerVerdict? MockVerdict(InterviewAnswer answer, IReadOnlyList<BankQuestion> cvQuestions)
         {
-            var question = _bank.Find(answer.QuestionId);
+            var question = _bank.Find(cvQuestions, answer.QuestionId);   // [CV-QUESTIONS] gồm cả câu theo CV
             if (question == null) return null;
             var verdict = _offline.Score(question, answer.ContentText);
             verdict.Feedback = "[MOCK] " + verdict.Feedback;
