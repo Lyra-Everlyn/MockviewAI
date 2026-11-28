@@ -1,7 +1,7 @@
 /* MockviewAI | Base
    Reset, bố cục trang và cỡ chữ. Màu nằm trong themes/*.css. */
 
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
 
 /* #region Reset */
 *,
@@ -101,7 +101,6 @@ button {
 
 .page-header__eyebrow,
 .section-header__eyebrow,
-.panel__eyebrow,
 .action-card__eyebrow,
 .info-card__eyebrow {
     display: block;
@@ -153,16 +152,6 @@ button {
     margin-top: 6px;
     font-size: 13px;
     line-height: 1.6;
-}
-
-.section-header__action {
-    display: inline-flex;
-    flex: 0 0 auto;
-    align-items: center;
-    gap: 8px;
-    padding-bottom: 2px;
-    font-size: 13px;
-    font-weight: 700;
 }
 
 .stack {
@@ -235,8 +224,5 @@ button {
         gap: 12px;
     }
 
-    .section-header__action {
-        font-size: 12px;
-    }
 }
 /* #endregion */

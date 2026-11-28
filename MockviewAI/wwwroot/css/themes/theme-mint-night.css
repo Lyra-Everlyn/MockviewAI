@@ -10,7 +10,6 @@
     --color-page: #0d1521;
     --color-surface: #141e2d;
     --color-surface-soft: #1a2638;
-    --color-surface-accent: #213048;
     --color-text: #e6edf6;
     --color-text-soft: #b4c0d0;
     --color-muted: #94a3b8;
@@ -24,7 +23,6 @@
     --color-success: #6fdbac;
     --color-success-soft: #163c35;
     --color-warning: #f2c378;
-    --color-star: #ffd060;
     --color-warning-soft: #463520;
     --color-danger: #ff8c99;
     --color-danger-soft: #4b2737;
@@ -170,7 +168,6 @@
 /* #region Chữ chung */
 .page-header__eyebrow,
 .section-header__eyebrow,
-.panel__eyebrow,
 .action-card__eyebrow,
 .info-card__eyebrow {
     color: var(--color-muted);
@@ -186,9 +183,6 @@
     color: var(--color-muted);
 }
 
-.section-header__action {
-    color: var(--color-primary);
-}
 /* #endregion */
 
 /* #region Thanh điều hướng */
@@ -220,12 +214,6 @@
     .app-nav__link::after {
         background: var(--color-button-main);
     }
-
-.status-badge {
-    background: var(--color-button-soft);
-    color: var(--color-button-soft-text);
-    border-color: transparent;
-}
 
 .user-avatar {
     background: var(--color-button-main);
@@ -307,61 +295,6 @@
     }
 /* #endregion */
 
-/* #region Panel chính (Trang chủ) */
-.panel--primary {
-    position: relative;
-    border-color: #23405c;
-    background: var(--gradient-primary);
-    color: var(--color-on-gradient);
-    box-shadow: var(--shadow-panel);
-}
-
-    /* Hai vòng tròn trang trí bên phải */
-    .panel--primary::before,
-    .panel--primary::after {
-        position: absolute;
-        top: 50%;
-        border-radius: 50%;
-        content: "";
-        pointer-events: none;
-    }
-
-    .panel--primary::before {
-        right: -70px;
-        width: 300px;
-        height: 300px;
-        margin-top: -150px;
-        border: 22px solid var(--color-on-gradient-ring);
-    }
-
-    .panel--primary::after {
-        right: 20px;
-        width: 120px;
-        height: 120px;
-        margin-top: -60px;
-        border: 14px solid rgba(54, 222, 182, .5);
-    }
-
-    /* Điện thoại: bỏ vòng nhỏ để không đè lên chữ */
-    @media (max-width: 680px) {
-        .panel--primary::after {
-            display: none;
-        }
-    }
-
-    .panel--primary .panel__title {
-        color: var(--color-on-gradient);
-    }
-
-    .panel--primary .panel__eyebrow {
-        color: var(--color-on-gradient-accent);
-    }
-
-    .panel--primary .panel__description {
-        color: var(--color-on-gradient-muted);
-    }
-/* #endregion */
-
 /* #region Thẻ dùng chung */
 .action-card__icon,
 .info-card__icon,
@@ -387,7 +320,6 @@
 }
 
 .action-card__action,
-.action-card__chevron,
 .session-card__chevron {
     color: var(--color-primary);
 }
@@ -413,21 +345,6 @@
     color: var(--color-subtle);
 }
 
-/* [KHÔNG DÙNG] status-chip: không còn view nào dùng (xem components.css). */
-.status-chip {
-    background: var(--color-primary-soft);
-    color: var(--color-primary);
-}
-
-.status-chip--success {
-    background: var(--color-success-soft);
-    color: var(--color-success);
-}
-
-.status-chip--warning {
-    background: var(--color-warning-soft);
-    color: var(--color-warning);
-}
 /* #endregion */
 
 /* #region Hai ô hành động (Trang chủ) */
@@ -771,12 +688,6 @@
     border: 1px solid var(--color-success-border);
     background: var(--color-success-soft);
     color: var(--color-success);
-}
-
-.cv-notice--info {
-    border: 1px solid var(--color-info-border);
-    background: var(--color-info-soft);
-    color: var(--color-text);
 }
 
 .cv-validation,
@@ -1428,23 +1339,14 @@
     }
 
 .auth-intro__bottom,
-.auth-intro__body > p,
-.auth-steps small,
 .auth-panel__header p,
 .auth-divider,
 .auth-register,
-.auth-panel__note,
 .auth-password-toggle,
 .register-terms__text {
     color: var(--color-muted);
 }
 
-.auth-intro__eyebrow,
-.auth-panel__eyebrow {
-    color: var(--color-primary);
-}
-
-.auth-steps__icon,
 .auth-chat__score {
     background: var(--color-button-soft);
     color: var(--color-button-soft-text);
@@ -1533,6 +1435,104 @@
 }
 /* #endregion */
 
+/* #region Trang nhập mã xác thực */
+.otp-email {
+    background: var(--color-info-soft);
+    color: var(--color-info);
+}
+
+.otp-control__digit {
+    border-color: var(--color-border-strong);
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: 0 4px 0 var(--color-border);
+}
+
+    .otp-control__digit:not(:placeholder-shown) {
+        border-color: var(--color-button-main);
+        background: var(--color-button-soft);
+        color: var(--color-button-soft-text);
+        box-shadow: 0 4px 0 var(--color-button-main-edge);
+    }
+
+    .otp-control__digit:focus-visible {
+        border-color: var(--color-button-alt);
+        box-shadow: 0 4px 0 var(--color-button-alt-edge), 0 0 0 4px var(--color-info-soft);
+    }
+
+    .otp-control__digit[aria-invalid="true"] {
+        border-color: var(--color-danger);
+    }
+
+.otp-control__message {
+    color: var(--color-danger);
+}
+
+.otp-hint,
+.otp-help {
+    color: var(--color-muted);
+}
+/* #endregion */
+
+/* #region Trang Thiết lập hồ sơ (Onboarding) */
+.onboarding-count {
+    background: var(--color-info-soft);
+    color: var(--color-info);
+}
+
+.onboarding-progress__part {
+    background: var(--color-border);
+}
+
+    .onboarding-progress__part.is-on {
+        background: var(--color-button-main);
+        box-shadow: inset 0 -3px 0 var(--color-button-main-edge);
+    }
+
+.onboarding-question {
+    color: var(--color-text);
+}
+
+.onboarding-question__hint,
+.option-card__text small {
+    color: var(--color-muted);
+}
+
+.option-card {
+    border-color: var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+
+    .option-card:hover {
+        border-color: var(--color-border-strong);
+    }
+
+    .option-card.selected {
+        border-color: var(--color-button-main);
+        background: var(--color-primary-soft);
+    }
+
+.option-card__icon {
+    background: var(--color-surface-soft);
+    color: var(--color-muted);
+}
+
+.option-card.selected .option-card__icon,
+.option-card__check {
+    background: var(--color-button-main);
+    color: var(--color-button-main-text);
+}
+
+.option-card__check {
+    box-shadow: 0 2px 0 var(--color-button-main-edge);
+}
+
+.onboarding-actions {
+    border-color: var(--color-border);
+}
+/* #endregion */
+
 /* #region Thẻ Góp ý */
 .feedback-action-card {
     border-color: #2a4166;
@@ -1567,17 +1567,19 @@
 }
 
 /* #region Bổ sung riêng cho nền tối
-   Phủ màu cho các phần tử trang tự đặt nền sáng hoặc dùng mặc định của trình duyệt. */
+   Phủ màu cho các phần tử trang tự đặt nền sáng hoặc dùng mặc định của trình duyệt.
+   Ô mã xác thực (.otp-control__digit) có màu riêng ở vùng "Trang nhập mã xác thực". */
 html, body {
     background-color: var(--color-page);
     color: var(--color-text);
 }
 
-.surface-card, .panel:not(.panel--primary),
-.history-panel, .app-footer,
-.form-control, .form-control-wrap,
-input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
-textarea, select {
+.app-footer,
+.form-control,
+.form-control-wrap,
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not(.otp-control__digit),
+textarea,
+select {
     background-color: var(--color-surface);
     color: var(--color-text);
     border-color: var(--color-border);
@@ -1603,10 +1605,6 @@ input[type="checkbox"], input[type="radio"] {
     box-shadow: var(--shadow-mobile-nav);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-}
-
-.status-chip, .status-badge {
-    border-color: var(--color-nav-control-border);
 }
 
 .session-card, .action-card:not(.feedback-action-card), .info-card, .stat-card, .empty-state {

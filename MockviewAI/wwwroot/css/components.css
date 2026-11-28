@@ -71,19 +71,6 @@
     gap: 16px;
 }
 
-.status-badge {
-    display: inline-flex;
-    min-height: 30px;
-    align-items: center;
-    justify-content: center;
-    padding-inline: 13px;
-    border: 1px solid var(--color-nav-control-border);
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 750;
-    letter-spacing: .05em;
-}
-
 .user-avatar {
     display: grid;
     width: 34px;
@@ -181,43 +168,6 @@
 }
 /* #endregion */
 
-/* #region Panel */
-.panel {
-    overflow: hidden;
-    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
-    border-radius: var(--radius-panel);
-    box-shadow: var(--shadow-panel);
-}
-
-.panel__content {
-    position: relative;
-    z-index: 1;
-    padding: 36px;
-}
-
-.panel__title {
-    max-width: 620px;
-    font-size: clamp(27px, 3vw, 32px);
-    font-weight: 800;
-    line-height: 1.2;
-    letter-spacing: -.035em;
-}
-
-.panel__description {
-    max-width: 600px;
-    margin-top: 10px;
-    font-size: 15px;
-    line-height: 1.65;
-}
-
-.panel__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 24px;
-}
-/* #endregion */
-
 /* #region Thẻ dùng chung */
 .action-card,
 .info-card,
@@ -294,7 +244,6 @@
     font-weight: 750;
 }
 
-.action-card__chevron,
 .session-card__chevron {
     display: grid;
     place-items: center;
@@ -302,7 +251,6 @@
     transition: transform .18s ease;
 }
 
-.action-card:hover .action-card__chevron,
 .session-card:hover .session-card__chevron {
     transform: translateX(2px);
 }
@@ -441,17 +389,6 @@
     white-space: nowrap;
 }
 
-/* [KHÔNG DÙNG] status-chip: thẻ buổi luyện đã chuyển sang session-chip, không còn view nào dùng. */
-.status-chip {
-    display: inline-flex;
-    min-height: 24px;
-    align-items: center;
-    padding-inline: 9px;
-    border-radius: 7px;
-    font-size: 10px;
-    font-weight: 750;
-}
-
 /* #endregion */
 
 /* #region Trạng thái trống */
@@ -531,22 +468,6 @@
         height: 22px;
         place-items: center;
         font-size: 20px;
-    }
-
-    .panel__content {
-        padding: 25px 21px;
-    }
-
-    .panel__title {
-        font-size: 25px;
-    }
-
-    .panel__description {
-        font-size: 13px;
-    }
-
-    .panel__actions {
-        margin-top: 20px;
     }
 
     .button {
@@ -782,14 +703,6 @@ html[data-theme="dark"] .settings-switch {
 /* #endregion */
 
 /* #region Form dùng chung */
-.surface-card {
-    min-width: 0;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-panel);
-    background: var(--color-surface);
-    box-shadow: var(--shadow-panel);
-}
-
 .text-link {
     display: inline-flex;
     align-items: center;
@@ -802,55 +715,6 @@ html[data-theme="dark"] .settings-switch {
     .text-link:hover {
         color: var(--color-primary-hover);
     }
-
-/* [KHÔNG DÙNG] Trang Góp ý đã chuyển sang Feedback.css; các lớp form-layout, form-section, form-divider, selection-grid, selection-card không còn view nào dùng. */
-.form-layout {
-    display: grid;
-    min-width: 0;
-}
-
-.form-section {
-    display: grid;
-    gap: 20px;
-    min-width: 0;
-}
-
-.form-section__header {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-}
-
-.form-section__icon {
-    display: grid;
-    flex: 0 0 38px;
-    width: 38px;
-    height: 38px;
-    place-items: center;
-    border-radius: 11px;
-    background: var(--color-primary-soft);
-    color: var(--color-primary);
-    font-size: 16px;
-}
-
-.form-section__header h3 {
-    color: var(--color-text);
-    font-size: 16px;
-    font-weight: 800;
-}
-
-.form-section__header p {
-    margin-top: 3px;
-    color: var(--color-muted);
-    font-size: 12px;
-    line-height: 1.5;
-}
-
-.form-divider {
-    height: 1px;
-    margin: 28px 0;
-    background: var(--color-border);
-}
 
 .form-grid {
     display: grid;
@@ -912,117 +776,6 @@ html[data-theme="dark"] .settings-switch {
         padding-left: 40px;
     }
 
-.selection-grid {
-    display: grid;
-    grid-template-columns: repeat(2,minmax(0,1fr));
-    gap: 10px;
-}
-
-.selection-card {
-    display: grid;
-    grid-template-columns: 36px minmax(0,1fr) 22px;
-    align-items: center;
-    gap: 10px;
-    min-width: 0;
-    min-height: 76px;
-    padding: 12px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-card);
-    background: var(--color-surface);
-    color: var(--color-text);
-    cursor: pointer;
-    text-align: left;
-    transition: background .18s, border-color .18s, transform .18s;
-}
-
-    .selection-card:hover {
-        transform: translateY(-1px);
-        border-color: var(--color-primary);
-    }
-
-.selection-card__icon {
-    display: grid;
-    width: 36px;
-    height: 36px;
-    place-items: center;
-    border-radius: 10px;
-    background: var(--color-surface-soft);
-    color: var(--color-muted);
-}
-
-.selection-card__content {
-    display: grid;
-    min-width: 0;
-    gap: 3px;
-}
-
-    .selection-card__content strong {
-        font-size: 13px;
-        font-weight: 750;
-    }
-
-    .selection-card__content small {
-        font-size: 11px;
-        color: var(--color-muted);
-        line-height: 1.35;
-    }
-
-.selection-card__check {
-    display: grid;
-    width: 22px;
-    height: 22px;
-    place-items: center;
-    border: 1px solid var(--color-border-strong);
-    border-radius: 7px;
-    color: transparent;
-}
-
-.selection-card.active {
-    border-color: var(--color-primary);
-    background: var(--color-primary-soft);
-}
-
-    .selection-card.active .selection-card__icon {
-        background: var(--color-surface);
-        color: var(--color-primary);
-    }
-
-    .selection-card.active .selection-card__content strong {
-        color: var(--color-primary);
-    }
-
-    .selection-card.active .selection-card__check {
-        border-color: var(--color-primary);
-        background: var(--color-primary);
-        color: var(--color-primary-text);
-    }
-
-/* selection-card đi sau input radio ẩn (trang Góp ý) */
-.selection-grid > input[type="radio"]:checked + .selection-card {
-    border-color: var(--color-primary);
-    background: var(--color-primary-soft);
-}
-
-    .selection-grid > input[type="radio"]:checked + .selection-card .selection-card__icon {
-        color: var(--color-primary);
-        background: var(--color-surface);
-    }
-
-    .selection-grid > input[type="radio"]:checked + .selection-card .selection-card__content strong {
-        color: var(--color-primary);
-    }
-
-    .selection-grid > input[type="radio"]:checked + .selection-card .selection-card__check {
-        border-color: var(--color-primary);
-        background: var(--color-primary);
-        color: var(--color-primary-text);
-    }
-
-.selection-grid > input[type="radio"]:focus-visible + .selection-card {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px;
-}
-
 .form-footer {
     display: flex;
     justify-content: flex-end;
@@ -1054,47 +807,10 @@ html[data-theme="dark"] .settings-switch {
     border: 0;
 }
 
-@media (max-width: 900px) {
-    .selection-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
 @media (max-width: 680px) {
     .form-grid {
         grid-template-columns: 1fr;
         gap: 15px;
-    }
-
-    .form-section {
-        gap: 16px;
-    }
-
-    .form-section__icon {
-        flex-basis: 34px;
-        width: 34px;
-        height: 34px;
-    }
-
-    .form-section__header h3 {
-        font-size: 14px;
-    }
-
-    .form-section__header p {
-        font-size: 11px;
-    }
-
-    .selection-grid {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-
-    .selection-card {
-        min-height: 66px;
-    }
-
-    .form-divider {
-        margin: 22px 0;
     }
 
     .form-footer {
@@ -1105,194 +821,6 @@ html[data-theme="dark"] .settings-switch {
         .form-footer .button {
             min-width: 0;
         }
-}
-/* #endregion */
-
-/* #region Đánh giá sao và ô nhập dài
-   [KHÔNG DÙNG] Trang Góp ý đã chuyển sang Feedback.css; rating-control, textarea-field không còn view nào dùng. */
-.rating-control {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin: 0;
-    padding: 16px 18px;
-    min-width: 0;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-card);
-    background: var(--color-surface-soft);
-}
-
-.rating-control__star {
-    display: inline-grid;
-    width: 38px;
-    height: 38px;
-    flex: 0 0 38px;
-    place-items: center;
-    cursor: pointer;
-    color: var(--color-border-strong);
-    font-size: 26px;
-    transition: transform .18s, color .18s;
-}
-
-    .rating-control__star input {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    .rating-control__star:focus-within {
-        outline: 2px solid var(--color-primary);
-        outline-offset: 2px;
-        border-radius: 6px;
-    }
-
-    .rating-control__star:hover {
-        transform: translateY(-2px);
-    }
-
-    .rating-control__star.is-selected {
-        color: var(--color-star);
-    }
-
-.rating-control__caption {
-    display: grid;
-    gap: 3px;
-    margin-left: auto;
-    text-align: right;
-}
-
-    .rating-control__caption strong {
-        font-size: 14px;
-        color: var(--color-text-soft);
-    }
-
-    .rating-control__caption span {
-        font-size: 12px;
-        font-weight: 700;
-        color: var(--color-muted);
-    }
-
-.form-control--textarea {
-    min-height: 155px;
-    padding: 15px;
-    resize: vertical;
-    line-height: 1.65;
-}
-
-.textarea-field {
-    overflow: hidden;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-control);
-    background: var(--color-surface);
-}
-
-    .textarea-field:focus-within {
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px var(--color-primary-soft);
-    }
-
-    .textarea-field .form-control {
-        border: 0;
-        border-radius: 0;
-        box-shadow: none;
-    }
-
-.textarea-field__footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    border-top: 1px solid var(--color-border);
-    color: var(--color-muted);
-    background: var(--color-surface-soft);
-    font-size: 11px;
-}
-
-@media (max-width: 680px) {
-    .rating-control {
-        display: flex;
-        justify-content: center;
-        text-align: center;
-        gap: 9px;
-        padding: 18px 12px;
-    }
-
-    .rating-control__caption {
-        flex-basis: 100%;
-        margin: 8px 0 0;
-        text-align: center;
-    }
-
-    .rating-control__star {
-        width: 39px;
-        height: 39px;
-        flex-basis: 39px;
-    }
-
-    .textarea-field__footer {
-        font-size: 10px;
-    }
-}
-/* #endregion */
-
-/* #region Ô nhập mã OTP
-   [KHÔNG DÙNG] Đã chuyển sang VerifyCode.css (file đó nạp sau nên ghi đè vùng này); xoá ở đợt dọn components.css. */
-.otp-control {
-    display: grid;
-    grid-template-columns: repeat(6,minmax(0,1fr));
-    gap: clamp(5px,1.2vw,10px);
-    min-width: 0;
-}
-
-.otp-control__digit {
-    width: 100%;
-    min-width: 0;
-    height: clamp(45px,5vw,58px);
-    padding: 0 2px;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-control);
-    background: var(--color-surface);
-    color: var(--color-text);
-    font: inherit;
-    font-size: clamp(19px,2vw,25px);
-    font-weight: 800;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-    outline: none;
-    transition: border-color .18s ease,box-shadow .18s ease;
-}
-
-    .otp-control__digit:focus-visible {
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px var(--color-primary-soft);
-    }
-
-    .otp-control__digit[aria-invalid="true"] {
-        border-color: var(--color-danger);
-    }
-
-.otp-control__message {
-    min-height: 18px;
-    margin-top: 7px;
-    color: var(--color-danger);
-    font-size: 12px;
-}
-
-@media(max-width:360px) {
-    .otp-control {
-        gap: 5px;
-    }
-
-    .otp-control__digit {
-        height: 43px;
-        font-size: 19px;
-    }
 }
 /* #endregion */
 
@@ -1533,22 +1061,19 @@ html[data-theme="dark"] .theme-toggle__state--dark {
     display: inline-flex;
 }
 
-/* Trên nền gradient (cột giới thiệu Auth / Onboarding): viền trắng mờ */
-.auth-intro .theme-toggle,
-.onboarding-aside .theme-toggle {
+/* Trên nền cột giới thiệu Auth / Onboarding */
+.auth-intro .theme-toggle {
     border-color: var(--color-on-gradient-border);
     background: transparent;
     color: inherit;
 }
 
-    .auth-intro .theme-toggle:hover,
-    .onboarding-aside .theme-toggle:hover {
+    .auth-intro .theme-toggle:hover {
         border-color: var(--color-on-gradient-border-strong);
         background: var(--color-on-gradient-surface);
     }
 
-    .auth-intro .theme-toggle:focus-visible,
-    .onboarding-aside .theme-toggle:focus-visible {
+    .auth-intro .theme-toggle:focus-visible {
         outline-color: var(--color-on-gradient);
     }
 
@@ -1687,7 +1212,6 @@ html[data-theme="dark"] .theme-state--dark {
         padding: 24px 20px;
     }
 
-        /* Điện thoại: chỉ giữ một vòng nhỏ ở góc trên bên phải để không đè lên chữ */
         .profile-banner::before {
             top: -70px;
             right: -70px;

@@ -12,23 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextLabel = document.getElementById('btnNextLabel');
     const nextIcon = document.getElementById('btnNextIcon');
     const progress = document.getElementById('onboardingProgress');
-    const progressFill = document.getElementById('progressBarFill');
     const counter = document.getElementById('stepCounter');
-    const description = document.getElementById('stepDescription');
     const errorBox = document.getElementById('onboardingError');
     const overlay = document.getElementById('onboardingLoading');
-    const dialog = overlay?.querySelector('.onboarding-loading__dialog');
+    const dialog = overlay?.querySelector('.loading-dialog');
     const tokenInput = form?.querySelector('input[name="__RequestVerificationToken"]');
     if (!form || !nextButton || !backButton || !tokenInput) return;
 
     const totalSteps = 3;
     let currentStep = 1;
     let submitting = false;
-    const stepDescriptions = [
-        'Bắt đầu với ngành học và vị trí mà bạn muốn ứng tuyển.',
-        'Chọn tình trạng học tập hiện tại để cá nhân hóa câu hỏi.',
-        'Cho MockviewAI biết mức kinh nghiệm của bạn để bắt đầu.'
-    ];
 
     const get = id => document.getElementById(id);
     const value = id => get(id)?.value.trim() || '';
@@ -48,27 +41,36 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let step = 1; step <= totalSteps; step++) {
             const section = get(`step${step}`);
             const tracker = get(`trackerStep${step}`);
-            if (section) {
-                section.hidden = step !== currentStep;
-                section.classList.toggle('active', step === currentStep);
-            }
-            if (tracker) {
-                tracker.classList.toggle('active', step === currentStep);
-                tracker.classList.toggle('completed', step < currentStep);
-                if (step === currentStep) tracker.setAttribute('aria-current', 'step');
-                else tracker.removeAttribute('aria-current');
-                const number = tracker.querySelector('.step-number');
-                if (number) number.textContent = step < currentStep ? '✓' : String(step);
-            }
+            if (section) section.hidden = step !== currentStep;
+            if (tracker) updateTracker(tracker, step);
         }
-        if (progressFill) progressFill.style.width = `${(currentStep / totalSteps) * 100}%`;
+        progress?.querySelectorAll('.onboarding-progress__part').forEach((part, index) => {
+            part.classList.toggle('is-on', index < currentStep);
+        });
         if (progress) progress.setAttribute('aria-valuenow', String(currentStep));
         if (counter) counter.textContent = `Bước ${currentStep} / ${totalSteps}`;
-        if (description) description.textContent = stepDescriptions[currentStep - 1];
         backButton.disabled = currentStep === 1 || submitting;
         nextLabel.textContent = currentStep === totalSteps ? 'Hoàn tất thiết lập' : 'Tiếp tục';
-        if (nextIcon) nextIcon.className = currentStep === totalSteps ? 'fa-solid fa-check' : 'fa-solid fa-chevron-right';
+        if (nextIcon) nextIcon.className = currentStep === totalSteps ? 'fa-solid fa-check' : 'fa-solid fa-arrow-right';
         clearError();
+    }
+
+    // Thanh bước cột trái: bước đã qua hiện dấu ✓ và chữ "Đã xong", bước đang làm được tô nổi
+    function updateTracker(tracker, step) {
+        const done = step < currentStep;
+        tracker.classList.toggle('is-current', step === currentStep);
+        tracker.classList.toggle('is-done', done);
+        if (step === currentStep) tracker.setAttribute('aria-current', 'step');
+        else tracker.removeAttribute('aria-current');
+
+        const dot = tracker.querySelector('.auth-track__dot');
+        if (dot) {
+            dot.innerHTML = done
+                ? '<i class="fa-solid fa-check" aria-hidden="true"></i><span class="visually-hidden">Đã xong:</span>'
+                : String(step);
+        }
+        const hint = tracker.querySelector('.auth-track__text small');
+        if (hint) hint.textContent = done ? 'Đã xong' : hint.dataset.hint || '';
     }
     //#endregion
 
