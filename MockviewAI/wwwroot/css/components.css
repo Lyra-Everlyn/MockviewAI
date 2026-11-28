@@ -1241,7 +1241,8 @@ html[data-theme="dark"] .settings-switch {
 }
 /* #endregion */
 
-/* #region Ô nhập mã OTP */
+/* #region Ô nhập mã OTP
+   [KHÔNG DÙNG] Đã chuyển sang VerifyCode.css (file đó nạp sau nên ghi đè vùng này); xoá ở đợt dọn components.css. */
 .otp-control {
     display: grid;
     grid-template-columns: repeat(6,minmax(0,1fr));
@@ -1532,6 +1533,7 @@ html[data-theme="dark"] .theme-toggle__state--dark {
     display: inline-flex;
 }
 
+/* Trên nền gradient (cột giới thiệu Auth / Onboarding): viền trắng mờ */
 .auth-intro .theme-toggle,
 .onboarding-aside .theme-toggle {
     border-color: var(--color-on-gradient-border);
@@ -1561,7 +1563,8 @@ html[data-theme="dark"] .theme-state--dark {
 }
 /* #endregion */
 
-/* #region Nhãn chữ thường */
+/* #region Nhãn chữ thường
+   Thêm vào eyebrow / nhãn thẻ để bỏ kiểu IN HOA giãn chữ. Đặt cuối file để thắng cỡ chữ của từng thẻ. */
 .label-plain {
     font-size: 13px;
     font-weight: 700;
@@ -1584,6 +1587,7 @@ html[data-theme="dark"] .theme-state--dark {
     box-shadow: var(--shadow-card);
 }
 
+    /* Hai vòng tròn trang trí, chung tâm (cách mép phải 50px) */
     .profile-banner::before,
     .profile-banner::after {
         position: absolute;
@@ -1683,6 +1687,7 @@ html[data-theme="dark"] .theme-state--dark {
         padding: 24px 20px;
     }
 
+        /* Điện thoại: chỉ giữ một vòng nhỏ ở góc trên bên phải để không đè lên chữ */
         .profile-banner::before {
             top: -70px;
             right: -70px;

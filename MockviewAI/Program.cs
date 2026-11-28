@@ -38,17 +38,12 @@ using MockviewAI.Services.Speech.Interfaces;
 
 namespace MockviewAI
 {
-    /// <summary>
-    /// [SYSTEM] 
-    /// Điểm khởi động: đăng ký dịch vụ (DI) rồi dựng pipeline xử lý request.
-    /// Mọi cấu hình nhạy cảm lấy từ biến môi trường (tab Environment trên Dokploy, hoặc file .env khi chạy local).
-    /// </summary>
     public class Program
     {
         public static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            DotNetEnv.Env.TraversePath().Load();   // .env -> biến môi trường (chỉ có tác dụng khi chạy local)
+            DotNetEnv.Env.TraversePath().Load();
 
             var builder = WebApplication.CreateBuilder(args);
 
@@ -90,7 +85,7 @@ namespace MockviewAI
             var redisConnectionString = config.GetConnectionString("RedisConnection")
                                         ?? throw new InvalidOperationException("Redis connection string is missing.");
             var redisOptions = ConfigurationOptions.Parse(redisConnectionString);
-            redisOptions.AbortOnConnectFail = false;   // Redis khởi động chậm hơn web thì vẫn tự nối lại
+            redisOptions.AbortOnConnectFail = false;
 
             services.AddStackExchangeRedisCache(options =>
             {
@@ -223,7 +218,6 @@ namespace MockviewAI
 
         #region Giới hạn tần suất
         /// <summary>
-        /// OTP: 3 lần / 15 phút / IP. Đăng nhập: 5 lần / phút / IP. Giọng nói: 20 lần / phút / tài khoản.
         /// Giới hạn phân tích CV đăng ký riêng trong AddCvServices.
         /// </summary>
         private static void AddRateLimits(IServiceCollection services)
@@ -233,10 +227,10 @@ namespace MockviewAI
                 options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
                 options.AddPolicy("OtpRateLimit", context =>
-                    FixedWindow(ClientIp(context), permitLimit: 3, window: TimeSpan.FromMinutes(15)));
+                    FixedWindow(ClientIp(context), permitLimit: 6, window: TimeSpan.FromMinutes(1)));
 
                 options.AddPolicy("LoginRateLimit", context =>
-                    FixedWindow(ClientIp(context), permitLimit: 5, window: TimeSpan.FromMinutes(1)));
+                    FixedWindow(ClientIp(context), permitLimit: 6, window: TimeSpan.FromMinutes(1)));
 
                 options.AddPolicy("SpeechRateLimit", context =>
                 {

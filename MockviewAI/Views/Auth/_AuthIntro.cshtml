@@ -1,0 +1,36 @@
+@model string
+@*
+    [AUTH]
+    Cột trái của Đăng nhập / Đăng ký: logo, nút sáng tối, một câu giới thiệu (model) và đoạn hội thoại phỏng vấn mẫu.
+    Trên điện thoại chỉ còn hàng logo + nút sáng tối.
+*@
+<section class="auth-intro" aria-label="Giới thiệu MockviewAI">
+    <div class="auth-intro__top">
+        <a class="auth-brand" asp-controller="Home" asp-action="Index" aria-label="MockviewAI - Trang chủ">
+            <span>Mockview<span>AI</span></span>
+        </a>
+        <partial name="Partials/_ThemeToggle" />
+    </div>
+
+    <p class="auth-intro__pitch">@Model</p>
+
+    @* Hội thoại minh hoạ, chỉ để trang trí nên ẩn với trình đọc màn hình *@
+    <div class="auth-chat" aria-hidden="true">
+        <div class="auth-chat__row">
+            <span class="auth-chat__avatar">AI</span>
+            <p class="auth-chat__bubble">Bạn hãy giải thích sự khác nhau giữa <b>async</b> và <b>multithreading</b> trong C#?</p>
+        </div>
+        <div class="auth-chat__row auth-chat__row--me">
+            <p class="auth-chat__bubble">async giúp không chặn luồng khi chờ I/O, còn đa luồng là chạy nhiều luồng song song…</p>
+        </div>
+        <div class="auth-chat__row">
+            <span class="auth-chat__avatar">AI</span>
+            <div class="auth-chat__stack">
+                <p class="auth-chat__bubble">Ý chính đúng. Thử thêm ví dụ khi gọi API nhé.</p>
+                <span class="auth-chat__score">78 điểm</span>
+            </div>
+        </div>
+    </div>
+
+    <p class="auth-intro__bottom">Dự án nghiên cứu luyện phỏng vấn kỹ thuật cho sinh viên IT.</p>
+</section>

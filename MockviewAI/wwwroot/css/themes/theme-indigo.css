@@ -1,121 +1,169 @@
-/* MockviewAI | Theme sáng (Indigo)
-   Chỉ khai báo màu, nền, viền và bóng đổ. Kích thước nằm trong base.css / components.css. */
+/* MockviewAI | Theme tối (Bạc hà đêm xanh than)
+   Thay cho theme-mint.css khi bật giao diện tối; dùng chung base.css và components.css.
+   Nền xanh than, viền mảnh, xanh ngọc làm màu nhấn. */
 
 /* #region Biến màu */
 :root {
-    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color-scheme: dark;
+    --font-sans: 'Be Vietnam Pro', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --layout-max-width: 1040px;
-    --color-page: #f5f7fb;
-    --color-surface: #ffffff;
-    --color-surface-soft: #f8f9fc;
-    --color-surface-accent: #eef1ff;
-    --color-text: #172033;
-    --color-text-soft: #42506a;
-    --color-muted: #748096;
-    --color-subtle: #98a2b4;
-    --color-border: #e5eaf2;
-    --color-border-strong: #d6ddea;
-    --color-primary: #5565ed;
-    --color-primary-hover: #4555dd;
-    --color-primary-soft: #eef1ff;
-    --color-primary-text: #ffffff;
-    --color-success: #20845a;
-    --color-success-soft: #e9f8f0;
-    --color-warning: #a96d16;
-    --color-star: #f5c518;
-    --color-warning-soft: #fff7df;
-    --color-danger: #d34d5b;
-    --color-danger-soft: #fff0f1;
+    --color-page: #0d1521;
+    --color-surface: #141e2d;
+    --color-surface-soft: #1a2638;
+    --color-surface-accent: #213048;
+    --color-text: #e6edf6;
+    --color-text-soft: #b4c0d0;
+    --color-muted: #94a3b8;
+    --color-subtle: #7c8aa0;
+    --color-border: #22304a;
+    --color-border-strong: #31435f;
+    --color-primary: #4fe0bf;
+    --color-primary-hover: #7eebd2;
+    --color-primary-soft: #16343a;
+    --color-primary-text: #0d1521;
+    --color-success: #6fdbac;
+    --color-success-soft: #163c35;
+    --color-warning: #f2c378;
+    --color-star: #ffd060;
+    --color-warning-soft: #463520;
+    --color-danger: #ff8c99;
+    --color-danger-soft: #4b2737;
 
     /* Thanh điều hướng */
-    --color-nav: rgba(255, 255, 255, .96);
-    --color-nav-text: #667187;
-    --color-nav-text-active: #172033;
-    --color-nav-border: #e5eaf2;
-    --color-nav-control-border: #d9def0;
-    --color-nav-mobile: rgba(255, 255, 255, .97);
-    --gradient-primary: linear-gradient(135deg, #5366e8 0%, #7248ef 52%, #4488df 100%);
-    --radius-panel: 20px;
-    --radius-card: 14px;
-    --radius-control: 10px;
-    --shadow-panel: 0 14px 38px rgba(40, 51, 87, .07);
-    --shadow-card: 0 8px 24px rgba(40, 51, 87, .045);
-    --shadow-card-hover: 0 12px 30px rgba(40, 51, 87, .075);
-    --shadow-control: 0 8px 18px rgba(79, 99, 232, .16);
-    --shadow-mobile-nav: 0 -7px 24px rgba(30, 42, 68, .06);
+    --color-nav: rgba(13, 21, 33, .96);
+    --color-nav-text: #94a3b8;
+    --color-nav-text-active: #e6edf6;
+    --color-nav-border: #22304a;
+    --color-nav-control-border: #2b3c58;
+    --color-nav-mobile: rgba(13, 21, 33, .98);
+    --gradient-primary: radial-gradient(520px 320px at 88% 50%, rgba(54, 222, 182, .2), transparent 70%), #12233a;
+    --radius-panel: 28px;
+    --radius-card: 22px;
+    --radius-control: 14px;
+    --radius-button: 999px;
+    --shadow-panel: 0 6px 0 #070c14;
+    --shadow-card: 0 5px 0 #070c14;
+    --shadow-card-hover: 0 7px 0 #070c14;
+    --shadow-control: 0 8px 18px rgba(0, 0, 0, .3);
+    --shadow-mobile-nav: 0 -7px 24px rgba(0, 0, 0, .3);
+
+    /* Khung thẻ: viền dày kiểu game như theme sáng, màu xanh than sáng hơn nền thẻ */
+    --border-card: 3px;
+    --color-card-border: #24344f;
+    --color-section-marker: #36deb6;
+
+    /* Nút chính: gờ 3D (giữ nguyên như theme sáng) */
+    --color-button-main: #36deb6;
+    --color-button-main-hover: #45e4bf;
+    --color-button-main-text: #073b30;
+    --color-button-main-edge: #1f9c80;
+    --shadow-button-main: 0 3px 0 #1f9c80;
+    --shadow-button-main-pressed: 0 0 0 #1f9c80;
+    --text-shadow-button-main: none;
+    --button-press-offset: 3px;
+    --button-hover-lift: 0px;
+
+    /* Nút chính màu phụ (xanh dương), cùng kiểu bong bóng icon */
+    --color-button-alt: #5ab2f6;
+    --color-button-alt-hover: #6bbbf8;
+    --color-button-alt-text: #082e52;
+    --color-button-alt-edge: #2a7cc9;
+
+    /* Hai ô hành động trang chủ */
+    --color-tile-practice: radial-gradient(420px 260px at 85% 50%, rgba(54, 222, 182, .16), transparent 70%) #12233a;
+    --color-tile-cv: radial-gradient(420px 260px at 85% 50%, rgba(90, 178, 246, .16), transparent 70%) #13203a;
+    --color-tile-practice-ring: rgba(54, 222, 182, .28);
+    --color-tile-practice-ring-strong: rgba(54, 222, 182, .5);
+    --color-tile-cv-ring: rgba(90, 178, 246, .28);
+    --color-tile-cv-ring-strong: rgba(90, 178, 246, .5);
+    --color-tile-practice-label: #4fe0bf;
+    --color-tile-cv-label: #9ccdf7;
+
+    /* Trang Hồ sơ */
+    --color-streak: #f2a93b;
+    --color-presence: #4fd97a;
+
+    /* Nút phụ: nền trong suốt */
+    --color-button-soft: rgba(54, 222, 182, .14);
+    --color-button-soft-hover: rgba(54, 222, 182, .22);
+    --color-button-soft-text: #7eebd2;
+    --color-button-info: rgba(90, 178, 246, .16);
+    --color-button-info-hover: rgba(90, 178, 246, .24);
+    --color-button-info-text: #9ccdf7;
+    --shadow-button-soft: none;
 
     /* Chữ / viền trên nền gradient */
-    --color-on-gradient: #ffffff;
-    --color-on-gradient-muted: rgba(255, 255, 255, .86);
-    --color-on-gradient-accent: #d5e6ff;
-    --color-on-gradient-border: rgba(255, 255, 255, .28);
-    --color-on-gradient-border-strong: rgba(255, 255, 255, .55);
-    --color-on-gradient-surface: rgba(255, 255, 255, .14);
-    --color-on-gradient-surface-strong: rgba(255, 255, 255, .25);
-    --color-on-gradient-ring: rgba(255, 255, 255, .12);
-    --color-on-gradient-active: #ffffff;
-    --color-on-gradient-active-text: #5565ed;
+    --color-on-gradient: #e6edf6;
+    --color-on-gradient-muted: #b4c0d0;
+    --color-on-gradient-accent: #7eebd2;
+    --color-on-gradient-border: rgba(255, 255, 255, .2);
+    --color-on-gradient-border-strong: rgba(255, 255, 255, .45);
+    --color-on-gradient-surface: rgba(255, 255, 255, .1);
+    --color-on-gradient-surface-strong: rgba(255, 255, 255, .18);
+    --color-on-gradient-ring: rgba(54, 222, 182, .3);
+    --color-on-gradient-active: #e6edf6;
+    --color-on-gradient-active-text: #12233a;
 
     /* Nền nhấn đậm hơn --color-primary-soft (hover của nút nền nhạt) */
-    --color-primary-soft-strong: #e4e9ff;
+    --color-primary-soft-strong: #1d4248;
 
     /* Viền và trạng thái đậm của các màu ngữ nghĩa */
-    --color-success-border: #b4e0c8;
-    --color-warning-border: #f0dcaa;
-    --color-danger-border: #f4c9d0;
-    --color-danger-soft-strong: #ffe3e7;
-    --color-danger-hover: #b93b49;
-    --color-on-danger: #ffffff;
+    --color-success-border: #2c6a52;
+    --color-warning-border: #6b5226;
+    --color-danger-border: #6e3442;
+    --color-danger-soft-strong: #5a2c3d;
+    --color-danger-hover: #ffa3ad;
+    --color-on-danger: #2a0d14;
 
     /* Thông tin (xanh dương) */
-    --color-info: #3a5eb3;
-    --color-info-soft: #ebf2ff;
-    --color-info-border: #c9dbf7;
+    --color-info: #9ccdf7;
+    --color-info-soft: #1a2c45;
+    --color-info-border: #2f4c72;
 
     /* Đặc biệt (tím) */
-    --color-special: #8055ac;
-    --color-special-soft: #f9f4ff;
-    --color-special-border: #ead8fd;
+    --color-special: #cfa6f5;
+    --color-special-soft: #2e2342;
+    --color-special-border: #57407a;
 
     /* Chế độ Luyện tập */
-    --color-mode-practice: #6554e8;
-    --color-mode-practice-hover: #5543d3;
-    --color-mode-practice-soft: #f2efff;
-    --color-mode-practice-border: #aa9bfa;
-    --color-on-mode-practice: #ffffff;
+    --color-mode-practice: #4fe0bf;
+    --color-mode-practice-hover: #7eebd2;
+    --color-mode-practice-soft: #16343a;
+    --color-mode-practice-border: #2a6b62;
+    --color-on-mode-practice: #0d1521;
 
     /* Chế độ Thực chiến */
-    --color-mode-live: #c65317;
-    --color-mode-live-soft: #fff2e8;
-    --color-mode-live-border: #f4cda9;
-    --color-mode-live-track: #f7d5ba;
-    --color-on-mode-live: #ffffff;
+    --color-mode-live: #ffa46b;
+    --color-mode-live-soft: #3d2618;
+    --color-mode-live-border: #7a4524;
+    --color-mode-live-track: #5a3520;
+    --color-on-mode-live: #2a1406;
 
     /* Người phỏng vấn */
-    --color-persona-linh: #5565cd;
-    --color-persona-linh-soft: #e8ecff;
-    --color-persona-nam: #288066;
-    --color-persona-nam-soft: #e8f6f0;
-    --color-persona-an: #8b56bc;
-    --color-persona-an-soft: #f3eaff;
+    --color-persona-linh: #9ccdf7;
+    --color-persona-linh-soft: #1a2c45;
+    --color-persona-nam: #7eebd2;
+    --color-persona-nam-soft: #16343a;
+    --color-persona-an: #cfa6f5;
+    --color-persona-an-soft: #33244a;
 
     /* 4 loại đánh giá câu trả lời: Đúng / Hơi đặc biệt / Đặc biệt / Sai (trang Kết quả, Chi tiết) */
-    --color-verdict-correct: #20845a;
-    --color-verdict-correct-soft: #ecfdf5;
-    --color-verdict-correct-border: #bce7d0;
-    --color-verdict-partial: #2566af;
-    --color-verdict-partial-soft: #eff6ff;
-    --color-verdict-partial-border: #cbdff8;
-    --color-verdict-special: #7754be;
-    --color-verdict-special-soft: #f5f3ff;
-    --color-verdict-special-border: #dfd5fc;
-    --color-verdict-wrong: #bb4050;
-    --color-verdict-wrong-soft: #fff0f1;
-    --color-verdict-wrong-border: #f4ccd0;
+    --color-verdict-correct: #6fdbac;
+    --color-verdict-correct-soft: #163c35;
+    --color-verdict-correct-border: #2c6a52;
+    --color-verdict-partial: #9ccdf7;
+    --color-verdict-partial-soft: #1a2c45;
+    --color-verdict-partial-border: #2f4c72;
+    --color-verdict-special: #cfa6f5;
+    --color-verdict-special-soft: #2e2342;
+    --color-verdict-special-border: #57407a;
+    --color-verdict-wrong: #ff8c99;
+    --color-verdict-wrong-soft: #4b2737;
+    --color-verdict-wrong-border: #6e3442;
 
     /* Màn hình chờ khi gửi form */
-    --color-loading-backdrop: rgba(13, 20, 38, .76);
-    --shadow-loading-dialog: 0 24px 72px rgba(10, 18, 38, .26);
+    --color-loading-backdrop: rgba(2, 6, 12, .82);
+    --shadow-loading-dialog: 0 24px 72px rgba(0, 0, 0, .48);
 }
 /* #endregion */
 
@@ -147,7 +195,7 @@
 .app-nav__desktop {
     background: var(--color-nav);
     border-bottom-color: var(--color-nav-border);
-    box-shadow: 0 1px 0 rgba(23, 32, 51, .015);
+    box-shadow: none;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
 }
@@ -170,20 +218,20 @@
     }
 
     .app-nav__link::after {
-        background: var(--color-primary);
+        background: var(--color-button-main);
     }
 
 .status-badge {
-    background: #fafaff;
-    color: var(--color-primary);
-    border-color: var(--color-nav-control-border);
+    background: var(--color-button-soft);
+    color: var(--color-button-soft-text);
+    border-color: transparent;
 }
 
 .user-avatar {
-    background: var(--gradient-primary);
-    color: #fff;
-    border-color: #ccd3f7;
-    box-shadow: 0 0 0 2px #fff;
+    background: var(--color-button-main);
+    color: var(--color-button-main-text);
+    border-color: var(--color-page);
+    box-shadow: 0 0 0 2px var(--color-border-strong);
 }
 
 .app-nav__mobile-link {
@@ -197,59 +245,121 @@
 
 /* #region Nút */
 .button--primary {
-    background: var(--color-primary);
-    color: var(--color-primary-text);
+    background: var(--color-button-main);
+    color: var(--color-button-main-text);
 }
 
     .button--primary:hover {
-        background: var(--color-primary-hover);
+        background: var(--color-button-main-hover);
     }
 
 .button--secondary {
-    background: var(--color-surface);
-    color: var(--color-primary);
+    background: var(--color-button-soft);
+    color: var(--color-button-soft-text);
 }
 
     .button--secondary:hover {
-        border-color: #c8d0ff;
-        background: var(--color-primary-soft);
+        border-color: transparent;
+        background: var(--color-button-soft-hover);
+    }
+
+.button--alt {
+    background: var(--color-button-alt);
+    color: var(--color-button-alt-text);
+    box-shadow: 0 3px 0 var(--color-button-alt-edge);
+}
+
+    .button--alt:hover {
+        background: var(--color-button-alt-hover);
+    }
+
+    .button--alt:active {
+        box-shadow: 0 0 0 var(--color-button-alt-edge);
+    }
+
+.button__icon {
+    background: var(--color-button-main-edge);
+    color: #ffffff;
+}
+
+.button--alt .button__icon {
+    background: var(--color-button-alt-edge);
+}
+
+.button--info {
+    background: var(--color-button-info);
+    color: var(--color-button-info-text);
+}
+
+    .button--info:hover {
+        background: var(--color-button-info-hover);
+    }
+
+.theme-toggle {
+    border-color: transparent;
+    background: var(--color-button-soft);
+    color: var(--color-button-soft-text);
+}
+
+    .theme-toggle:hover {
+        border-color: transparent;
+        background: var(--color-button-soft-hover);
     }
 /* #endregion */
 
 /* #region Panel chính (Trang chủ) */
 .panel--primary {
     position: relative;
-    border-color: transparent;
+    border-color: #23405c;
     background: var(--gradient-primary);
-    color: #fff;
-    box-shadow: 0 18px 42px rgba(79, 99, 232, .19);
+    color: var(--color-on-gradient);
+    box-shadow: var(--shadow-panel);
 }
 
+    /* Hai vòng tròn trang trí bên phải */
+    .panel--primary::before,
     .panel--primary::after {
         position: absolute;
-        top: -110px;
-        right: -80px;
-        width: 300px;
-        height: 300px;
+        top: 50%;
         border-radius: 50%;
-        background: rgba(255, 255, 255, .11);
         content: "";
         pointer-events: none;
     }
 
-    .panel--primary .panel__eyebrow,
-    .panel--primary .panel__description {
-        color: rgba(255, 255, 255, .82);
+    .panel--primary::before {
+        right: -70px;
+        width: 300px;
+        height: 300px;
+        margin-top: -150px;
+        border: 22px solid var(--color-on-gradient-ring);
     }
 
-    .panel--primary .button--primary {
-        background: #fff;
-        color: var(--color-primary);
+    .panel--primary::after {
+        right: 20px;
+        width: 120px;
+        height: 120px;
+        margin-top: -60px;
+        border: 14px solid rgba(54, 222, 182, .5);
     }
 
-        .panel--primary .button--primary:hover {
-            background: #f8f9ff;
+    /* Điện thoại: bỏ vòng nhỏ để không đè lên chữ */
+    @media (max-width: 680px) {
+        .panel--primary::after {
+            display: none;
         }
+    }
+
+    .panel--primary .panel__title {
+        color: var(--color-on-gradient);
+    }
+
+    .panel--primary .panel__eyebrow {
+        color: var(--color-on-gradient-accent);
+    }
+
+    .panel--primary .panel__description {
+        color: var(--color-on-gradient-muted);
+    }
 /* #endregion */
 
 /* #region Thẻ dùng chung */
@@ -284,13 +394,26 @@
 
 .action-card:hover,
 .session-card:hover {
-    border-color: #cbd3ff;
+    border-color: #2f4566;
 }
 
 .stat-card__label {
     color: var(--color-muted);
 }
 
+.stat-card__value--success {
+    color: var(--color-primary);
+}
+
+.stat-card__value--info {
+    color: var(--color-info);
+}
+
+.stat-card__value--muted {
+    color: var(--color-subtle);
+}
+
+/* [KHÔNG DÙNG] status-chip: không còn view nào dùng (xem components.css). */
 .status-chip {
     background: var(--color-primary-soft);
     color: var(--color-primary);
@@ -307,29 +430,1169 @@
 }
 /* #endregion */
 
-/* #region Thẻ Góp ý */
-.feedback-action-card {
-    border-color: #f0dfb6;
-    background: #fffaf0;
+/* #region Hai ô hành động (Trang chủ) */
+.action-tile--practice {
+    background: var(--color-tile-practice);
 }
 
-    .feedback-action-card .action-card__icon {
-        background: #fff0c7;
+.action-tile--cv {
+    background: var(--color-tile-cv);
+}
+
+    .action-tile--practice::before {
+        border-color: var(--color-tile-practice-ring);
+    }
+
+    .action-tile--practice::after {
+        border-color: var(--color-tile-practice-ring-strong);
+    }
+
+    .action-tile--cv::before {
+        border-color: var(--color-tile-cv-ring);
+    }
+
+    .action-tile--cv::after {
+        border-color: var(--color-tile-cv-ring-strong);
+    }
+
+.action-tile__bubble {
+    background: var(--color-button-main);
+    color: var(--color-button-main-text);
+    box-shadow: 0 0 0 10px rgba(54, 222, 182, .18);
+}
+
+.action-tile--cv .action-tile__bubble {
+    background: var(--color-button-alt);
+    color: var(--color-button-alt-text);
+    box-shadow: 0 0 0 10px rgba(90, 178, 246, .18);
+}
+
+.action-tile__label {
+    color: var(--color-tile-practice-label);
+}
+
+.action-tile--cv .action-tile__label,
+.action-tile__link {
+    color: var(--color-tile-cv-label);
+}
+
+.action-tile__title {
+    color: var(--color-text);
+}
+
+.action-tile__description {
+    color: var(--color-muted);
+}
+/* #endregion */
+
+/* #region Trang Hồ sơ */
+.profile-banner {
+    background: var(--color-tile-practice);
+}
+
+    .profile-banner::before {
+        border-color: var(--color-tile-practice-ring);
+    }
+
+    .profile-banner::after {
+        border-color: var(--color-tile-practice-ring-strong);
+    }
+
+.profile-banner__avatar {
+    background: var(--color-button-main);
+    color: var(--color-button-main-text);
+    box-shadow: 0 0 0 10px rgba(54, 222, 182, .18);
+}
+
+.profile-banner__presence {
+    background: var(--color-presence);
+    border-color: var(--color-surface);
+}
+
+.profile-banner__label {
+    color: var(--color-tile-practice-label);
+}
+
+.profile-banner__name {
+    color: var(--color-text);
+}
+
+.profile-banner__status,
+.profile-fact__label,
+.journey-card__since,
+.journey-stat__label,
+.journey-stat__value small,
+.journey-card__login {
+    color: var(--color-muted);
+}
+
+.profile-fact__value,
+.journey-card__title,
+.journey-stat__value {
+    color: var(--color-text);
+}
+
+.profile-fact__icon--major {
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+}
+
+.profile-fact__icon--target {
+    background: var(--color-info-soft);
+    color: var(--color-info);
+}
+
+.profile-fact__icon--level {
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+}
+
+.journey-stat {
+    background: var(--color-surface-soft);
+}
+
+.journey-stat__value--streak {
+    color: var(--color-streak);
+}
+
+.journey-stat__value--sessions {
+    color: var(--color-primary);
+}
+
+.journey-stat__value--answers {
+    color: var(--color-info);
+}
+
+.journey-card__dot {
+    background: var(--color-presence);
+}
+/* #endregion */
+
+/* #region Trang Chỉnh sửa hồ sơ */
+.edit-avatar-button {
+    border-color: var(--color-surface);
+    background: var(--color-button-alt);
+    color: var(--color-button-alt-text);
+    box-shadow: 0 3px 0 var(--color-button-alt-edge);
+}
+
+    .edit-avatar-button:active {
+        box-shadow: 0 0 0 var(--color-button-alt-edge);
+    }
+
+.form-step__title {
+    color: var(--color-text);
+}
+
+.form-step__number {
+    background: var(--color-button-soft);
+    color: var(--color-button-soft-text);
+}
+
+.choice-pill,
+.level-card {
+    border-color: var(--color-border);
+    background: var(--color-surface-soft);
+    color: var(--color-text);
+}
+
+    .choice-pill:hover,
+    .level-card:hover {
+        border-color: var(--color-border-strong);
+    }
+
+    .choice-pill.active,
+    .level-card.active {
+        border-color: var(--color-button-main);
+        background: var(--color-primary-soft);
+    }
+
+    .choice-pill.active {
+        color: var(--color-button-soft-text);
+    }
+
+.level-card__text small {
+    color: var(--color-muted);
+}
+
+.level-bars span {
+    background: var(--color-border-strong);
+}
+
+    .level-bars span.is-on {
+        background: var(--color-button-main);
+    }
+/* #endregion */
+
+/* #region Trang CV của tôi */
+.profile-banner--cv {
+    background: var(--color-tile-cv);
+}
+
+    .profile-banner--cv::before {
+        border-color: var(--color-tile-cv-ring);
+    }
+
+    .profile-banner--cv::after {
+        border-color: var(--color-tile-cv-ring-strong);
+    }
+
+    .profile-banner--cv .profile-banner__label {
+        color: var(--color-tile-cv-label);
+    }
+
+.cv-banner__icon {
+    background: var(--color-button-alt);
+    color: var(--color-button-alt-text);
+    box-shadow: 0 0 0 10px rgba(90, 178, 246, .18);
+}
+
+.cv-slot {
+    border-color: var(--color-info-border);
+    background: var(--color-surface);
+}
+
+    .cv-slot.is-filled {
+        border-color: var(--color-button-alt-edge);
+        background: var(--color-button-alt);
+        color: var(--color-button-alt-text);
+    }
+
+.cv-slots__count,
+.cv-library__note,
+.cv-library__empty p,
+.cv-detail__fact span,
+.cv-detail__side-entry span,
+.cv-detail__bullets {
+    color: var(--color-muted);
+}
+
+.cv-notice--full {
+    border: 1px solid var(--color-warning-border);
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+}
+
+.cv-library__empty,
+.cv-library__item {
+    background: var(--color-surface);
+}
+
+.cv-library__item.is-default {
+    border-color: var(--color-button-main);
+}
+
+.cv-library__empty-icon,
+.cv-library__icon {
+    background: var(--color-info-soft);
+    color: var(--color-info);
+}
+
+.cv-library__empty h2,
+.cv-library__title,
+.cv-detail__fact strong,
+.cv-detail__heading,
+.cv-detail__objective,
+.cv-detail__desc,
+.cv-detail__side-entry strong {
+    color: var(--color-text);
+}
+
+.cv-library__badge {
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+}
+
+.cv-library__pill {
+    background: var(--color-surface-soft);
+    color: var(--color-muted);
+}
+
+.cv-library__actions {
+    border-top-color: var(--color-border);
+}
+
+.cv-library__delete {
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
+}
+
+    .cv-library__delete:hover {
+        background: var(--color-danger-soft-strong);
+    }
+
+.cv-library__details {
+    background: var(--color-surface-soft);
+}
+
+.cv-detail__fact {
+    background: var(--color-surface);
+}
+
+.cv-detail__chip {
+    background: var(--color-info-soft);
+    color: var(--color-info);
+}
+
+.cv-detail__chips--soft .cv-detail__chip {
+    background: var(--color-button-soft);
+    color: var(--color-button-soft-text);
+}
+
+.cv-detail__chips--small .cv-detail__chip {
+    background: var(--color-surface);
+    color: var(--color-muted);
+}
+
+.cv-detail__more summary {
+    color: var(--color-info);
+}
+
+/* Vòng quanh chấm của luồng trùng màu nền khung chi tiết */
+.cv-library__details .cv-flow__group::before {
+    box-shadow: 0 0 0 4px var(--color-surface-soft);
+}
+/* #endregion */
+
+/* #region Trang Tải CV lên + Đang lưu CV */
+.cv-back,
+.cv-hint i,
+.cv-flow__group--job .cv-flow__label {
+    color: var(--color-info);
+}
+
+.cv-notice--error {
+    border: 1px solid var(--color-danger-border);
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
+}
+
+.cv-notice--success {
+    border: 1px solid var(--color-success-border);
+    background: var(--color-success-soft);
+    color: var(--color-success);
+}
+
+.cv-notice--info {
+    border: 1px solid var(--color-info-border);
+    background: var(--color-info-soft);
+    color: var(--color-text);
+}
+
+.cv-validation,
+.cv-file-error {
+    color: var(--color-danger);
+}
+
+.cv-track__dot {
+    border-color: var(--color-info-border);
+    background: var(--color-surface);
+    color: var(--color-muted);
+}
+
+.cv-track__node.is-current .cv-track__dot,
+.cv-track__node.is-done .cv-track__dot {
+    border-color: var(--color-button-alt-edge);
+    background: var(--color-button-alt);
+    color: var(--color-button-alt-text);
+}
+
+.cv-track__label,
+.cv-card__head h2,
+.cv-guide h2,
+.cv-guide__list strong,
+.cv-review__title,
+.cv-dropzone > strong,
+.cv-selected__details strong,
+.cv-checklist li,
+.cv-flow__title,
+.cv-saved__title {
+    color: var(--color-text);
+}
+
+.cv-track__line {
+    background: var(--color-info-border);
+}
+
+    .cv-track__line.is-done {
+        background: var(--color-button-alt);
+    }
+
+.cv-card,
+.cv-saved {
+    background: var(--color-surface);
+}
+
+.cv-card__head p,
+.cv-dropzone > p,
+.cv-dropzone__help,
+.cv-selected__details small,
+.cv-guide__list small,
+.cv-guide__copy,
+.cv-hint,
+.cv-field-help,
+.cv-flow__meta,
+.cv-saved__text {
+    color: var(--color-muted);
+}
+
+.cv-dropzone {
+    border-color: var(--color-info-border);
+    background: rgba(90, 178, 246, .06);
+}
+
+    .cv-dropzone:focus-within,
+    .cv-dropzone.is-dragging {
+        border-color: var(--color-button-alt-edge);
+        background: var(--color-info-soft);
+    }
+
+.cv-dropzone__bubble,
+.cv-saved__bubble {
+    background: var(--color-button-alt);
+    color: var(--color-button-alt-text);
+}
+
+.cv-dropzone__bubble {
+    box-shadow: 0 0 0 10px rgba(90, 178, 246, .18);
+}
+
+.cv-selected {
+    background: var(--color-surface-soft);
+}
+
+.cv-selected__icon,
+.cv-guide__num {
+    background: var(--color-info-soft);
+    color: var(--color-info);
+}
+
+.cv-selected__remove {
+    background: var(--color-surface);
+    color: var(--color-muted);
+}
+
+    .cv-selected__remove:hover {
+        background: var(--color-danger-soft);
+        color: var(--color-danger);
+    }
+
+.cv-checklist i,
+.cv-flow__group--project .cv-flow__label {
+    color: var(--color-primary);
+}
+
+.cv-flow__group--school .cv-flow__label {
+    color: var(--color-warning);
+}
+
+.cv-flow__group::before {
+    box-shadow: 0 0 0 4px var(--color-surface);
+}
+
+.cv-flow__group--job::before {
+    background: var(--color-button-alt);
+}
+
+.cv-flow__group--project::before {
+    background: var(--color-button-main);
+}
+
+.cv-flow__group--school::before {
+    background: var(--color-streak);
+}
+
+.cv-flow__group::after {
+    background: var(--color-border);
+}
+
+.cv-review__actions {
+    border-top-color: var(--color-border);
+}
+
+.cv-saved__ring {
+    border-color: var(--color-info-soft);
+    border-top-color: var(--color-button-alt);
+}
+
+.cv-saved__alert {
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
+}
+/* #endregion */
+
+/* #region Trang Góp ý + Cảm ơn */
+.feedback-back {
+    color: var(--color-primary);
+}
+
+.feedback-banner {
+    background: var(--color-tile-practice);
+}
+
+.feedback-form,
+.thankyou-card {
+    background: var(--color-surface);
+}
+
+.feedback-q + .feedback-q,
+.feedback-actions {
+    border-top-color: var(--color-border);
+}
+
+.feedback-q__num {
+    background: var(--color-button-soft);
+    color: var(--color-button-soft-text);
+}
+
+.feedback-q__title,
+.feedback-stars__caption strong,
+.feedback-choice__text strong,
+.feedback-comment__input,
+.thankyou-card__title {
+    color: var(--color-text);
+}
+
+.feedback-q__hint,
+.feedback-stars__caption span,
+.feedback-choice__text small,
+.feedback-choice__face,
+.feedback-comment__footer,
+.thankyou-card__text {
+    color: var(--color-muted);
+}
+
+.feedback-star {
+    background: var(--color-surface-soft);
+    color: #2a3a52;
+}
+
+    .feedback-star.is-selected {
+        color: #ffc93c;
+        filter: drop-shadow(0 2px 0 #c9930b);
+    }
+
+.feedback-choice {
+    border-color: var(--color-border);
+    background: var(--color-surface);
+}
+
+.feedback-choices > input:checked + .feedback-choice {
+    border-color: var(--color-button-main);
+    background: var(--color-button-soft);
+}
+
+    .feedback-choices > input:checked + .feedback-choice .feedback-choice__face {
+        color: var(--color-primary);
+    }
+
+.feedback-choice__check,
+.thankyou-card__check {
+    background: var(--color-button-main);
+    color: var(--color-button-main-text);
+    box-shadow: 0 3px 0 var(--color-button-main-edge);
+}
+
+.feedback-comment {
+    border-color: var(--color-border-strong);
+    background: #101928;
+}
+
+.feedback-comment__input::placeholder {
+    color: var(--color-subtle);
+}
+
+.feedback-comment__footer {
+    border-top-color: var(--color-border);
+}
+
+.thankyou-card__badge::before {
+    border-color: var(--color-tile-practice-ring);
+}
+
+.thankyou-card__badge::after {
+    border-color: var(--color-tile-practice-ring-strong);
+}
+/* #endregion */
+
+/* #region Trang pháp lý (Điều khoản, Quyền riêng tư) */
+.legal-guestbar {
+    border-bottom-color: var(--color-border);
+    background: var(--color-surface);
+}
+
+.legal-guestbar__brand,
+.legal-toc__title,
+.legal-toc__toggle,
+.legal-section__title,
+.legal-card strong,
+.legal-table td,
+.legal-contact__text strong,
+.legal-switch__link.is-current {
+    color: var(--color-text);
+}
+
+    .legal-guestbar__brand span span,
+    .legal-link {
+        color: var(--color-primary);
+    }
+
+.legal-progress__bar {
+    background: var(--color-button-main);
+}
+
+.legal-banner {
+    background: var(--color-tile-practice);
+}
+
+.legal-switch {
+    background: var(--color-tile-practice-ring);
+}
+
+.legal-switch__link {
+    color: var(--color-muted);
+}
+
+    .legal-switch__link.is-current {
+        background: var(--color-surface);
+        box-shadow: 0 2px 0 var(--color-border);
+    }
+
+.legal-chip {
+    background: var(--color-surface);
+    color: var(--color-muted);
+}
+
+.legal-toc,
+.legal-content {
+    background: var(--color-surface);
+}
+
+.legal-toc__link,
+.legal-toc__caret,
+.legal-card p,
+.legal-contact__text small {
+    color: var(--color-muted);
+}
+
+    .legal-toc__link:hover {
+        background: var(--color-surface-soft);
+        color: var(--color-text);
+    }
+
+.legal-toc__index {
+    background: var(--color-surface-soft);
+}
+
+.legal-toc__link.is-active {
+    background: var(--color-button-soft);
+    color: var(--color-button-soft-text);
+}
+
+    .legal-toc__link.is-active .legal-toc__index,
+    .legal-top {
+        background: var(--color-button-main);
+        color: var(--color-button-main-text);
+    }
+
+.legal-top {
+    box-shadow: 0 3px 0 var(--color-button-main-edge);
+}
+
+.legal-toc__list {
+    border-top-color: var(--color-border);
+}
+
+.legal-content p,
+.legal-list li {
+    color: var(--color-text-soft);
+}
+
+.legal-summary {
+    background: var(--color-info-soft);
+}
+
+    .legal-summary > div > strong {
+        color: var(--color-info);
+    }
+
+.legal-section + .legal-section {
+    border-top-color: var(--color-border);
+}
+
+.legal-section__number,
+.legal-list li > i {
+    background: var(--color-button-soft);
+    color: var(--color-button-soft-text);
+}
+
+.legal-list--danger li > i {
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
+}
+
+.legal-callout--warning {
+    background: var(--color-warning-soft);
+}
+
+.legal-callout--success {
+    background: var(--color-success-soft);
+}
+
+    .legal-callout--warning p,
+    .legal-callout--warning > i {
         color: var(--color-warning);
     }
 
-    .feedback-action-card .action-card__eyebrow,
+    .legal-callout--success p,
+    .legal-callout--success > i {
+        color: var(--color-success);
+    }
+
+.legal-card,
+.legal-contact__card {
+    background: var(--color-surface-soft);
+}
+
+    .legal-card > i {
+        color: var(--color-primary);
+    }
+
+.legal-table-wrap {
+    border-color: var(--color-border);
+}
+
+.legal-table th {
+    background: var(--color-surface-soft);
+    color: var(--color-text);
+}
+
+.legal-table tbody tr + tr td,
+.legal-table thead + tbody tr:first-child td {
+    border-top-color: var(--color-border);
+}
+
+.legal-table td {
+    color: var(--color-text-soft);
+}
+
+.legal-contact__icon {
+    background: var(--color-button-soft);
+    color: var(--color-button-soft-text);
+}
+
+.legal-contact__icon--mail {
+    background: var(--color-info-soft);
+    color: var(--color-info);
+}
+/* #endregion */
+
+/* #region Trang quản trị */
+.admin-tabs,
+.admin-ranks__track {
+    background: var(--color-surface-soft);
+}
+
+.admin-tabs__link {
+    color: var(--color-muted);
+}
+
+    .admin-tabs__link:hover {
+        color: var(--color-text);
+    }
+
+    .admin-tabs__link.is-active {
+        background: var(--color-button-main);
+        color: var(--color-button-main-text);
+        box-shadow: 0 3px 0 var(--color-button-main-edge);
+    }
+
+.admin-tabs__count {
+    background: var(--color-surface);
+    color: var(--color-muted);
+}
+
+.admin-tabs__link.is-active .admin-tabs__count {
+    background: var(--color-button-main-edge);
+    color: var(--color-button-main);
+}
+
+.admin-stat,
+.admin-panel,
+.admin-search__input,
+.admin-user__avatar img {
+    background: var(--color-surface);
+}
+
+.admin-stat__value,
+.admin-panel__title,
+.admin-user__text strong,
+.admin-feedback__comment,
+.admin-table td,
+.admin-search__input,
+.admin-bars__value {
+    color: var(--color-text);
+}
+
+.admin-stat__label,
+.admin-stat__note,
+.admin-muted,
+.admin-bars__label,
+.admin-user__text small,
+.admin-feedback__comment--empty,
+.admin-count,
+.admin-empty span,
+.admin-table th {
+    color: var(--color-muted);
+}
+
+.admin-link {
+    color: var(--color-info);
+}
+
+.admin-chart__side,
+.admin-list__item + .admin-list__item,
+.admin-table-wrap,
+.admin-table tbody tr + tr td,
+.admin-search__input {
+    border-color: var(--color-border);
+}
+
+.admin-bars__bar {
+    background: var(--color-button-main);
+    box-shadow: inset 0 -3px 0 var(--color-button-main-edge);
+}
+
+.admin-ranks__fill {
+    background: var(--color-button-alt);
+}
+
+.admin-user__avatar,
+.admin-tag {
+    background: var(--color-button-soft);
+    color: var(--color-button-soft-text);
+}
+
+.admin-stars {
+    color: #ffc93c;
+}
+
+.admin-stars__empty {
+    color: #2a3a52;
+}
+
+.admin-chip,
+.admin-feedback,
+.admin-empty,
+.admin-table th {
+    background: var(--color-surface-soft);
+}
+
+.admin-chip {
+    color: var(--color-muted);
+}
+
+    .admin-chip:hover {
+        color: var(--color-text);
+    }
+
+    .admin-chip.is-active {
+        background: var(--color-button-soft);
+        color: var(--color-button-soft-text);
+        box-shadow: inset 0 0 0 2px var(--color-button-main);
+    }
+
+.admin-status--active {
+    background: var(--color-success-soft);
+    color: var(--color-success);
+}
+
+.admin-status--inactive {
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+}
+
+.admin-status--locked {
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
+}
+/* #endregion */
+
+/* #region Thẻ buổi luyện (Trang chủ, Lịch sử) */
+.session-card__count {
+    color: var(--color-muted);
+}
+
+.session-card__chevron {
+    background: var(--color-surface-soft);
+}
+
+.session-card__side {
+    border-color: var(--color-border);
+}
+
+.session-chip--score,
+.session-chip--calm {
+    background: var(--color-button-soft);
+    color: var(--color-button-soft-text);
+}
+
+.session-chip--progress {
+    background: var(--color-info-soft);
+    color: var(--color-info);
+}
+
+.session-chip--stopped {
+    background: var(--color-surface-soft);
+    color: var(--color-muted);
+}
+
+.session-chip--live,
+.session-chip--tense {
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+}
+
+.session-card__resume {
+    background: var(--color-button-alt);
+    color: var(--color-button-alt-text);
+    box-shadow: 0 3px 0 var(--color-button-alt-edge);
+}
+/* #endregion */
+
+/* #region Trang Lịch sử */
+.history-search__input,
+.history-filter {
+    background: var(--color-surface);
+}
+
+.history-search__input {
+    border-color: var(--color-card-border);
+    color: var(--color-text);
+    box-shadow: var(--shadow-card);
+}
+
+    .history-search__input::placeholder,
+    .history-search__icon,
+    .history-count,
+    .history-filter,
+    .history-empty p {
+        color: var(--color-muted);
+    }
+
+.history-filter:hover,
+.history-empty h2 {
+    color: var(--color-text);
+}
+
+.history-filter.is-active {
+    background: var(--color-button-soft);
+    color: var(--color-button-soft-text);
+    box-shadow: inset 0 0 0 2px var(--color-button-main);
+}
+
+.history-empty {
+    background: var(--color-surface);
+}
+/* #endregion */
+
+/* #region Trang Auth (Đăng nhập, Đăng ký và các trang mật khẩu / mã) */
+.auth-shell,
+.auth-google,
+.register-terms__checkbox {
+    background: var(--color-surface);
+}
+
+.auth-intro {
+    background: var(--color-tile-practice);
+    color: var(--color-text);
+}
+
+    .auth-intro::before {
+        border-color: var(--color-tile-practice-ring);
+    }
+
+    .auth-intro::after {
+        border-color: var(--color-tile-practice-ring-strong);
+    }
+
+.auth-brand,
+.auth-panel__header h1,
+.auth-panel__header h2,
+.auth-google {
+    color: var(--color-text);
+}
+
+    .auth-brand span span {
+        color: var(--color-info);
+    }
+
+.auth-intro__bottom,
+.auth-intro__body > p,
+.auth-steps small,
+.auth-panel__header p,
+.auth-divider,
+.auth-register,
+.auth-panel__note,
+.auth-password-toggle,
+.register-terms__text {
+    color: var(--color-muted);
+}
+
+.auth-intro__eyebrow,
+.auth-panel__eyebrow {
+    color: var(--color-primary);
+}
+
+.auth-steps__icon,
+.auth-chat__score {
+    background: var(--color-button-soft);
+    color: var(--color-button-soft-text);
+}
+
+.auth-chat__avatar {
+    background: var(--color-button-alt);
+    color: var(--color-button-alt-text);
+}
+
+.auth-chat__bubble {
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: 0 3px 0 var(--color-border);
+}
+
+.auth-chat__row--me .auth-chat__bubble {
+    background: var(--color-button-main);
+    color: var(--color-button-main-text);
+    box-shadow: 0 3px 0 var(--color-button-main-edge);
+}
+
+.auth-google {
+    border-color: var(--color-border-strong);
+    box-shadow: 0 3px 0 var(--color-border);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    background: var(--color-border);
+}
+
+.auth-password-toggle:hover,
+.register-terms__text a {
+    color: var(--color-info);
+}
+
+.register-terms__checkbox {
+    accent-color: var(--color-button-main-edge);
+}
+/* #endregion */
+
+/* #region Thanh bước lấy lại mật khẩu + trang Đặt lại mật khẩu */
+.auth-track__dot {
+    border-color: var(--color-tile-practice-ring-strong);
+    background: var(--color-surface);
+    color: var(--color-muted);
+}
+
+.auth-track__step:not(:last-child)::after {
+    background: var(--color-tile-practice-ring);
+}
+
+.auth-track__step.is-done:not(:last-child)::after {
+    background: var(--color-button-main);
+}
+
+.auth-track__step.is-done .auth-track__dot {
+    border-color: var(--color-button-main-edge);
+    background: var(--color-button-main);
+    color: var(--color-button-main-text);
+}
+
+.auth-track__step.is-current .auth-track__dot {
+    border-color: var(--color-button-alt-edge);
+    background: var(--color-button-alt);
+    color: var(--color-button-alt-text);
+    box-shadow: 0 0 0 6px var(--color-info-soft);
+}
+
+.auth-track__text strong {
+    color: var(--color-text);
+}
+
+.auth-track__text small,
+.reset-rules li {
+    color: var(--color-muted);
+}
+
+.reset-rules li {
+    background: var(--color-surface-soft);
+}
+
+.auth-back {
+    color: var(--color-info);
+}
+/* #endregion */
+
+/* #region Trang nhập mã xác thực */
+.otp-email {
+    background: var(--color-info-soft);
+    color: var(--color-info);
+}
+
+.otp-control__digit {
+    border-color: var(--color-border-strong);
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: 0 4px 0 var(--color-border);
+}
+
+    .otp-control__digit:not(:placeholder-shown) {
+        border-color: var(--color-button-main);
+        background: var(--color-button-soft);
+        color: var(--color-button-soft-text);
+        box-shadow: 0 4px 0 var(--color-button-main-edge);
+    }
+
+    .otp-control__digit:focus-visible {
+        border-color: var(--color-button-alt);
+        box-shadow: 0 4px 0 var(--color-button-alt-edge), 0 0 0 4px var(--color-info-soft);
+    }
+
+    .otp-control__digit[aria-invalid="true"] {
+        border-color: var(--color-danger);
+    }
+
+.otp-control__message {
+    color: var(--color-danger);
+}
+
+.otp-hint,
+.otp-help {
+    color: var(--color-muted);
+}
+/* #endregion */
+
+/* #region Thẻ Góp ý */
+.feedback-action-card {
+    border-color: #2a4166;
+    background: #14203a;
+}
+
+    .feedback-action-card .action-card__icon {
+        background: var(--color-info-soft);
+        color: var(--color-info);
+    }
+
+    .feedback-action-card .action-card__eyebrow {
+        color: #8dbbe6;
+    }
+
     .feedback-action-card .action-card__title {
-        color: #7d581c;
+        color: #dcebfa;
     }
 
-    .feedback-action-card .action-card__description,
-    .feedback-action-card .action-card__action {
-        color: #987744;
-    }
-
-    .feedback-action-card .action-card__chevron {
-        color: #a66a13;
+    .feedback-action-card .action-card__description {
+        color: #a9c0d6;
     }
 /* #endregion */
 
@@ -341,3 +1604,67 @@
         transition-duration: .01ms !important;
     }
 }
+
+/* #region Bổ sung riêng cho nền tối
+   Phủ màu cho các phần tử trang tự đặt nền sáng hoặc dùng mặc định của trình duyệt. */
+html, body {
+    background-color: var(--color-page);
+    color: var(--color-text);
+}
+
+.surface-card, .panel:not(.panel--primary),
+.history-panel, .app-footer,
+.form-control, .form-control-wrap,
+/* Ô mã xác thực có màu riêng (vùng "Trang nhập mã xác thực") */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not(.otp-control__digit),
+textarea, select {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    border-color: var(--color-border);
+}
+
+    input::placeholder, textarea::placeholder {
+        color: var(--color-subtle);
+        opacity: 1;
+    }
+
+    input:focus-visible, textarea:focus-visible, select:focus-visible,
+    button:focus-visible, a:focus-visible {
+        outline-color: var(--color-primary);
+    }
+
+input[type="checkbox"], input[type="radio"] {
+    accent-color: var(--color-primary);
+}
+
+.app-nav__mobile {
+    background: var(--color-nav-mobile);
+    border-top-color: var(--color-nav-border);
+    box-shadow: var(--shadow-mobile-nav);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.status-chip, .status-badge {
+    border-color: var(--color-nav-control-border);
+}
+
+.session-card, .action-card:not(.feedback-action-card), .info-card, .stat-card, .empty-state {
+    background: var(--color-surface);
+}
+
+.session-card, .info-card, .stat-card, .empty-state {
+    border-color: var(--color-card-border);
+}
+
+html {
+    scrollbar-color: #31435f var(--color-page);
+}
+
+/* Trình duyệt tự điền sẽ tô nền trắng cho ô nhập nếu không ghi đè */
+input:-webkit-autofill {
+    -webkit-text-fill-color: var(--color-text);
+    -webkit-box-shadow: 0 0 0 1000px #141e2d inset;
+    caret-color: var(--color-text);
+}
+/* #endregion */

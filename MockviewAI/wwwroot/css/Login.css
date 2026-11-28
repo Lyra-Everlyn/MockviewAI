@@ -1,64 +1,64 @@
-/* MockviewAI | Đăng nhập
-   Khung hai cột dùng chung cho mọi trang Auth (đăng ký, quên mật khẩu, xác thực mã...).
-   Màu lấy từ themes/*.css. */
+/* MockviewAI | Khung trang Auth
+   Dùng chung cho mọi trang Auth (Đăng nhập, Đăng ký, Quên mật khẩu, nhập mã, đặt lại mật khẩu) */
 
-/* #region Khung trang và cột giới thiệu (nền gradient) */
+/* #region Khung trang */
 .auth-page {
-    width: min(1100px,calc(100% - 48px));
+    width: min(1080px, calc(100% - 48px));
     margin-inline: auto;
-    padding: clamp(30px,5vw,70px) 0;
+    padding: clamp(24px, 5vw, 56px) 0;
 }
 
 .auth-shell {
     display: grid;
-    grid-template-columns: minmax(0,1.02fr) minmax(0,.98fr);
-    min-height: 610px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    width: 100%;
     overflow: hidden;
-    border: 1px solid var(--color-border);
+    border: var(--border-card, 1px) solid var(--color-card-border, var(--color-border));
     border-radius: var(--radius-panel);
-    background: var(--color-surface);
     box-shadow: var(--shadow-panel);
 }
+/* #endregion */
 
+/* #region Cột giới thiệu (nền bạc hà, 2 vòng tròn đồng tâm ở góc) */
 .auth-intro {
+    position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    position: relative;
-    overflow: hidden;
-    gap: 42px;
+    gap: 28px;
     min-width: 0;
-    padding: 38px;
-    background: var(--gradient-primary);
-    color: var(--color-on-gradient);
+    overflow: hidden;
+    padding: 32px 36px;
 }
 
-    .auth-intro::before, .auth-intro::after {
-        content: "";
+    .auth-intro::before,
+    .auth-intro::after {
         position: absolute;
-        border: 1px solid var(--color-on-gradient-ring);
+        border-style: solid;
         border-radius: 50%;
+        content: "";
         pointer-events: none;
     }
 
     .auth-intro::before {
+        right: -160px;
+        bottom: -160px;
         width: 420px;
         height: 420px;
-        right: -235px;
-        top: -225px;
+        border-width: 30px;
     }
 
     .auth-intro::after {
-        width: 280px;
-        height: 280px;
-        left: -135px;
-        bottom: -155px;
+        right: -35px;
+        bottom: -35px;
+        width: 170px;
+        height: 170px;
+        border-width: 18px;
     }
 
-.auth-intro__top, .auth-intro__body, .auth-intro__bottom {
-    position: relative;
-    z-index: 1;
-}
+    .auth-intro > * {
+        position: relative;
+        z-index: 1;
+    }
 
 .auth-intro__top {
     display: flex;
@@ -71,31 +71,143 @@
     display: inline-flex;
     align-items: center;
     gap: 11px;
-    font-size: 21px;
+    font-size: 22px;
     font-weight: 800;
-    letter-spacing: -.035em;
+    letter-spacing: -.02em;
+    text-decoration: none;
     white-space: nowrap;
 }
 
-    .auth-intro .auth-brand span span {
-        color: var(--color-on-gradient-accent);
+.auth-intro__pitch {
+    max-width: 15ch;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.25;
+}
+
+.auth-intro__bottom {
+    margin-top: auto;
+    font-size: 13px;
+}
+
+/* Hội thoại minh hoạ */
+.auth-chat {
+    display: grid;
+    gap: 12px;
+    max-width: 400px;
+}
+
+.auth-chat__row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.auth-chat__row--me {
+    justify-content: flex-end;
+    padding-left: 40px;
+}
+
+.auth-chat__avatar {
+    display: grid;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.auth-chat__bubble {
+    padding: 12px 16px;
+    border-radius: 18px 18px 18px 6px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.auth-chat__row--me .auth-chat__bubble {
+    border-radius: 18px 18px 6px 18px;
+}
+
+.auth-chat__stack {
+    display: grid;
+    justify-items: start;
+    gap: 8px;
+}
+
+.auth-chat__score {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+/* Thanh 3 bước lấy lại mật khẩu (_AuthSteps) */
+.auth-track {
+    display: grid;
+    max-width: 360px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.auth-track__step {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding-bottom: 26px;
+}
+
+    .auth-track__step:last-child {
+        padding-bottom: 0;
     }
 
-.auth-panel__mobile-brand strong span {
-    color: var(--color-primary);
-}
+    /* Đường nối xuống bước sau */
+    .auth-track__step:not(:last-child)::after {
+        position: absolute;
+        top: 46px;
+        bottom: 4px;
+        left: 21px;
+        width: 6px;
+        border-radius: 999px;
+        content: "";
+    }
 
-.auth-brand__mark {
+.auth-track__dot {
     display: grid;
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
     place-items: center;
-    width: 38px;
-    height: 38px;
-    flex: 0 0 38px;
-    border-radius: 12px;
-    font-size: 17px;
+    border: 3px solid;
+    border-radius: 50%;
+    font-size: 16px;
+    font-weight: 800;
 }
 
-.auth-intro__eyebrow, .auth-panel__eyebrow {
+.auth-track__text {
+    padding-top: 4px;
+}
+
+    .auth-track__text strong,
+    .auth-track__text small {
+        display: block;
+    }
+
+    .auth-track__text strong {
+        font-size: 15px;
+    }
+
+    .auth-track__text small {
+        font-size: 13px;
+    }
+
+/* Kiểu cũ cho các trang Auth chưa làm lại (tiêu đề + 3 bước) */
+.auth-intro__eyebrow,
+.auth-panel__eyebrow {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -107,24 +219,25 @@
 .auth-intro__body h1 {
     max-width: 450px;
     margin-top: 14px;
-    font-size: clamp(28px,3.3vw,39px);
-    line-height: 1.18;
+    font-size: clamp(26px, 3vw, 34px);
     font-weight: 800;
-    letter-spacing: -.04em;
+    letter-spacing: -.03em;
+    line-height: 1.2;
 }
 
 .auth-intro__body > p {
     max-width: 450px;
-    margin-top: 14px;
-    color: var(--color-on-gradient-muted);
+    margin-top: 12px;
     font-size: 14px;
-    line-height: 1.75;
+    line-height: 1.7;
 }
 
 .auth-steps {
     display: grid;
-    gap: 17px;
-    margin-top: 30px;
+    gap: 16px;
+    margin-top: 26px;
+    padding: 0;
+    list-style: none;
 }
 
     .auth-steps li {
@@ -133,47 +246,42 @@
         gap: 12px;
     }
 
+        .auth-steps li span:last-child {
+            display: grid;
+            gap: 3px;
+        }
+
 .auth-steps__icon {
     display: grid;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
     place-items: center;
-    width: 39px;
-    height: 39px;
-    flex: 0 0 39px;
-    border: 1px solid var(--color-on-gradient-border);
-    border-radius: 12px;
-    background: var(--color-on-gradient-surface);
-    font-size: 16px;
-}
-
-.auth-steps li span:last-child {
-    display: grid;
-    gap: 3px;
+    border-radius: 50%;
+    font-size: 15px;
 }
 
 .auth-steps strong {
     font-size: 14px;
-    line-height: 1.4;
 }
 
 .auth-steps small {
-    color: var(--color-on-gradient-muted);
     font-size: 12px;
     line-height: 1.5;
 }
 
-.auth-intro__bottom {
-    color: var(--color-on-gradient-muted);
-    font-size: 12px;
+.auth-brand__mark {
+    display: none;
 }
 /* #endregion */
 
-/* #region Khung đăng nhập (nền thường) */
+/* #region Cột form */
 .auth-panel {
     display: flex;
     flex-direction: column;
     justify-content: center;
     min-width: 0;
-    padding: clamp(28px,4.2vw,58px);
+    padding: 40px 44px;
 }
 
 .auth-panel__mobile-brand {
@@ -181,87 +289,80 @@
 }
 
 .auth-panel__header {
-    margin-bottom: 24px;
+    margin-bottom: 22px;
 }
 
-.auth-panel__eyebrow {
-    color: var(--color-primary);
-}
+    .auth-panel__header h1,
+    .auth-panel__header h2 {
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: -.02em;
+        line-height: 1.25;
+    }
 
-.auth-panel__header h2 {
-    margin-top: 9px;
-    color: var(--color-text);
-    font-size: clamp(25px,2.7vw,32px);
-    line-height: 1.23;
-    font-weight: 800;
-    letter-spacing: -.035em;
-}
+    .auth-panel__eyebrow + h2 {
+        margin-top: 8px;
+    }
 
-.auth-panel__header p {
-    margin-top: 8px;
-    color: var(--color-muted);
-    font-size: 14px;
-    line-height: 1.6;
-}
+    .auth-panel__header p {
+        margin-top: 4px;
+        font-size: 14px;
+        line-height: 1.6;
+    }
 
 .auth-google {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 11px;
-    min-height: 48px;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-control);
-    background: var(--color-surface);
-    color: var(--color-text);
-    font-size: 14px;
+    gap: 10px;
+    min-height: 50px;
+    border: 2px solid;
+    border-radius: 999px;
+    font-size: 15px;
     font-weight: 700;
-    transition: border-color .18s,background .18s;
+    text-decoration: none;
+    transition: transform .15s ease;
 }
 
     .auth-google:hover {
-        background: var(--color-surface-soft);
-        border-color: var(--color-primary);
+        transform: translateY(-1px);
     }
 
-    .auth-google i {
-        font-size: 18px;
-    }
+.auth-google__logo {
+    width: 18px;
+    height: 18px;
+}
 
 .auth-divider {
     display: flex;
     align-items: center;
-    gap: 13px;
-    margin: 23px 0;
-    color: var(--color-muted);
-    font-size: 10px;
-    font-weight: 750;
-    letter-spacing: .05em;
-    text-align: center;
+    gap: 12px;
+    margin: 18px 0;
+    font-size: 13px;
 }
 
-    .auth-divider::before, .auth-divider::after {
-        content: "";
+    .auth-divider::before,
+    .auth-divider::after {
         flex: 1;
-        min-width: 8px;
-        height: 1px;
-        background: var(--color-border);
+        height: 2px;
+        border-radius: 2px;
+        content: "";
     }
 
 .auth-form {
     display: grid;
-    gap: 19px;
+    gap: 14px;
 }
 
 .auth-label-row {
     display: flex;
+    align-items: baseline;
     justify-content: space-between;
-    align-items: center;
     gap: 12px;
 }
 
     .auth-label-row .text-link {
-        font-size: 12px;
+        font-size: 13px;
     }
 
 .auth-password-field .form-control {
@@ -270,38 +371,40 @@
 
 .auth-password-toggle {
     position: absolute;
-    right: 5px;
     top: 50%;
-    transform: translateY(-50%);
+    right: 7px;
     display: grid;
+    width: 36px;
+    height: 36px;
     place-items: center;
-    width: 39px;
-    height: 39px;
     border: 0;
-    border-radius: 8px;
+    border-radius: 50%;
     background: transparent;
-    color: var(--color-muted);
     cursor: pointer;
+    transform: translateY(-50%);
 }
 
     .auth-password-toggle:focus-visible {
-        outline: 2px solid var(--color-primary);
+        outline: 3px solid var(--color-primary);
         outline-offset: 1px;
     }
 
-    .auth-password-toggle:hover {
-        color: var(--color-primary);
-    }
-
 .auth-turnstile {
-    min-height: 0;
     min-width: 0;
 }
 
+/* Nút chính: chữ giữa, bong bóng icon bên trái */
 .auth-submit {
+    position: relative;
+    justify-content: center;
     width: 100%;
     cursor: pointer;
 }
+
+    .auth-submit .button__icon {
+        position: absolute;
+        left: 6px;
+    }
 
     .auth-submit:disabled {
         opacity: .75;
@@ -309,89 +412,135 @@
     }
 
 .auth-register {
-    margin-top: 22px;
+    margin-top: 20px;
+    font-size: 14px;
     text-align: center;
-    font-size: 13px;
-    color: var(--color-muted);
 }
+
+.auth-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    align-self: center;
+    margin-top: 18px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+    .auth-back:hover {
+        text-decoration: underline;
+    }
 
 .auth-panel__note {
     display: flex;
     justify-content: center;
     gap: 7px;
-    margin-top: 20px;
+    margin-top: 16px;
+    font-size: 12px;
     text-align: center;
-    color: var(--color-muted);
-    font-size: 11px;
 }
 /* #endregion */
 
 /* #region Responsive */
-@media(max-width:900px) {
-    .auth-shell {
-        grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr);
-    }
-
-    .auth-intro {
-        padding: 28px;
-    }
-
-    .auth-panel {
-        padding: 30px;
-    }
-}
-
-@media(max-width:720px) {
+@media (max-width: 880px) {
     .auth-page {
-        width: min(520px,calc(100% - 28px));
-        padding: 22px 0 30px;
+        width: 100%;
+        padding: 0;
     }
 
     .auth-shell {
-        display: block;
-        min-height: 0;
-        border-radius: 17px;
+        grid-template-columns: minmax(0, 1fr);
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
     }
 
+    /* Điện thoại: cột giới thiệu chỉ còn hàng logo + nút sáng tối */
     .auth-intro {
-        display: none;
+        padding: 16px 20px;
     }
 
-    .auth-panel {
-        padding: 27px 23px 28px;
-    }
-
-    .auth-panel__mobile-brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 25px;
-        color: var(--color-text);
-        font-size: 19px;
-    }
-
-        .auth-panel__mobile-brand .auth-brand__mark {
-            background: var(--color-primary-soft);
-            border-color: var(--color-border);
-            color: var(--color-primary);
+        .auth-intro > :not(.auth-intro__top, .auth-track) {
+            display: none;
         }
 
-    .auth-panel__header h2 {
-        font-size: 27px;
+    /* Thanh bước thu thành một hàng chấm, chỉ ghi tên bước đang làm */
+    .auth-track {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        max-width: none;
+        margin-top: 14px;
     }
 
-    .auth-panel__header p {
+    .auth-track__step {
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 0;
+    }
+
+        .auth-track__step:not(:last-child) {
+            padding-right: 24px;
+        }
+
+            .auth-track__step:not(:last-child)::after {
+                top: 50%;
+                right: 4px;
+                bottom: auto;
+                left: auto;
+                width: 16px;
+                height: 4px;
+                transform: translateY(-50%);
+            }
+
+    .auth-track__dot {
+        flex-basis: 34px;
+        width: 34px;
+        height: 34px;
+        border-width: 2px;
         font-size: 13px;
+    }
+
+    .auth-track__text {
+        padding-top: 0;
+    }
+
+        .auth-track__text small,
+        .auth-track__step:not(.is-current) .auth-track__text {
+            display: none;
+        }
+
+        .auth-track__text strong {
+            font-size: 14px;
+        }
+
+        .auth-intro::before {
+            top: -60px;
+            right: -60px;
+            bottom: auto;
+            width: 160px;
+            height: 160px;
+            border-width: 16px;
+        }
+
+        .auth-intro::after {
+            display: none;
+        }
+
+    .auth-panel {
+        padding: 26px 20px 40px;
     }
 }
 
-@media(max-width:360px) {
+@media (max-width: 360px) {
     .auth-panel {
-        padding: 22px 16px;
+        padding-inline: 16px;
     }
 
-    .auth-divider {
-        font-size: 9px;
+    .auth-brand {
+        font-size: 19px;
     }
 }
 /* #endregion */

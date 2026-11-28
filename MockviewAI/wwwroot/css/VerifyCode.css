@@ -1,0 +1,89 @@
+/* MockviewAI | Nhập mã xác thực
+   Dùng chung cho Views/Auth/VerifyRegistrationCode.cshtml và VerifyResetCode.cshtml
+   Khung dùng chung nằm trong Login.css. Màu nằm trong themes/*.css. */
+
+/* #region Email nhận mã */
+.otp-email {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 6px;
+    max-width: 100%;
+    margin: -12px 0 22px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+/* #endregion */
+
+/* #region 6 ô số kiểu ô gạch */
+.otp-fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.otp-control {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.otp-control__digit {
+    width: 100%;
+    min-width: 0;
+    height: 64px;
+    border: 3px solid;
+    border-radius: 16px;
+    font: inherit;
+    font-size: 28px;
+    font-weight: 800;
+    text-align: center;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+    .otp-control__digit::placeholder {
+        color: transparent;
+    }
+
+.otp-control__message {
+    min-height: 0;
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+    .otp-control__message:empty {
+        display: none;
+    }
+
+.otp-hint {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+    font-size: 13px;
+}
+/* #endregion */
+
+.otp-help {
+    margin-top: 18px;
+    font-size: 13px;
+    text-align: center;
+}
+
+@media (max-width: 880px) {
+    .otp-control {
+        gap: 6px;
+    }
+
+    .otp-control__digit {
+        height: 54px;
+        border-radius: 12px;
+        font-size: 22px;
+    }
+}

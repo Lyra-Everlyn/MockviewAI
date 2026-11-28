@@ -1,0 +1,60 @@
+@model int
+@*
+    [AUTH]
+    Cột trái có thanh 3 bước: luồng lấy lại mật khẩu (mặc định) hoặc luồng đăng ký (ViewData["AuthFlow"] = "register").
+    Model = bước đang làm (1, 2 hoặc 3). Trên điện thoại thanh bước thu thành một hàng chấm nhỏ.
+*@
+@{
+    var isRegister = ViewData["AuthFlow"] as string == "register";
+    var pitch = isRegister ? "Còn một bước nữa là bắt đầu luyện." : "Lấy lại mật khẩu trong 3 bước.";
+    var steps = isRegister
+        ? new[]
+        {
+            (Title: "Điền thông tin", Hint: "Họ tên, email, mật khẩu"),
+            (Title: "Xác thực email", Hint: "Mã 6 số gửi tới hộp thư"),
+            (Title: "Bắt đầu luyện", Hint: "Vào trang chủ MockviewAI")
+        }
+        : new[]
+        {
+            (Title: "Nhập email", Hint: "Email đã đăng ký tài khoản"),
+            (Title: "Nhập mã xác thực", Hint: "Mã 6 số gửi tới hộp thư"),
+            (Title: "Tạo mật khẩu mới", Hint: "Xong là đăng nhập lại")
+        };
+}
+<section class="auth-intro" aria-label="@(isRegister ? "Các bước đăng ký" : "Các bước lấy lại mật khẩu")">
+    <div class="auth-intro__top">
+        <a class="auth-brand" asp-controller="Home" asp-action="Index" aria-label="MockviewAI - Trang chủ">
+            <span>Mockview<span>AI</span></span>
+        </a>
+        <partial name="Partials/_ThemeToggle" />
+    </div>
+
+    <p class="auth-intro__pitch">@pitch</p>
+
+    <ol class="auth-track" aria-label="Tiến trình">
+        @for (int i = 0; i < steps.Length; i++)
+        {
+            var number = i + 1;
+            var state = number < Model ? "is-done" : number == Model ? "is-current" : null;
+            <li class="auth-track__step @state" aria-current="@(number == Model ? "step" : null)">
+                <span class="auth-track__dot">
+                    @if (number < Model)
+                    {
+                        <i class="fa-solid fa-check" aria-hidden="true"></i>
+                        <span class="visually-hidden">Đã xong:</span>
+                    }
+                    else
+                    {
+                        <text>@number</text>
+                    }
+                </span>
+                <span class="auth-track__text">
+                    <strong>@steps[i].Title</strong>
+                    <small>@(number < Model ? "Đã xong" : steps[i].Hint)</small>
+                </span>
+            </li>
+        }
+    </ol>
+
+    <p class="auth-intro__bottom">Mã xác thực chỉ dùng được một lần và hết hạn sau 5 phút.</p>
+</section>

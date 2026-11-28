@@ -1393,6 +1393,182 @@
 }
 /* #endregion */
 
+/* #region Trang Auth (Đăng nhập, Đăng ký và các trang mật khẩu / mã) */
+.auth-shell,
+.auth-google,
+.register-terms__checkbox {
+    background: var(--color-surface);
+}
+
+.auth-intro {
+    background: var(--color-tile-practice);
+    color: var(--color-text);
+}
+
+    .auth-intro::before {
+        border-color: var(--color-tile-practice-ring);
+    }
+
+    .auth-intro::after {
+        border-color: var(--color-tile-practice-ring-strong);
+    }
+
+.auth-brand,
+.auth-panel__header h1,
+.auth-panel__header h2,
+.auth-google {
+    color: var(--color-text);
+}
+
+    .auth-brand span span {
+        color: var(--color-info);
+    }
+
+.auth-intro__bottom,
+.auth-intro__body > p,
+.auth-steps small,
+.auth-panel__header p,
+.auth-divider,
+.auth-register,
+.auth-panel__note,
+.auth-password-toggle,
+.register-terms__text {
+    color: var(--color-muted);
+}
+
+.auth-intro__eyebrow,
+.auth-panel__eyebrow {
+    color: var(--color-primary);
+}
+
+.auth-steps__icon,
+.auth-chat__score {
+    background: var(--color-button-soft);
+    color: var(--color-button-soft-text);
+}
+
+.auth-chat__avatar {
+    background: var(--color-button-alt);
+    color: var(--color-button-alt-text);
+}
+
+.auth-chat__bubble {
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: 0 3px 0 var(--color-border);
+}
+
+.auth-chat__row--me .auth-chat__bubble {
+    background: var(--color-button-main);
+    color: var(--color-button-main-text);
+    box-shadow: 0 3px 0 var(--color-button-main-edge);
+}
+
+.auth-google {
+    border-color: var(--color-border-strong);
+    box-shadow: 0 3px 0 var(--color-border);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    background: var(--color-border);
+}
+
+.auth-password-toggle:hover,
+.register-terms__text a {
+    color: var(--color-info);
+}
+
+.register-terms__checkbox {
+    accent-color: var(--color-button-main-edge);
+}
+/* #endregion */
+
+/* #region Thanh bước lấy lại mật khẩu + trang Đặt lại mật khẩu */
+.auth-track__dot {
+    border-color: var(--color-tile-practice-ring-strong);
+    background: var(--color-surface);
+    color: var(--color-muted);
+}
+
+.auth-track__step:not(:last-child)::after {
+    background: var(--color-tile-practice-ring);
+}
+
+.auth-track__step.is-done:not(:last-child)::after {
+    background: var(--color-button-main);
+}
+
+.auth-track__step.is-done .auth-track__dot {
+    border-color: var(--color-button-main-edge);
+    background: var(--color-button-main);
+    color: var(--color-button-main-text);
+}
+
+.auth-track__step.is-current .auth-track__dot {
+    border-color: var(--color-button-alt-edge);
+    background: var(--color-button-alt);
+    color: var(--color-button-alt-text);
+    box-shadow: 0 0 0 6px var(--color-info-soft);
+}
+
+.auth-track__text strong {
+    color: var(--color-text);
+}
+
+.auth-track__text small,
+.reset-rules li {
+    color: var(--color-muted);
+}
+
+.reset-rules li {
+    background: var(--color-surface-soft);
+}
+
+.auth-back {
+    color: var(--color-info);
+}
+/* #endregion */
+
+/* #region Trang nhập mã xác thực */
+.otp-email {
+    background: var(--color-info-soft);
+    color: var(--color-info);
+}
+
+.otp-control__digit {
+    border-color: var(--color-border-strong);
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: 0 4px 0 var(--color-border);
+}
+
+    .otp-control__digit:not(:placeholder-shown) {
+        border-color: var(--color-button-main);
+        background: var(--color-button-soft);
+        color: var(--color-button-soft-text);
+        box-shadow: 0 4px 0 var(--color-button-main-edge);
+    }
+
+    .otp-control__digit:focus-visible {
+        border-color: var(--color-button-alt);
+        box-shadow: 0 4px 0 var(--color-button-alt-edge), 0 0 0 4px var(--color-info-soft);
+    }
+
+    .otp-control__digit[aria-invalid="true"] {
+        border-color: var(--color-danger);
+    }
+
+.otp-control__message {
+    color: var(--color-danger);
+}
+
+.otp-hint,
+.otp-help {
+    color: var(--color-muted);
+}
+/* #endregion */
+
 /* #region Thẻ Góp ý */
 .feedback-action-card {
     border-color: #ffffff;

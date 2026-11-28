@@ -1,19 +1,10 @@
 ﻿/* MockviewAI | Đăng ký
-   Chỉnh riêng cho Register.cshtml; phần dùng chung nằm trong Login.css. */
-
-.register-shell {
-    grid-template-columns: minmax(0, .93fr) minmax(0, 1.07fr);
-}
-
-.register-panel {
-    justify-content: center;
-    padding-block: 35px;
-}
+   Chỉnh riêng cho Views/Auth/Register.cshtml; khung dùng chung nằm trong Login.css. Màu nằm trong themes/*.css. */
 
 .register-form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 17px 14px;
+    gap: 14px;
 }
 
 .register-form-grid__full {
@@ -23,88 +14,43 @@
 .register-terms {
     display: flex;
     align-items: flex-start;
-    gap: 11px;
-    padding: 15px 16px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-control);
-    background: var(--color-surface-soft);
+    gap: 10px;
 }
 
 .register-terms__checkbox {
-    width: 18px;
-    height: 18px;
-    margin-top: 2px;
-    flex: 0 0 18px;
-    accent-color: var(--color-primary);
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
     cursor: pointer;
 }
 
-.register-terms__text {
-    color: var(--color-text-soft);
-    font-size: 12px;
-    line-height: 1.8;
-}
-
-    .register-terms__text label {
-        cursor: pointer;
+    .register-terms__checkbox:focus-visible {
+        outline: 3px solid var(--color-primary);
+        outline-offset: 2px;
     }
 
+.register-terms__text {
+    font-size: 13px;
+    line-height: 1.6;
+    cursor: pointer;
+}
+
     .register-terms__text a {
-        color: var(--color-primary);
-        font-weight: 750;
-        text-decoration: underline;
-        text-underline-offset: 3px;
+        font-weight: 700;
+        text-decoration: none;
     }
 
         .register-terms__text a:hover {
-            color: var(--color-primary-hover);
+            text-decoration: underline;
         }
 
-        .register-terms__text a:focus-visible,
-        .register-terms__checkbox:focus-visible {
-            outline: 2px solid var(--color-primary);
-            outline-offset: 3px;
-            border-radius: 3px;
-        }
-
-@media (max-width: 900px) {
-    .register-shell {
-        grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
-    }
-
-    .register-panel {
-        padding-inline: 27px;
-    }
-
+@media (max-width: 880px) {
     .register-form-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .register-form-grid__full {
         grid-column: auto;
-    }
-}
-
-@media (max-width: 720px) {
-    .register-shell {
-        display: block;
-    }
-
-    .register-panel {
-        padding: 27px 23px 29px;
-    }
-
-    .register-form-grid {
-        gap: 15px;
-    }
-
-    .register-terms {
-        padding: 13px 12px;
-    }
-}
-
-@media (max-width: 360px) {
-    .register-panel {
-        padding-inline: 16px;
     }
 }

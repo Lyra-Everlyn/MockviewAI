@@ -20,50 +20,26 @@
     <div class="app-layout__content">
         <main class="auth-page">
             <div class="auth-shell">
-                <section class="auth-intro" aria-labelledby="auth-intro-title">
-                    <div class="auth-intro__top">
-                        <a class="auth-brand" asp-controller="Home" asp-action="Index" aria-label="MockviewAI - Trang chủ">
-                            <span class="auth-brand__mark" aria-hidden="true"><img src="~/favicon.ico" asp-append-version="true" alt="" /></span>
-                            <span>Mockview<span>AI</span></span>
-                        </a>
-                        <partial name="Partials/_ThemeToggle" />
-                    </div>
-                    <div class="auth-intro__body">
-                        <span class="auth-intro__eyebrow"><i class="fa-solid fa-sparkles" aria-hidden="true"></i> NỀN TẢNG LUYỆN PHỎNG VẤN</span>
-                        <h1 id="auth-intro-title">Tự tin hơn trong mỗi buổi phỏng vấn.</h1>
-                        <p>Rèn luyện với AI trong môi trường mô phỏng, theo dõi tiến bộ và chuẩn bị cho cơ hội nghề nghiệp của bạn.</p>
-                        <ol class="auth-steps" aria-label="Ba bước luyện tập">
-                            <li><span class="auth-steps__icon"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></span><span><strong>Chọn vị trí ứng tuyển</strong><small>Cá nhân hóa buổi phỏng vấn theo mục tiêu.</small></span></li>
-                            <li><span class="auth-steps__icon"><i class="fa-solid fa-microphone" aria-hidden="true"></i></span><span><strong>Thực hành cùng AI</strong><small>Trả lời bằng giọng nói hoặc văn bản.</small></span></li>
-                            <li><span class="auth-steps__icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span><span><strong>Nhận đánh giá</strong><small>Xem điểm số và nhận xét để cải thiện.</small></span></li>
-                        </ol>
-                    </div>
-                    <p class="auth-intro__bottom">Luyện tập hôm nay, vững vàng ngày mai.</p>
-                </section>
+                <partial name="_AuthIntro" model="@("Luyện phỏng vấn với AI trước khi vào buổi thật.")" />
 
                 <section class="auth-panel" aria-labelledby="login-heading">
-                    <div class="auth-panel__mobile-brand">
-                        <span class="auth-brand__mark" aria-hidden="true"><img src="~/favicon.ico" asp-append-version="true" alt="" /></span>
-                        <strong>Mockview<span>AI</span></strong>
-                    </div>
                     <div class="auth-panel__header">
-                        <span class="auth-panel__eyebrow">CHÀO MỪNG TRỞ LẠI</span>
-                        <h2 id="login-heading">Đăng nhập tài khoản</h2>
-                        <p>Tiếp tục hành trình luyện phỏng vấn của bạn.</p>
+                        <h1 id="login-heading">Đăng nhập</h1>
+                        <p>Chào mừng bạn quay lại luyện tập.</p>
                     </div>
 
                     <a class="auth-google" asp-controller="Auth" asp-action="LoginGoogle">
-                        <i class="fa-brands fa-google" aria-hidden="true"></i>
+                        <svg class="auth-google__logo" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
                         <span>Tiếp tục với Google</span>
                     </a>
 
-                    <div class="auth-divider" aria-hidden="true"><span>HOẶC ĐĂNG NHẬP BẰNG EMAIL</span></div>
+                    <div class="auth-divider" aria-hidden="true"><span>hoặc dùng email</span></div>
 
                     <form id="loginForm" class="auth-form" method="post" asp-controller="Auth" asp-action="LoginApp"
                           data-loading-text="Đang đăng nhập..." data-loading-overlay="Hệ thống đang xác thực tài khoản của bạn.">
                         @Html.AntiForgeryToken()
                         <div class="form-field">
-                            <label class="form-field__label" for="email-login">Địa chỉ email</label>
+                            <label class="form-field__label" for="email-login">Email</label>
                             <div class="form-control-wrap">
                                 <i class="fa-regular fa-envelope" aria-hidden="true"></i>
                                 <input class="form-control" id="email-login" name="email" type="email" placeholder="you@email.com" autocomplete="username" required />
@@ -88,14 +64,13 @@
                             <div class="cf-turnstile" data-theme="light" data-size="flexible" data-sitekey="@Configuration["Turnstile:SiteKey"]"></div>
                         </div>
 
-                        <button class="button button--primary auth-submit" type="submit">
+                        <button class="button button--primary button--icon auth-submit" type="submit">
+                            <span class="button__icon" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
                             <span>Đăng nhập</span>
-                            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
                         </button>
                     </form>
 
-                    <p class="auth-register">Chưa có tài khoản? <a class="text-link" asp-controller="Auth" asp-action="Register">Đăng ký ngay</a></p>
-                    <p class="auth-panel__note"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Xác thực an toàn để bảo vệ tài khoản của bạn.</p>
+                    <p class="auth-register">Chưa có tài khoản? <a class="text-link" asp-controller="Auth" asp-action="Register">Đăng ký</a></p>
                 </section>
             </div>
         </main>
