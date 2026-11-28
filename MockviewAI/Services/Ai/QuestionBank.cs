@@ -8,13 +8,12 @@ namespace MockviewAI.Services.Ai
     public static class QuestionBank
     {
         #region Danh mục (đang dùng)
-        /// <summary>Vị trí ứng tuyển cho phép: khoá -> tên hiển thị.</summary>
-        public static readonly Dictionary<string, string> Positions = new()
-        {
-            ["developer"] = "Lập trình viên",
-            ["tester"] = "Kiểm thử viên (Tester)",
-            ["ba"] = "Chuyên viên Phân tích (BA)"
-        };
+        /// <summary>
+        /// Vị trí ứng tuyển cho phép: khoá -> tên hiển thị.
+        /// [IT-ROLES] Lấy từ ItRoleCatalog (15 vị trí ngành IT, giữ 3 khoá cũ developer / tester / ba).
+        /// </summary>
+        public static readonly Dictionary<string, string> Positions =
+            MockviewAI.Services.InterviewQuestions.ItRoleCatalog.All.ToDictionary(r => r.Key, r => r.Name);
 
         /// <summary>Người phỏng vấn: khoá -> (tên, vai trò).</summary>
         public static readonly Dictionary<string, (string Name, string Role)> Interviewers = new()

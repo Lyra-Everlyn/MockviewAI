@@ -13,6 +13,7 @@ namespace MockviewAI.Data
         public DbSet<InterviewSession> InterviewSessions { get; set; } // [AI-INTERVIEW]: buổi luyện phỏng vấn và câu trả lời
         public DbSet<SessionAnswer> SessionAnswers { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; } // [FEEDBACK]: Phản hồi từ người dùng
+        public DbSet<CvGeneratedQuestion> CvGeneratedQuestions { get; set; } // [CV-QUESTIONS]: câu hỏi AI soạn theo CV
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,6 +35,13 @@ namespace MockviewAI.Data
 
             // Tìm lịch sử theo người dùng nhanh hơn
             modelBuilder.Entity<InterviewSession>().HasIndex(s => s.UserId);
+
+            // [CV-QUESTIONS] Xóa buổi luyện thì xóa luôn câu hỏi AI soạn theo CV của buổi đó
+            modelBuilder.Entity<CvGeneratedQuestion>()
+                .HasOne(q => q.Session)
+                .WithMany()
+                .HasForeignKey(q => q.SessionId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Xóa người dùng thì xóa luôn góp ý của họ
             modelBuilder.Entity<Feedback>()

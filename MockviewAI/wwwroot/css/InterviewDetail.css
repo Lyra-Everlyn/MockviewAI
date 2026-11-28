@@ -305,6 +305,26 @@
    border-radius: 7px;
 }
 
+/* [CV-QUESTIONS] Số câu + nhãn "Câu hỏi theo CV" đứng cạnh nhau (màu lấy biến có sẵn trong theme) */
+.interview-detail-turn__tags {
+   display: inline-flex;
+   flex-wrap: wrap;
+   align-items: center;
+   gap: 6px;
+}
+
+.interview-detail-cv-tag {
+   display: inline-flex;
+   align-items: center;
+   gap: 5px;
+   color: var(--color-muted);
+   font-size: 11px;
+   font-weight: 700;
+   padding: 5px 9px;
+   border: 1px solid var(--color-primary-soft);
+   border-radius: 7px;
+}
+
 .interview-detail-turn__marker {
    display: inline-flex;
    align-items: center;

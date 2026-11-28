@@ -1,3 +1,5 @@
+using MockviewAI.Models.InterviewQuestions;
+
 namespace MockviewAI.Models.Ai
 {
     /// <summary>
@@ -26,5 +28,8 @@ namespace MockviewAI.Models.Ai
 
         /// <summary>[LIVE-MODE] Mã câu bộ đề bị bỏ qua ở chế độ Thực chiến, tính là SAI (null = câu kiểu cũ). Luyện tập: rỗng.</summary>
         public List<string?> SkippedAsWrong { get; set; } = new();
+
+        /// <summary>[CV-QUESTIONS] Câu hỏi AI soạn theo CV của buổi (mã cv-...), để bộ chấm tìm đáp án như câu bộ đề.</summary>
+        public List<BankQuestion> CvQuestions { get; set; } = new();
     }
 }

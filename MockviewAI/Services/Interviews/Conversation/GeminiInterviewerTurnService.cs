@@ -58,7 +58,19 @@ namespace MockviewAI.Services.Interviews.Conversation
             var watch = Stopwatch.StartNew();
             try
             {
-                var json = await SendAsync(model, request, timeout.Token);
+                string json;
+                try
+                {
+                    json = await SendAsync(model, request, timeout.Token);
+                }
+                // Hết lượt (429) / quá tải (5xx) trả về nhanh -> thử model dự phòng (hạn mức riêng) trong thời gian còn lại
+                catch (HttpRequestException ex) when (IsBusy(ex) && FallbackModel(model) is { } fallback)
+                {
+                    _logger.LogWarning("[INTERVIEWER] {Model} unavailable (HTTP {Status}) after {Ms} ms, trying {Fallback}",
+                        model, (int?)ex.StatusCode, watch.ElapsedMilliseconds, fallback);
+                    model = fallback;
+                    json = await SendAsync(model, request, timeout.Token);
+                }
                 var turn = Validate(Parse(json), request);
                 _logger.LogInformation("[INTERVIEWER] {Model} replied in {Ms} ms (followUp={HasFollowUp}, cv={HasCv})",
                     model, watch.ElapsedMilliseconds, turn.FollowUp != null, request.CvContext.Length > 0);
@@ -93,8 +105,18 @@ namespace MockviewAI.Services.Interviews.Conversation
         {
             var body = await response.Content.ReadAsStringAsync(ct);
             if (!response.IsSuccessStatusCode)
-                throw new HttpRequestException($"HTTP {(int)response.StatusCode}: {(body.Length > 200 ? body[..200] : body)}");
+                throw new HttpRequestException($"HTTP {(int)response.StatusCode}: {(body.Length > 200 ? body[..200] : body)}", null, response.StatusCode);
             return body;
+        }
+
+        private static bool IsBusy(HttpRequestException ex) => (int?)ex.StatusCode is 429 or >= 500;
+
+        /// <summary>Interviewer:FallbackModel nếu có, hợp lệ và khác model vừa lỗi; ngược lại null (dùng phản hồi có sẵn như cũ).</summary>
+        private string? FallbackModel(string failed)
+        {
+            var fallback = (_options.FallbackModel ?? string.Empty).Trim();
+            return fallback.Length > 0 && SafeModelName.IsMatch(fallback) && !fallback.Equals(failed, StringComparison.OrdinalIgnoreCase)
+                ? fallback : null;
         }
 
         private static object BuildBody(InterviewerTurnRequest request, string? thinkingLevel)

@@ -15,6 +15,13 @@ namespace MockviewAI.Services.Interviews.Conversation
         /// <summary>Bản lite cho nhanh (khoảng 1 giây). Trống = Gemini:Model.</summary>
         public string Model { get; set; } = "gemini-3.5-flash-lite";
 
+        /// <summary>
+        /// Model thử khi Model trả 429 (hết lượt) / 5xx (quá tải), trong thời gian TimeoutSeconds còn lại. Gemini tính hạn mức riêng
+        /// từng model (gói miễn phí 15 lệnh/phút, đo 27/11) nên thêm model là thêm lượt. Đo 27/11: 3.1-flash-lite 1–8 giây, có lần quá 8 giây
+        /// (khi đó vẫn dùng phản hồi có sẵn như cũ). Không đổi model khi quá giờ. Trống = tắt.
+        /// </summary>
+        public string FallbackModel { get; set; } = "gemini-3.1-flash-lite";
+
         /// <summary>Mức suy nghĩ gửi kèm (minimal = nhanh nhất); model không nhận thì gửi lại không kèm.</summary>
         public string ThinkingLevel { get; set; } = "minimal";
 

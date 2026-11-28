@@ -29,7 +29,9 @@ namespace MockviewAI.Services.Interviews.Conversation
             - Nếu có 'Ý còn thiếu': viết lại đúng ý câu hỏi đó cho tự nhiên, nối với điều ứng viên vừa nói
             (hoặc với một dự án trong CV nếu liên quan). Không đổi nội dung cần hỏi.
             - Nếu không có 'Ý còn thiếu': chỉ hỏi khi câu trả lời nhắc tới dự án, công việc hoặc công nghệ có trong CV mà còn chung chung,
-            ví dụ: 'Trong dự án X, bạn đã xử lý phần Y như thế nào?'. Không có gì đáng đào sâu thì null.
+            hoặc chưa cho thấy ứng viên HIỂU việc mình làm. Khi đó ưu tiên câu buộc ứng viên tư duy về chính việc họ vừa kể:
+            'vì sao bạn chọn cách đó?', 'nếu yêu cầu đổi (thêm vai trò / dữ liệu tăng nhiều) thì bạn sửa chỗ nào?',
+            'bạn giải thích phần đó cho người không chuyên thế nào?'. Không có gì đáng đào sâu thì null.
             - Không hỏi lại điều ứng viên đã trả lời rõ, không gán cho ứng viên điều họ không nói, không mâu thuẫn với câu trả lời.
             - Một câu hỏi duy nhất, tối đa 35 từ, kết thúc bằng dấu '?'.
 
