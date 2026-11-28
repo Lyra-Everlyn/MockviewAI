@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using MockviewAI.Models.DTOs;
 using MockviewAI.Models.Speech;
+using MockviewAI.Services.CvQuestions;
+using MockviewAI.Services.CvQuestions.Interfaces;
 using MockviewAI.Services.Exceptions;
 using MockviewAI.Services.Interviews;
 using MockviewAI.Services.Speech;
@@ -27,17 +29,20 @@ namespace MockviewAI.Controllers
         private readonly IInterviewService _interviewService;
         private readonly ISpeechToTextService _speechToText;
         private readonly SpeechOptions _speechOptions;
+        private readonly IRoleSuggester _roleSuggester;
         #endregion
 
         #region Constructor
         public InterviewController(
             IInterviewService interviewService,
             ISpeechToTextService speechToText,
-            IOptions<SpeechOptions> speechOptions)
+            IOptions<SpeechOptions> speechOptions,
+            IRoleSuggester roleSuggester)
         {
             _interviewService = interviewService;
             _speechToText = speechToText;
             _speechOptions = speechOptions.Value;
+            _roleSuggester = roleSuggester;
         }
         #endregion
 
@@ -48,6 +53,22 @@ namespace MockviewAI.Controllers
         public IActionResult Create()
         {
             return View();
+        }
+
+        /// <summary>
+        /// [IT-ROLES] POST /Interview/SuggestRole (form: cvJson): AI đọc CV, gợi ý vị trí ngành IT phù hợp; người dùng vẫn đổi được.
+        /// Không lưu gì. AI lỗi / chậm thì đoán bằng từ khoá.
+        /// </summary>
+        /// <returns>{ key, name, reason, source } hoặc 400 khi CV rỗng / hỏng.</returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [EnableRateLimiting(CvQuestionExtensions.RoleSuggestRateLimitPolicy)]
+        public async Task<IActionResult> SuggestRole([FromForm] string? cvJson, CancellationToken ct)
+        {
+            var suggestion = await _roleSuggester.SuggestAsync(cvJson, ct);
+            return suggestion == null
+                ? BadRequest(new { message = "Không đọc được CV." })
+                : Json(new { key = suggestion.Key, name = suggestion.Name, reason = suggestion.Reason, source = suggestion.Source });
         }
 
         /// <summary>POST /Interview/Start: tạo buổi từ form rồi vào thẳng phòng phỏng vấn.</summary>
@@ -88,6 +109,13 @@ namespace MockviewAI.Controllers
             try
             {
                 await _interviewService.FinishAsync(CurrentEmail, new FinishSessionDto { SessionId = id });
+            }
+            catch (AiScoringException ex) when (ex.IsTransient && !ex.IsConfigurationError)
+            {
+                // AI hết lượt / quá tải (thường khi tải lại trang lúc đang chờ chấm): không chấm sơ bộ ngay
+                // vì chấm từ khoá dễ chấm oan; mở trang chờ tự chấm lại bằng AI (buổi vẫn InProgress, người dùng tự chọn chấm sơ bộ được)
+                ViewData["ScoreMessage"] = ex.Message;
+                return View("Scoring", id);
             }
             catch (AiScoringException ex)
             {
@@ -202,7 +230,8 @@ namespace MockviewAI.Controllers
             catch (AiScoringException ex)
             {
                 // configError: sai model / key, bấm "Chấm lại" vô ích -> giao diện mở ngay nút chấm sơ bộ
-                return BadRequest(new { message = ex.Message, configError = ex.IsConfigurationError });
+                // retryable: hết lượt / quá tải / quá giờ (hạn mức phút của Gemini hồi trong ~1 phút) -> giao diện tự chấm lại sau ít giây
+                return BadRequest(new { message = ex.Message, configError = ex.IsConfigurationError, retryable = ex.IsTransient && !ex.IsConfigurationError });
             }
             catch (Exception ex)
             {

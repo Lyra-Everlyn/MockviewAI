@@ -6,13 +6,19 @@ namespace MockviewAI.Services.InterviewQuestions.Implementations
 {
     /// <summary>
     /// [QUESTION-BANK] 
-    /// Đọc question-bank.v1.json một lần khi khởi động (Singleton).
+    /// Đọc question-bank.v1.json (+ question-bank.it-roles.v1.json nếu có) một lần khi khởi động (Singleton).
     /// Sửa bộ đề = sửa file JSON rồi chạy tools/question-bank/validate_bank.py (hoặc dotnet test), không cần sửa code.
     /// </summary>
     public class JsonQuestionBankStore : IQuestionBankStore
     {
         #region Fields
         public const string BankFileName = "question-bank.v1.json";
+
+        /// <summary>
+        /// [IT-ROLES] Câu kỹ thuật cho các vị trí IT ngoài developer / tester / ba (Nam hỏi). Không có file thì bỏ qua
+        /// (các vị trí đó quay về AI soạn câu theo vị trí như trước). Phiên bản bộ đề (Version) vẫn lấy từ file chính.
+        /// </summary>
+        public const string RoleBankFileName = "question-bank.it-roles.v1.json";
 
         /// <summary>camelCase trong JSON &lt;-&gt; PascalCase trong C#.</summary>
         private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
@@ -29,15 +35,22 @@ namespace MockviewAI.Services.InterviewQuestions.Implementations
             if (!File.Exists(path))
                 throw new InvalidOperationException($"Không tìm thấy file bộ đề: {path}");
 
-            var bank = JsonSerializer.Deserialize<QuestionBankFile>(File.ReadAllText(path), JsonOptions)
-                       ?? throw new InvalidOperationException($"File bộ đề rỗng hoặc sai định dạng: {path}");
+            var bank = Load(path);
+            var questions = new List<BankQuestion>(bank.Questions);
+
+            string rolePath = Path.Combine(folder, RoleBankFileName);
+            if (File.Exists(rolePath)) questions.AddRange(Load(rolePath).Questions);
 
             Version = bank.Version;
-            Questions = bank.Questions;
+            Questions = questions;
 
-            // ToDictionary báo lỗi ngay nếu trùng mã câu -> phát hiện sớm khi sửa JSON sai
-            _byId = bank.Questions.ToDictionary(q => q.Id, StringComparer.Ordinal);
+            // ToDictionary báo lỗi ngay nếu trùng mã câu (kể cả giữa 2 file) -> phát hiện sớm khi sửa JSON sai
+            _byId = questions.ToDictionary(q => q.Id, StringComparer.Ordinal);
         }
+
+        private static QuestionBankFile Load(string path) =>
+            JsonSerializer.Deserialize<QuestionBankFile>(File.ReadAllText(path), JsonOptions)
+            ?? throw new InvalidOperationException($"File bộ đề rỗng hoặc sai định dạng: {path}");
         #endregion
 
         #region IQuestionBankStore

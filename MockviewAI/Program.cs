@@ -18,6 +18,7 @@ using MockviewAI.Services.Ai.Implementations;
 using MockviewAI.Services.Ai.Interfaces;
 using MockviewAI.Services.Auth;
 using MockviewAI.Services.CvParser;
+using MockviewAI.Services.CvQuestions;
 using MockviewAI.Services.Emails;
 using MockviewAI.Services.Feedbacks;
 using MockviewAI.Services.FileStorage.Implementations;
@@ -172,6 +173,9 @@ namespace MockviewAI
 
             // [USER CV] PDF -> PdfPig -> Gemini -> Redis
             services.AddCvServices(config);
+
+            // [CV-QUESTIONS] Câu hỏi theo CV: Gemini soạn -> Groq kiểm duyệt -> lỗi thì dùng bộ đề
+            services.AddCvQuestions(config);
 
             return aiProvider;
         }

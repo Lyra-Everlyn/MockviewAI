@@ -1,6 +1,7 @@
 @using System.Security.Claims
 @using MockviewAI.Services.CvParser
 @inject Microsoft.Extensions.Options.IOptions<CvOptions> CvOpts
+@inject MockviewAI.Services.InterviewQuestions.Interfaces.IQuestionBankStore Bank
 @{
     Layout = null;
     var startLive = Context.Request.Query["mode"] == MockviewAI.Models.InterviewModes.Live;
@@ -133,10 +134,20 @@
 
                         <fieldset class="interview-create-field">
                             <legend class="interview-create-label">Vị trí ứng tuyển</legend>
+                            @* [IT-ROLES] 15 vị trí ngành IT theo nhóm; có CV thì JS gọi /Interview/SuggestRole để chọn sẵn vị trí gợi ý *@
+                            <p class="interview-create-field__help interview-create-role-hint" id="roleSuggestHint" aria-live="polite" hidden></p>
                             <div class="interview-create-positions">
-                                <label class="interview-create-choice"><input type="radio" name="position" value="developer" checked /><span>Lập trình viên</span></label>
-                                <label class="interview-create-choice"><input type="radio" name="position" value="tester" /><span>Tester</span></label>
-                                <label class="interview-create-choice"><input type="radio" name="position" value="ba" /><span>BA</span></label>
+                                @foreach (var group in MockviewAI.Services.InterviewQuestions.ItRoleCatalog.Groups)
+                                {
+                                    <span class="interview-create-positions__group">@group.Key</span>
+                                    foreach (var role in group)
+                                    {
+                                        <label class="interview-create-choice">
+                                            <input type="radio" name="position" value="@role.Key" data-name="@role.Name" data-ai-tech="@(MockviewAI.Services.InterviewQuestions.QuestionBankStoreExtensions.NeedsAiTechQuestions(Bank, role) ? "1" : "0")" checked="@(role.Key == "developer")" />
+                                            <span>@role.Name</span>
+                                        </label>
+                                    }
+                                }
                             </div>
                         </fieldset>
 
@@ -160,6 +171,8 @@
                             <span>
                                 <strong>Hỏi theo CV của tôi</strong>
                                 <small id="cvPickerName"></small>
+                                @* [CV-QUESTIONS] Thông báo dữ liệu (đạo đức nghiên cứu) *@
+                                <small><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> CV được gửi tới Google Gemini và Groq để soạn và kiểm duyệt câu hỏi, không được lưu lại.</small>
                             </span>
                         </label>
                         <p class="interview-create-field__help" id="cvPickerEmpty" hidden>
