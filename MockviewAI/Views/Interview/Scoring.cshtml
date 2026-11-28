@@ -1,0 +1,49 @@
+@* [AI-SCORING] Trang chờ chấm điểm: mở khi buổi đã trả lời xong nhưng AI đang bận (thường do tải lại trang).
+   InterviewScoring.js tự chấm lại bằng AI theo đếm ngược; người dùng vẫn chọn được "Chấm lại" hoặc chấm sơ bộ. *@
+@model int
+@{
+    Layout = null;
+    ViewData["ActiveNav"] = "practice";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đang chấm điểm - MockviewAI</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/InterviewRoom.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/ScoringOverlay.css" asp-append-version="true" />
+
+    <partial name="Partials/_ThemeHead" />
+</head>
+<body class="app-layout interview-room-page">
+    <div class="app-layout__content">
+        <div class="interview-room-shell">
+            <header class="interview-room-header">
+                <div class="interview-room-header__heading">
+                    <span class="interview-room-header__eyebrow">BẠN ĐÃ TRẢ LỜI XONG</span>
+                    <h1 class="interview-room-header__title">Đang chấm điểm</h1>
+                    <p class="interview-room-header__description">Câu trả lời của bạn đã được lưu. Hệ thống đang chờ AI để chấm điểm.</p>
+                </div>
+            </header>
+
+            <main class="interview-room-stage stage" id="scoring-page" data-session-id="@Model">
+                @Html.AntiForgeryToken()
+                <p class="helper-text is-error" id="room-message">@ViewData["ScoreMessage"]</p>
+                <div class="score-retry">
+                    <button class="room-btn room-btn--primary" id="btn-retry-score" type="button">Chấm lại</button>
+                    <button class="room-btn room-btn--ghost" id="btn-fallback-score" type="button">Xem kết quả ngay (chấm sơ bộ, không cần AI)</button>
+                </div>
+            </main>
+        </div>
+    </div>
+    <partial name="Partials/_Notify" />
+    <script src="~/js/InterviewScoring.js" asp-append-version="true"></script>
+    <script src="~/js/ScoringOverlay.js" asp-append-version="true"></script>
+</body>
+</html>

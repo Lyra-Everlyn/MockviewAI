@@ -31,6 +31,12 @@ namespace MockviewAI.Services.Speech
         /// <summary>Model dự phòng khi ép "vi" mà kết quả không phải tiếng Việt. Trống = tắt.</summary>
         public string WhisperFallbackModel { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Model chép lại khi model chính hết lượt / quá tải (HTTP 429, 5xx). Groq tính hạn mức RIÊNG từng model,
+        /// nên turbo vẫn còn lượt khi large-v3 hết. Turbo kém hơn với tiếng Việt nhưng vẫn hơn chữ trình duyệt. Trống = tắt.
+        /// </summary>
+        public string WhisperBusyFallbackModel { get; set; } = "whisper-large-v3-turbo";
+
         /// <summary>Gửi câu hỏi làm gợi ý cho Whisper. Mặc định tắt vì Whisper hay chép lại câu hỏi ở đoạn im lặng cuối.</summary>
         public bool UseQuestionAsWhisperPrompt { get; set; } = false;
 

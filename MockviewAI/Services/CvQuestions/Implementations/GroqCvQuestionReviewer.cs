@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -35,6 +36,7 @@ namespace MockviewAI.Services.CvQuestions.Implementations
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly GroqKeyProvider _keys;
         private readonly ICvQuestionPromptBuilder _prompts;
+        private readonly IReviewerCooldown _cooldown;
         private readonly CvQuestionOptions _options;
         private readonly ILogger<GroqCvQuestionReviewer> _logger;
         #endregion
@@ -44,20 +46,24 @@ namespace MockviewAI.Services.CvQuestions.Implementations
             IHttpClientFactory httpClientFactory,
             GroqKeyProvider keys,
             ICvQuestionPromptBuilder prompts,
+            IReviewerCooldown cooldown,
             IOptions<CvQuestionOptions> options,
             ILogger<GroqCvQuestionReviewer> logger)
         {
             _httpClientFactory = httpClientFactory;
             _keys = keys;
             _prompts = prompts;
+            _cooldown = cooldown;
             _options = options.Value;
             _logger = logger;
         }
         #endregion
 
         #region ICvQuestionReviewer
-        /// <summary>Model đã duyệt ở lần gần nhất (model chính, hoặc model dự phòng khi model chính hết lượt).</summary>
+        /// <summary>Model đã duyệt ở lần gần nhất (model chính, hoặc một model dự phòng khi các model trước hết lượt).</summary>
         public string Model { get; private set; } = string.Empty;
+
+        public bool IsAvailable => AllModels().Any(m => !_cooldown.IsCooling(m));
 
         public async Task<List<CvQuestionReview>> ReviewAsync(CvQuestionContext ctx, IReadOnlyList<CvQuestionDraft> drafts, CancellationToken ct)
         {
@@ -65,13 +71,13 @@ namespace MockviewAI.Services.CvQuestions.Implementations
             if (!_keys.HasKeys)
                 throw new CvQuestionException("Thiếu Groq API key.");
 
-            var models = new[] { _options.ReviewerModel, _options.ReviewerFallbackModel }
-                .Select(m => (m ?? string.Empty).Trim())
-                .Where(m => m.Length > 0 && SafeModelName.IsMatch(m))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-            if (models.Count == 0)
+            var all = AllModels();
+            if (all.Count == 0)
                 throw new CvQuestionException("Tên model kiểm duyệt không hợp lệ (CvQuestions:ReviewerModel).");
+            // Bỏ qua model vừa hết lượt; tất cả đang nghỉ (hết lượt ngay trong lúc soạn) thì báo lỗi luôn, không gọi Groq
+            var models = all.Where(m => !_cooldown.IsCooling(m)).ToList();
+            if (models.Count == 0)
+                throw new CvQuestionException("Mọi model kiểm duyệt đang tạm nghỉ vì vừa hết lượt.") { StatusCode = 429, IsTransient = true };
 
             string userPrompt = _prompts.BuildReviewerPrompt(ctx, drafts);
             CvQuestionException? lastError = null;
@@ -86,6 +92,7 @@ namespace MockviewAI.Services.CvQuestions.Implementations
                 // Groq miễn phí giới hạn token / phút RIÊNG từng model -> hết lượt, model bị gỡ hoặc quá tải thì thử model dự phòng
                 catch (CvQuestionException ex) when (ex.IsTransient)
                 {
+                    _logger.LogWarning("CV question reviewer model {Model} unavailable (HTTP {Status}), trying next model if any", model, ex.StatusCode);
                     lastError = ex;
                 }
             }
@@ -121,8 +128,10 @@ namespace MockviewAI.Services.CvQuestions.Implementations
                     int code = (int)response.StatusCode;
                     _logger.LogWarning("Groq CV review HTTP {Status} for model {Model} after {Ms} ms: {Body}",
                         code, model, watch.ElapsedMilliseconds, json.Length > MaxErrorLogChars ? json[..MaxErrorLogChars] : json);
-                    // 400/404 (model bị gỡ / không nhận tham số), 429 (hết lượt), 5xx (quá tải) -> thử model dự phòng; 401 (sai khoá) thì không
-                    throw new CvQuestionException($"Groq trả HTTP {code}.") { StatusCode = code, IsTransient = code is 400 or 404 or 429 or >= 500 };
+                    if (code is 413 or 429) StartCooldown(model, response.Headers.RetryAfter);
+                    // 400/404 (model bị gỡ / không nhận tham số), 413 (yêu cầu vượt giới hạn token của model), 429 (hết lượt), 5xx (quá tải)
+                    // -> thử model dự phòng; 401 (sai khoá) thì không
+                    throw new CvQuestionException($"Groq trả HTTP {code}.") { StatusCode = code, IsTransient = code is 400 or 404 or 413 or 429 or >= 500 };
                 }
             }
             catch (HttpRequestException ex)
@@ -142,6 +151,28 @@ namespace MockviewAI.Services.CvQuestions.Implementations
         #endregion
 
         #region Helpers
+        /// <summary>Model chính rồi các model dự phòng; bỏ tên rỗng / không hợp lệ / trùng.</summary>
+        private List<string> AllModels() =>
+            new[] { _options.ReviewerModel }
+                .Concat(_options.ReviewerFallbackList)
+                .Select(m => (m ?? string.Empty).Trim())
+                .Where(m => m.Length > 0 && SafeModelName.IsMatch(m))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+        /// <summary>Thời gian nghỉ = retry-after của Groq (nếu có), không quá CvQuestions:ReviewerCooldownSeconds.</summary>
+        private void StartCooldown(string model, RetryConditionHeaderValue? retryAfter)
+        {
+            int limit = _options.ReviewerCooldownLimit;
+            if (limit == 0) return;
+            var wait = retryAfter?.Delta
+                       ?? (retryAfter?.Date is { } date ? date - DateTimeOffset.UtcNow : (TimeSpan?)null)
+                       ?? TimeSpan.FromSeconds(limit);
+            wait = TimeSpan.FromSeconds(Math.Clamp(wait.TotalSeconds, 1, limit));
+            _cooldown.Trip(model, wait);
+            _logger.LogWarning("CV question reviewer model {Model} paused for {Seconds:0} s (rate limit)", model, wait.TotalSeconds);
+        }
+
         private static int MaxOutputTokensFor(string model) =>
             model.Contains("gpt-oss", StringComparison.OrdinalIgnoreCase) ? MaxOutputTokensReasoning : MaxOutputTokens;
 

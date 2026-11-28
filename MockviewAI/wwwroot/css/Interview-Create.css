@@ -339,6 +339,25 @@
    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+/* [IT-ROLES] Tiêu đề nhóm vị trí chiếm cả hàng; màu lấy biến có sẵn trong theme */
+.interview-create-positions__group {
+   grid-column: 1 / -1;
+   margin-top: 6px;
+   color: var(--color-muted);
+   font-size: 11px;
+   font-weight: 700;
+   text-transform: uppercase;
+   letter-spacing: 0.04em;
+}
+
+.interview-create-positions__group:first-child {
+   margin-top: 0;
+}
+
+.interview-create-role-hint {
+   margin: 0 0 8px;
+}
+
 .interview-create-counts {
    grid-template-columns: repeat(6, minmax(0, 1fr));
 }

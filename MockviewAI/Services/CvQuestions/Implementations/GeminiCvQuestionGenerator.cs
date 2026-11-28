@@ -53,7 +53,7 @@ namespace MockviewAI.Services.CvQuestions.Implementations
         #endregion
 
         #region ICvQuestionGenerator
-        public async Task<CvGenerationResult> GenerateAsync(CvQuestionContext ctx, int count, IReadOnlyList<string>? fixNotes, CancellationToken ct)
+        public async Task<CvGenerationResult> GenerateAsync(CvQuestionContext ctx, string kind, int count, IReadOnlyList<string>? fixNotes, CancellationToken ct)
         {
             if (!_keys.HasKeys)
                 throw new CvQuestionException("Thiếu Gemini API key.");
@@ -61,7 +61,7 @@ namespace MockviewAI.Services.CvQuestions.Implementations
             if (models.Count == 0)
                 throw new CvQuestionException("Chưa cấu hình model Gemini hợp lệ.");
 
-            string userPrompt = _prompts.BuildGeneratorPrompt(ctx, count, fixNotes);
+            string userPrompt = _prompts.BuildGeneratorPrompt(ctx, kind, count, fixNotes);
             CvQuestionException? lastError = null;
             foreach (var model in models)
             {
@@ -69,18 +69,18 @@ namespace MockviewAI.Services.CvQuestions.Implementations
                 try
                 {
                     var text = await GenerateWithModelAsync(model, userPrompt, ct);
-                    var drafts = CvQuestionParser.Parse(text, ctx.PositionKey, ctx.InterviewerKey, out var problem);
+                    var drafts = CvQuestionParser.Parse(text, ctx.PositionKey, ctx.InterviewerKey, kind, out var problem);
                     if (problem != null)
-                        _logger.LogWarning("Gemini CV questions only partly readable ({Model}): {Problem}, got {Count}/{Wanted} ({Chars} chars)",
-                            model, problem, drafts.Count, count, text.Length);   // chỉ ghi lý do + độ dài, không ghi nội dung
+                        _logger.LogWarning("Gemini {Kind} questions only partly readable ({Model}): {Problem}, got {Count}/{Wanted} ({Chars} chars)",
+                            kind, model, problem, drafts.Count, count, text.Length);   // chỉ ghi lý do + độ dài, không ghi nội dung
 
                     // Đọc ra 0 câu (hiếm, do AI trả sai định dạng) -> gọi lại đúng 1 lần cùng model; thời gian vẫn do pipeline giới hạn
                     if (drafts.Count == 0)
                     {
                         text = await GenerateWithModelAsync(model, userPrompt, ct);
-                        drafts = CvQuestionParser.Parse(text, ctx.PositionKey, ctx.InterviewerKey, out problem);
-                        _logger.LogInformation("Gemini CV questions retry ({Model}): got {Count}/{Wanted}{Problem}",
-                            model, drafts.Count, count, problem == null ? "" : " - " + problem);
+                        drafts = CvQuestionParser.Parse(text, ctx.PositionKey, ctx.InterviewerKey, kind, out problem);
+                        _logger.LogInformation("Gemini {Kind} questions retry ({Model}): got {Count}/{Wanted}{Problem}",
+                            kind, model, drafts.Count, count, problem == null ? "" : " - " + problem);
                     }
                     return new CvGenerationResult(drafts, model);
                 }
@@ -164,7 +164,7 @@ namespace MockviewAI.Services.CvQuestions.Implementations
                     };
                 }
 
-                _logger.LogInformation("Gemini CV questions OK ({Model}) in {Ms} ms", model, watch.ElapsedMilliseconds);
+                _logger.LogInformation("Gemini question generation OK ({Model}) in {Ms} ms", model, watch.ElapsedMilliseconds);
                 return ReadText(json);
             }
             catch (HttpRequestException ex)
@@ -174,10 +174,14 @@ namespace MockviewAI.Services.CvQuestions.Implementations
             }
         }
 
-        /// <summary>Thứ tự: CvQuestions:GeneratorModel -> Gemini:Model -> Gemini:FallbackModels.</summary>
+        /// <summary>
+        /// Có CvQuestions:GeneratorModel: model đó -> CvQuestions:GeneratorFallbackModels (bản lite nhanh, không rơi về model chấm điểm chậm).
+        /// Để trống GeneratorModel: Gemini:Model -> Gemini:FallbackModels như các tính năng khác.
+        /// </summary>
         private List<string> ModelsToTry() =>
-            new[] { _options.GeneratorModel, _gemini.Model }
-                .Concat(_gemini.FallbackModels ?? DefaultFallbackModels)
+            (string.IsNullOrWhiteSpace(_options.GeneratorModel)
+                ? new[] { _gemini.Model }.Concat(_gemini.FallbackModels ?? DefaultFallbackModels)
+                : new[] { _options.GeneratorModel }.Concat(_options.GeneratorFallbackList))
                 .Select(m => (m ?? string.Empty).Trim())
                 .Where(m => m.Length > 0 && SafeModelName.IsMatch(m))
                 .Distinct(StringComparer.OrdinalIgnoreCase)

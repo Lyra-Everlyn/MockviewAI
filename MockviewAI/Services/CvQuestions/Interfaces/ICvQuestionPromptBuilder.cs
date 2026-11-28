@@ -9,7 +9,8 @@ namespace MockviewAI.Services.CvQuestions.Interfaces
     public interface ICvQuestionPromptBuilder
     {
         string GeneratorSystemPrompt { get; }
-        string BuildGeneratorPrompt(CvQuestionContext ctx, int count, IReadOnlyList<string>? fixNotes);
+        /// <param name="kind">CvQuestionKinds.Cv hoặc CvQuestionKinds.Role.</param>
+        string BuildGeneratorPrompt(CvQuestionContext ctx, string kind, int count, IReadOnlyList<string>? fixNotes);
 
         string ReviewerSystemPrompt { get; }
         string BuildReviewerPrompt(CvQuestionContext ctx, IReadOnlyList<CvQuestionDraft> drafts);

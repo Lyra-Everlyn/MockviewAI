@@ -139,6 +139,7 @@ namespace MockviewAI.Services.SessionHistory
                 CategoryDescription = AnswerCategory.Description(a.Category),
                 Feedback = a.Feedback,
                 IsCvQuestion = QuestionBankStoreExtensions.IsCvQuestionId(a.QuestionId),
+                IsRoleQuestion = QuestionBankStoreExtensions.IsRoleQuestionId(a.QuestionId),
                 VoiceText = VoiceMetrics.Describe(a.VoiceLevelDb, a.QuietRatio, a.PitchVariation)
             };
 

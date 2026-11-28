@@ -81,7 +81,8 @@ namespace MockviewAI.Services.CvQuestions.Implementations
             if (PrivatePhrases.Any(p => normalized.Contains(" " + p + " ")))
                 return "Câu hỏi chạm chủ đề riêng tư";
 
-            if (!EvidenceInCv(draft.CvEvidence, ctx.CvSummary))
+            // [IT-ROLES] Câu kỹ thuật theo vị trí là kiến thức chuẩn của nghề, không dựa vào CV -> không kiểm căn cứ CV
+            if (draft.Kind != CvQuestionKinds.Role && !EvidenceInCv(draft.CvEvidence, ctx.CvSummary))
                 return "cvEvidence rỗng hoặc không có trong CV";
 
             return null;

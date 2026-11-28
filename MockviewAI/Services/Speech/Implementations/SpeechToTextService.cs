@@ -49,9 +49,9 @@ namespace MockviewAI.Services.Speech.Implementations
 
             // 1. Whisper + sửa ngôn ngữ
             var prompt = BuildWhisperPrompt(question);
-            var transcript = await _transcriber.TranscribeAsync(clip, prompt, ct: ct);
-            transcript = await FixLanguageAsync(clip, prompt, transcript, ct);
-            transcript = await FixTranslationAsync(clip, transcript, browser, ct);
+            var (transcript, model) = await TranscribeWithBusyFallbackAsync(clip, prompt, ct);
+            transcript = await FixLanguageAsync(clip, prompt, model, transcript, ct);
+            transcript = await FixTranslationAsync(clip, model, transcript, browser, ct);
 
             // 2. Lọc ảo giác. Whisper vẫn dịch nhầm hoặc rỗng -> dùng chữ trình duyệt làm bản chính
             var raw = _hallucinations.Clean(transcript, prompt);
@@ -94,19 +94,43 @@ namespace MockviewAI.Services.Speech.Implementations
         }
         #endregion
 
+        #region Whisper hết lượt
+        /// <summary>
+        /// Model chính trả 429 / 5xx -> chép lại bằng WhisperBusyFallbackModel (hạn mức riêng). Model dự phòng cũng lỗi thì ném lỗi như cũ
+        /// (trình duyệt dùng chữ tự nghe). Trả kèm model đã dùng (null = model chính) để các lần chép lại sau dùng đúng model còn lượt.
+        /// </summary>
+        private async Task<(WhisperTranscript Transcript, string? Model)> TranscribeWithBusyFallbackAsync(AudioClip clip, string? prompt, CancellationToken ct)
+        {
+            try
+            {
+                return (await _transcriber.TranscribeAsync(clip, prompt, ct: ct), null);
+            }
+            catch (SpeechException ex) when (ex.StatusCode is 429 or >= 500 && HasBusyFallback())
+            {
+                var fallback = _options.WhisperBusyFallbackModel.Trim();
+                _logger.LogWarning("Whisper {Model} unavailable (HTTP {Status}), retrying with {Fallback}", _options.WhisperModel, ex.StatusCode, fallback);
+                return (await _transcriber.TranscribeAsync(clip, prompt, fallback, ct: ct), fallback);
+            }
+        }
+
+        private bool HasBusyFallback() =>
+            !string.IsNullOrWhiteSpace(_options.WhisperBusyFallbackModel)
+            && !string.Equals(_options.WhisperBusyFallbackModel.Trim(), _options.WhisperModel, StringComparison.OrdinalIgnoreCase);
+        #endregion
+
         #region Language
         /// <summary>
         /// Auto: ngôn ngữ nhận ra không thuộc AllowedLanguages (câu ngắn hay bị nhầm) -> chép lại bằng FallbackLanguage.
         /// Ép "vi": kết quả gần như không có chữ tiếng Việt -> thử WhisperFallbackModel (nếu có).
         /// </summary>
-        private async Task<WhisperTranscript> FixLanguageAsync(AudioClip clip, string? prompt, WhisperTranscript transcript, CancellationToken ct)
+        private async Task<WhisperTranscript> FixLanguageAsync(AudioClip clip, string? prompt, string? model, WhisperTranscript transcript, CancellationToken ct)
         {
             if (IsAutoLanguage())
             {
                 if (transcript.Language.Length == 0 || IsAllowed(transcript.Language)) return transcript;
 
                 _logger.LogWarning("Whisper detected unexpected language {Language}, retrying as {Fallback}", transcript.Language, _options.FallbackLanguage);
-                return await RetryAsync(clip, prompt, null, _options.FallbackLanguage, transcript, ct);
+                return await RetryAsync(clip, prompt, model, _options.FallbackLanguage, transcript, ct);
             }
 
             bool wrongLanguage = string.Equals(_options.Language, "vi", StringComparison.OrdinalIgnoreCase)
@@ -122,12 +146,12 @@ namespace MockviewAI.Services.Speech.Implementations
         }
 
         /// <summary>Trình duyệt nghe ra tiếng Anh mà Whisper trả tiếng Việt = Whisper dịch nhầm -> chép lại, ép "en".</summary>
-        private async Task<WhisperTranscript> FixTranslationAsync(AudioClip clip, WhisperTranscript transcript, string browser, CancellationToken ct)
+        private async Task<WhisperTranscript> FixTranslationAsync(AudioClip clip, string? model, WhisperTranscript transcript, string browser, CancellationToken ct)
         {
             if (!IsMistranslated(transcript.Text, browser)) return transcript;
 
             _logger.LogWarning("[STT] Browser heard English but Whisper returned Vietnamese, retrying with language=en");
-            return await RetryAsync(clip, _prompts.WhisperTermsPrompt, null, "en", transcript, ct);
+            return await RetryAsync(clip, _prompts.WhisperTermsPrompt, model, "en", transcript, ct);
         }
 
         private static bool IsMistranslated(string whisperText, string browserText) =>

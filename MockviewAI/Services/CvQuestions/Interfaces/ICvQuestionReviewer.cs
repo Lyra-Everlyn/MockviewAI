@@ -11,6 +11,9 @@ namespace MockviewAI.Services.CvQuestions.Interfaces
         /// <summary>Tên model kiểm duyệt (ghi vào DB).</summary>
         string Model { get; }
 
+        /// <summary>false = mọi model kiểm duyệt đang tạm nghỉ vì vừa hết lượt: không nên soạn câu (chắc chắn không duyệt được).</summary>
+        bool IsAvailable { get; }
+
         /// <returns>Đúng một kết quả cho mỗi câu, theo thứ tự gửi lên; câu AI không trả lời = reject.</returns>
         /// <exception cref="MockviewAI.Services.Exceptions.CvQuestionException">AI lỗi / hết lượt: không câu nào được qua.</exception>
         Task<List<CvQuestionReview>> ReviewAsync(CvQuestionContext ctx, IReadOnlyList<CvQuestionDraft> drafts, CancellationToken ct);

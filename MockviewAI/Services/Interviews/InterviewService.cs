@@ -43,6 +43,9 @@ namespace MockviewAI.Services.Interviews
         /// <summary>[INTERVIEWER] Mã ý cốt lõi cho câu hỏi đào sâu theo CV (không thuộc ý nào của bộ đề).</summary>
         private const string CvFollowUpPointId = "cv";
 
+        /// <summary>[IT-ROLES] Người phỏng vấn kỹ thuật (Tech Lead): vị trí chưa có bộ đề thì câu kỹ thuật do AI soạn.</summary>
+        private const string TechInterviewerKey = "nam";
+
         private const int MaxQuestionLength = 500;
 
         private readonly IRepository<InterviewSession> _sessionRepository;
@@ -100,8 +103,9 @@ namespace MockviewAI.Services.Interviews
         {
             var user = await GetUserAsync(email);
 
-            if (!QuestionBank.Positions.TryGetValue(positionKey ?? "", out var positionName))
-                throw new InterviewException("Vị trí ứng tuyển không hợp lệ.");
+            // [IT-ROLES] 15 vị trí ngành IT; câu bộ đề lấy theo vị trí gốc (BankBase: developer / tester / ba)
+            var role = ItRoleCatalog.Find(positionKey) ?? throw new InterviewException("Vị trí ứng tuyển không hợp lệ.");
+            string positionName = role.Name;
             if (!QuestionBank.Interviewers.ContainsKey(interviewerKey ?? ""))
                 throw new InterviewException("Người phỏng vấn không hợp lệ.");
             if (questionCount < MinQuestions || questionCount > MaxQuestions)
@@ -125,17 +129,24 @@ namespace MockviewAI.Services.Interviews
 
             // [QUESTION-BANK] Có câu trong bộ đề -> dùng bộ đề có đáp án (xếp loại 4 nhãn);
             // không có -> câu hỏi kiểu cũ trong QuestionBank.cs (hiện bộ đề đã phủ đủ 9 cặp nên nhánh này không chạy)
-            var picked = _selector.Select(interviewerKey!, positionKey!, questionCount);
+            // [IT-ROLES] Câu riêng của vị trí (question-bank.it-roles) trước, thiếu thì bù câu của vị trí gốc
+            var picked = _selector.Select(interviewerKey!, role.Key, questionCount, role.BankBase);
 
-            // [CV-QUESTIONS] Gemini soạn + Groq duyệt câu theo CV; lỗi / hết giờ / không đạt -> rỗng, giữ 100% bộ đề
+            // [IT-ROLES] Nam hỏi vị trí chưa có câu kỹ thuật nào trong bộ đề -> AI soạn câu kỹ thuật theo vị trí;
+            // câu bộ đề của vị trí gốc chỉ còn là dự phòng khi AI lỗi. Linh / An hỏi kỹ năng mềm dùng chung nên không cần.
+            bool needRoleQuestions = interviewerKey == TechInterviewerKey && _bank.NeedsAiTechQuestions(role) && picked.Count > 1;
+
+            // [CV-QUESTIONS] Gemini soạn + Groq duyệt câu theo CV (và câu theo vị trí); lỗi / hết giờ / không đạt -> rỗng, giữ 100% bộ đề
             string cvSummary = CvContextBuilder.FromBrowserJson(cvJson);
-            var cvResult = picked.Count > 0 && cvSummary.Length > 0
+            var cvResult = picked.Count > 0 && (cvSummary.Length > 0 || needRoleQuestions)
                 ? await _cvPipeline.RunAsync(new CvQuestionContext
                 {
-                    PositionKey = positionKey!,
+                    PositionKey = role.Key,
                     PositionName = positionName,
+                    PositionFocus = role.Focus,
                     InterviewerKey = interviewerKey!,
                     CvSummary = cvSummary,
+                    RoleQuestionCount = needRoleQuestions ? picked.Count - 1 : 0,
                     ExistingQuestions = picked.Select(q => q.Question).ToList()
                 })
                 : CvQuestionPipelineResult.Empty;
@@ -146,7 +157,7 @@ namespace MockviewAI.Services.Interviews
                 session.QuestionCount = picked.Count;
                 for (int i = 0; i < picked.Count; i++)
                 {
-                    session.Answers.Add(new SessionAnswer { OrderNo = i + 1, Question = picked[i].Question, QuestionId = picked[i].Id });
+                    session.Answers.Add(new SessionAnswer { OrderNo = i + 1, Question = IntroForRole(picked[i], role), QuestionId = picked[i].Id });
                 }
             }
             else
@@ -160,7 +171,7 @@ namespace MockviewAI.Services.Interviews
 
             await _sessionRepository.AddAsync(session);
 
-            // [CV-QUESTIONS] Đã có session.Id -> thay câu cuối bằng câu CV (giữ câu 1), mã cv-{id}-{n}, lưu đáp án vào DB
+            // [CV-QUESTIONS] Đã có session.Id -> gắn câu AI soạn (giữ câu 1): câu theo vị trí từ câu 2, câu CV ở cuối; lưu đáp án vào DB
             if (cvResult.Accepted.Count > 0)
                 await _cvQuestions.AttachToSessionAsync(session, cvResult);
 
@@ -301,7 +312,7 @@ namespace MockviewAI.Services.Interviews
             // [CV-QUESTIONS] Buổi đã có câu chính soạn theo CV: câu bộ đề CHỈ hỏi thêm khi thiếu ý cốt lõi (không tự đào sâu),
             // để không hỏi trùng dự án với câu CV và để dành lượt hỏi thêm (tối đa FollowUps.MaxPerSession) cho câu CV,
             // nơi người phỏng vấn được hỏi "vì sao / nếu thay đổi thì sao" để kiểm tra ứng viên hiểu việc mình làm.
-            bool sessionHasCvQuestions = session.Answers.Any(a => QuestionBankStoreExtensions.IsCvQuestionId(a.QuestionId));
+            bool sessionHasCvQuestions = session.Answers.Any(a => QuestionBankStoreExtensions.IsGeneratedQuestionId(a.QuestionId));
             bool useCvContext = !sessionHasCvQuestions || QuestionBankStoreExtensions.IsCvQuestionId(current.QuestionId);
             if (!useCvContext && plan == null) canAsk = false;
 
@@ -353,7 +364,7 @@ namespace MockviewAI.Services.Interviews
             }
 
             // [CV-QUESTIONS] Đáp án câu theo CV nằm trong DB -> đưa vào yêu cầu chấm (buổi không có câu CV: không truy vấn thêm)
-            if (session.Answers.Any(a => QuestionBankStoreExtensions.IsCvQuestionId(a.QuestionId)))
+            if (session.Answers.Any(a => QuestionBankStoreExtensions.IsGeneratedQuestionId(a.QuestionId)))
                 request.CvQuestions = await _cvQuestions.GetForSessionAsync(session.Id, session.UserId);
 
             // AI lỗi (AiScoringException) thì để lỗi nổi lên: buổi vẫn còn InProgress để người dùng bấm "Chấm lại".
@@ -425,10 +436,21 @@ namespace MockviewAI.Services.Interviews
             );
         }
 
+        /// <summary>
+        /// [IT-ROLES] Câu giới thiệu của bộ đề nhắc tên vị trí gốc (vd "vị trí Lập trình viên") -> đổi sang tên vị trí đã chọn.
+        /// Câu khác giữ nguyên.
+        /// </summary>
+        private static string IntroForRole(BankQuestion question, ItRole role)
+        {
+            if (!question.IsIntro) return question.Question;
+            var baseName = ItRoleCatalog.Find(role.BankBase)?.Name;
+            return baseName == null || baseName == role.Name ? question.Question : question.Question.Replace(baseName, role.Name);
+        }
+
         /// <summary>[CV-QUESTIONS] Câu bộ đề hoặc câu theo CV (mã cv-..., đọc từ DB của đúng buổi / người dùng).</summary>
         private async Task<BankQuestion?> FindQuestionAsync(InterviewSession session, string? questionId)
         {
-            if (!QuestionBankStoreExtensions.IsCvQuestionId(questionId)) return _bank.Find(questionId);
+            if (!QuestionBankStoreExtensions.IsGeneratedQuestionId(questionId)) return _bank.Find(questionId);
             var cvQuestions = await _cvQuestions.GetForSessionAsync(session.Id, session.UserId);
             return cvQuestions.FirstOrDefault(q => q.Id == questionId);
         }

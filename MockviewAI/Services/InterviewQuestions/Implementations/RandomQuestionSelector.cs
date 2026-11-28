@@ -7,6 +7,7 @@ namespace MockviewAI.Services.InterviewQuestions.Implementations
     /// [QUESTION-BANK] 
     /// Câu 1 luôn là câu giới thiệu (*-gen-01), các câu còn lại rút ngẫu nhiên
     /// trong bộ của người phỏng vấn + vị trí. Bộ đề nhiều hơn số câu của buổi nên mỗi lần luyện gặp câu khác nhau.
+    /// [IT-ROLES] Vị trí mới (DevOps, Game...): câu riêng của vị trí trước, thiếu thì bù câu của vị trí gốc.
     /// </summary>
     public class RandomQuestionSelector : IQuestionSelector
     {
@@ -25,25 +26,34 @@ namespace MockviewAI.Services.InterviewQuestions.Implementations
         #endregion
 
         #region IQuestionSelector
-        public List<BankQuestion> Select(string interviewerKey, string positionKey, int count)
+        public List<BankQuestion> Select(string interviewerKey, string positionKey, int count, string? basePositionKey = null)
         {
-            var pool = _store.ForInterview(interviewerKey, positionKey);
+            var own = _store.ForInterview(interviewerKey, positionKey);
+            var basePool = basePositionKey != null && basePositionKey != positionKey
+                ? _store.ForInterview(interviewerKey, basePositionKey).Where(q => !own.Contains(q)).ToList()
+                : new List<BankQuestion>();
             var chosen = new List<BankQuestion>();
-            if (pool.Count == 0 || count <= 0) return chosen;
+            if ((own.Count == 0 && basePool.Count == 0) || count <= 0) return chosen;
 
-            var intro = pool.FirstOrDefault(q => q.IsIntro);
+            // Câu giới thiệu: của vị trí nếu có, không thì của vị trí gốc
+            var intro = own.FirstOrDefault(q => q.IsIntro) ?? basePool.FirstOrDefault(q => q.IsIntro);
             if (intro != null) chosen.Add(intro);
 
-            var rest = pool.Where(q => q != intro).ToList();
+            // [IT-ROLES] Câu riêng của vị trí trước (trộn), thiếu mới bù câu vị trí gốc (trộn)
+            chosen.AddRange(Shuffle(own.Where(q => q != intro).ToList()).Take(count - chosen.Count));
+            chosen.AddRange(Shuffle(basePool.Where(q => q != intro).ToList()).Take(count - chosen.Count));
+            return chosen;
+        }
 
-            // Trộn Fisher-Yates rồi lấy đủ số câu còn thiếu
-            for (int i = rest.Count - 1; i > 0; i--)
+        /// <summary>Trộn Fisher-Yates.</summary>
+        private List<BankQuestion> Shuffle(List<BankQuestion> list)
+        {
+            for (int i = list.Count - 1; i > 0; i--)
             {
                 int j = _random.Next(i + 1);
-                (rest[i], rest[j]) = (rest[j], rest[i]);
+                (list[i], list[j]) = (list[j], list[i]);
             }
-            chosen.AddRange(rest.Take(count - chosen.Count));
-            return chosen;
+            return list;
         }
         #endregion
     }

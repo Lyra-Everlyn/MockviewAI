@@ -33,10 +33,14 @@ namespace MockviewAI.Services.CvQuestions.Implementations
         #region Public
         /// <param name="json">Phần chữ AI trả về (có thể kèm khung ```json).</param>
         public static List<CvQuestionDraft> Parse(string? json, string positionKey, string interviewerKey) =>
-            Parse(json, positionKey, interviewerKey, out _);
+            Parse(json, positionKey, interviewerKey, CvQuestionKinds.Cv, out _);
 
         /// <param name="problem">Lý do đọc thiếu câu (chỉ vị trí / loại lỗi, không chứa nội dung) để ghi log; null = đọc hết.</param>
-        public static List<CvQuestionDraft> Parse(string? json, string positionKey, string interviewerKey, out string? problem)
+        public static List<CvQuestionDraft> Parse(string? json, string positionKey, string interviewerKey, out string? problem) =>
+            Parse(json, positionKey, interviewerKey, CvQuestionKinds.Cv, out problem);
+
+        /// <param name="kind">[IT-ROLES] CvQuestionKinds.Cv (mã tạm cv-) hoặc CvQuestionKinds.Role (mã tạm ai-, không cần cvEvidence).</param>
+        public static List<CvQuestionDraft> Parse(string? json, string positionKey, string interviewerKey, string kind, out string? problem)
         {
             problem = null;
             var result = new List<CvQuestionDraft>();
@@ -79,7 +83,7 @@ namespace MockviewAI.Services.CvQuestions.Implementations
                     try
                     {
                         var item = element.Deserialize<GeneratedQuestionDto>(JsonOptions);
-                        if (item != null) result.Add(ToDraft(item, positionKey, interviewerKey, result.Count + 1));
+                        if (item != null) result.Add(ToDraft(item, positionKey, interviewerKey, kind, result.Count + 1));
                     }
                     catch (JsonException)
                     {
@@ -109,7 +113,7 @@ namespace MockviewAI.Services.CvQuestions.Implementations
             return false;
         }
 
-        private static CvQuestionDraft ToDraft(GeneratedQuestionDto item, string positionKey, string interviewerKey, int n)
+        private static CvQuestionDraft ToDraft(GeneratedQuestionDto item, string positionKey, string interviewerKey, string kind, int n)
         {
             var corePoints = (item.CorePoints ?? new()).Where(c => c != null).Select((c, i) => new CorePoint
             {
@@ -139,10 +143,11 @@ namespace MockviewAI.Services.CvQuestions.Implementations
 
             return new CvQuestionDraft
             {
+                Kind = kind,
                 CvEvidence = Clip(item.CvEvidence, MaxTextChars),
                 Question = new BankQuestion
                 {
-                    Id = $"{QuestionBankStoreExtensions.CvIdPrefix}new-{n}",   // mã tạm, gán mã thật khi lưu buổi
+                    Id = $"{(kind == CvQuestionKinds.Role ? QuestionBankStoreExtensions.RoleIdPrefix : QuestionBankStoreExtensions.CvIdPrefix)}new-{n}",   // mã tạm, gán mã thật khi lưu buổi
                     Interviewer = interviewerKey,
                     Positions = new List<string> { positionKey },
                     Skills = Words(item.Skills),

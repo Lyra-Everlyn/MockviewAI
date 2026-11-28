@@ -10,7 +10,10 @@ namespace MockviewAI.Models.CvQuestions
     {
         public BankQuestion Question { get; set; } = new();
 
-        /// <summary>Đoạn trích ngắn từ CV mà câu hỏi dựa vào.</summary>
+        /// <summary>[IT-ROLES] cv = theo CV; role = câu kỹ thuật chuẩn theo vị trí (không cần căn cứ CV). Xem CvQuestionKinds.</summary>
+        public string Kind { get; set; } = CvQuestionKinds.Cv;
+
+        /// <summary>Đoạn trích ngắn từ CV mà câu hỏi dựa vào (câu theo vị trí để trống).</summary>
         public string CvEvidence { get; set; } = string.Empty;
 
         /// <summary>pass | fixed sau khi được duyệt; rỗng = chưa duyệt.</summary>

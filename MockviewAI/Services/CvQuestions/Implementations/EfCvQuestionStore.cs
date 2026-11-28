@@ -63,21 +63,27 @@ namespace MockviewAI.Services.CvQuestions.Implementations
         {
             if (session.Id <= 0 || result.Accepted.Count == 0) return 0;
 
-            // Giữ câu 1 (giới thiệu), thay từ câu cuối ngược lên
-            var targets = FollowUps.Main(session.Answers)
-                .Where(a => a.OrderNo > 1)
-                .OrderByDescending(a => a.OrderNo)
-                .Take(result.Accepted.Count)
-                .OrderBy(a => a.OrderNo)
-                .ToList();
-            if (targets.Count == 0) return 0;
+            // Giữ câu 1 (giới thiệu). [IT-ROLES] Câu kỹ thuật theo vị trí đặt từ câu 2 trở đi, câu CV thay từ câu cuối ngược lên.
+            var slots = FollowUps.Main(session.Answers).Where(a => a.OrderNo > 1).OrderBy(a => a.OrderNo).ToList();
+            var cvDrafts = result.Accepted.Where(d => d.Kind == CvQuestionKinds.Cv).Take(slots.Count).ToList();
+            var cvSlots = slots.Skip(slots.Count - cvDrafts.Count).ToList();
+            var roleDrafts = result.Accepted.Where(d => d.Kind == CvQuestionKinds.Role).Take(slots.Count - cvDrafts.Count).ToList();
+            var roleSlots = slots.Take(roleDrafts.Count).ToList();
 
+            var pairs = roleSlots.Zip(roleDrafts).Concat(cvSlots.Zip(cvDrafts)).ToList();
+            if (pairs.Count == 0) return 0;
+
+            var targets = pairs.Select(p => p.First).ToList();
             var originals = targets.Select(a => (a.Question, a.QuestionId)).ToList();
             var rows = new List<CvGeneratedQuestion>();
-            for (int i = 0; i < targets.Count; i++)
+            int cvNo = 0, roleNo = 0;
+            for (int i = 0; i < pairs.Count; i++)
             {
-                var draft = result.Accepted[i];
-                string id = $"{QuestionBankStoreExtensions.CvIdPrefix}{session.Id}-{i + 1}";
+                var draft = pairs[i].Second;
+                // cv-{sessionId}-{n} cho câu theo CV, ai-{sessionId}-{n} cho câu theo vị trí (cùng bảng)
+                string id = draft.Kind == CvQuestionKinds.Role
+                    ? $"{QuestionBankStoreExtensions.RoleIdPrefix}{session.Id}-{++roleNo}"
+                    : $"{QuestionBankStoreExtensions.CvIdPrefix}{session.Id}-{++cvNo}";
                 draft.Question.Id = id;
 
                 targets[i].Question = draft.Question.Question;
@@ -102,8 +108,8 @@ namespace MockviewAI.Services.CvQuestions.Implementations
             }
             catch (DbUpdateException ex)
             {
-                // Không để câu "mồ côi" (có mã cv- nhưng không có đáp án): trả về câu bộ đề ban đầu
-                _logger.LogWarning(ex, "Could not save CV questions for session {SessionId}, keeping bank questions", session.Id);
+                // Không để câu "mồ côi" (có mã cv- / ai- nhưng không có đáp án): trả về câu bộ đề ban đầu
+                _logger.LogWarning(ex, "Could not save generated questions for session {SessionId}, keeping bank questions", session.Id);
                 foreach (var row in rows) _db.Entry(row).State = EntityState.Detached;
                 for (int i = 0; i < targets.Count; i++)
                 {

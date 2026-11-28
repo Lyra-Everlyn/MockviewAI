@@ -1,0 +1,5377 @@
+{
+  "version": "2026-11-28.it-roles.v1",
+  "note": "Câu kỹ thuật cho các vị trí IT ngoài developer / tester / ba. AI soạn (Gemini) + AI duyệt (Groq) + nhóm duyệt tay. Nạp cùng question-bank.v1.json.",
+  "questions": [
+    {
+      "id": "fe-tech-01",
+      "interviewer": "nam",
+      "positions": [
+        "frontend"
+      ],
+      "skills": [
+        "quản lý trạng thái",
+        "state management",
+        "frontend architecture"
+      ],
+      "level": "co_ban",
+      "question": "Khi làm việc với các thành phần giao diện động, vì sao bạn cần hiểu rõ cơ chế quản lý trạng thái trong ứng dụng frontend?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Hiểu được cách dữ liệu luân chuyển giữa các component và lý do cần tránh việc truyền dữ liệu qua quá nhiều tầng (prop drilling).",
+          "keywords": [
+            "truyền dữ liệu",
+            "prop drilling",
+            "thành phần",
+            "component",
+            "luồng dữ liệu",
+            "state",
+            "chia sẻ",
+            "tầng"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu các component nằm ở rất xa nhau trong cây phân cấp thì bạn sẽ xử lý việc chia sẻ dữ liệu này thế nào?"
+        },
+        {
+          "id": "c2",
+          "text": "Nắm bắt thời điểm cần dùng quản lý trạng thái toàn cục thay vì trạng thái cục bộ để tối ưu hiệu năng và độ phức tạp.",
+          "keywords": [
+            "toàn cục",
+            "global state",
+            "cục bộ",
+            "local state",
+            "hiệu năng",
+            "phức tạp",
+            "ứng dụng lớn",
+            "context"
+          ],
+          "minHits": 1,
+          "followUp": "Khi nào thì một trạng thái nên được giữ ở cục bộ thay vì đưa lên toàn cục?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Trình bày rõ ràng về bài toán chia sẻ dữ liệu, đưa ra ví dụ về prop drilling và giải thích lý do cần các giải pháp quản lý trạng thái khi ứng dụng lớn dần.",
+          "signals": [
+            "Nêu bật được vấn đề truyền props phức tạ",
+            "Phân biệt được khi nào dùng state cục bộ"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von trạng thái như bảng thông báo chung của một đội bóng thay vì cứ truyền tai nhau từng tin nhắn.",
+          "signals": [
+            "Giải thích trực quan, dễ hiểu",
+            "Dùng hình ảnh ví dụ sinh động"
+          ],
+          "coversCorePoints": [
+            "c1"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "loi1",
+          "summary": "Nghĩ rằng mọi dữ liệu trong ứng dụng đều phải đưa vào kho chứa trạng thái toàn cục.",
+          "why": "",
+          "signals": [
+            "Đưa tất cả state vào global",
+            "Không phân biệt được scope của dữ liệu"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "fe-tech-02",
+      "interviewer": "nam",
+      "positions": [
+        "frontend"
+      ],
+      "skills": [
+        "responsive",
+        "css",
+        "html"
+      ],
+      "level": "co_ban",
+      "question": "Khi thiết kế một trang web, làm thế nào để đảm bảo nội dung hiển thị tốt trên cả máy tính lẫn điện thoại?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Sử dụng thành thạo các kỹ thuật CSS hiện đại như Flexbox, Grid và đơn vị đo lường linh hoạt để bố cục co giãn theo màn hình.",
+          "keywords": [
+            "flexbox",
+            "grid",
+            "responsive",
+            "co giãn",
+            "đơn vị",
+            "percent",
+            "viewport",
+            "bố cục"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn chọn Flexbox hay Grid trong tình huống sắp xếp các khối giao diện theo cả hai chiều ngang và dọc?"
+        },
+        {
+          "id": "c2",
+          "text": "Áp dụng Media Queries để thay đổi giao diện phù hợp với các khoảng kích thước màn hình khác nhau.",
+          "keywords": [
+            "media query",
+            "breakpoint",
+            "kích thước",
+            "màn hình",
+            "điện thoại",
+            "desktop",
+            "thay đổi"
+          ],
+          "minHits": 1,
+          "followUp": "Khi viết Media Queries, bạn thường ưu tiên thiết kế cho màn hình nhỏ trước hay màn hình lớn trước?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Trình bày cách tiếp cận responsive thiết kế từ nhỏ đến lớn, kết hợp Flexbox/Grid và Media Queries để tạo giao diện thích ứng.",
+          "signals": [
+            "Nắm vững các công cụ CSS cốt lõi",
+            "Hiểu tư duy mobile-first"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh giao diện như một bộ quần áo có thể tự co giãn để vừa vặn với nhiềut dáng người khác nhau.",
+          "signals": [
+            "Ví von tự nhiên",
+            "Đúng trọng tâm kỹ thuật"
+          ],
+          "coversCorePoints": [
+            "c1"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "loi1",
+          "summary": "Cố định cứng kích thước pixel cho mọi thành phần khiến giao diện bị vỡ trên màn hình nhỏ.",
+          "why": "",
+          "signals": [
+            "Dùng px cố định quá nhiều",
+            "Không kiểm tra trên thiết bị di động"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "fe-tech-03",
+      "interviewer": "nam",
+      "positions": [
+        "frontend"
+      ],
+      "skills": [
+        "hiệu năng trang",
+        "performance",
+        "javascript"
+      ],
+      "level": "trung_binh",
+      "question": "Khi trang web tải chậm do phải xử lý và hiển thị danh sách hàng nghìn dòng dữ liệu, bạn sẽ tối ưu hóa thế nào?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Áp dụng kỹ thuật ảo hóa danh sách để chỉ render các phần tử đang hiển thị trên khung nhìn.",
+          "keywords": [
+            "ảo hóa",
+            "virtualization",
+            "virtual list",
+            "render",
+            "khung nhìn",
+            "viewport",
+            "hiển thị",
+            "DOM"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu không dùng thư viện ngoài, bạn có thể tự xây dựng cơ chế này dựa trên sự kiện cuộn trang thế nào?"
+        },
+        {
+          "id": "c2",
+          "text": "Phân trang dữ liệu hoặc tải thêm khi cuộn trang để giảm lượng dữ liệu cần xử lý một lúc.",
+          "keywords": [
+            "phân trang",
+            "pagination",
+            "infinite scroll",
+            "tải thêm",
+            "dữ liệu lớn",
+            "chia nhỏ",
+            "API"
+          ],
+          "minHits": 1,
+          "followUp": "Khi nào thì nên chọn phân trang truyền thống thay vì cuộn trang vô tận?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Phân tích nguyên nhân do DOM quá tải, đề xuất giải pháp ảo hóa danh sách hoặc phân trang phía server.",
+          "signals": [
+            "Nhận diện đúng nút thắt cổ chai về DOM",
+            "Đưa ra giải pháp thực tế"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh việc hiển thị hàng nghìn dòng như việc một thủ thư chỉ mang ra đọc vài cuốn sách thay vì ôm cả kho sách.",
+          "signals": [
+            "Ví von thông minh",
+            "Làm rõ bản chất kỹ thuật"
+          ],
+          "coversCorePoints": [
+            "c1"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "loi1",
+          "summary": "Cố gắng render toàn bộ hàng nghìn dòng dữ liệu vào DOM cùng lúc làm trình duyệt bị đơ.",
+          "why": "",
+          "signals": [
+            "Render toàn bộ list lớn",
+            "Không tối ưu DOM"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "fe-tech-04",
+      "interviewer": "nam",
+      "positions": [
+        "frontend"
+      ],
+      "skills": [
+        "gọi API",
+        "async",
+        "javascript"
+      ],
+      "level": "co_ban",
+      "question": "Khi ứng dụng frontend cần lấy dữ liệu từ máy chủ qua API, vì sao việc xử lý trạng thái chờ và lỗi lại quan trọng?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Đảm bảo trải nghiệm người dùng tốt bằng cách thông báo rõ ràng rằng hệ thống đang bận tải dữ liệu.",
+          "keywords": [
+            "trải nghiệm",
+            "loading",
+            "chờ",
+            "spinner",
+            "thông báo",
+            "giao diện",
+            "phản hồi",
+            "user experience"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn thiết kế giao diện trong lúc chờ như thế nào để người dùng không cảm thấy ứng dụng bị đơ?"
+        },
+        {
+          "id": "c2",
+          "text": "Xử lý tình huống gọi API thất bại để người dùng biết cách thử lại thay vì thấy màn hình trống.",
+          "keywords": [
+            "lỗi",
+            "error",
+            "thất bại",
+            "try catch",
+            "thử lại",
+            "retry",
+            "ngoại lệ",
+            "exception"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu mạng bị rớt giữa chừng, bạn sẽ hiển thị thông báo và cơ chế xử lý ra sao cho thân thiện?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Giải thích tầm quan trọng của việc phản hồi trạng thái bất đồng bộ đối với trải nghiệm người dùng.",
+          "signals": [
+            "Đặt trải nghiệm người dùng lên hàng đầu",
+            "Hiểu vòng đời của một lời gọi API"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh việc gọi API giống như việc gọi món ở nhà hàng: cần có biển báo đang làm món và thông báo nếu hết nguyên liệu.",
+          "signals": [
+            "Ví von gần gũi thực tế",
+            "Truyền đạt đúng ý nghĩa kỹ thuật"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "loi1",
+          "summary": "Chỉ viết code gọi API thành công mà quên mất khối xử lý lỗi và trạng thái đang tải.",
+          "why": "",
+          "signals": [
+            "Quên try catch",
+            "Không có loading state"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "fe-tech-05",
+      "interviewer": "nam",
+      "positions": [
+        "frontend"
+      ],
+      "skills": [
+        "Component-based Architecture",
+        "React",
+        "Vue",
+        "Angular"
+      ],
+      "level": "co_ban",
+      "question": "Khi xây dựng giao diện bằng các component lồng nhau, khi nào bạn nên tách một đoạn code thành component riêng thay vì giữ chung một chỗ?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Tách component khi đoạn code đó lặp lại ở nhiều nơi để dễ tái sử dụng và bảo trì.",
+          "keywords": [
+            "tái sử dụng",
+            "reuse",
+            "lặp lại",
+            "duplicate",
+            "bảo trì",
+            "maintain",
+            "DRY"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu một đoạn mã chỉ xuất hiện ở một chỗ duy nhất, bạn có cần tách nó ra thành component riêng không và vì sao?"
+        },
+        {
+          "id": "cp2",
+          "text": "Tách component khi logic xử lý hoặc trạng thái bên trong quá phức tạp, giúp cô lập phạm vi ảnh hưởng và tối ưu render.",
+          "keywords": [
+            "độ phức tạp",
+            "complex",
+            "trạng thái",
+            "state",
+            "cô lập",
+            "isolate",
+            "hiệu năng",
+            "render"
+          ],
+          "minHits": 1,
+          "followUp": "Việc chia nhỏ component quá mức có gây ra bất lợi gì về quản lý dữ liệu giữa các thành phần không?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung",
+          "category": "dung",
+          "summary": "Ứng viên giải thích dựa trên tính tái sử dụng của mã nguồn, việc quản lý độ phức tạp và tối ưu hiệu năng render khi trạng thái thay đổi.",
+          "signals": [
+            "Nhắc đến tái sử dụng",
+            "Hiểu về việc tách biệt logic và giao diệ"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_vivon",
+          "category": "hoi_dac_biet",
+          "summary": "Ứng viên ví von việc chia component giống như việc xây nhà lắp ghép, mỗi phòng hoặc đồ vật được đóng gói riêng để dễ thay thế và di chuyển.",
+          "signals": [
+            "Dùng ví dụ thực tế dễ hiểu",
+            "Diễn giải rành mạch"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng cứ thấy đoạn HTML nào dài là phải tách ra component mà không quan tâm đến tính độc lập của logic và dữ liệu.",
+          "why": "",
+          "signals": [
+            "Chia nhỏ quá đà",
+            "Không phân biệt được logic tái sử dụng"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "fe-tech-06",
+      "interviewer": "nam",
+      "positions": [
+        "frontend"
+      ],
+      "skills": [
+        "Accessibility",
+        "HTML",
+        "Web Standards"
+      ],
+      "level": "co_ban",
+      "question": "Làm thế nào để đảm bảo trang web vẫn thân thiện và dễ đọc đối với người dùng sử dụng trình đọc màn hình hoặc chỉ dùng bàn phím?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Sử dụng đúng các thẻ ngữ nghĩa của HTML để trình đọc màn hình hiểu rõ cấu trúc nội dung.",
+          "keywords": [
+            "thẻ ngữ nghĩa",
+            "semantic html",
+            "trình đọc màn hình",
+            "screen reader",
+            "cấu trúc",
+            "accessibility",
+            "a11y"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu dùng một thẻ div thông thường thay vì thẻ button cho nút bấm, điều gì sẽ xảy ra với người dùng không dùng chuột?"
+        },
+        {
+          "id": "cp2",
+          "text": "Quản lý thứ tự tab focus rõ ràng và cung cấp nhãn mô tả cho các thành phần tương tác.",
+          "keywords": [
+            "tabindex",
+            "focus",
+            "bàn phím",
+            "keyboard",
+            "nhãn",
+            "aria",
+            "mô tả"
+          ],
+          "minHits": 1,
+          "followUp": "Làm sao để kiểm tra xem một trang web đã hỗ trợ điều hướng bằng bàn phím tốt chưa?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung",
+          "category": "dung",
+          "summary": "Ứng viên trình bày tầm quan trọng của HTML ngữ nghĩa, việc hỗ trợ điều hướng bàn phím và sử dụng thuộc tính hỗ trợ người khuyết tật.",
+          "signals": [
+            "Nhắc đến semantic HTML",
+            "Hiểu về keyboard navigation"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_vivon",
+          "category": "hoi_dac_biet",
+          "summary": "Ứng viên ví việc thiết kế web có tính năng hỗ trợ như việc làm đường dốc cho xe lăn bên cạnh cầu thang, giúp mọi đối tượng đều tiếp cận được.",
+          "signals": [
+            "Ví dụ trực quan",
+            "Thể hiện sự thấu hiểu người dùng"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Cho rằng chỉ cần chỉnh màu sắc tương phản là đủ, bỏ qua cấu trúc thẻ HTML và khả năng điều hướng bằng bàn phím.",
+          "why": "",
+          "signals": [
+            "Hiểu hẹp về khả năng truy cập",
+            "Chỉ chú trọng giao diện thị giác"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "mob-tech-01",
+      "interviewer": "nam",
+      "positions": [
+        "mobile"
+      ],
+      "skills": [
+        "Mobile Development",
+        "Lifecycle Management",
+        "Performance"
+      ],
+      "level": "co_ban",
+      "question": "Khi làm ứng dụng di động, tại sao bạn cần hiểu rõ vòng đời màn hình (lifecycle) và nếu không quản lý tốt, ứng dụng sẽ gặp lỗi gì?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Hiểu các trạng thái chính của vòng đời màn hình như hiển thị, ẩn đi hoặc bị hủy để quản lý tài nguyên hợp lý.",
+          "keywords": [
+            "vòng đời",
+            "lifecycle",
+            "trạng thái",
+            "hiển thị",
+            "ẩn",
+            "tạm dừng",
+            "pause",
+            "destroy",
+            "hủy"
+          ],
+          "minHits": 1,
+          "followUp": "Khi người dùng bấm nút Home ra màn hình chính, màn hình của bạn chuyển sang trạng thái nào và tài nguyên nên được xử lý ra sao?"
+        },
+        {
+          "id": "c2",
+          "text": "Tránh các lỗi phổ biến như rò rỉ bộ nhớ, tiếp tục chạy tác vụ ngầm gây tốn pin khi màn hình đã đóng.",
+          "keywords": [
+            "rò rỉ",
+            "memory leak",
+            "tốn pin",
+            "tác vụ ngầm",
+            "background",
+            "lỗi",
+            "crash"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn làm thế nào để biết một màn hình đã thực sự được giải phóng khỏi bộ nhớ hay chưa?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Trình bày theo thứ tự: định nghĩa các trạng thái, thời điểm tài nguyên được cấp phát và giải phóng, hệ quả khi làm sai.",
+          "signals": [
+            "Nắm vững các trạng thái lifecycle cơ bản",
+            "Hiểu mối liên hệ giữa lifecycle và quản "
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von vòng đời màn hình giống như việc mở và đóng cửa một căn phòng, khi rời đi phải tắt đèn và khóa cửa để tránh tốn điện.",
+          "signals": [
+            "Giải thích trực quan, dễ hiểu bằng ví dụ"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "loi1",
+          "summary": "Nghĩ rằng chỉ cần viết code giao diện mà không cần quan tâm đến việc giải phóng tài nguyên khi màn hình biến mất.",
+          "why": "",
+          "signals": [
+            "Bỏ qua vấn đề memory leak",
+            "Không nhắc đến việc hủy lắng nghe sự kiệ"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "mob-tech-02",
+      "interviewer": "nam",
+      "positions": [
+        "mobile"
+      ],
+      "skills": [
+        "Local Storage",
+        "Database",
+        "Data Management"
+      ],
+      "level": "trung_binh",
+      "question": "Khi nào bạn nên chọn lưu trữ dữ liệu cục bộ bằng Cơ sở dữ liệu quan hệ thay vì dùng dạng Key-Value đơn giản?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Dùng Key-Value cho dữ liệu nhỏ, cấu trúc đơn giản như cấu hình, trạng thái đăng nhập hoặc token.",
+          "keywords": [
+            "key-value",
+            "cấu hình",
+            "token",
+            "đơn giản",
+            "nhỏ",
+            "preference",
+            "cache"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu chỉ lưu cờ bật tắt tính năng, bạn sẽ dùng giải pháp nào và tại sao?"
+        },
+        {
+          "id": "c2",
+          "text": "Dùng cơ sở dữ liệu quan hệ khi cần truy vấn phức tạp, lọc, sắp xếp hoặc có mối liên kết giữa nhiều bảng dữ liệu.",
+          "keywords": [
+            "quan hệ",
+            "database",
+            "truy vấn",
+            "query",
+            "phức tạp",
+            "bảng",
+            "table",
+            "liên kết",
+            "relation"
+          ],
+          "minHits": 1,
+          "followUp": "Hãy lấy ví dụ về một tính năng trong ứng dụng bắt buộc phải dùng cơ sở dữ liệu quan hệ."
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Phân tích dựa trên quy mô dữ liệu, nhu cầu truy vấn và cấu trúc để đưa ra lựa chọn hợp lý.",
+          "signals": [
+            "Phân định rõ ràng ưu nhược điểm của từng",
+            "Đưa ra tiêu chí lựa chọn thực tế"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh Key-Value giống như một chiếc hộp đựng đồ cá nhân tìm nhanh theo tên, còn cơ sở dữ liệu như một thư viện có hệ thống mục lục tra cứu chéo.",
+          "signals": [
+            "Dùng hình ảnh so sánh trực quan"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "loi1",
+          "summary": "Dùng cơ sở dữ liệu nặng cho mọi thứ kể cả những dữ liệu cấu hình cực kỳ nhỏ.",
+          "why": "",
+          "signals": [
+            "Không phân biệt được độ phức tạp của bài"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "mob-tech-03",
+      "interviewer": "nam",
+      "positions": [
+        "mobile"
+      ],
+      "skills": [
+        "Performance Optimization",
+        "Battery Efficiency",
+        "Mobile Architecture"
+      ],
+      "level": "trung_binh",
+      "question": "Ứng dụng di động tiêu thụ nhiều pin thường do nguyên nhân nào và bạn có cách nào để tối ưu hiệu năng?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Xác định nguyên nhân ngốn pin như kết nối mạng liên tục, chạy tác vụ ngầm quá nhiều hoặc định vị GPS liên tục.",
+          "keywords": [
+            "nguyên nhân",
+            "pin",
+            "mạng",
+            "network",
+            "GPS",
+            "định vị",
+            "tác vụ ngầm",
+            "background",
+            "tần suất"
+          ],
+          "minHits": 1,
+          "followUp": "Làm sao để hạn việc gọi API liên tục gây tốn pin?"
+        },
+        {
+          "id": "c2",
+          "text": "Đề xuất giải pháp tối ưu như gom nhóm yêu cầu mạng, giới hạn tần suất cập nhật vị trí hoặc dùng bộ nhớ đệm cache.",
+          "keywords": [
+            "tối ưu",
+            "cache",
+            "gom nhóm",
+            "batch",
+            "giới hạn",
+            "hiệu năng",
+            "tiết kiệm"
+          ],
+          "minHits": 1,
+          "followUp": "Khi nào nên ưu tiên cập nhật dữ liệu thời gian thực và khi nào nên dùng cache?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Chỉ ra các tác nhân gây tốn tài nguyên phần cứng rồi đưa ra kỹ thuật lập trình để khắc phục.",
+          "signals": [
+            "Hiểu sâu về các thành phần phần cứng tiê",
+            "Có tư duy tối ưu hóa từ gốc vấn đề"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von việc gọi mạng liên tục giống như việc cứ chạy ra cửa hàng mua từng viên kẹo thay vì mua cả hộp một lần.",
+          "signals": [
+            "Giải thích vấn đề thông qua ngữ cảnh đời"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "loi1",
+          "summary": "Nghỉ rằng hiệu năng chỉ phụ thuộc vào cấu hình máy mà không quan tâm đến cách viết code.",
+          "why": "",
+          "signals": [
+            "Đổ lỗi hoàn toàn cho phần cứng thiết bị"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "mob-tech-04",
+      "interviewer": "nam",
+      "positions": [
+        "mobile"
+      ],
+      "skills": [
+        "Permissions",
+        "User Experience",
+        "Privacy"
+      ],
+      "level": "trung_binh",
+      "question": "Khi ứng dụng cần xin quyền truy cập vị trí của người dùng, bạn nên thiết kế trải nghiệm và thời điểm xin quyền ra sao để tăng tỷ lệ đồng ý?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Giải thích lý do cần quyền trước khi hiện bảng hệ thống (contextual permission) thay vì xin ngay khi vừa mở ứng dụng.",
+          "keywords": [
+            "thời điểm",
+            "ngữ cảnh",
+            "contextual",
+            "lý do",
+            "giải thích",
+            "mở ứng dụng",
+            "khởi động"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu người dùng bấm từ chối ngay lần đầu, ứng dụng cần xử lý tiếp như thế nào?"
+        },
+        {
+          "id": "c2",
+          "text": "Chỉ xin quyền khi người dùng thực sự thao tác đến tính năng cần dùng đến quyền đó.",
+          "keywords": [
+            "tính năng",
+            "thao tác",
+            "sử dụng",
+            "đúng lúc",
+            "nhu cầu",
+            "trải nghiệm"
+          ],
+          "minHits": 1,
+          "followUp": "Tại sao việc xin hàng loạt quyền ngay lúc vừa cài đặt ứng dụng lại là một điểm trừ lớn?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Trình bày nguyên tắc UX khi xin quyền: đúng lúc, đúng chỗ, có giải thích rõ ràng lợi ích cho người dùng.",
+          "signals": [
+            "Hiểu tâm lý người dùng di động",
+            "Nắm vữngbest practices về quyền riêng tư"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "Giống như việc mới gặp nhau lần đầu đã hỏi ngay chuyện riêng tư sẽ khiến người ta sợ hãi, phải tạo lòng tin rồi mới hỏi.",
+          "signals": [
+            "Liên hệ khéo léo với giao tiếp xã hội"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "loi1",
+          "summary": "Xin tất cả các quyền ngay khi app vừa bật lên mà không cần biết người dùng có dùng tính năng đó hay không.",
+          "why": "",
+          "signals": [
+            "Thiếu cân nhắc về trải nghiệm người dùng",
+            "Dễ làm người dùng sợ và gỡ ứng dụng"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "mob-tech-05",
+      "interviewer": "nam",
+      "positions": [
+        "mobile"
+      ],
+      "skills": [
+        "Mobile Development",
+        "Cross-Platform",
+        "Native"
+      ],
+      "level": "co_ban",
+      "question": "Khi phát triển ứng dụng di động đa nền tảng, theo bạn điểm khác biệt cốt lõi giữa cách tiếp cận dùng WebView/Hybrid và Native là gì?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Hiểu về hiệu năng và cách biên dịch mã nguồn",
+          "keywords": [
+            "native",
+            "hybrid",
+            "webview",
+            "biên dịch",
+            "compile",
+            "hiệu năng",
+            "performance",
+            "giao diện",
+            "ui"
+          ],
+          "minHits": 1,
+          "followUp": "Thế theo bạn vì sao các ứng dụng lớn thường ưu tiên viết một số tính năng bằng mã gốc của hệ điều hành?"
+        },
+        {
+          "id": "c2",
+          "text": "Khả năng truy cập phần cứng thiết bị và thư viện hệ thống",
+          "keywords": [
+            "phần cứng",
+            "hardware",
+            "api",
+            "camera",
+            "bluetooth",
+            "thư viện",
+            "tích hợp",
+            "integration",
+            "truy cập"
+          ],
+          "minHits": 1,
+          "followUp": "Khi cần dùng một tính năng mới ra mắt của hệ điều hành, cách tiếp cận nào sẽ mất nhiều thời gian hơn để hỗ trợ?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Phân tích dựa trên hiệu năng chạy trực tiếp trên chip, khả năng tối ưu giao diện và mức độ dễ dàng khi tương tác với các cảm biến phần cứng.",
+          "signals": [
+            "Nêu rõ Native biên dịch ra mã máy",
+            "Hybrid/WebView chạy qua lớp trung gian h",
+            "Nhìn nhận đúng ưu nhược điểm về tốc độ v"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh như việc thuê thợ thủ công làm đồ gỗ nguyên bản bằng tay so với việc dùng máy in 3D khuôn mẫu chung.",
+          "signals": [
+            "Dùng hình ảnh so sánh dễ hiểu",
+            "Vẫn làm nổi bật được bản chất kỹ thuật v"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Cho rằng Hybrid luôn tệ hơn Native trong mọi trường hợp mà không xét tới quy mô dự án.",
+          "why": "",
+          "signals": [
+            "Khẳng định tuyệt đối mà không có dẫn chứ"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "mob-tech-06",
+      "interviewer": "nam",
+      "positions": [
+        "mobile"
+      ],
+      "skills": [
+        "Performance Optimization",
+        "UI/UX",
+        "Troubleshooting"
+      ],
+      "level": "trung_binh",
+      "question": "Khi ứng dụng di động gặp hiện tượng giật khung hình khi người dùng cuộn danh sách dài, bạn sẽ bắt đầu điều tra từ đâu?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Kiểm tra việc tái sử dụng view và xử lý bộ nhớ trong danh sách",
+          "keywords": [
+            "recycle",
+            "tái sử dụng",
+            "listview",
+            "recyclerview",
+            "flatlist",
+            "bộ nhớ",
+            "memory",
+            "lag",
+            "giật"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu mỗi dòng trong danh sách đều tải hình ảnh lớn từ mạng trực tiếp thì điều gì sẽ xảy ra?"
+        },
+        {
+          "id": "c2",
+          "text": "Tách biệt luồng tính toán nặng khỏi luồng giao diện chính",
+          "keywords": [
+            "ui thread",
+            "main thread",
+            "background",
+            "luồng chính",
+            "blocking",
+            "chặn",
+            "async",
+            "bất đồng bộ"
+          ],
+          "minHits": 1,
+          "followUp": "Làm thế nào để biết luồng giao diện đang bị quá tải công việc?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Đề xuất kiểm tra công cụ đo đạc hiệu năng, xem lại cơ chế tái sử dụng ô hiển thị và kiểm tra xem có tác vụ nặng nào đang chạy trên luồng chính hay không.",
+          "signals": [
+            "Nhắc đến công cụ profile hiệu năng",
+            "Hiểu nguyên nhân gây nghẽn luồng giao di"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "Ví như một nhà hàng đông khách mà đầu bếp vừa phải chạy bàn vừa nấu ăn sẽ làm khách phải chờ lâu.",
+          "signals": [
+            "Giải thích trực quan về việc chia việc c"
+          ],
+          "coversCorePoints": [
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng chỉ cần tăng cấu hình điện thoại test là giải quyết được vấn đề giật lag.",
+          "why": "",
+          "signals": [
+            "Đổ lỗi cho phần cứng thiết bị thay vì tố"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "game-tech-01",
+      "interviewer": "nam",
+      "positions": [
+        "game"
+      ],
+      "skills": [
+        "Game Loop",
+        "Architecture"
+      ],
+      "level": "co_ban",
+      "question": "Vòng lặp game xử lý cập nhật logic và vẽ hình khác nhau thế nào, và vì sao không nên trộn chung hai việc này vào một hàm?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Phân tách rõ logic tính toán và hiển thị đồ họa",
+          "keywords": [
+            "logic",
+            "update",
+            "render",
+            "ve",
+            "hinh",
+            "hien",
+            "thi",
+            "tach",
+            "biet"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu bạn vẽ hình ngay trong lúc tính toán logic thì điều gì sẽ xảy ra với hình ảnh hiển thị?"
+        },
+        {
+          "id": "cp2",
+          "text": "Kiểm soát tốc độ khung hình và thời gian thực thi ổn định",
+          "keywords": [
+            "fps",
+            "toc",
+            "do",
+            "khung",
+            "hinh",
+            "thoi",
+            "gian",
+            "on",
+            "dinh",
+            "delta"
+          ],
+          "minHits": 1,
+          "followUp": "Làm thế nào để trò chơi chạy mượt như nhau trên cả máy mạnh lẫn máy yếu?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path1",
+          "category": "dung",
+          "summary": "Giải thích cấu trúc vòng lặp game gồm bước cập nhật trạng thái sau đó mới vẽ ra màn hình, giúp quản lý thời gian chính xác.",
+          "signals": [
+            "Trình bày mạch lạc",
+            "Phân biệt được update và render"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path2",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von giống như đầu bếp chuẩn bị món ăn xong xuôi rồi mới dọn ra bàn cho khách thưởng thức chứ không vừa nấu vừa đút.",
+          "signals": [
+            "Ví dụ trực quan",
+            "Dễ hiểu"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng vẽ hình và tính toán logic diễn ra cùng một lúc trong một vòng lặp mà không cần tách rời.",
+          "why": "",
+          "signals": [
+            "Trộn lẫn render và update"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "game-tech-02",
+      "interviewer": "nam",
+      "positions": [
+        "game"
+      ],
+      "skills": [
+        "Collision Detection",
+        "Physics"
+      ],
+      "level": "co_ban",
+      "question": "Khi nào bạn nên dùng phát hiện va chạm dạng hình học đơn giản thay vì dùng hệ thống vật lý đầy đủ?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Tiết kiệm tài nguyên tính toán cho hệ thống",
+          "keywords": [
+            "hieu",
+            "nang",
+            "toi",
+            "uu",
+            "giam",
+            "tai",
+            "cpu",
+            "nhanh",
+            "chi",
+            "phi"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn sẽ chọn phương án nào cho hàng trăm viên đạn bay cùng lúc?"
+        },
+        {
+          "id": "cp2",
+          "text": "Độ chính xác và tính kiểm soát chuyển động theo ý muốn",
+          "keywords": [
+            "chinh",
+            "xac",
+            "kiem",
+            "soat",
+            "dieu",
+            "khien",
+            "don",
+            "gian",
+            "du",
+            "doan"
+          ],
+          "minHits": 1,
+          "followUp": "Vật lý phức tạp đôi khi gây khó chịu thế nào cho người chơi khi điều khiển?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path1",
+          "category": "dung",
+          "summary": "Nêu rõ bối cảnh cần tốc độ cao và không cần trọng lực thực tế như đạn bắn hoặc vùng kích hoạt sự kiện.",
+          "signals": [
+            "Hiểu bản chất hiệu năng",
+            "Biết đánh đổi hợp lý"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path2",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh việc dùng xe tăng để cán qua tờ giấy với việc dùng dao cắt giấy, chọn công cụ vừa đủ việc.",
+          "signals": [
+            "Ví dụ sinh động"
+          ],
+          "coversCorePoints": [
+            "cp1"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Cái gì cũng đưa vào hệ thống vật lý nặng nề dẫn đến giảm khung hình.",
+          "why": "",
+          "signals": [
+            "Lạm dụng physics engine"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "game-tech-03",
+      "interviewer": "nam",
+      "positions": [
+        "game"
+      ],
+      "skills": [
+        "State Management",
+        "Game Architecture"
+      ],
+      "level": "co_ban",
+      "question": "Quản lý trạng thái của nhân vật qua lại giữa các hành động như đứng, chạy và nhảy được thiết kế thế nào để tránh xung đột?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Sử dụng mô hình máy trạng thái hữu hạn",
+          "keywords": [
+            "state",
+            "machine",
+            "trang",
+            "thai",
+            "may",
+            "chuyen",
+            "doi",
+            "dieu",
+            "kien"
+          ],
+          "minHits": 1,
+          "followUp": "Làm thế nào để nhân vật không thể nhảy khi đang ở trên không trung?"
+        },
+        {
+          "id": "cp2",
+          "text": "Xác định rõ các điều kiện chuyển đổi và chặn hành động trái phép",
+          "keywords": [
+            "chan",
+            "kiem",
+            "tra",
+            "logic",
+            "rang",
+            "buoc",
+            "uu",
+            "tien",
+            "xung",
+            "dot"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu có nhiều hành động xảy ra cùng lúc thì cơ chế nào quyết định cái nào được thực thi?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path1",
+          "category": "dung",
+          "summary": "Trình bày cách phân rã các trạng thái và quy định rõ đường đi chuyển tiếp giữa chúng bằng các cờ hoặc điều kiện.",
+          "signals": [
+            "Nắm vững State Pattern",
+            "Tư duy logic tốt"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path2",
+          "category": "hoi_dac_biet",
+          "summary": "Giống như đèn giao thông chỉ có thể chuyển từ xanh sang vàng rồi đỏ theo thứ tự chứ không sáng lung tung.",
+          "signals": [
+            "Giải thích dễ hiểu"
+          ],
+          "coversCorePoints": [
+            "cp1"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Dùng quá nhiều câu lệnh điều kiện if-else lồng nhau để quản lý trạng thái gây khó bảo trì.",
+          "why": "",
+          "signals": [
+            "Lạm dụng if-else"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "game-tech-04",
+      "interviewer": "nam",
+      "positions": [
+        "game"
+      ],
+      "skills": [
+        "Optimization",
+        "Rendering"
+      ],
+      "level": "co_ban",
+      "question": "Khi hiển thị hàng loạt đối tượng giống nhau lên màn hình, giải pháp nào giúp tối ưu hiệu năng vẽ thay vì gọi riêng lẻ từng cái?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Gộp chung các lệnh vẽ để giảm số lần gọi hàm đồ họa",
+          "keywords": [
+            "batching",
+            "gop",
+            "ve",
+            "draw",
+            "call",
+            "giam",
+            "tai",
+            "gpu",
+            "ket",
+            "hop"
+          ],
+          "minHits": 1,
+          "followUp": "Việc gọi riêng lẻ từng đối tượng gây nghẽn cổ chai ở bộ phận nào của máy?"
+        },
+        {
+          "id": "cp2",
+          "text": "Tái sử dụng đối tượng thay vì tạo mới liên tục",
+          "keywords": [
+            "object",
+            "pooling",
+            "tai",
+            "su",
+            "dung",
+            "khoi",
+            "tao",
+            "huy",
+            "bo",
+            "memory"
+          ],
+          "minHits": 1,
+          "followUp": "Bộ nhớ bị ảnh hưởng thế nào nếu cứ liên tục sinh ra rồi xóa bỏ đối tượng?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path1",
+          "category": "dung",
+          "summary": "Trình bày giải pháp gộp lệnh vẽ và tái sử dụng bộ nhớ để giảm tải cho CPU lẫn GPU.",
+          "signals": [
+            "Hiểu về draw call",
+            "Biết tối ưu cơ bản"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path2",
+          "category": "hoi_dac_biet",
+          "summary": "Giống như việc gom đồ vào một xe tải lớn chở một chuyến thay vì gọi hàng chục xe máy chở từng món nhỏ.",
+          "signals": [
+            "Ví dụ thực tế trực quan"
+          ],
+          "coversCorePoints": [
+            "cp1"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghị rằng máy tính hiện đại rất mạnh nên cứ spawn và destroy đối tượng thoải mái không cần tối ưu.",
+          "why": "",
+          "signals": [
+            "Chủ quan về hiệu năng"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "game-tech-05",
+      "interviewer": "nam",
+      "positions": [
+        "game"
+      ],
+      "skills": [
+        "Scene Management",
+        "Memory Management",
+        "Game Architecture"
+      ],
+      "level": "co_ban",
+      "question": "Khi làm hệ thống chuyển cảnh trong game, vì sao cần tách biệt dữ liệu của cảnh cũ và việc tải dữ liệu cảnh mới?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Tách biệt giúp giải phóng bộ nhớ và tài nguyên của cảnh cũ triệt để trước khi nạp cảnh mới, tránh rò rỉ bộ nhớ.",
+          "keywords": [
+            "giải phóng",
+            "bộ nhớ",
+            "rò rỉ",
+            "memory leak",
+            "tài nguyên",
+            "dọn dẹp",
+            "clean up",
+            "unload"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu không dọn dẹp kỹ cảnh cũ trước khi chuyển thì điều gì sẽ xảy ra với thiết bị của người chơi?"
+        },
+        {
+          "id": "cp2",
+          "text": "Sử dụng màn hình chờ hoặc cảnh trung gian giúp luồng tải không bị giật cục và giữ trải nghiệm mượt mà.",
+          "keywords": [
+            "màn hình chờ",
+            "loading screen",
+            "trải nghiệm",
+            "mượt mà",
+            "không giật",
+            "bất đồng bộ",
+            "asynchronous",
+            "smooth"
+          ],
+          "minHits": 1,
+          "followUp": "Làm thế nào để người chơi biết game vẫn đang tải dữ liệu trong lúc chuyển cảnh nặng?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung",
+          "category": "dung",
+          "summary": "Ứng viên giải thích bằng cách nêu rõ vấn đề thiếu bộ nhớ khi chồng chéo dữ liệu, sau đó đưa giải pháp giải phóng cảnh cũ rồi mới tải cảnh mới bất đồng bộ.",
+          "signals": [
+            "Nhắc đến việc thu gom rác hoặc hủy tham ",
+            "Hiểu về tải bất đồng bộ để tránh đơ game"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_dacbiet",
+          "category": "hoi_dac_biet",
+          "summary": "Ứng viên ví von việc đổi cảnh giống như dọn nhà: phải vứt đồ đạc cũ đi hoặc xếp gọn vào kho rồi mới mang đồ mới vào nhà, nếu cứ nhét chung sẽ chật chội không thể di chuyển.",
+          "signals": [
+            "Dùng ví dụ dọn nhà hoặc chuyển phòng rất",
+            "Diễn đạt dễ hiểu, tự nhiên"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "mistake_1",
+          "summary": "Nghĩ rằng chỉ cần gọi hàm tải cảnh mới là engine tự động lo việc xóa cảnh cũ mà không cần quan tâm đến quản lý bộ nhớ thủ công.",
+          "why": "",
+          "signals": [
+            "Đổ hết trách nhiệm cho engine",
+            "Không đề cập đến việc hủy đối tượng cũ"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "game-tech-06",
+      "interviewer": "nam",
+      "positions": [
+        "game"
+      ],
+      "skills": [
+        "Input Handling",
+        "Game Architecture",
+        "Design Patterns"
+      ],
+      "level": "co_ban",
+      "question": "Khi xử lý input từ người chơi giữ phím di chuyển, vì sao nên tách việc nhận sự kiện phím bấm ra khỏi logic di chuyển nhân vật?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Tách biệt giúp code dễ bảo trì, cho phép thay đổi phím bấm hoặc đổi cách điều khiển mà không ảnh hưởng tới logic di chuyển cốt lõi.",
+          "keywords": [
+            "bảo trì",
+            "tách biệt",
+            "linh hoạt",
+            "đổi phím",
+            "maintainable",
+            "coupling",
+            "độc lập",
+            "tổ chức code"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu game của bạn sau này muốn hỗ trợ cả tay cầm chơi game lẫn bàn phím thì việc thiết kế này giúp ích gì?"
+        },
+        {
+          "id": "cp2",
+          "text": "Input chỉ nên ghi nhận trạng thái hoặc ý định của người chơi, còn logic di chuyển sẽ quyết định nhân vật thực hiện ý định đó thế nào dựa trên luật game.",
+          "keywords": [
+            "ý định",
+            "trạng thái",
+            "ý nghĩa",
+            "intent",
+            "state",
+            "luật chơi",
+            "quyết định",
+            "xử lý"
+          ],
+          "minHits": 1,
+          "followUp": "Trong trường hợp nhân vật bị choáng và không thể di chuyển dù người chơi vẫn ấn phím, bạn sẽ xử lý ở phần nhận phím hay phần logic?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung",
+          "category": "dung",
+          "summary": "Ứng viên phân tích vai trò của input là thu thập tín hiệu, còn logic xử lý là áp dụng tín hiệu đó vào trạng thái nhân vật, giúp code sạch và dễ mở rộng.",
+          "signals": [
+            "Phân định rõ trách nhiệm từng thành phần",
+            "Nhắc đến tính mở rộng khi đổi thiết bị đ"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_dacbiet",
+          "category": "hoi_dac_biet",
+          "summary": "Ứng viên ví input giống như người ra lệnh (sếp) và logic di chuyển giống như nhân viên thực thi; sếp chỉ cần ra lệnh muốn đi hướng nào, còn nhân viên tự cân nhắc xem đường có bị kẹt hay không rồi mới bước đi.",
+          "signals": [
+            "Dùng ví dụ người ra lệnh và người thực t",
+            "Làm nổi bật sự độc lập giữa hai bên"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "mistake_1",
+          "summary": "Viết thẳng code di chuyển trực tiếp vào bên trong hàm bắt sự kiện nhấn phím, dẫn đến khó viết tính năng tự động di chuyển hoặc làm bot.",
+          "why": "",
+          "signals": [
+            "Gắn chặt input với hành động cụ thể",
+            "Khó áp dụng cho AI hoặc replay"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "emb-tech-01",
+      "interviewer": "nam",
+      "positions": [
+        "embedded"
+      ],
+      "skills": [
+        "Embedded Systems",
+        "Interrupts",
+        "Microcontroller"
+      ],
+      "level": "co_ban",
+      "question": "Khi lập trình vi điều khiển, vì sao ta nên hạn chế tối đa việc xử lý logic phức tạp hoặc dùng hàm delay trong chương trình con phục vụ ngắt?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Ngắt cần được thực thi nhanh chóng để không làm trễ hoặc bỏ lỡ các sự kiện ngắt khác xảy ra sau đó.",
+          "keywords": [
+            "nhanh",
+            "thực thi",
+            "trễ",
+            "bỏ lỡ",
+            "latency",
+            "thời gian",
+            "interrupt",
+            "service",
+            "routine"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu hàm ngắt chạy quá lâu thì hệ thống sẽ gặp vấn đề gì với các ngoại vi khác?"
+        },
+        {
+          "id": "c2",
+          "text": "Hàm delay dựa trên vòng lặp trong ngắt sẽ làm treo hệ thống vì ngắt không thể tự ngắt chính nó ở mức ưu tiên tương đương.",
+          "keywords": [
+            "treo",
+            "đứng",
+            "vòng lặp",
+            "delay",
+            "block",
+            "chặn",
+            "ưu tiên",
+            "priority"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn có cách nào để xử lý một công việc tốn thời gian mà được kích hoạt từ ngắt không?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung_1",
+          "category": "dung",
+          "summary": "Ứng viên giải thích rõ bản chất ngắt là cơ chế phản ứng nhanh, việc xử lý lâu hoặc delay sẽ gây nghẽn và làm mất tính thời gian thực của hệ thống nhúng.",
+          "signals": [
+            "Hiểu đúng về tính chất non-blocking của ",
+            "Đề xuất cơ chế cờ hiệu (flag) hoặc treo "
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "path_dacbiet_1",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von ngắt giống như lính cứu hỏa, phải giải quyết nhanh rồi về trạm ngay, nếu đứng lại chơi game ở nhà dân thì khi có vụ cháy mới sẽ không ai ứng cứu kịp.",
+          "signals": [
+            "Dùng ví dụ thực tế dễ hiểu",
+            "Làm nổi bật được yêu cầu thời gian tối t"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng ngắt giống như một luồng (thread) đa nhiệm độc lập nên có thể thoải mái viết code dài bên trong.",
+          "why": "",
+          "signals": [
+            "Nhầm lẫn ISR với Thread",
+            "Không hiểu về bản chất thực thi tuần tự "
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "emb-tech-02",
+      "interviewer": "nam",
+      "positions": [
+        "embedded"
+      ],
+      "skills": [
+        "I2C",
+        "Hardware Protocols",
+        "Electronics"
+      ],
+      "level": "co_ban",
+      "question": "Khi giao tiếp giữa vi điều khiển và cảm biến bằng I2C, khi nào bạn cần dùng điện trở kéo lên (pull-up resistor) trên hai đường tín hiệu?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Đặc tính phần cứng của I2C dùng ngõ ra cực thu hở hoặc drain hở nên không tự tạo mức điện áp cao mà cần điện trở kéo lên.",
+          "keywords": [
+            "open-drain",
+            "open-collector",
+            "cực thu hở",
+            "mức cao",
+            "high",
+            "voltage",
+            "đường truyền"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu quên gắn điện trở kéo lên này thì mức logic trên đường truyền sẽ bị trạng thái gì?"
+        },
+        {
+          "id": "c2",
+          "text": "Điện trở kéo lên giúp định hình mức điện áp ổn định khi không có thiết bị nào kéo đường truyền xuống mức thấp.",
+          "keywords": [
+            "ổn định",
+            "mức thấp",
+            "low",
+            "trạng thái",
+            "idle",
+            "nghỉ",
+            "treo"
+          ],
+          "minHits": 1,
+          "followUp": "Giá trị của điện trở kéo lên có ảnh hưởng gì tới tốc độ truyền thông không?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung_2",
+          "category": "dung",
+          "summary": "Ứng viên phân tích đặc điểm cấu trúc phần cứng open-drain của chuẩn I2C, giải thích lý do cần điện trở kéo lên để thiết lập mức logic 1 an toàn.",
+          "signals": [
+            "Nắm vững sơ đồ mạch phần cứng cơ bản của",
+            "Hiểu rõ vai trò của mức logic cao và thấ"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "path_dacbiet_2",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh đường truyền I2C giống như lò xo luôn được kéo giãn sẵn bằng điện trở, các thiết bị chỉ việc ấn xuống đất khi muốn báo mức 0.",
+          "signals": [
+            "Giải thích trực quan bằng cơ học",
+            "Đúng bản chất kỹ thuật phần cứng"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m2",
+          "summary": "Nghĩ rằng I2C truyền nhận giống UART nên cứ cắm chân là chạy mà không cần quan tâm đến điện trở phần cứng ngoài.",
+          "why": "",
+          "signals": [
+            "Nhầm lẫn đặc tính phần cứng giữa các chu"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "emb-tech-03",
+      "interviewer": "nam",
+      "positions": [
+        "embedded"
+      ],
+      "skills": [
+        "SPI",
+        "I2C",
+        "Peripherals"
+      ],
+      "level": "co_ban",
+      "question": "Khi nào bạn nên chọn giao tiếp SPI thay vì I2C cho một thiết bị ngoại vi kết nối với vi điều khiển?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "SPI có tốc độ truyền dữ liệu cao hơn hẳn so với I2C nhờ cơ chế truyền song công đồng bộ.",
+          "keywords": [
+            "tốc độ",
+            "nhanh",
+            "speed",
+            "cao",
+            "song công",
+            "full-duplex",
+            "đồng bộ",
+            "synchronous"
+          ],
+          "minHits": 1,
+          "followUp": "Tốc độ cao của SPI mang lại lợi ích gì khi làm việc với các cảm biến dạng hình ảnh hoặc thẻ nhớ?"
+        },
+        {
+          "id": "c2",
+          "text": "SPI không bị giới hạn bởi hệ thống địa chỉ phức tạp hay cơ chếacknowledgement nên phù hợp khi cần truyền dữ liệu liên tục khối lớn.",
+          "keywords": [
+            "địa chỉ",
+            "address",
+            "liên tục",
+            "khối",
+            "block",
+            "đơn giản",
+            "throughput"
+          ],
+          "minHits": 1,
+          "followUp": "Tuy nhiên, việc đánh đổi bằng nhiều chân tín hiệu hơn thì SPI có nhược điểm gì về mặt phần cứng?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung_3",
+          "category": "dung",
+          "summary": "Ứng viên so sánh ưu thế về tốc độ và băng thông của SPI so với I2C, đưa ra tình huống cụ thể như màn hình LCD hoặc thẻ nhớ.",
+          "signals": [
+            "Hiểu rõ ưu nhược điểm cốt lõi giữa hai c",
+            "Biết cách chọn giao tiếp dựa trên yêu cầ"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "path_dacbiet_3",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von I2C như con đường một làn xe chạy chung phải dừng lại hỏi thăm địa chỉ từng nhà, còn SPI là đường cao tốc riêng biệt phóng thẳng tới đích.",
+          "signals": [
+            "Sử dụng hình ảnh so sánh giao thông",
+            "Làm nổi bật tính chất tốc độ"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m3",
+          "summary": "Cho rằng cứ dùng SPI cho mọi thiết bị vì nó nhanh hơn mà quên mất tốn nhiều chân GPIO hơn cho mỗi thiết bị.",
+          "why": "",
+          "signals": [
+            "Bỏ qua yếu tố giới hạn số chân chip (pin"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "emb-tech-04",
+      "interviewer": "nam",
+      "positions": [
+        "embedded"
+      ],
+      "skills": [
+        "RTOS",
+        "Concurrency",
+        "Mutex"
+      ],
+      "level": "trung_binh",
+      "question": "Trong hệ thống nhúng thời gian thực (RTOS), khi nào bạn bắt buộc phải dùng cơ chế Mutex thay vì Semaphore để đồng bộ hóa tài nguyên?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Mutex có cơ chế kế thừa ưu tiên (priority inheritance) giúp giải quyết triệt để bài toán nghịch đảo ưu tiên giữa các tác vụ.",
+          "keywords": [
+            "ưu tiên",
+            "priority",
+            "inheritance",
+            "kế thừa",
+            "nghịch đảo",
+            "inversion",
+            "mutex"
+          ],
+          "minHits": 1,
+          "followUp": "Hiện tượng nghịch đảo ưu tiên xảy ra như thế nào nếu dùng Semaphore thông thường?"
+        },
+        {
+          "id": "c2",
+          "text": "Mutex quản lý quyền sở hữu tài nguyên, chỉ có tác vụ đã khóa Mutex mới được phép mở khóa nó.",
+          "keywords": [
+            "sở hữu",
+            "owner",
+            "khóa",
+            "lock",
+            "unlock",
+            "mở khóa",
+            "tác vụ",
+            "task"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu dùng Binary Semaphore thay cho Mutex để bảo vệ một vùng tranh chấp (critical section) thì rủi ro là gì?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung_4",
+          "category": "dung",
+          "summary": "Ứng viên phân biệt rõ Mutex là công cụ bảo vệ tài nguyên chia sẻ có chủ sở hữu kèm cơ chế chống đảo ngược ưu tiên, khác với Semaphore dùng để ra hiệu.",
+          "signals": [
+            "Hiểu sâu sắc sự khác biệt kiến trúc giữa",
+            "Nắm vững khái niệm priority inversion"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "path_dacbiet_4",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von Mutex như chìa khóa phòng thí nghiệm chỉ có người vào mới được khóa và trả chìa, còn Semaphore như tấm vé lượt ai cũng có thể xé dù không cầm máy móc.",
+          "signals": [
+            "Ví von trực quan, dễ nhớ",
+            "Phân định rõ ràng quyền sở hữu tài nguyê"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m4",
+          "summary": "Nghĩ rằng Mutex và Binary Semaphore hoàn toàn giống nhau và có thể thay thế cho nhau trong mọi trường hợp.",
+          "why": "",
+          "signals": [
+            "Nhầm lẫn mục đích sử dụng giữa Mutex và "
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "emb-tech-05",
+      "interviewer": "nam",
+      "positions": [
+        "embedded"
+      ],
+      "skills": [
+        "C/C++",
+        "bộ nhớ hạn chế"
+      ],
+      "level": "co_ban",
+      "question": "Khi lập trình C nhúng trên vi điều khiển có dung lượng RAM rất nhỏ, vì sao bạn nên tránh dùng từ khóa malloc và free để cấp phát bộ nhớ động?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Phân mảnh bộ nhớ (Memory Fragmentation) làm giảm dần không gian cấp phát dù tổng dung lượng còn trống.",
+          "keywords": [
+            "phân mảnh",
+            "memory fragmentation",
+            "vùng nhớ trống",
+            "cấp phát",
+            "heap",
+            "lỗ hổng"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu bạn cứ cấp phát rồi giải phóng liên tục các cục kích thước khác nhau thì chuyện gì xảy ra với không gian lưu trữ?"
+        },
+        {
+          "id": "c2",
+          "text": "Thời gian thực thi của malloc và free không tất định (non-deterministic), gây rủi ro cho hệ thống thời gian thực.",
+          "keywords": [
+            "thời gian",
+            "không tất định",
+            "non-deterministic",
+            "chậm",
+            "real-time",
+            "thời gian thực",
+            "tốn thời gian"
+          ],
+          "minHits": 1,
+          "followUp": "Hàm cấp phát bộ nhớ có biết trước mất bao nhiêu chu kỳ máy để chạy xong không?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Trình bày về vấn đề phân mảnh heap và tính không tất định về thời gian khi chạy malloc/free trong hệ thống nhúng.",
+          "signals": [
+            "Hiểu về bản chất của heap",
+            "Nhìn nhận được rủi ro trong hệ thống nhú"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "Ví dụ như việc chia một bãi đỗ xe nhỏ, nếu ai đến cũng tự ý chiếm chỗ và trả chỗ linh tinh thì chẳng mấy chốc xe lớn không có chỗ đậu dù tổng chỗ trống vẫn nhiều.",
+          "signals": [
+            "Biết cách dùng hình ảnh thực tế để giải "
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng dùng malloc/free là tốt vì tiết kiệm bộ nhớ khi không dùng đến.",
+          "why": "",
+          "signals": [
+            "Chỉ nhìn thấy mặt lợi về giải phóng mà k"
+          ]
+        },
+        {
+          "id": "m2",
+          "summary": "Cho rằng C nhúng cấm tuyệt đối mọi con trỏ chứ không riêng gì malloc.",
+          "why": "",
+          "signals": [
+            "Nhầm lẫn giữa việc dùng con trỏ tĩnh/sta"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "emb-tech-06",
+      "interviewer": "nam",
+      "positions": [
+        "embedded"
+      ],
+      "skills": [
+        "giao tiếp ngoại vi (UART"
+      ],
+      "level": "trung_binh",
+      "question": "Khi truyền dữ liệu tốc độ cao qua giao tiếp UART không dùng chân điều khiển luồng (flow control), làm sao bạn biết thiết bị nhận đã xử lý kịp dữ liệu cũ hay chưa?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Sử dụng giao thức tầng ứng dụng có cơ chế bắt tay (handshake), xác nhận (ACK/NACK) hoặc chia gói kèm mã kiểm tra lỗi.",
+          "keywords": [
+            "bắt tay",
+            "handshake",
+            "ack",
+            "nack",
+            "gói tin",
+            "xác nhận",
+            "phản hồi"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu chỉ gửi một chiều liên tục mà không có phản hồi từ bên kia thì bên gửi dựa vào đâu để phỏng đoán?"
+        },
+        {
+          "id": "c2",
+          "text": "Thiết kế bộ đệm vòng (ring buffer) ở phía nhận kết hợp kiểm tra trạng thái tràn bộ đệm (overrun error) qua thanh ghi phần cứng.",
+          "keywords": [
+            "bộ đệm",
+            "buffer",
+            "ring buffer",
+            "tràn",
+            "overrun",
+            "thanh ghi",
+            "phần cứng"
+          ],
+          "minHits": 1,
+          "followUp": "Phần cứng vi điều khiển có cờ báo nào khi byte mới đến đè lên byte cũ chưa kịp đọc không?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Giải thích việc kết hợp cơ chế phần mềm như ACK/NACK và cấu trúc buffer phần cứng để quản lý luồng dữ liệu UART.",
+          "signals": [
+            "Hiểu rõ giới hạn của UART phần cứng cơ b",
+            "Biết cách xây dựng lớp giao tiếp tin cậy"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "Giống như việc đọc thư nhanh qua cửa sổ, nếu người gửi cứ ném thư liên tục mà người nhận chưa đọc xong thì thư sẽ rơi tràn lan dưới sàn.",
+          "signals": [
+            "Dùng hình ảnh người gửi người nhận để mô"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Tin rằng chỉ cần chỉnh tốc độ baud rate của hai bên khớp nhau hoàn toàn là không bao giờ mất dữ liệu.",
+          "why": "",
+          "signals": [
+            "Bỏ qua yếu tố thời gian xử lý logic ở tầ"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ops-tech-01",
+      "interviewer": "nam",
+      "positions": [
+        "devops"
+      ],
+      "skills": [
+        "Cloud Computing",
+        "Storage",
+        "Virtualization"
+      ],
+      "level": "co_ban",
+      "question": "Khi bạn dựng một máy chủ ảo trên Cloud, vì sao người ta hay dùng ổ cứng mạng thay vì ổ cứng gắn trực tiếp vào máy chủ vật lý?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Ổ cứng mạng (block storage/EBS) tách biệt khỏi máy chủ ảo, giúp dữ liệu không bị mất khi máy chủ tắt hoặc hỏng.",
+          "keywords": [
+            "tách biệt",
+            "dữ liệu",
+            "mất",
+            "máy chủ ảo",
+            "phần cứng",
+            "an toàn",
+            "persist",
+            "lưu trữ",
+            "vật lý"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu máy chủ ảo bị hỏng hoàn toàn thì dữ liệu trên ổ cứng đó sẽ ra sao?"
+        },
+        {
+          "id": "c2",
+          "text": "Có thể dễ dàng tháo ổ cứng mạng khỏi máy hỏng và gắn sang máy chủ ảo khác để khôi phục dịch vụ nhanh chóng.",
+          "keywords": [
+            "gắn",
+            "chuyển",
+            "khôi phục",
+            "nhanh",
+            "linh hoạt",
+            "máy khác",
+            "detach",
+            "attach",
+            "migrating"
+          ],
+          "minHits": 1,
+          "followUp": "Làm thế nào để chuyển ổ cứng sang máy khác mà không cần cài lại hệ điều hành?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Ứng viên giải thích rõ sự khác biệt về tính độc lập giữa phần cứng tính toán và lưu trữ trên cloud.",
+          "signals": [
+            "Nhắc đến tính bền bỉ của dữ liệu",
+            "Hiểu cách gắn và tháo ổ đĩa giữa các ins"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von ổ cứng mạng giống như chiếc ổ cứng di động cắm ngoài, còn ổ cứng gắn trực tiếp như ổ đĩa trong laptop.",
+          "signals": [
+            "Dùng hình ảnh ổ cứng di động",
+            "Giải thích dễ hiểu, tự nhiên"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m2",
+          "summary": "Cho rằng tắt máy chủ ảo thì mất toàn bộ dữ liệu ổ cứng.",
+          "why": "",
+          "signals": [
+            "Nhầm lẫn giữa bộ nhớ RAM tạm thời và ổ c"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ops-tech-02",
+      "interviewer": "nam",
+      "positions": [
+        "devops"
+      ],
+      "skills": [
+        "Docker",
+        "Containerization",
+        "Storage"
+      ],
+      "level": "co_ban",
+      "question": "Vì sao khi đóng gói ứng dụng vào Docker container, ta nên tránh để dữ liệu quan trọng như database bên trong container đó?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Container có tính tạm thời, khi container bị xóa hoặc làm mới thì mọi thay đổi dữ liệu bên trong lớp ghi sẽ mất.",
+          "keywords": [
+            "tạm thời",
+            "xóa",
+            "mất dữ liệu",
+            "lifecycle",
+            "vòng đời",
+            "ephemeral",
+            "làm mới",
+            "container",
+            "biến mất"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu container bị lỗi và tự khởi động lại thì dữ liệu lưu bên trong sẽ như thế nào?"
+        },
+        {
+          "id": "c2",
+          "text": "Cần dùng cơ chế gắn ngoài như volume để lưu trữ dữ liệu độc lập với vòng đời của container.",
+          "keywords": [
+            "volume",
+            "gắn ngoài",
+            "độc lập",
+            "lưu trữ",
+            "bind mount",
+            "bền vững",
+            "chia sẻ",
+            "persist"
+          ],
+          "minHits": 1,
+          "followUp": "Làm thế nào để các container khác nhau có thể truy cập chung một tệp dữ liệu?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Trình bày được đặc tính sinh tử của container và giải pháp dùng volume.",
+          "signals": [
+            "Hiểu tính chất ephemeral của container",
+            "Nắm vững khái niệm Docker Volume"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh container như phòng khách sạn tạm thời, còn dữ liệu như vali đồ đạc cần mang ra gửi tủ chung.",
+          "signals": [
+            "Ví von phòng khách sạn với trả phòng",
+            "Giải thích trực quan"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng commit image là cách tốt để lưu dữ liệu thay đổi.",
+          "why": "",
+          "signals": [
+            "Dùng image để lưu state thay vì dùng vol"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ops-tech-03",
+      "interviewer": "nam",
+      "positions": [
+        "devops"
+      ],
+      "skills": [
+        "CI/CD",
+        "Automation",
+        "Pipeline"
+      ],
+      "level": "trung_binh",
+      "question": "Khi xây dựng một pipeline CI/CD, theo bạn bước kiểm thử tự động nên đặt trước hay sau bước đóng gói container và vì sao?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Nên đặt bước kiểm thử trước bước đóng gói để phát hiện lỗi sớm và tránh mất thời gian tạo image nếu code hỏng.",
+          "keywords": [
+            "trước",
+            "sớm",
+            "lỗi",
+            "tiết kiệm",
+            "thời gian",
+            "nhanh",
+            "phát hiện",
+            "chất lượng",
+            "fail fast"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu code có lỗi cú pháp nhỏ thì việc đóng gói container có bị ảnh hưởng không?"
+        },
+        {
+          "id": "c2",
+          "text": "Giúp đảm bảo chỉ những mã nguồn đã qua kiểm định mới được chuyển thành artifact chuẩn để đem đi triển khai.",
+          "keywords": [
+            "kiểm định",
+            "artifact",
+            "chuẩn",
+            "tin cậy",
+            "triển khai",
+            "image",
+            "đảm bảo",
+            "chính xác"
+          ],
+          "minHits": 1,
+          "followUp": "Làm sao để chắc chắn bản dựng trên máy cá nhân giống với bản dựng trên hệ thống CI?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Phân tích theo tư duy tối ưu thời gian pipeline và tính đúng đắn của artifact.",
+          "signals": [
+            "Nhấn mạnh tiêu chí fail-fast",
+            "Hiểu luồng đi của pipeline"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "Ví như việc kiểm tra chất lượng nguyên liệu trước khi đem vào dây chuyền đóng hộp sản phẩm.",
+          "signals": [
+            "Dùng ví dụ dây chuyền nhà máy",
+            "Mạch lạc, dễ hiểu"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Cho rằng làm bước nào trước cũng được vì cuối cùng cũng chạy cả hai.",
+          "why": "",
+          "signals": [
+            "Bỏ qua tối ưu thời gian và tài nguyên bu"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ops-tech-04",
+      "interviewer": "nam",
+      "positions": [
+        "devops"
+      ],
+      "skills": [
+        "Infrastructure as Code",
+        "Terraform",
+        "Architecture"
+      ],
+      "level": "trung_binh",
+      "question": "Khi quản lý hệ thống bằng mô hình hạ tầng như mã (IaC), vì sao việc chia nhỏ cấu hình thành nhiều module lại quan trọng?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Giúp tái sử dụng lại các đoạn mã cấu hình cho nhiều môi trường khác nhau như staging và production mà không bị lặp.",
+          "keywords": [
+            "tái sử dụng",
+            "lặp",
+            "môi trường",
+            "staging",
+            "production",
+            "tối ưu",
+            "reuse",
+            "gọn gàng",
+            "dễ đọc"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu không chia module, khi cần thay đổi một thông số chung bạn sẽ phải làm gì?"
+        },
+        {
+          "id": "c2",
+          "text": "Giảm thiểu rủi ro khi chỉnh sửa vì cô lập được phạm vi tác động thay vì dồn tất cả vào một file cấu hình khổng lồ.",
+          "keywords": [
+            "rủi ro",
+            "phạm vi",
+            "tác động",
+            "cô lập",
+            "an toàn",
+            "bảo trì",
+            "dễ sửa",
+            "quản lý"
+          ],
+          "minHits": 1,
+          "followUp": "Làm thế nào để kiểm soát các thay đổi nhỏ mà không làm ảnh hưởng đến toàn bộ hệ thống?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Giải thích dựa trên nguyên lý DRY, khả năng tái sử dụng và quản trị rủi ro khi thay đổi hạ tầng.",
+          "signals": [
+            "Nhắc đến nguyên tắc lập trình áp dụng và",
+            "Đề cập đến tính dễ bảo trì"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh việc viết một file cấu hình khổng lồ với việc xây nhà bằng một khối bê tông đúc sẵn thay vì gạch từng viên.",
+          "signals": [
+            "Ví von trực quan",
+            "Lập luận hợp lý"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng file cấu hình càng dài và gộp chung một chỗ càng dễ quản lý.",
+          "why": "",
+          "signals": [
+            "Thiếu kinh nghiệm làm việc với hệ thống "
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ops-tech-05",
+      "interviewer": "nam",
+      "positions": [
+        "devops"
+      ],
+      "skills": [
+        "Deployment",
+        "Rollback",
+        "Release Management"
+      ],
+      "level": "co_ban",
+      "question": "Khi triển khai một ứng dụng mới lên production, nếu bản cập nhật đó gây lỗi nghiêm trọng, bạn sẽ làm gì để quay lại phiên bản ổn định cũ nhanh nhất?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Sử dụng chiến lược deployment giúp giữ lại phiên bản trước để chuyển hướng lưu lượng ngay lập tức",
+          "keywords": [
+            "rolling",
+            "blue-green",
+            "canary",
+            "chuyển hướng",
+            "traffic",
+            "phiên bản",
+            "version",
+            "old",
+            "new",
+            "rollback"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu hệ thống dùng cách thay thế trực tiếp toàn bộ phiên bản cũ thì việc quay lại sẽ diễn ra thế nào?"
+        },
+        {
+          "id": "c2",
+          "text": "Đảm bảo tính tương thích ngược của database để bản cũ không bị lỗi khi chạy lại với dữ liệu mới",
+          "keywords": [
+            "database",
+            "migration",
+            "tương thích",
+            "backward",
+            "compatible",
+            "schema",
+            "dữ liệu",
+            "cột",
+            "bảng",
+            "thay đổi"
+          ],
+          "minHits": 1,
+          "followUp": "Điều gì xảy ra với cơ sở dữ liệu nếu bạn hạ cấp mã nguồn nhưng cấu trúc bảng đã bị thay đổi ở bản mới?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Ứng viên nêu được phương án đổi hướng lưu lượng về phiên bản cũ và lưu ý quan trọng về tính tương thích của dữ liệu.",
+          "signals": [
+            "Hiểu rõ quy trình phát hành và thu hồi",
+            "Biết rủi ro về cơ sở dữ liệu"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von việc triển khai như thay đổi thực đơn nhà hàng, cần giữ sẵn món cũ trong bếp và kiểm tra xem khách ăn món cũ có bị dị ứng với nguyên liệu mới không.",
+          "signals": [
+            "Giải thích dễ hiểu, logic thực tế"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng rollback chỉ đơn giản là chạy lại lệnh build mã nguồn cũ mà quên mất trạng thái của cơ sở dữ liệu.",
+          "why": "",
+          "signals": [
+            "Chỉ nhắc đến code mà bỏ qua database"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ops-tech-06",
+      "interviewer": "nam",
+      "positions": [
+        "devops"
+      ],
+      "skills": [
+        "Monitoring",
+        "Logging",
+        "Troubleshooting"
+      ],
+      "level": "co_ban",
+      "question": "Khi hệ thống bỗng nhiên chậm đi nhưng các chỉ số về CPU và RAM của máy chủ vẫn bình thường, theo bạn ta nên kiểm tra những nguồn log hoặc tài nguyên nào tiếp theo?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Kiểm tra các giới hạn về tài nguyên mạng hoặc ổ cứng như độ trễ mạng và tốc độ đọc ghi đĩa",
+          "keywords": [
+            "disk",
+            "network",
+            "IOPS",
+            "latency",
+            "ổ cứng",
+            "mạng",
+            "băng thông",
+            "tốc độ",
+            "đọc ghi",
+            "timeout"
+          ],
+          "minHits": 1,
+          "followUp": "Khi ổ cứng hoặc mạng gặp vấn đề thì triệu chứng trên ứng dụng thường xuất hiện như thế nào?"
+        },
+        {
+          "id": "c2",
+          "text": "Kiểm tra log ứng dụng để tìm lỗi nghẽn cổ chai như kết nối database bị treo hoặc vòng lặp vô tận",
+          "keywords": [
+            "log",
+            "database",
+            "connection",
+            "pool",
+            "deadlock",
+            "treo",
+            "nghẽn",
+            "chờ",
+            "query",
+            "chậm"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu log không ghi lại lỗi mà chỉ thấy thời gian phản hồi của từng yêu cầu rất dài thì do đâu?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Ứng viên chỉ ra được việc mở rộng góc nhìn sang I/O ổ cứng, mạng và phân tích log để tìm điểm nghẽn logic.",
+          "signals": [
+            "Tư duy gỡ rối hệ thống toàn diện",
+            "Không chỉ nhìn vào CPU và RAM"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh giống như một nhà hàng đông khách nhưng bếp trưởng không mệt, mà do nhân viên phục vụ bị kẹt ở cửa ra vào hoặc do hết bàn ngồi.",
+          "signals": [
+            "Ví dụ trực quan, dễ liên tưởng"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Cho rằng cứ hệ thống chậm là phải nâng cấp thêm CPU hoặc RAM cho máy chủ.",
+          "why": "",
+          "signals": [
+            "Đề xuất tăng cấu hình phần cứng một cách"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "data-tech-01",
+      "interviewer": "nam",
+      "positions": [
+        "data"
+      ],
+      "skills": [
+        "SQL",
+        "Database"
+      ],
+      "level": "co_ban",
+      "question": "Khi viết câu lệnh SQL có GROUP BY, vì sao điều kiện trên kết quả hàm tổng hợp (như SUM, COUNT) phải đặt ở HAVING chứ không đặt ở WHERE?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Hiểu rõ thứ tự thực thi của các mệnh đề trong SQL, trong đó WHERE lọc dữ liệu thô trước khi gom nhóm còn HAVING lọc sau khi đã gom nhóm.",
+          "keywords": [
+            "thứ tự thực thi",
+            "order of execution",
+            "lọc dữ liệu thô",
+            "trước khi gom nhóm",
+            "sau khi gom nhóm",
+            "where",
+            "having",
+            "row filtering",
+            "aggregate filtering"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn có thể giải thích câu lệnh SQL chạy qua các bước nào từ bảng gốc cho đến kết quả cuối cùng không?"
+        },
+        {
+          "id": "cp2",
+          "text": "Phân biệt rõ ràng giữa điều kiện trên từng dòng đơn lẻ và điều kiện trên kết quả của các hàm tổng hợp như SUM, COUNT, AVG.",
+          "keywords": [
+            "hàm tổng hợp",
+            "aggregate functions",
+            "sum",
+            "count",
+            "avg",
+            "dòng đơn lẻ",
+            "row level",
+            "kết quả nhóm",
+            "group result"
+          ],
+          "minHits": 1,
+          "followUp": "Trong trường hợp nào bạn bắt buộc phải kết hợp cả WHERE và HAVING trong cùng một truy vấn?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung_1",
+          "category": "dung",
+          "summary": "Ứng viên giải thích dựa trên thứ tự chạy câu lệnh SQL và tính chất của hàm tổng hợp.",
+          "signals": [
+            "Nhắc đến thứ tự thực thi",
+            "Phân biệt WHERE dùng cho dòng và HAVING "
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_dacbiet_1",
+          "category": "hoi_dac_biet",
+          "summary": "Ứng viên ví von WHERE như việc lọc từng quả táo bị hỏng trước khi đem cân, còn HAVING là lọc những giỏ táo có tổng trọng lượng nhẹ hơn quy định sau khi đã cân xong.",
+          "signals": [
+            "Dùng ví dụ lọc trước và sau khi gom",
+            "Giải thích dễ hiểu, trực quan"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng WHERE và HAVING hoàn toàn giống nhau và có thể thay thế cho nhau trong mọi trường hợp.",
+          "why": "",
+          "signals": [
+            "Cho rằng dùng cái nào cũng được",
+            "Không biết về thứ tự thực thi"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "data-tech-02",
+      "interviewer": "nam",
+      "positions": [
+        "data"
+      ],
+      "skills": [
+        "Data Cleaning",
+        "Data Preparation"
+      ],
+      "level": "co_ban",
+      "question": "Khi làm sạch dữ liệu cho một bảng có chứa các giá trị bị thiếu ở cột số lượng, bạn sẽ chọn điền giá trị 0, điền số trung bình hay xóa dòng đó?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Đánh giá tác động của từng phương pháp xử lý giá trị thiếu đến kết quả phân tích và tổng quan dữ liệu.",
+          "keywords": [
+            "tác động",
+            "impact",
+            "sai lệch dữ liệu",
+            "data distortion",
+            "mất mát thông tin",
+            "information loss",
+            "phân phối",
+            "distribution"
+          ],
+          "minHits": 1,
+          "followUp": "Làm thế nào để biết phương pháp bạn chọn không làm sai lệch ý nghĩa thực tế của dữ liệu?"
+        },
+        {
+          "id": "cp2",
+          "text": "Lựa chọn phương pháp dựa trên ngữ cảnh thực tế của bài toán và nguyên nhân gây ra việc thiếu dữ liệu.",
+          "keywords": [
+            "ngữ cảnh",
+            "context",
+            "nguyên nhân",
+            "cause",
+            "ý nghĩa nghiệp vụ",
+            "business logic",
+            "giá trị 0",
+            "số trung bình",
+            "mean imputation",
+            "xóa dữ liệu"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu tỷ lệ dữ liệu bị thiếu lên tới 50% thì bạn có còn dùng các cách trên không?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung_2",
+          "category": "dung",
+          "summary": "Ứng viên phân tích ưu nhược điểm của từng cách và đưa ra tiêu chí lựa chọn theo ngữ cảnh.",
+          "signals": [
+            "Nhắc đến việc xem xét nguyên nhân thiếu ",
+            "Cân nhắc giữa việc mất dữ liệu và làm sa"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_dacbiet_2",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh việc thiếu dữ liệu như một bảng điểm có ô bị bỏ trống: bỏ trống do học sinh nghỉ học khác với bỏ trống do chưa chấm bài.",
+          "signals": [
+            "Dùng ví dụ thực tế để phân loại tình huố",
+            "Làm rõ tính chất của dữ liệu khuyết"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Luôn luôn áp dụng một cách xử lý (như luôn điền 0 hoặc luôn xóa) cho mọi tập dữ liệu mà không cần biết nguyên nhân.",
+          "why": "",
+          "signals": [
+            "Rập khuôn một giải pháp",
+            "Không quan tâm đến ngữ cảnh kinh doanh"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "data-tech-03",
+      "interviewer": "nam",
+      "positions": [
+        "data"
+      ],
+      "skills": [
+        "Data Visualization",
+        "Dashboard Design"
+      ],
+      "level": "co_ban",
+      "question": "Khi nào bạn nên dùng biểu đồ đường thay vì biểu đồ cột khi trình bày xu hướng doanh thu theo thời gian cho các quản lý?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Hiểu rõ mục đích trực quan của biểu đồ đường là làm nổi bật tính liên tục và xu hướng biến động theo thời gian.",
+          "keywords": [
+            "tính liên tục",
+            "continuity",
+            "xu hướng",
+            "trend",
+            "biến động",
+            "fluctuation",
+            "chuỗi thời gian",
+            "time series",
+            "biểu đồ đường",
+            "line chart"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu mốc thời gian không liền mạch mà bị ngắt quãng thì biểu đồ đường còn phù hợp không?"
+        },
+        {
+          "id": "cp2",
+          "text": "So sánh với biểu đồ cột khi cần nhấn mạnh sự so sánh giá trị rời rạc giữa các mốc hoặc các danh mục khác nhau.",
+          "keywords": [
+            "so sánh",
+            "comparison",
+            "giá trị rời rạc",
+            "discrete values",
+            "biểu đồ cột",
+            "bar chart",
+            "độ lớn",
+            "magnitude",
+            "từng mốc riêng lẻ"
+          ],
+          "minHits": 1,
+          "followUp": "Người xem sẽ nhận ra điều gì nhanh hơn khi nhìn vào biểu đồ cột so với biểu đồ đường?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung_3",
+          "category": "dung",
+          "summary": "Ứng viên phân biệt dựa trên bản chất dữ liệu liên tục hay rời rạc và mục tiêu của người xem.",
+          "signals": [
+            "Nhắc đến tính liên tục của thời gian",
+            "Đối chiếu với mục đích so sánh độ lớn củ"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_dacbiet_3",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von biểu đồ đường giống như nhịp tim ghi lại sự thay đổi liên tục, còn biểu đồ cột như chiều cao của từng đứa trẻ đo qua các năm.",
+          "signals": [
+            "Dùng hình ảnh so sánh sinh động",
+            "Làm bật lên sự khác biệt về bản chất dữ "
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Chọn loại biểu đồ chỉ vì trông nó đẹp mắt hơn mà không quan tâm đến bản chất dữ liệu thời gian.",
+          "why": "",
+          "signals": [
+            "Chọn theo cảm tính thẩm mỹ",
+            "Không phân biệt được dữ liệu liên tục và"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "data-tech-04",
+      "interviewer": "nam",
+      "positions": [
+        "data"
+      ],
+      "skills": [
+        "Basic Statistics",
+        "Data Analysis"
+      ],
+      "level": "co_ban",
+      "question": "Khi phân tích dữ liệu bán hàng, tại sao một người quản lý không nên chỉ nhìn vào giá trị trung bình (mean) mà cần xem xét thêm trung vị (median)?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Hiểu rõ nhược điểm của số trung bình là dễ bị ảnh hưởng và bóp méo bởi các giá trị ngoại lai quá lớn hoặc quá nhỏ.",
+          "keywords": [
+            "giá trị ngoại lai",
+            "outliers",
+            "bóp méo",
+            "skewed",
+            "ảnh hưởng mạnh",
+            "extreme values",
+            "số trung bình",
+            "mean",
+            "phân phối lệch"
+          ],
+          "minHits": 1,
+          "followUp": "Trong trường hợp nào thì giá trị trung bình và trung vị sẽ xấp xỉ bằng nhau?"
+        },
+        {
+          "id": "cp2",
+          "text": "Nhận ra ưu điểm của trung vị là phản ánh chính xác hơn giá trị đại diện của một tập dữ liệu bị lệch.",
+          "keywords": [
+            "trung vị",
+            "median",
+            "giá trị đại diện",
+            "representative value",
+            "chia đôi",
+            "split in half",
+            "ổn định hơn",
+            "more robust",
+            "tình hình thực tế"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn sẽ dùng chỉ số nào để báo cáo thu nhập nhân viên trong công ty và tại sao?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung_4",
+          "category": "dung",
+          "summary": "Ứng viên giải thích tác động của outlier đến mean và lý do median là giải pháp thay thế tốt hơn trong phân phối lệch.",
+          "signals": [
+            "Nhắc đến hiện tượng dữ liệu bị kéo lệch ",
+            "Giải thích ý nghĩa chia đôi của trung vị"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_dacbiet_4",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von trong một phòng họp có 9 nhân viên bình thường và một tỷ phú bước vào, thu nhập trung bình vọt lên rất cao nhưng thu nhập trung vị vẫn không đổi.",
+          "signals": [
+            "Dùng ví dụ kinh điển về sự xuất hiện của",
+            "Làm rõ sự khác biệt thực tế giữa mean và"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Cho rằng số trung bình luôn là con số chính xác nhất cho mọi tập dữ liệu kinh doanh.",
+          "why": "",
+          "signals": [
+            "Tin tưởng tuyệt đối vào mean",
+            "Bỏ qua tác động của các giao dịch giá tr"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "data-tech-05",
+      "interviewer": "nam",
+      "positions": [
+        "data"
+      ],
+      "skills": [
+        "ETL",
+        "Data Pipeline",
+        "Data Warehouse"
+      ],
+      "level": "co_ban",
+      "question": "Khi thiết kế một luồng ETL để nạp dữ liệu từ file CSV hàng ngày lên hệ thống kho dữ liệu, bạn chọn kiến trúc nạp toàn bộ hay nạp gia tăng và vì sao?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Lựa chọn phương pháp dựa trên kích thước bảng và tần suất thay đổi của dữ liệu",
+          "keywords": [
+            "nạp toàn bộ",
+            "full load",
+            "nạp gia tăng",
+            "incremental load",
+            "khối lượng dữ liệu",
+            "dung lượng lớn",
+            "tần suất"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu bảng dữ liệu có hàng triệu dòng nhưng mỗi ngày chỉ thay đổi một phần rất nhỏ thì bạn sẽ tính cách nạp thế nào?"
+        },
+        {
+          "id": "c2",
+          "text": "Đánh giá chi phí thời gian chạy, tài nguyên hệ thống và yêu cầu về lịch sử dữ liệu",
+          "keywords": [
+            "thời gian",
+            "hiệu năng",
+            "performance",
+            "tài nguyên",
+            "resource",
+            "lịch sử",
+            "history",
+            "thời gian thực"
+          ],
+          "minHits": 1,
+          "followUp": "Yếu tố nào về mặt thời gian hoặc phần cứng sẽ khiến bạn bắt buộc phải chuyển từ nạp toàn bộ sang nạp gia tăng?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Ứng viên phân tích dựa trên quy mô dữ liệu, thời gian chạy ETL và tài nguyên, từ đó chọn full load cho bảng nhỏ ít thay đổi và incremental load cho bảng lớn.",
+          "signals": [
+            "Nhắc đến khối lượng dữ liệu",
+            "So sánh thời gian chạy"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von việc nạp dữ liệu giống như việc dọn dẹp nhà cửa: quét toàn bộ nhà khi nhà nhỏ, nhưng chỉ quét góc nào có rác khi nhà đã quá lớn.",
+          "signals": [
+            "Dùng hình ảnh thực tế để giải thích",
+            "Lập luận logic, dễ hiểu"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng nạp toàn bộ luôn tốt hơn vì đơn giản và không sợ thiếu sót dữ liệu.",
+          "why": "",
+          "signals": [
+            "Bỏ qua vấn đề thời gian chạy khi dữ liệu"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "data-tech-06",
+      "interviewer": "nam",
+      "positions": [
+        "data"
+      ],
+      "skills": [
+        "Data Storytelling",
+        "Business Acumen",
+        "Data Analysis"
+      ],
+      "level": "trung_binh",
+      "question": "Khi một quản lý hỏi bạn vì sao biểu đồ doanh thu tháng này giảm mạnh dù số lượng đơn hàng tăng, bạn sẽ kiểm tra và giải thích thế nào?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Phân rã chỉ số tổng hợp thành các thành phần cấu thành như giá trị trung bình đơn hàng hoặc cơ cấu sản phẩm",
+          "keywords": [
+            "giá trị trung bình",
+            "AOV",
+            "average order value",
+            "cơ cấu",
+            "sản phẩm",
+            "phân rã",
+            "breakdown"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu số lượng đơn tăng mà doanh thu giảm, bạn sẽ nghi ngờ điều gì xảy ra với giỏ hàng của khách?"
+        },
+        {
+          "id": "c2",
+          "text": "Trình bày vấn đề bằng ngôn ngữ kinh doanh thay vì dùng thuật ngữ kỹ thuật phức tạp",
+          "keywords": [
+            "ngôn ngữ kinh doanh",
+            "business",
+            "dễ hiểu",
+            "quản lý",
+            "ra quyết định",
+            "trực quan"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn sẽ nói gì với quản lý để họ hiểu ngay mà không cần xem câu lệnh truy vấn dữ liệu?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "chuan",
+          "category": "dung",
+          "summary": "Ứng viên nêu cách tách nhỏ vấn đề để tìm nguyên nhân gốc rễ (giá trị đơn hàng giảm) và cách truyền đạt kết quả ngắn gọn cho cấp quản lý.",
+          "signals": [
+            "Nhắc đến giá trị đơn hàng trung bình",
+            "Hướng tới người dùng cuối là quản lý"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh việc này giống như bán trà sữa: bán được nhiều ly hơn nhưng toàn ly nhỏ giá rẻ nên tổng tiền thu về vẫn ít đi.",
+          "signals": [
+            "Dùng ví dụ buôn bán quen thuộc",
+            "Diễn giải trực quan, mạch lạc"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Đổ lỗi cho hệ thống ghi nhận sai dữ liệu mà quên kiểm tra các yếu tố kinh doanh bên trong.",
+          "why": "",
+          "signals": [
+            "Nghi ngờ lỗi kỹ thuật đầu tiên thay vì p"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ml-tech-01",
+      "interviewer": "nam",
+      "positions": [
+        "ai"
+      ],
+      "skills": [
+        "Machine Learning",
+        "Data Split",
+        "Validation"
+      ],
+      "level": "co_ban",
+      "question": "Vì sao khi chia dữ liệu huấn luyện, ta cần tách riêng tập validation và test, thay vì dùng chung một tập để đánh giá mô hình?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Tập validation dùng để tinh chỉnh siêu tham số và chọn mô hình trong quá trình huấn luyện, còn tập test dùng để đánh giá khách quan hiệu năng cuối cùng trên dữ liệu chưa từng thấy.",
+          "keywords": [
+            "validation",
+            "test",
+            "siêu tham số",
+            "hyperparameter",
+            "tinh chỉnh",
+            "tuning",
+            "khách quan",
+            "chưa thấy",
+            "unseen data"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu bạn dùng tập test để chọn mô hình liên tục thì điều gì sẽ xảy ra với kết quả đánh giá cuối?"
+        },
+        {
+          "id": "cp2",
+          "text": "Việc dùng chung một tập sẽ dẫn đến hiện tượng rò rỉ dữ liệu hoặc học vẹt, làm mô hình trông có vẻ rất tốt trên tập kiểm tra nhưng lại kém khi ra thực tế.",
+          "keywords": [
+            "rò rỉ dữ liệu",
+            "data leakage",
+            "học vẹt",
+            "overfitting",
+            "thực tế",
+            "tổng quát hóa",
+            "generalization"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn sẽ xử lý thế nào nếu tập dữ liệu ban đầu quá ít để chia thành ba phần độc lập?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung",
+          "category": "dung",
+          "summary": "Ứng viên phân biệt rõ vai trò của từng tập dữ liệu, giải thích được hiện tượng rò rỉ thông tin và tầm quan trọng của việc đánh giá khách quan.",
+          "signals": [
+            "Nêu đúng vai trò validation và test",
+            "Hiểu hậu quả của việc dùng chung tập dữ "
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_dacbiet",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von việc chia tập giống như việc học bài: tập train là bài tập về nhà, validation là đề thi thử để biết mình yếu ở đâu mà sửa, còn test là kỳ thi chính thức.",
+          "signals": [
+            "Dùng ví dụ kỳ thi thử và thi thật rất tr",
+            "Giải thích được vì sao không được xem tr"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng validation và test hoàn toàn giống nhau và có thể dùng thay thế cho nhau bất cứ lúc nào.",
+          "why": "",
+          "signals": [
+            "Nhầm lẫn chức năng của hai tập dữ liệu"
+          ]
+        },
+        {
+          "id": "m2",
+          "summary": "Cho rằng càng đưa nhiều dữ liệu vào train thì càng tốt mà quên mất việc giữ lại tập test độc lập.",
+          "why": "",
+          "signals": [
+            "Bỏ qua bước đánh giá khách quan cuối cùn"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ml-tech-02",
+      "interviewer": "nam",
+      "positions": [
+        "ai"
+      ],
+      "skills": [
+        "Machine Learning",
+        "Overfitting",
+        "Regularization"
+      ],
+      "level": "co_ban",
+      "question": "Khi mô hình bị overfitting, bạn nhận biết qua dấu hiệu nào và có những cách cơ bản nào để khắc phục?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Nhận biết overfitting khi độ chính xác trên tập huấn luyện rất cao nhưng trên tập validation lại thấp hoặc bắt đầu giảm.",
+          "keywords": [
+            "train loss",
+            "validation loss",
+            "cao",
+            "thấp",
+            "sai khác",
+            "chênh lệch",
+            "học vẹt",
+            "memorization"
+          ],
+          "minHits": 1,
+          "followUp": "Làm sao để phân biệt được mô hình đang học vẹt chi tiết nhỏ hay đang học đúng xu hướng chung?"
+        },
+        {
+          "id": "cp2",
+          "text": "Cách khắc phục bao gồm tăng lượng dữ liệu, dùng kỹ thuật điều chuẩn regularization, dropout hoặc cắt bớt độ phức tạp của mô hình.",
+          "keywords": [
+            "regularization",
+            "dropout",
+            "tăng dữ liệu",
+            "data augmentation",
+            "độ phức tạp",
+            "complexity",
+            "early stopping"
+          ],
+          "minHits": 1,
+          "followUp": "Trong các cách trên, bạn sẽ ưu tiên thử phương án nào trước và vì sao?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung",
+          "category": "dung",
+          "summary": "Ứng viên nêu được biểu hiện qua đồ thị loss giữa train và validation, sau đó liệt kê các giải pháp chuẩn như regularization hoặc tăng dữ liệu.",
+          "signals": [
+            "Chỉ ra sự chênh lệch giữa train và val",
+            "Đề xuất giải pháp thực tế"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_dacbiet",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von overfitting giống như học sinh thuộc lòng từng câu đáp án trong sách bài tập nhưng khi gặp câu biến đổi một chút trong đề thi thì không làm được.",
+          "signals": [
+            "Ví dụ học thuộc lòng rất chính xác bản c",
+            "Liên hệ được với việc thiếu khả năng suy"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng mô hình có độ chính xác trên tập train 100% là mô hình hoàn hảo.",
+          "why": "",
+          "signals": [
+            "Đánh giá sai chất lượng dựa vào tập trai"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ml-tech-03",
+      "interviewer": "nam",
+      "positions": [
+        "ai"
+      ],
+      "skills": [
+        "Model Evaluation",
+        "Metrics",
+        "Imbalanced Data"
+      ],
+      "level": "trung_binh",
+      "question": "Trong bài toán phân loại mất cân bằng dữ liệu nặng, vì sao độ chính xác (Accuracy) lại là một thước đo đánh giá tồi?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Khi dữ liệu mất cân bằng nặng, một mô hình dự đoán toàn nhãn đa số cũng đạt độ chính xác rất cao nhưng hoàn toàn vô dụng.",
+          "keywords": [
+            "mất cân bằng",
+            "imbalanced",
+            "nhãn đa số",
+            "majority class",
+            "vô dụng",
+            "đánh lừa",
+            "accuracy"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu không dùng Accuracy, bạn sẽ chọn những chỉ số nào khác để đánh giá thay thế?"
+        },
+        {
+          "id": "cp2",
+          "text": "Cần sử dụng các độ đo phản ánh tốt hơn khả năng nhận diện từng lớp như Precision, Recall, F1-score hoặc diện tích dưới đường cong ROC.",
+          "keywords": [
+            "precision",
+            "recall",
+            "f1-score",
+            "roc-auc",
+            "độ đo",
+            "metric",
+            "dương tính giả",
+            "âm tính giả"
+          ],
+          "minHits": 1,
+          "followUp": "Khi nào bạn ưu tiên Precision hơn Recall và ngược lại?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung",
+          "category": "dung",
+          "summary": "Ứng viên đưa ra ví dụ cụ thể về tỷ lệ dữ liệu lệch nhau, giải thích tại sao Accuracy bị bóp méo và đề xuất các độ đo thay thế phù hợp.",
+          "signals": [
+            "Nêu ví dụ bài toán gian lận hoặc y tế",
+            "Kể tên chính xác Precision và Recall"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_dacbiet",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh giống như một lớp học có 99 học sinh giỏi và 1 học sinh kém, nếu giáo viên đoán tất cả đều giỏi thì đoán đúng 99% nhưng không giúp ích gì cho học sinh kém.",
+          "signals": [
+            "Dùng ví dụ tỷ lệ 99-1 rất dễ hình dung",
+            "Làm nổi bật vấn đề bỏ sót nhóm thiểu số"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Tin rằng độ chính xác cao đồng nghĩa với việc mô hình hoạt động tốt trong mọi hoàn cảnh.",
+          "why": "",
+          "signals": [
+            "Bỏ qua yếu tố phân phối dữ liệu"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ml-tech-04",
+      "interviewer": "nam",
+      "positions": [
+        "ai"
+      ],
+      "skills": [
+        "MLOps",
+        "Model Deployment",
+        "System Design"
+      ],
+      "level": "trung_binh",
+      "question": "Khi đưa một mô hình học máy từ môi trường thử nghiệm vào sản phẩm thực tế, bạn cần lưu ý những thách thức kỹ thuật nào?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Cần quan tâm đến độ trễ phản hồi, khả năng mở rộng hệ thống khi số lượng yêu cầu tăng cao và chi phí hạ tầng tính toán.",
+          "keywords": [
+            "độ trễ",
+            "latency",
+            "mở rộng",
+            "scalability",
+            "chi phí",
+            "cost",
+            "thời gian thực",
+            "real-time"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu mô hình chạy quá chậm khi có nhiều người dùng đồng thời, bạn sẽ tối ưu hóa bằng cách nào?"
+        },
+        {
+          "id": "cp2",
+          "text": "Cần theo dõi hiện tượng lệch dữ liệu theo thời gian và có cơ chế cập nhật hoặc giám sát mô hình liên tục sau khi triển khai.",
+          "keywords": [
+            "lệch dữ liệu",
+            "data drift",
+            "concept drift",
+            "giám sát",
+            "monitoring",
+            "cập nhật",
+            "triển khai",
+            "production"
+          ],
+          "minHits": 1,
+          "followUp": "Làm sao để phát hiện ra mô hình đang hoạt động kém đi sau một thời gian chạy thật?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung",
+          "category": "dung",
+          "summary": "Ứng viên trình bày các yếu tố vận hành như tốc độ, tải trọng hệ thống, đồng thời nhấn mạnh việc theo dõi chất lượng mô hình sau khi phát hành.",
+          "signals": [
+            "Đề cập đến latency và throughput",
+            "Nhắc đến vấn đề data drift trong thực tế"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_dacbiet",
+          "category": "hoi_dac_biet",
+          "summary": "Ví việc đưa mô hình ra sản phẩm giống như việc nấu ăn ở nhà cho bạn bè ăn thử khác hoàn toàn với việc mở nhà hàng phục vụ hàng trăm khách cùng lúc.",
+          "signals": [
+            "So sánh trực quan giữa lab và production",
+            "Nhấn mạnh áp lực về tốc độ và quy mô"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghị rằng cứ huấn luyện xong mô hình có độ chính xác cao trên máy cá nhân là coi như hoàn thành việc đưa vào sản phẩm.",
+          "why": "",
+          "signals": [
+            "Chỉ tập trung vào độ chính xác, quên yếu"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ml-tech-05",
+      "interviewer": "nam",
+      "positions": [
+        "ai"
+      ],
+      "skills": [
+        "Data Preprocessing",
+        "Feature Engineering",
+        "Machine Learning Basics"
+      ],
+      "level": "co_ban",
+      "question": "Khi chuẩn bị dữ liệu dạng bảng có chứa biến định danh và biến số liên tục cho mô hình, vì sao bạn cần chuẩn hóa và mã hóa chúng?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Chuẩn hóa biến số liên tục giúp các đặc trưng có cùng khoảng giá trị, tránh việc đặc trưng có số lớn lấn át đặc trưng có số nhỏ khi tính khoảng cách hoặc cập nhật trọng số.",
+          "keywords": [
+            "chuẩn hóa",
+            "normalization",
+            "standardization",
+            "khoảng giá trị",
+            "scale",
+            "trọng số",
+            "weight",
+            "lấn át"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu một cột có giá trị từ 0 đến 1 triệu và cột khác từ 0 đến 1, điều gì sẽ xảy ra với quá trình tối ưu hóa trọng số của mô hình?"
+        },
+        {
+          "id": "c2",
+          "text": "Mã hóa biến định danh thành dạng số để các thuật toán học máy có thể tính toán được, ví dụ dùng one-hot encoding hoặc label encoding tùy thuộc bản chất dữ liệu.",
+          "keywords": [
+            "mã hóa",
+            "encoding",
+            "one-hot",
+            "label",
+            "biến định danh",
+            "categorical",
+            "dạng số",
+            "thuật toán"
+          ],
+          "minHits": 1,
+          "followUp": "Khi nào bạn nên dùng one-hot encoding thay vì label encoding cho một biến dạng chữ?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "dung_1",
+          "category": "dung",
+          "summary": "Ứng viên giải thích rõ việc chuẩn hóa giúp cân bằng độ lớn giữa các cột số để thuật toán không bị lệch, đồng thời biến định danh cần được chuyển về số vì máy tính chỉ hiểu toán học.",
+          "signals": [
+            "Nhấn mạnh tầm quan trọng của khoảng giá ",
+            "Hiểu rõ hạn chế của máy tính với dữ liệu"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon_1",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von việc chuẩn hóa giống như khi bạn chấm điểm các môn học trên cùng một thang điểm 10 thay vì môn thì thang 10 môn thì thang 1000, còn mã hóa giống như dịch tiếng nước ngoài sang tiếng mẹ đẻ để máy hiểu.",
+          "signals": [
+            "Dùng ví dụ thực tế dễ hiểu",
+            "Giải thích đúng bản chất kỹ thuật qua ẩn"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng mọi thuật toán học máy đều tự động xử lý được khoảng giá trị của dữ liệu mà không cần chuẩn hóa.",
+          "why": "",
+          "signals": [
+            "Cho rằng tiền xử lý chỉ là bước làm đẹp ",
+            "Không biết ảnh hưởng của scale đến hàm m"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ml-tech-06",
+      "interviewer": "nam",
+      "positions": [
+        "ai"
+      ],
+      "skills": [
+        "Decision Tree",
+        "Overfitting",
+        "Model Tuning"
+      ],
+      "level": "co_ban",
+      "question": "Khi xây dựng một cây quyết định, làm thế nào bạn biết khi nào nên dừng việc chia nhánh để tránh hiện tượng học vẹt?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Sử dụng các tiêu chí dừng sớm như giới hạn chiều sâu tối đa của cây, số lượng mẫu tối thiểu trong một nút lá, hoặc dùng tập validation để cắt tỉa cây.",
+          "keywords": [
+            "chiều sâu",
+            "depth",
+            "cắt tỉa",
+            "pruning",
+            "dừng sớm",
+            "early stopping",
+            "số lượng mẫu",
+            "validation"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu để cây phát triển đến mức mọi mẫu huấn luyện đều được phân loại đúng 100%, điều gì sẽ xảy ra khi gặp dữ liệu mới?"
+        },
+        {
+          "id": "c2",
+          "text": "Nhận biết việc chia nhánh quá sâu khiến mô hình ghi nhớ chi tiết nhiễu của tập huấn luyện thay vì học quy luật chung.",
+          "keywords": [
+            "nhiễu",
+            "noise",
+            "ghi nhớ",
+            "memorize",
+            "quy luật chung",
+            "generalization",
+            "học vẹt",
+            "overfitting"
+          ],
+          "minHits": 1,
+          "followUp": "Làm sao để phân biệt giữa việc mô hình đang học quy luật thực sự và việc nó đang nhớ từng điểm dữ liệu cụ thể?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "dung_2",
+          "category": "dung",
+          "summary": "Ứng viên nêu rõ các kỹ thuật giới hạn cấu trúc cây như max_depth, min_samples_split và giải thích chúng ngăn việc học thuộc lòng nhiễu ra sao.",
+          "signals": [
+            "Nắm vững các tham số điều khiển cây quyế",
+            "Hiểu mối quan hệ giữa độ phức tạp mô hìn"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon_2",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh việc để cây mọc tự do giống như học sinh học vẹt từng câu trong sách giải thay vì hiểu bản chất, dẫn đến việc gặp đề thi biến đổi một chút là làm sai.",
+          "signals": [
+            "Ví dụ trực quan về việc học vẹt",
+            "Liên hệ logic tốt với hiện tượng overfit"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m2",
+          "summary": "Tin rằng cây quyết định càng lớn, nhiều tầng và chia nhỏ triệt để thì độ chính xác tổng thể càng cao.",
+          "why": "",
+          "signals": [
+            "Đánh đồng độ chính xác trên tập train vớ",
+            "Bỏ qua hiện tượng overfitting do mô hình"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "sec-tech-01",
+      "interviewer": "nam",
+      "positions": [
+        "security"
+      ],
+      "skills": [
+        "OWASP Top 10",
+        "Web Security",
+        "SQL Injection"
+      ],
+      "level": "co_ban",
+      "question": "Vì sao SQL Injection lại nguy hiểm và bạn cần làm gì để ngăn chặn lỗ hổng này khi thiết kế một truy vấn?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Hiểu tác động của SQL Injection đối với hệ thống như lộ dữ liệu hoặc chiếm quyền.",
+          "keywords": [
+            "sql injection",
+            "tấn công",
+            "rò rỉ dữ liệu",
+            "chiếm quyền",
+            "dữ liệu",
+            "database",
+            "lỗ hổng",
+            "nguy hiểm",
+            "thực thi",
+            "truy vấn"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu kẻ tấn công chèn được lệnh độc hại vào ô đăng nhập thì điều gì sẽ xảy ra với cơ sở dữ liệu?"
+        },
+        {
+          "id": "cp2",
+          "text": "Sử dụng Prepared Statements hoặc Parameterized Queries để tách biệt mã lệnh và dữ liệu.",
+          "keywords": [
+            "prepared statement",
+            "parameterized query",
+            "tham số",
+            "tách biệt",
+            "lọc",
+            "bind",
+            "an toàn",
+            "truy vấn",
+            "orm"
+          ],
+          "minHits": 1,
+          "followUp": "Làm thế nào để cơ chế biên dịch trước của câu lệnh có thể ngăn chặn việc thay đổi cấu trúc câu lệnh SQL?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "p1",
+          "category": "dung",
+          "summary": "Ứng viên giải thích SQLi cho phép kẻ tấn công thao túng câu lệnh database, sau đó nêu giải pháp dùng Prepared Statement để ràng buộc kiểu dữ liệu.",
+          "signals": [
+            "Trình bày đúng tác hại",
+            "Đưa ra giải pháp cốt lõi"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "p2",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von câu lệnh SQL giống như một biểu mẫu điền tên, nếu không kiểm soát chỗ trống thì người dùng có thể viết đè cả nội dung hướng dẫn bên dưới.",
+          "signals": [
+            "Dùng ví dụ dễ hiểu",
+            "Liên hệ đúng bản chất lỗi"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Chỉ nghĩ rằng việc lọc ký tự đặc biệt bằng tay (như dấu nháy đơn) là đủ an toàn mà không dùng thư viện hỗ trợ.",
+          "why": "",
+          "signals": [
+            "Dùng blacklist thay vì whitelist hoặc pr"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "sec-tech-02",
+      "interviewer": "nam",
+      "positions": [
+        "security"
+      ],
+      "skills": [
+        "Security Testing",
+        "Pentest",
+        "White-box",
+        "Black-box"
+      ],
+      "level": "co_ban",
+      "question": "Khi nào bạn nên chọn phương pháp kiểm thử hộp trắng (White-box) thay vì hộp đen (Black-box) trong một dự án thực tế?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Hiểu đặc điểm và bối cảnh sử dụng của kiểm thử hộp đen khi không có thông tin hệ thống.",
+          "keywords": [
+            "hộp đen",
+            "black-box",
+            "không biết",
+            "mã nguồn",
+            "bên ngoài",
+            "giả lập",
+            "hacker",
+            "thực tế",
+            "đánh giá"
+          ],
+          "minHits": 1,
+          "followUp": "Kiểm thử hộp đen phản ánh góc nhìn của đối tượng nào khi tiếp cận hệ thống?"
+        },
+        {
+          "id": "cp2",
+          "text": "Hiểu đặc điểm của kiểm thử hộp trắng khi có sẵn mã nguồn và cấu hình giúp quét lỗi sâu hơn.",
+          "keywords": [
+            "hộp trắng",
+            "white-box",
+            "mã nguồn",
+            "source code",
+            "cấu hình",
+            "chi tiết",
+            "bên trong",
+            "bao phủ",
+            "logic"
+          ],
+          "minHits": 1,
+          "followUp": "Tại sao việc có mã nguồn lại giúp tìm ra các lỗi logic ẩn sâu nhanh hơn?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "p1",
+          "category": "dung",
+          "summary": "Phân tích bối cảnh áp dụng dựa trên việc có hay không có mã nguồn, chỉ ra hộp trắng giúp kiểm tra logic bên trong còn hộp đen kiểm tra góc nhìn bên ngoài.",
+          "signals": [
+            "So sánh đúng trọng tâm",
+            "Phân tích rõ bối cảnh"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "p2",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von hộp đen như khách hàng đột nhập thử khóa cửa nhà, còn hộp trắng như thợ mộc kiểm tra từng thanh gỗ và bản lề trước khi lắp.",
+          "signals": [
+            "Ví dụ sinh động",
+            "Đúng bản chất kỹ thuật"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Cho rằng kiểm thử hộp trắng có thể thay thế hoàn toàn hộp đen và ngược lại.",
+          "why": "",
+          "signals": [
+            "Nghị định hai phương pháp triệt tiêu lẫn"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "sec-tech-03",
+      "interviewer": "nam",
+      "positions": [
+        "security"
+      ],
+      "skills": [
+        "Authentication",
+        "Authorization",
+        "Access Control"
+      ],
+      "level": "trung_binh",
+      "question": "Sự khác biệt cốt lõi giữa xác thực và phân quyền là gì và vì sao hệ thống cần thực hiện cả hai?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Phân biệt rõ định nghĩa xác thực là kiểm tra danh tính còn phân quyền là kiểm tra quyền hạn truy cập tài nguyên.",
+          "keywords": [
+            "xác thực",
+            "authentication",
+            "định danh",
+            "là ai",
+            "phân quyền",
+            "authorization",
+            "quyền hạn",
+            "làm gì",
+            "tài nguyên"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu hệ thống chỉ có xác thực mà không có phân quyền thì rủi ro bảo mật nào sẽ xảy ra?"
+        },
+        {
+          "id": "cp2",
+          "text": "Giải thích lý do cần kết hợp cả hai để đảm bảo nguyên tắc đặc quyền tối thiểu và bảo vệ dữ liệu nhạy cảm.",
+          "keywords": [
+            "kết hợp",
+            "nguyên tắc",
+            "tối thiểu",
+            "bảo vệ",
+            "dữ liệu",
+            "toàn diện",
+            "an toàn",
+            "truy cập",
+            "rủi ro"
+          ],
+          "minHits": 1,
+          "followUp": "Làm thế nào để áp dụng nguyên tắc cấp quyền thấp nhất cho người dùng thông thường?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "p1",
+          "category": "dung",
+          "summary": "Nêu rõ xác thực trả lời câu hỏi bạn là ai, phân quyền trả lời bạn được làm gì, sau đó chứng minh việc thiếu một trong hai sẽ làm sập hệ thống bảo mật.",
+          "signals": [
+            "Phân định rạch ròi khái niệm",
+            "Lập luận logic chặt chẽ"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "p2",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von xác thực giống như vé vào cửa công viên, còn phân quyền giống như việc bạn chỉ được vào khu trò chơi nào phù hợp với vé đó.",
+          "signals": [
+            "Hình ảnh ví von trực quan",
+            "Truyền đạt dễ hiểu"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nhầm lẫn giữa token đăng nhập (JWT) với quyền hạn của người dùng bên trong hệ thống.",
+          "why": "",
+          "signals": [
+            "Đánh đồng xác thực và phân quyền là một"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "sec-tech-04",
+      "interviewer": "nam",
+      "positions": [
+        "security"
+      ],
+      "skills": [
+        "Cryptography",
+        "Hashing",
+        "Password Security"
+      ],
+      "level": "trung_binh",
+      "question": "Vì sao bạn không nên dùng mã hóa đối xứng thông thường để lưu mật khẩu người dùng mà phải dùng thuật toán băm kèm muối (Salting)?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Hiểu bản chất mã hóa đối xứng có thể giải mã ngược lại, trong khi mật khẩu cần lưu dạng băm một chiều.",
+          "keywords": [
+            "mã hóa",
+            "giải mã",
+            "đối xứng",
+            "ngược lại",
+            "băm",
+            "hashing",
+            "một chiều",
+            "mật khẩu",
+            "lưu trữ"
+          ],
+          "minHits": 1,
+          "followUp": "Điều gì xảy ra nếu kẻ tấn công lấy được khóa bí mật của thuật toán mã hóa đối xứng?"
+        },
+        {
+          "id": "cp2",
+          "text": "Giải thích vai trò của 'muối' (salt) trong việc chống lại tấn công bằng bảng cầu vồng (Rainbow Table).",
+          "keywords": [
+            "muối",
+            "salt",
+            "rainbow table",
+            "bảng cầu vồng",
+            "ngẫu nhiên",
+            "trùng lặp",
+            "tấn công",
+            "bổ sung",
+            "an toàn"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu hai người dùng đặt cùng một mật khẩu, việc dùng salt giúp khác biệt hóa kết quả băm ra sao?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "p1",
+          "category": "dung",
+          "summary": "Phân tích nhược điểm của việc mã hóa có thể giải mã, đề xuất băm một chiều và bổ sung salt để chống tra cứu bảng sẵn.",
+          "signals": [
+            "Phân biệt mã hóa và băm",
+            "Giải thích rõ tác dụng của salt"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "p2",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh mã hóa như chiếc hộp có khóa mở ra được, còn băm kèm muối như việc xay nhuyễn nguyên liệu kèm gia vị riêng không thể tách rời.",
+          "signals": [
+            "Ví dụ thực tế sáng tạo",
+            "Đúng bản chất kỹ thuật"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng băm (như MD5 hoặc SHA-256 thuần túy) là đủ an toàn để lưu mật khẩu mà không cần dùng salt hay thuật toán chuyên dụng.",
+          "why": "",
+          "signals": [
+            "Dùng hàm băm nhanh thuần túy cho mật khẩ",
+            "Bỏ qua salt"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "sec-tech-05",
+      "interviewer": "nam",
+      "positions": [
+        "security"
+      ],
+      "skills": [
+        "Xác thực và phân quyền",
+        "Bảo mật ứng dụng web"
+      ],
+      "level": "co_ban",
+      "question": "Khi thiết kế hệ thống có phân quyền, vì sao việc kiểm tra quyền phải thực hiện ở server thay vì chỉ ẩn nút giao diện người dùng?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Bảo mật phía client dễ bị vượt qua bằng cách gọi API trực tiếp",
+          "keywords": [
+            "client",
+            "frontend",
+            "api",
+            "devtools",
+            "bypass",
+            "giao diện",
+            "vượt qua",
+            "gọi trực tiếp"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu kẻ tấn công dùng Postman để gửi thẳng yêu cầu lên server thì điều gì sẽ xảy ra với nút bấm bị ẩn trên giao diện?"
+        },
+        {
+          "id": "c2",
+          "text": "Nguyên tắc tin cậy tối thiểu, server luôn phải kiểm tra lại mọi yêu cầu đến",
+          "keywords": [
+            "server",
+            "backend",
+            "tin cậy",
+            "kiểm tra",
+            "authorization",
+            "phân quyền",
+            "máy chủ",
+            "bắt buộc"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn hiểu thế nào về việc không bao giờ được tin tưởng dữ liệu hoặc yêu cầu gửi đến từ phía người dùng?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "dung",
+          "category": "dung",
+          "summary": "Trình bày rằng giao diện chỉ để hiển thị, kẻ xấu có thể dùng công cụ để gọi thẳng API nên server phải luôn xác thực và phân quyền độc lập.",
+          "signals": [
+            "Hiểu rõ client và server",
+            "Biết cách API bị gọi trực tiếp"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von việc ẩn nút như khóa cửa sổ nhưng để cửa chính mở toang; ai cũng có thể đi lối cửa chính nếu không có bảo vệ kiểm tra.",
+          "signals": [
+            "Dùng ví von dễ hiểu",
+            "Làm nổi bật tầm quan trọng của server"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "loi1",
+          "summary": "Nghĩ rằng ẩn nút trên giao diện là đủ an toàn vì người dùng bình thường không biết cách gọi API.",
+          "why": "",
+          "signals": [
+            "Quá tin tưởng vào frontend",
+            "Chưa hiểu về bảo mật API"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "sec-tech-06",
+      "interviewer": "nam",
+      "positions": [
+        "security"
+      ],
+      "skills": [
+        "Quản lý bí mật",
+        "Thực hành lập trình an toàn"
+      ],
+      "level": "co_ban",
+      "question": "Vì sao bạn không nên đưa thông tin nhạy cảm như mật khẩu cơ sở dữ liệu trực tiếp vào mã nguồn mà phải dùng biến môi trường?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Tránh lộ thông tin khi đẩy mã nguồn lên hệ thống quản lý mã nguồn công khai",
+          "keywords": [
+            "git",
+            "github",
+            "source code",
+            "mã nguồn",
+            "lộ",
+            "public",
+            "công khai",
+            "repository"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu vô tình đẩy mã nguồn lên kho chứa công khai thì điều gì xảy ra với các thông tin nhạy cảm bên trong?"
+        },
+        {
+          "id": "c2",
+          "text": "Dễ dàng thay đổi cấu hình giữa các môi trường khác nhau mà không cần sửa đổi mã nguồn",
+          "keywords": [
+            "environment",
+            "biến môi trường",
+            "development",
+            "production",
+            "cấu hình",
+            "linh hoạt",
+            "thay đổi",
+            "config"
+          ],
+          "minHits": 1,
+          "followUp": "Làm thế nào để hệ thống chạy trên máy cá nhân dùng một cơ sở dữ liệu còn lên máy chủ thật dùng cơ sở dữ liệu khác?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "dung",
+          "category": "dung",
+          "summary": "Giải thích việc tách biệt mã nguồn và cấu hình giúp tránh lộ thông tin trên Git và dễ quản lý khi đổi môi trường.",
+          "signals": [
+            "Nhắc đến quản lý mã nguồn",
+            "Hiểu lợi ích tách biệt cấu hình"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "vivon",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von mã nguồn như chiếc áo khoác, còn chìa khóa nhà (mật khẩu) không nên thêu trực tiếp lên áo vì ai nhìn thấy cũng lấy được.",
+          "signals": [
+            "Ví von trực quan",
+            "Nhấn mạnh rủi ro khi bị lộ"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "loi1",
+          "summary": "Cho rằng dự án nội bộ công ty thì để cứng trong mã nguồn cũng không sao.",
+          "why": "",
+          "signals": [
+            "Chưa có ý thức bảo mật từ cấp độ cơ bản",
+            "Chưa hình dung rủi ro rò rỉ nội bộ"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "pm-tech-01",
+      "interviewer": "nam",
+      "positions": [
+        "pm"
+      ],
+      "skills": [
+        "Stakeholder Management",
+        "Communication",
+        "Conflict Resolution"
+      ],
+      "level": "co_ban",
+      "question": "Khi hai bên liên quan chính có ý kiến trái ngược về tính năng sản phẩm, bạn xử lý thế nào để đội ngũ vẫn tiếp tục làm việc?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Lắng nghe và thu thập nhu cầu cốt lõi thay vì chỉ nghe theo yêu cầu bề nổi.",
+          "keywords": [
+            "lắng nghe",
+            "nhu cầu",
+            "core need",
+            "yêu cầu",
+            "bề nổi",
+            "thu thập",
+            "hiểu rõ",
+            "phỏng vấn"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu họ vẫn khăng khăng giữ ý kiến riêng thì bạn dựa vào đâu để quy đổi ưu tiên?"
+        },
+        {
+          "id": "cp2",
+          "text": "Dựa vào mục tiêu kinh doanh và dữ liệu sản phẩm để đưa ra quyết định khách quan.",
+          "keywords": [
+            "mục tiêu",
+            "kinh doanh",
+            "business goal",
+            "dữ liệu",
+            "data",
+            "khách quan",
+            "giá trị",
+            "value"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn có dùng cách thử nghiệm nhỏ nào để kiểm chứng trước khi quyết định lớn không?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path1",
+          "category": "dung",
+          "summary": "Ứng viên phân tích mâu thuẫn, tìm hiểu nguyên nhân gốc rễ và đối chiếu với mục tiêu sản phẩm để chọn phương án tối ưu giá trị.",
+          "signals": [
+            "Nêu được tầm quan trọng của việc lắng ng",
+            "Biết lấy mục tiêu chung làm chuẩn để giả"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path2",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von việc giải quyết xung đột như làm trọng tài bóng đá, phải nhìn vào luật chung của trận đấu thay vì cảm xúc cầu thủ.",
+          "signals": [
+            "Dùng ví dụ thực tế dễ hiểu",
+            "Giữ được nguyên tắc cốt lõi của quản ḷý"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "err1",
+          "summary": "Chọn nghe theo người có chức vụ cao hơn mà không xét đến giá trị mang lại cho người dùng.",
+          "why": "",
+          "signals": [
+            "Đổ lỗi cho cấp trên",
+            "Thiếu chính kiến dựa trên dữ liệu"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "pm-tech-02",
+      "interviewer": "nam",
+      "positions": [
+        "pm"
+      ],
+      "skills": [
+        "Scrum",
+        "Sprint Planning",
+        "Capacity Estimation"
+      ],
+      "level": "co_ban",
+      "question": "Khi lập kế hoạch cho một sprint, theo bạn vì sao đội ngũ không nên nhận quá nhiều việc so với năng lực thực tế?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Gây ra tình trạng quá tải, làm giảm chất lượng công việc và tăng tỷ lệ lỗi.",
+          "keywords": [
+            "quá tải",
+            "overload",
+            "chất lượng",
+            "quality",
+            "lỗi",
+            "bug",
+            "áp lực",
+            "kiệt sức"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu lỡ nhận quá nhiều thì hậu quả trực tiếp ngay trong sprint là gì?"
+        },
+        {
+          "id": "cp2",
+          "text": "Làm mất tính cam kết và khiến việc dự báo các sprint sau trở nên kém chính xác.",
+          "keywords": [
+            "cam kết",
+            "commitment",
+            "dự báo",
+            "forecast",
+            "chính xác",
+            "velocity",
+            "tốc độ",
+            "tin cậy"
+          ],
+          "minHits": 1,
+          "followUp": "Làm thế nào để đo lường năng lực thực tế của đội ngũ một cách chính xác hơn?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path1",
+          "category": "dung",
+          "summary": "Ứng viên phân tích mối liên hệ giữa khối lượng công việc, áp lực tâm lý và chất lượng sản phẩm bàn giao.",
+          "signals": [
+            "Hiểu rõ bản chất của Scrum về cam kết bề",
+            "Biết tính toán dựa trên năng suất thực t"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path2",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh việc nhận việc quá sức giống như bắt một chiếc xe tải chở quá trọng tải sẽ dễ hỏng giữa đường.",
+          "signals": [
+            "Sử dụng hình ảnh so sánh sinh động",
+            "Làm nổi bật rủi ro khi quá tải"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "err1",
+          "summary": "Nghĩ rằng nhận nhiều việc sẽ giúp đội ngũ cố gắng làm việc năng suất hơn.",
+          "why": "",
+          "signals": [
+            "Nhầm lẫn giữa áp lực và năng suất",
+            "Thiếu thực tế về năng lực con người"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "pm-tech-03",
+      "interviewer": "nam",
+      "positions": [
+        "pm"
+      ],
+      "skills": [
+        "Risk Management",
+        "Stakeholder Communication",
+        "Problem Solving"
+      ],
+      "level": "trung_binh",
+      "question": "Khi sản phẩm chuẩn bị ra mắt gặp rủi ro lớn về tiến độ, bạn sẽ xử lý và thông báo với các bên liên quan thế nào?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Đánh giá mức độ ảnh hưởng và đưa ra các phương án dự phòng trước khi báo cáo.",
+          "keywords": [
+            "đánh giá",
+            "ảnh hưởng",
+            "impact",
+            "phương án",
+            "dự phòng",
+            "mitigation",
+            "giải pháp",
+            "chuẩn bị"
+          ],
+          "minHits": 1,
+          "followUp": "Khi đưa ra phương án dự phòng, bạn ưu tiên cắt giảm tính năng hay kéo dài thời gian?"
+        },
+        {
+          "id": "cp2",
+          "text": "Thông báo sớm, minh bạch tình hình và giữ thái độ cầu thị, hợp tác tìm hướng giải quyết.",
+          "keywords": [
+            "thông báo",
+            "sớm",
+            "minh bạch",
+            "transparent",
+            "hợp tác",
+            "trung thực",
+            "báo cáo",
+            "trao đổi"
+          ],
+          "minHits": 1,
+          "followUp": "Làm sao để bên liên quan không quá hoảng loạn khi nghe tin trễ tiến độ?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path1",
+          "category": "dung",
+          "summary": "Ứng viên trình bày quy trình từ nhận diện rủi ro, đánh giá tác động, chuẩn bị giải pháp rồi mới trao đổi minh bạch.",
+          "signals": [
+            "Có tư duy chủ động xử lý vấn đề",
+            "Biết cách quản lý kỳ vọng của bên liên q"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path2",
+          "category": "hoi_dac_biet",
+          "summary": "Ví việc xử lý rủi ro giống như lái xe gặp sương mù, phải giảm tốc độ, bật đèn cảnh báo và tìm đường thay thế.",
+          "signals": [
+            "Phản ứng bình tĩnh trước tình huống khó",
+            "Diễn đạt dễ hiểu qua hình ảnh trực quan"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "err1",
+          "summary": "Cố giấu tình hình đến phút cuối mới báo với hy vọng tự sửa được.",
+          "why": "",
+          "signals": [
+            "Thiếu tính minh bạch",
+            "Sợ trách nhiệm khi gặp sự cố"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "pm-tech-04",
+      "interviewer": "nam",
+      "positions": [
+        "pm"
+      ],
+      "skills": [
+        "Backlog Prioritization",
+        "Product Management",
+        "Decision Making"
+      ],
+      "level": "co_ban",
+      "question": "Khi danh sách tính năng cần làm rất dài, tiêu chí nào giúp bạn quyết định tính năng nào nên được làm trước?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Dựa vào giá trị mang lại cho người dùng và mức độ tác động đến mục tiêu kinh doanh.",
+          "keywords": [
+            "giá trị",
+            "value",
+            "người dùng",
+            "user",
+            "mục tiêu",
+            "kinh doanh",
+            "business",
+            "tác động"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu hai tính năng có giá trị bằng nhau nhưng một cái làm rất nhanh, bạn chọn cái nào?"
+        },
+        {
+          "id": "cp2",
+          "text": "Cân nhắc chi phí thực hiện, độ phức tạp kỹ thuật và các yếu tố phụ thuộc lẫn nhau.",
+          "keywords": [
+            "chi phí",
+            "cost",
+            "độ phức tạp",
+            "complexity",
+            "kỹ thuật",
+            "phụ thuộc",
+            "effort",
+            "thời gian"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn biết đến mô hình ưu tiên nào thường dùng trong thực tế không?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path1",
+          "category": "dung",
+          "summary": "Ứng viên đưa ra công thức cân đối giữa giá trị thu về và nỗ lực bỏ ra để tối ưu hóa hiệu quả đầu tư.",
+          "signals": [
+            "Hiểu rõ tư duy tối ưu hóa nguồn lực",
+            "Biết cách kết hợp nhiều tiêu chí định lư"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path2",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh việc chọn tính năng giống như việc xếp hành lý vào vali nhỏ, phải chọn món đồ thiết yếu và tốn ít diện tích nhất.",
+          "signals": [
+            "Khả năng ví von gần gũi",
+            "Làm rõ bản chất sự đánh đổi trong ưu tiê"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "err1",
+          "summary": "Ưu tiên làm những tính năng mà đội ngũ kỹ thuật thích hoặc thấy dễ làm trước.",
+          "why": "",
+          "signals": [
+            "Lấy góc nhìn kỹ thuật thay vì góc nhìn n",
+            "Thiếu định hướng kinh doanh"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "pm-tech-05",
+      "interviewer": "nam",
+      "positions": [
+        "pm"
+      ],
+      "skills": [
+        "Product Metrics",
+        "Product Strategy",
+        "Value Measurement"
+      ],
+      "level": "co_ban",
+      "question": "Khi xây dựng sản phẩm, theo bạn vì sao chúng ta nên đo lường các chỉ số kết quả kinh doanh thay vì chỉ đếm số lượng tính năng đã làm được?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Số lượng tính năng không phản ánh giá trị thực tế mang lại cho người dùng và doanh nghiệp.",
+          "keywords": [
+            "tính năng",
+            "feature",
+            "giá trị",
+            "value",
+            "người dùng",
+            "user",
+            "hiệu quả",
+            "doanh thu"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn có thể lấy ví dụ về việc một tính năng làm ra rất nhiều nhưng người dùng lại không sử dụng không?"
+        },
+        {
+          "id": "c2",
+          "text": "Chỉ số kinh doanh giúp định hướng quyết định phát triển sản phẩm tiếp theo một cách chính xác hơn.",
+          "keywords": [
+            "chỉ số",
+            "metric",
+            "định hướng",
+            "quyết định",
+            "kinh doanh",
+            "business",
+            "mục tiêu",
+            "goal"
+          ],
+          "minHits": 1,
+          "followUp": "Theo bạn thì làm thế nào để chọn đúng chỉ số cần đo lường cho một sản phẩm mới?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "dung",
+          "category": "dung",
+          "summary": "Nêu rõ việc đếm tính năng chỉ đo lường khối lượng công việc, trong khi chỉ số kinh doanh đo lường giá trị thực tế và định hướng phát triển.",
+          "signals": [
+            "Phân biệt rõ ràng giữa output và outcome",
+            "Lấy ví dụ thực tế"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "hoi_dac_biet",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh việc làm nhiều tính năng giống như nấu rất nhiều món ăn nhưng không biết khách hàng có thấy ngon và chịu trả tiền hay không.",
+          "signals": [
+            "Dùng ví dụ ẩm thực dễ hiểu",
+            "Giải thích đúng trọng tâm"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "loi1",
+          "summary": "Nghĩ rằng làm được càng nhiều tính năng thì sản phẩm càng thành công.",
+          "why": "",
+          "signals": [
+            "Đồng nhất số lượng với chất lượng",
+            "Bỏ qua phản hồi thực tế của người dùng"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "pm-tech-06",
+      "interviewer": "nam",
+      "positions": [
+        "pm"
+      ],
+      "skills": [
+        "Estimation",
+        "Agile Practices",
+        "Risk Management"
+      ],
+      "level": "co_ban",
+      "question": "Khi ước lượng thời gian hoàn thành một công việc, vì sao chúng ta thường dùng dải số hoặc điểm số thay vì đưa ra một con số ngày tháng cụ thể?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "c1",
+          "text": "Bản chất công việc phần mềm luôn chứa đựng sự bất định và rủi ro khó đoán trước.",
+          "keywords": [
+            "bất định",
+            "uncertainty",
+            "rủi ro",
+            "risk",
+            "phức tạp",
+            "complexity",
+            "khó đoán"
+          ],
+          "minHits": 1,
+          "followUp": "Vì sao khi gặp việc phức tạp thì việc đoán chính xác số ngày lại càng khó hơn?"
+        },
+        {
+          "id": "c2",
+          "text": "Dùng điểm số giúp đội ngũ tập trung vào độ lớn tương đối giữa các công việc thay vì áp lực thời gian.",
+          "keywords": [
+            "độ lớn",
+            "tương đối",
+            "relative",
+            "áp lực",
+            "thời gian",
+            "time",
+            "story points",
+            "điểm"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu sếp cứ ép phải đưa ra ngày chót chính xác thì bạn sẽ giải thích thế nào?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "dung",
+          "category": "dung",
+          "summary": "Lập luận rằng công việc IT có tính rủi ro cao, việc ước lượng tương đối giúp giảm áp lực tâm lý và phản ánh đúng bản chất công việc.",
+          "signals": [
+            "Hiểu bản chất của ước lượng trong phần m",
+            "Lập luận logic"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "id": "hoi_dac_biet",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von việc đoán ngày tháng như dự báo thời tiết xa, rất dễ sai, nên việc dùng khoảng hoặc điểm số an toàn hơn.",
+          "signals": [
+            "Dùng ví dụ dự báo thời tiết",
+            "Diễn đạt sinh động"
+          ],
+          "coversCorePoints": [
+            "c1",
+            "c2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "loi1",
+          "summary": "Nhầm lẫn điểm số ước lượng với số giờ làm việc thực tế.",
+          "why": "",
+          "signals": [
+            "Đánh đồng 1 điểm bằng đúng 1 giờ",
+            "Cứng nhắc trong quy đổi"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ux-tech-01",
+      "interviewer": "nam",
+      "positions": [
+        "uiux"
+      ],
+      "skills": [
+        "Wireframe",
+        "User Flow",
+        "UI/UX Design"
+      ],
+      "level": "co_ban",
+      "question": "Khi thiết kế luồng người dùng cho một tính năng mới, vì sao bạn chọn dùng Low-fi Wireframe thay vì nhảy ngay vào High-fi Prototype?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Tập trung vào cấu trúc, bố cục và giải quyết bài toán thông tin trước khi sa đà vào chi tiết hình ảnh.",
+          "keywords": [
+            "cấu trúc",
+            "bố cục",
+            "thông tin",
+            "layout",
+            "structure",
+            "nội dung",
+            "hierarchy",
+            "định hướng"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn làm thế nào để đảm bảo người xem không bị phân tâm bởi màu sắc khi chỉ muốn góp ý về bố cục?"
+        },
+        {
+          "id": "cp2",
+          "text": "Tiết kiệm thời gian và chi phí chỉnh sửa khi thay đổi ý tưởng ở giai đoạn đầu.",
+          "keywords": [
+            "tiết kiệm",
+            "thời gian",
+            "chi phí",
+            "chỉnh sửa",
+            "thay đổi",
+            "nhanh chóng",
+            "iterative",
+            "linh hoạt"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu khách hàng yêu cầu thấy ngay màu sắc thương hiệu từ đầu, bạn sẽ giải thích với họ ra sao?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung_1",
+          "category": "dung",
+          "summary": "Trình bày lợi ích về mặt quy trình thiết kế, giải thích việc ưu tiên kiểm tra logic luồng và bố cục trước, sau đó mới đến màu sắc và hiệu ứng để tối ưu thời gian.",
+          "signals": [
+            "Nêu bật tầm quan trọng của việc kiểm tra",
+            "Hiểu rõ giá trị của việc tiết kiệm thời "
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_dacbiet_1",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von việc làm wireframe giống như vẽ bản mộc của ngôi nhà để xem phòng khách ở đâu trước khi quyết định chọn màu sơn tường.",
+          "signals": [
+            "Dùng ví dụ thực tế dễ hiểu",
+            "Liên hệ trực tiếp giữa việc xây dựng nền"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng wireframe chỉ là vẽ cho có hình thù, không quan trọng logic luồng bên trong.",
+          "why": "",
+          "signals": [
+            "Bỏ qua bước phân tích luồng",
+            "Chỉ coi trọng hình thức đẹp mắt từ đầu"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ux-tech-02",
+      "interviewer": "nam",
+      "positions": [
+        "uiux"
+      ],
+      "skills": [
+        "Collaboration",
+        "Design Handoff",
+        "Design System"
+      ],
+      "level": "trung_binh",
+      "question": "Làm thế nào để bạn và lập trình viên thống nhất cách chuyển đổi từ thiết kế giao diện sang mã nguồn mà không bị lệch?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Xây dựng và sử dụng hệ thống thiết kế chung với các thành phần tái sử dụng rõ ràng.",
+          "keywords": [
+            "hệ thống thiết kế",
+            "design system",
+            "component",
+            "thành phần",
+            "tái sử dụng",
+            "thư viện",
+            "đồng bộ",
+            "quy chuẩn"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn thường quy định các trạng thái của nút bấm như thế nào để lập trình viên dễ hình dung?"
+        },
+        {
+          "id": "cp2",
+          "text": "Giao tiếp thường xuyên, chú thích rõ ràng các khoảng cách, kích thước và trạng thái tương tác.",
+          "keywords": [
+            "giao tiếp",
+            "chú thích",
+            "khoảng cách",
+            "kích thước",
+            "trạng thái",
+            "spec",
+            "handoff",
+            "trao đổi"
+          ],
+          "minHits": 1,
+          "followUp": "Khi lập trình viên báo rằng thiết kế quá khó code hoặc tốn nhiều thời gian, bạn xử lý thế nào?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung_2",
+          "category": "dung",
+          "summary": "Nhấn mạnh việc lập tài liệu bàn giao rõ ràng, sử dụng design system và họp bàn trực tiếp để giải quyết các điểm mù kỹ thuật.",
+          "signals": [
+            "Đề cập đến design system",
+            "Nhấn mạnh tầm quan trọng của việc giao t"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_dacbiet_2",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh việc bàn giao thiết kế giống như kiến trúc sư đưa bản vẽ chi tiết cho thợ xây để không ai phải tự đoán ý nhau.",
+          "signals": [
+            "Sử dụng hình ảnh ví von trực quan",
+            "Thể hiện tinh thần đồng đội"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m2",
+          "summary": "Chỉ gửi file thiết kế mà không giải thích các trường hợp ngoại lệ hoặc trạng thái động.",
+          "why": "",
+          "signals": [
+            "Đổ lỗi cho lập trình viên khi làm sai",
+            "Thiếu tài liệu hướng dẫn chi tiết"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ux-tech-03",
+      "interviewer": "nam",
+      "positions": [
+        "uiux"
+      ],
+      "skills": [
+        "Visual Hierarchy",
+        "UI Principles",
+        "Conversion Rate"
+      ],
+      "level": "trung_binh",
+      "question": "Khi áp dụng nguyên tắc phân cấp thị giác cho một trang thanh toán, bạn sẽ làm nổi bật thành phần nào và vì sao?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Làm nổi bật nút hành động chính như nút xác nhận thanh toán thông qua kích thước hoặc màu sắc tương phản.",
+          "keywords": [
+            "nút",
+            "thanh toán",
+            "xác nhận",
+            "cta",
+            "tương phản",
+            "kích thước",
+            "màu sắc",
+            "nổi bật"
+          ],
+          "minHits": 1,
+          "followUp": "Làm sao để người dùng không bấm nhầm vào nút hủy thay vì nút thanh toán?"
+        },
+        {
+          "id": "cp2",
+          "text": "Sắp xếp thông tin theo thứ tự ưu tiên từ tổng giá tiền, chi tiết đơn hàng đến các phương thức thanh toán.",
+          "keywords": [
+            "thứ tự",
+            "ưu tiên",
+            "giá tiền",
+            "thông tin",
+            "chi tiết",
+            "sắp xếp",
+            "hierarchy",
+            "logic"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu có quá nhiều thông tin cần hiển thị trên màn hình nhỏ, bạn sẽ ẩn bớt phần nào?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung_3",
+          "category": "dung",
+          "summary": "Phân tích hành vi người dùng trên trang thanh toán, xác định mục tiêu chuyển đổi để định vị và định dạng trực quan cho nút kêu gọi hành động.",
+          "signals": [
+            "Hiểu rõ mục tiêu kinh doanh của trang th",
+            "Biết cách dùng thị giác dẫn dắt hành vi"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_dacbiet_3",
+          "category": "hoi_dac_biet",
+          "summary": "Ví von việc sắp xếp thị giác giống như việc đạo diễn hướng ánh đèn sân khấu vào nhân vật chính để khán giả không bị phân tâm.",
+          "signals": [
+            "Dùng phép ẩn dụ sân khấu mượt mà",
+            "Làm nổi bật được trọng tâm bài toán"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m3",
+          "summary": "Làm mọi thứ đều nổi bật khiến người dùng bị rối trí và không biết nên bấm vào đâu.",
+          "why": "",
+          "signals": [
+            "Sử dụng quá nhiều màu sắc rực rỡ",
+            "Không có điểm nhấn rõ ràng"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ux-tech-04",
+      "interviewer": "nam",
+      "positions": [
+        "uiux"
+      ],
+      "skills": [
+        "Usability Testing",
+        "User Research",
+        "Problem Solving"
+      ],
+      "level": "co_ban",
+      "question": "Khi bạn quan sát người dùng gặp khó khăn ở một bước trong bài kiểm tra khả dụng, bạn sẽ kết luận ngay là thiết kế tồi hay cần tìm hiểu thêm điều gì?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Không kết luận vội mà phải tìm hiểu nguyên nhân gốc rễ thông qua việc đặt câu hỏi phỏng vấn sau test.",
+          "keywords": [
+            "nguyên nhân",
+            "gốc rễ",
+            "phỏng vấn",
+            "tìm hiểu",
+            "đặt câu hỏi",
+            "lý do",
+            "đào sâu",
+            "context"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn sẽ hỏi người dùng câu hỏi gì để biết họ hiểu nhầm ở điểm nào mà không mang tính định hướng?"
+        },
+        {
+          "id": "cp2",
+          "text": "Xem xét lại ngữ cảnh, hướng dẫn đề bài hoặc thói quen của người dùng thay vì chỉ đổi giao diện.",
+          "keywords": [
+            "ngữ cảnh",
+            "hướng dẫn",
+            "thói quen",
+            "đề bài",
+            "khách quan",
+            "phân tích",
+            "hành vi",
+            "data"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu chỉ có một người gặp lỗi này trong số năm người test, bạn có sửa thiết kế ngay không?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path_dung_4",
+          "category": "dung",
+          "summary": "Giải thích quy trình phân tích kết quả kiểm tra khả dụng, tách bạch giữa lỗi do thiết kế hay do hiểu lầm tình huống thử nghiệm.",
+          "signals": [
+            "Giữ thái độ khách quan khi đánh giá",
+            "Hiểu cách phân tích dữ liệu định tính"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "path_dacbiet_4",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh việc này như bác sĩ chuẩn đoán bệnh, không thể thấy bệnh nhân nhăn mặt là cắt ngay bộ phận đó mà phải xét nghiệm kỹ.",
+          "signals": [
+            "Dùng ví dụ y tế sinh động",
+            "Nhấn mạnh việc tìm đúng bệnh mới chữa đú"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m4",
+          "summary": "Đổ lỗi cho người dùng 'ngu ngốc' hoặc tự ý thay đổi thiết kế ngay lập tức dựa trên cảm tính cá nhân.",
+          "why": "",
+          "signals": [
+            "Quy chụp lỗi cho người dùng",
+            "Thiếu tư duy phân tích dữ liệu nghiên cứ"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ux-tech-05",
+      "interviewer": "nam",
+      "positions": [
+        "uiux"
+      ],
+      "skills": [
+        "User Flow",
+        "Interaction Design"
+      ],
+      "level": "co_ban",
+      "question": "Khi thiết kế một luồng người dùng cho tính năng đăng ký tài khoản, vì sao bạn lại chọn chia nhỏ thành nhiều bước thay vì gom tất cả vào một màn hình?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Chia nhỏ giúp giảm tải nhận thức và làm người dùng cảm thấy quá trình đơn giản, nhanh chóng hơn.",
+          "keywords": [
+            "tải nhận thức",
+            "cognitive load",
+            "đơn giản",
+            "ngập tràn",
+            "quá tải",
+            "dễ nhìn",
+            "giảm bớt"
+          ],
+          "minHits": 1,
+          "followUp": "Nếu một trang có quá nhiều thông tin thì người dùng thường có xu hướng phản ứng thế nào?"
+        },
+        {
+          "id": "cp2",
+          "text": "Tăng tỷ lệ hoàn thành biểu mẫu và giúp hệ thống dễ dàng thu thập, định hướng lỗi theo từng bước.",
+          "keywords": [
+            "tỷ lệ hoàn thành",
+            "conversion rate",
+            "thu thập dữ liệu",
+            "báo lỗi",
+            "kiểm tra lỗi",
+            "validation"
+          ],
+          "minHits": 1,
+          "followUp": "Làm thế nào để bạn biết việc chia thành các bước thực sự hiệu quả hơn là gộp lại?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "dung",
+          "category": "dung",
+          "summary": "Ứng viên giải thích dựa trên tâm lý học hành vi, nhận thức của người dùng và các chỉ số chuyển đổi.",
+          "signals": [
+            "Nhắc đến tải nhận thức",
+            "Nói về tỷ lệ hoàn thành"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "hoi_dac_biet",
+          "category": "hoi_dac_biet",
+          "summary": "Ứng viên ví von việc điền form giống như leo núi được chia thành các trạm dừng chân nhỏ.",
+          "signals": [
+            "Dùng ví dụ thực tế",
+            "Giải thích sinh động"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Nghĩ rằng nhiều bước lúc nào cũng tốt hơn mà không cân nhắc độ dài thực tế của tính năng.",
+          "why": "",
+          "signals": [
+            "Áp dụng máy móc một chiều"
+          ]
+        }
+      ],
+      "samples": []
+    },
+    {
+      "id": "ux-tech-06",
+      "interviewer": "nam",
+      "positions": [
+        "uiux"
+      ],
+      "skills": [
+        "User Research",
+        "Interviews"
+      ],
+      "level": "co_ban",
+      "question": "Khi thực hiện phỏng vấn sâu với người dùng, làm thế nào để bạn tránh việc vô tình đặt câu hỏi dẫn dắt làm sai lệch câu trả lời của họ?",
+      "isIntro": false,
+      "minCorePoints": 2,
+      "corePoints": [
+        {
+          "id": "cp1",
+          "text": "Sử dụng câu hỏi mở thay vì câu hỏi đóng hoặc câu hỏi có sẵn đáp án mong đợi.",
+          "keywords": [
+            "câu hỏi mở",
+            "open-ended questions",
+            "không dẫn dắt",
+            "khách quan",
+            "hỏi mở",
+            "để họ tự nói"
+          ],
+          "minHits": 1,
+          "followUp": "Bạn có thể cho một ví dụ cụ thể về câu hỏi dẫn dắt cần tránh không?"
+        },
+        {
+          "id": "cp2",
+          "text": "Lắng nghe hành vi thực tế trong quá khứ thay vì hỏi ý kiến dự đoán về tương lai.",
+          "keywords": [
+            "hành vi thực tế",
+            "quá khứ",
+            "trải nghiệm trước đây",
+            "thực tế đã làm",
+            "hành động thật"
+          ],
+          "minHits": 1,
+          "followUp": "Vì sao người dùng thường hay trả lời sai khi được hỏi về những việc họ sẽ làm trong tương lai?"
+        }
+      ],
+      "paths": [
+        {
+          "id": "dung",
+          "category": "dung",
+          "summary": "Trình bày rõ phương pháp đặt câu hỏi khách quan và cách khai thác hành vi thực tế.",
+          "signals": [
+            "Nhấn mạnh tính khách quan",
+            "Phân biệt câu hỏi mở và đóng"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        },
+        {
+          "id": "hoi_dac_biet",
+          "category": "hoi_dac_biet",
+          "summary": "So sánh việc phỏng vấn giống như thám tử thu thập chứng cứ thực tế thay vì nghe lời đồn.",
+          "signals": [
+            "Dùng hình ảnh so sánh thú vị"
+          ],
+          "coversCorePoints": [
+            "cp1",
+            "cp2"
+          ]
+        }
+      ],
+      "mistakes": [
+        {
+          "id": "m1",
+          "summary": "Hỏi những câu mang tính gợi ý như 'Bạn có thích tính năng này tuyệt vời không?'.",
+          "why": "",
+          "signals": [
+            "Thiếu khách quan trong nghiên cứu"
+          ]
+        }
+      ],
+      "samples": []
+    }
+  ]
+}

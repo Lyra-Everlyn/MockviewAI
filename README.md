@@ -192,20 +192,26 @@ Gemini__ThinkingLevel=low # (minimal / low / medium / high)
 # --- AI Interview (Gemini) - option
 Interviewer__Enabled=true # false = available question only
 Interviewer__Model=gemini-3.5-flash-lite
+Interviewer__FallbackModel=gemini-3.1-flash-lite # tried when Model returns 429/5xx (own per-model quota); empty = off
 Interviewer__ThinkingLevel=minimal
 Interviewer__TimeoutSeconds=8
 Interviewer__CvContextHours=6
 
-# --- Questions from CV (Gemini writes, Groq reviews) - option
+# --- Questions from CV + IT roles (Gemini writes, Groq reviews) - option
 # Uses the existing Gemini__ApiKeys__N and Groq__ApiKeys__N (no new keys). Enabled=false = question bank only.
 CvQuestions__Enabled=true
 CvQuestions__MaxQuestions=2 # bank questions replaced by CV questions (clamped 0-3)
 CvQuestions__GeneratorModel=gemini-3.5-flash-lite # empty = Gemini__Model (gemini-3.6-flash is too slow: 57-89s)
+CvQuestions__GeneratorFallbackModels__0=gemini-3.1-flash-lite # backup models tried in order when the generator is overloaded (503/429); setting __0, __1... replaces the default list
 CvQuestions__ThinkingLevel=minimal
 CvQuestions__ReviewerModel=qwen/qwen3.8-27b # must exist in the Groq console (llama-3.3-70b-versatile is not available)
-CvQuestions__ReviewerFallbackModel=openai/gpt-oss-20b # used when the main reviewer hits the Groq rate limit (429); empty = none
-CvQuestions__TimeoutSeconds=25 # total time to write + review + fix (clamped 10-45)
+CvQuestions__ReviewerFallbackModels__0=openai/gpt-oss-20b # backup reviewers tried in order on Groq limit (413/429), removed model (404) or overload; each model has its own free quota
+CvQuestions__ReviewerFallbackModels__1=openai/gpt-oss-120b # setting __0, __1... replaces the default list; __0 empty = no backup
+CvQuestions__TimeoutSeconds=30 # total time to write + review + fix (clamped 10-45)
 CvQuestions__MaxFixRounds=1 # clamped 0-1
+CvQuestions__MaxRoleQuestions=4 # IT roles without bank questions (DevOps, Data, Game...): technical questions written by AI (clamped 0-6)
+CvQuestions__RoleSuggestTimeoutSeconds=6 # AI suggests the IT role from the CV; slower -> keyword guess (clamped 2-15)
+CvQuestions__ReviewerCooldownSeconds=60 # reviewer model that hits its limit (413/429) is skipped this long (Groq retry-after if shorter); all paused -> skip generation, use question bank (0-600, 0 = off)
 
 # --- Gemini API
 Gemini__ApiKeys__0=
@@ -226,6 +232,7 @@ Groq__ApiKeys__5=
 # --- Speech Settings - option
 Speech__WhisperModel=whisper-large-v3
 Speech__WhisperFallbackModel=
+Speech__WhisperBusyFallbackModel=whisper-large-v3-turbo # used when the main Whisper model returns 429/5xx (own Groq quota); empty = off
 Speech__Language=auto
 Speech__AllowedLanguages=vi,en
 Speech__FallbackLanguage=vi
@@ -239,7 +246,7 @@ Speech__WhisperStylePrompt="Dạ, em làm backend với C#, .NET Core, Docker, R
 
 Speech__NormalizeTranscript=true
 Speech__NormalizerModel=gemini-3.5-flash-lite
-Speech__NormalizerFallbackModel=
+Speech__NormalizerFallbackModel=gemini-3.1-flash-lite # recommended; empty = Gemini__Model (gemini-3.6-flash), which then competes with scoring for the same per-model quota
 Speech__NormalizerThinkingLevel=minimal
 Speech__NormalizeAttemptTimeoutSeconds=8
 Speech__NormalizeTimeoutSeconds=14
@@ -279,7 +286,7 @@ Every setting below has a default in code / `appsettings.json`; set the environm
 | Prefix | Purpose | Main keys (default) |
 |---|---|---|
 | `Speech__` | Whisper + transcript normalisation | `WhisperModel` (`whisper-large-v3`), `Language` (`auto`; production compose uses `vi`), `AllowedLanguages` (`vi,en`), `FallbackLanguage` (`vi`), `NormalizeTranscript` (`true`), `NormalizerModel` (`gemini-3.5-flash-lite`), `MaxAudioBytes` (10 MB) |
-| `Interviewer__` | AI interviewer reaction + follow-up | `Enabled` (`true`), `Model` (`gemini-3.5-flash-lite`), `TimeoutSeconds` (`8`), `CvContextHours` (`6`) |
+| `Interviewer__` | AI interviewer reaction + follow-up | `Enabled` (`true`), `Model` (`gemini-3.5-flash-lite`), `FallbackModel` (`gemini-3.1-flash-lite`), `TimeoutSeconds` (`8`), `CvContextHours` (`6`) |
 | `Cv__` | CV upload and parsing | `MaxFileBytes` (10 MB), `MaxPages` (`6`), `PendingMinutes` (`30`), `MaxCvsPerUser` (`3`), `BrowserKeepDays` (`30`) |
 | `Security__` | Login lockout | `MaxFailedLogins` (`5`), `LockoutMinutes` (`15`) |
 | `DataProtection__KeysPath` | Persist cookie / anti-forgery keys | unset locally; `/app/keys` in production |

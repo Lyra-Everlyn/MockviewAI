@@ -60,6 +60,12 @@
     let scoreFailures = 0;
     let hintTimer = null;
 
+    // Gemini hết lượt / quá tải khi chấm: tự chấm lại sau số giây này (+ ngẫu nhiên 0–10 giây để cả lớp không chấm lại cùng lúc).
+    // Hạn mức phút của Gemini hồi trong khoảng 1 phút (đo 28/11). Hết 3 lần thì hiện nút như cũ.
+    const AUTO_RESCORE_DELAYS = [20, 35, 50];
+    let autoRescoreCount = 0;
+    let autoRescoreTimer = null;
+
     const isOpera = /OPR\/|Opera/i.test(navigator.userAgent);
     const OPERA_WARNING = 'Bạn đang dùng Opera: trình duyệt này thường KHÔNG hiện chữ trực tiếp khi bạn nói. ' +
         'Bạn vẫn có thể nói bình thường, chữ sẽ hiện sau khi bấm "Dừng nói". Để thấy chữ ngay khi nói, hãy dùng Chrome hoặc Edge.';
@@ -859,6 +865,7 @@
     /// lỗi cấu hình thì chấm lại vô ích nên chỉ cho xem kết quả sơ bộ.
     /// </summary>
     async function finishSession(fallback) {
+        cancelAutoRescore();
         finishing = true;
         if (isLive) { liveStopClock(); livePhase = 'idle'; if (liveTimer) liveTimer.hidden = true; }
         if (isListening) { cancelRecording(); stopListening(); }
@@ -880,6 +887,11 @@
             scoreFailures++;
             let text = error.message;
             const configError = !!(error.body && error.body.configError);
+            const retryable = !fallback && !configError && !!(error.body && error.body.retryable);
+            if (retryable && autoRescoreCount < AUTO_RESCORE_DELAYS.length) {
+                scheduleAutoRescore();
+                return;
+            }
             btnRetryScore.hidden = configError;
             btnFallbackScore.hidden = false;
             text += configError
@@ -887,6 +899,28 @@
                 : (scoreFailures >= 2 ? ' AI vẫn chưa phản hồi.' : '') + ' Bạn có thể chấm lại bằng AI, hoặc xem kết quả ngay (chấm sơ bộ, không cần AI).';
             showMessage(text, 'error');
         }
+    }
+
+    /// <summary>
+    /// Đếm ngược rồi tự chấm lại bằng AI. Trong lúc chờ vẫn bấm được "Chấm lại" (ngay) hoặc "Xem kết quả ngay" (chấm sơ bộ).
+    /// Ưu tiên AI vì chấm từ khoá dễ chấm oan câu tự diễn đạt (đo 28/11: 0/5 câu đúng tự diễn đạt được nhận ra).
+    /// </summary>
+    function scheduleAutoRescore() {
+        let left = AUTO_RESCORE_DELAYS[autoRescoreCount++] + Math.floor(Math.random() * 11);
+        btnRetryScore.hidden = false;
+        btnFallbackScore.hidden = false;
+        const tick = function () {
+            showMessage('AI đang bận vì nhiều người chấm cùng lúc. Tự chấm lại bằng AI sau ' + left + ' giây (lần '
+                + autoRescoreCount + '/' + AUTO_RESCORE_DELAYS.length + '). Bạn có thể chờ, bấm "Chấm lại" ngay, hoặc xem kết quả sơ bộ.', 'error');
+            if (left-- <= 0) finishSession(false);
+        };
+        tick();
+        autoRescoreTimer = setInterval(tick, 1000);
+    }
+
+    function cancelAutoRescore() {
+        if (autoRescoreTimer) clearInterval(autoRescoreTimer);
+        autoRescoreTimer = null;
     }
 
     btnRetryScore.addEventListener('click', () => finishSession(false));
